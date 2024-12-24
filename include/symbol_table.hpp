@@ -17,6 +17,8 @@ class SymbolTable{
 
         void clearSymbols();
 
+        void printSymbolTable();
+
     private:
 
         std::unordered_map<std::string, Symbol> symbolTable = std::unordered_map<std::string,Symbol>();

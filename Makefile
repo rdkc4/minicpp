@@ -3,7 +3,7 @@ CXX = g++
 CXXFLAGS = -std=c++20 -Wall -Wextra -Werror -g
 
 # Source files
-SRCS = main.cpp src/lexer.cpp src/parser.cpp src/symbol.cpp src/symbol_table.cpp
+SRCS = main.cpp src/lexer.cpp src/parser.cpp src/symbol.cpp src/symbol_table.cpp src/scope_manager.cpp
 
 # Object files (derived from the source files)
 OBJS = $(SRCS:.cpp=.o)

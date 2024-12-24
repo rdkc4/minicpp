@@ -2,15 +2,17 @@
 #define PARSER_HPP
 
 #include "lexer.hpp"
+#include "scope_manager.hpp"
 
 class Parser {
 public:
-    Parser(Lexer& lexer);
+    Parser(Lexer& lexer, ScopeManager& scopeManager);
     
     void parseProgram();
 
 private:
     Lexer& lexer;
+    ScopeManager& scopeManager;
     Token currentToken;
 
     void eat(TokenType type);

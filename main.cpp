@@ -15,7 +15,9 @@ int main(){
     }
     std::string input = std::string(std::istreambuf_iterator<char>(file), {});
     Lexer lexer(input);
-    Parser parser(lexer);
+    SymbolTable symbolTable;
+    ScopeManager scopeManager(symbolTable);
+    Parser parser(lexer, scopeManager);
 
     try {
         parser.parseProgram();

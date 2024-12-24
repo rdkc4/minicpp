@@ -7,9 +7,9 @@ enum class TokenType{_ID, _LITERAL, _AROP, _RELOP, _LPAREN, _RPAREN, _LBRACKET, 
     _ASSIGN, _TYPE, _IF, _ELSE, _RETURN, _COMMA, _EOF, _INVALID
 };
 
-enum class Types{INT, UNSIGNED, VOID, UNKNOWN};
+enum class Types{INT, UNSIGNED, VOID, NO_TYPE};
 
-enum class Kinds{NO_KIND = 0x1, REG = 0x2, LIT = 0x4, FUN = 0x8, VAR = 0x10, PAR = 0x20, UNKNOWN};
+enum class Kinds{NO_KIND = 0x1, REG = 0x2, LIT = 0x4, FUN = 0x8, VAR = 0x10, PAR = 0x20};
 
 enum class ArithmeticOperators{ADD, SUB, MUL, DIV, AROP_NUMBER};
 

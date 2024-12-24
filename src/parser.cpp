@@ -1,6 +1,6 @@
 #include "../include/parser.hpp"
 
-Parser::Parser(Lexer& lexer) : lexer(lexer), currentToken(lexer.nextToken()) {}
+Parser::Parser(Lexer& lexer, ScopeManager& scopeManager) : lexer(lexer), scopeManager(scopeManager), currentToken(lexer.nextToken()) {}
 
 void Parser::parseProgram(){
     functionList();

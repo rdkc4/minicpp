@@ -7,7 +7,7 @@
 
 class Symbol{
     public:
-        Symbol(std::string& name, Kinds kind, Types type, unsigned atr1, unsigned atr2);
+        Symbol(std::string& name, Kinds kind = Kinds::NO_KIND, Types type = Types::NO_TYPE, unsigned atr1 = 0, unsigned atr2 = 0);
 
         std::string getName() const;
         Kinds getKind() const;
@@ -20,6 +20,10 @@ class Symbol{
         void setType(const Types& _type);
         void setAtribute1(const unsigned atr1);
         void setAtribute2(const unsigned atr2);
+
+        std::string kindToString(Kinds kind);
+        std::string typeToString(Types type);
+        std::string symbolToString();
 
     private:
         std::string name;

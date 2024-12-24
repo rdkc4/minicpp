@@ -27,3 +27,9 @@ void SymbolTable::deleteSymbol(const std::string& name){
 void SymbolTable::clearSymbols(){
     symbolTable.clear();
 }
+
+void SymbolTable::printSymbolTable(){
+    for(auto it = symbolTable.begin(); it != symbolTable.end(); it++){
+        std::cout << it->second.symbolToString();
+    }
+}
