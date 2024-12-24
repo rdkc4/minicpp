@@ -12,7 +12,7 @@ int foo(int x, int y){
     } 
     if(a>b){
         if(a>b+5){
-            return x;
+            return;
         }
         else{
             return a;

@@ -1,12 +1,34 @@
 #include "../include/parser.hpp"
 
-Parser::Parser(Lexer& lexer, ScopeManager& scopeManager) : lexer(lexer), scopeManager(scopeManager), currentToken(lexer.nextToken()) {}
+Parser::Parser(Lexer& lexer, ScopeManager& scopeManager) : lexer(lexer), scopeManager(scopeManager), currentToken(lexer.nextToken()) {
+    returnType = Types::NO_TYPE;
+}
+
+Types Parser::getType(Token token){
+    if(token.value == "int"){
+        return Types::INT;
+    }
+    else if(token.value == "unsigned"){
+        return Types::UNSIGNED;
+    }
+    else if(token.value == "void"){
+        return Types::VOID;
+    }
+    else{
+        return Types::NO_TYPE;
+    }
+}
 
 void Parser::parseProgram(){
+    scopeManager.pushScope();
+    
     functionList();
     if(currentToken.type != TokenType::_EOF){
         throw std::runtime_error("Line x: SYNTAX ERROR near: " + currentToken.value);
     }
+    
+    //scopeManager.printSymbolTable();
+    scopeManager.popScope();
 }
 
 void Parser::eat(TokenType type){
@@ -25,18 +47,32 @@ void Parser::functionList(){
 }
 
 void Parser::function(){
+    returnType = getType(currentToken);
     eat(TokenType::_TYPE);
+    std::string name = currentToken.value;
     eat(TokenType::_ID);
+    
+    scopeManager.pushSymbol(Symbol(name, Kinds::FUN, returnType));
+    scopeManager.pushScope();
+    
     eat(TokenType::_LPAREN);
     parameter();
     eat(TokenType::_RPAREN);
     body();
+    
+    //scopeManager.printSymbolTable();
+    scopeManager.popScope();
 }
 
 void Parser::parameter(){
     while(currentToken.type == TokenType::_TYPE){
-        eat(TokenType::_TYPE);  
+        Types type = getType(currentToken);
+        eat(TokenType::_TYPE);
+        std::string name = currentToken.value;
         eat(TokenType::_ID);
+        
+        scopeManager.pushSymbol(Symbol(name, Kinds::PAR, type));
+        
         if(currentToken.type == TokenType::_COMMA && lexer.peekAtNext().type == TokenType::_TYPE){
             eat(TokenType::_COMMA);
         }
@@ -57,9 +93,13 @@ void Parser::variableList(){
 }
 
 void Parser::variable(){
+    Types type = getType(currentToken);
     eat(TokenType::_TYPE);
+    std::string name = currentToken.value;
     eat(TokenType::_ID);
     eat(TokenType::_SEMICOLON);
+
+    scopeManager.pushSymbol(Symbol(name, Kinds::VAR, type));
 }
 
 void Parser::statementList(){
@@ -87,9 +127,13 @@ void Parser::statement(){
 }
 
 void Parser::compoundStatement(){
+    scopeManager.pushScope();
+    
     eat(TokenType::_LBRACKET);
     statementList();
     eat(TokenType::_RBRACKET);
+    
+    scopeManager.popScope();
 }
 
 void Parser::assignmentStatement(){
@@ -125,11 +169,13 @@ void Parser::ifStatement(){
     eat(TokenType::_LPAREN);
     relationalExpression();
     eat(TokenType::_RPAREN);
+    scopeManager.pushScope();
     statement();
     if(currentToken.type == TokenType::_ELSE){
         eat(TokenType::_ELSE);
         statement();
     }
+    scopeManager.popScope();
 }
 
 void Parser::numericalExpression(){
@@ -148,6 +194,8 @@ void Parser::numericalExpression(){
 
 bool Parser::expression(){
     if(currentToken.type == TokenType::_LITERAL){
+        scopeManager.pushSymbol(Symbol(currentToken.value, Kinds::LIT, Types::INT));
+        
         eat(TokenType::_LITERAL);
         return true;
     }

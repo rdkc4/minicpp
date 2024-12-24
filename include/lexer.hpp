@@ -56,26 +56,6 @@ class Lexer{
             {"/", ArithmeticOperators::DIV}
         };
 
-        const std::unordered_map<TokenType, std::string> tokenTypeToString = {
-            {TokenType::_ID, "ID"},
-            {TokenType::_LITERAL, "LITERAL"},
-            {TokenType::_AROP, "AROP"},
-            {TokenType::_RELOP, "RELOP"},
-            {TokenType::_LPAREN, "LPAREN"},
-            {TokenType::_RPAREN, "RPAREN"},
-            {TokenType::_LBRACKET, "LBRACKET"},
-            {TokenType::_RBRACKET, "RBRACKET"},
-            {TokenType::_SEMICOLON, "SEMICOLON"},
-            {TokenType::_ASSIGN, "ASSIGN"},
-            {TokenType::_TYPE, "TYPE"},
-            {TokenType::_IF, "IF"},
-            {TokenType::_ELSE, "ELSE"},
-            {TokenType::_RETURN, "RETURN"},
-            {TokenType::_COMMA, "COMMA"},
-            {TokenType::_EOF, "EOF"},
-            {TokenType::_INVALID, "INVALID"}
-        };
-
         std::string getID();
 
         std::string getLiteral();

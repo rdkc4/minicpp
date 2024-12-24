@@ -15,6 +15,10 @@ private:
     ScopeManager& scopeManager;
     Token currentToken;
 
+    Types returnType;
+
+    Types getType(Token token);
+
     void eat(TokenType type);
 
     void functionList();

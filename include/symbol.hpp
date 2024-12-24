@@ -21,8 +21,6 @@ class Symbol{
         void setAtribute1(const unsigned atr1);
         void setAtribute2(const unsigned atr2);
 
-        std::string kindToString(Kinds kind);
-        std::string typeToString(Types type);
         std::string symbolToString();
 
     private:

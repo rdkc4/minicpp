@@ -25,4 +25,5 @@ bool ScopeManager::pushSymbol(const Symbol& symbol){
 
 void ScopeManager::printSymbolTable(){
     symbolTable.printSymbolTable();
+    std::cout << std::string(20,'-') << "\n";
 }

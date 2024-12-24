@@ -65,7 +65,7 @@ void Lexer::tokenize(){
                 }
             }
             tokens.push_back(Token(TokenType::_EOF, ""));
-            printTokens(tokens);
+            //printTokens(tokens);
 }
 
 Token Lexer::nextToken(){
