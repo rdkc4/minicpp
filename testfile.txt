@@ -1,0 +1,31 @@
+int foo(int x, int y){ 
+    int a; 
+    int b; 
+    a = x + 5 + (a+b); 
+    b = 5; 
+    { 
+        a = b; 
+        b = c; 
+        c = 5; 
+        d = bar(x);
+        f = bar(x+3, 5, 1);
+    } 
+    if(a>b){
+        if(a>b+5){
+            return x;
+        }
+        else{
+            return a;
+        }
+        if(a<b)
+            return 1;
+    } 
+    else{ 
+        return y;
+    } 
+} 
+
+int bar() { 
+    int c; 
+    return 5;
+}
