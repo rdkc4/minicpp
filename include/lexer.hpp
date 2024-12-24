@@ -1,3 +1,6 @@
+#ifndef LEXER_HPP
+#define LEXER_HPP
+
 #include <iostream>
 #include <unordered_map>
 #include <vector>
@@ -86,3 +89,5 @@ class Lexer{
         std::string getRelOperator();
 
 };
+
+#endif

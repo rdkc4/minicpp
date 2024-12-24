@@ -1,6 +1,8 @@
 #include <iostream>
 #include <fstream>
 
+#include "include/defs.hpp"
+#include "include/symbol_table.hpp"
 #include "include/parser.hpp"
 
 
@@ -16,7 +18,7 @@ int main(){
     Parser parser(lexer);
 
     try {
-        parser.parseProgram();  // Start parsing the program
+        parser.parseProgram();
         std::cout << "Program parsed successfully!" << std::endl;
     } catch (const std::exception& e) {
         std::cerr << "Error: " << e.what() << std::endl;

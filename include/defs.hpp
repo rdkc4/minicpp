@@ -1,3 +1,6 @@
+#ifndef DEFS_HPP
+#define DEFS_HPP
+
 #include <iostream>
 
 enum class TokenType{_ID, _LITERAL, _AROP, _RELOP, _LPAREN, _RPAREN, _LBRACKET, _RBRACKET, _SEMICOLON,
@@ -19,8 +22,4 @@ struct Token{
     Token(TokenType type, const std::string& value): type(type), value(value){}
 };
 
-struct TokenTypeHash {
-    std::size_t operator()(TokenType type) const noexcept {
-        return static_cast<std::size_t>(type);
-    }
-};
+#endif
