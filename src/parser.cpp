@@ -218,17 +218,17 @@ std::shared_ptr<ASTree> Parser::ifStatement(){
 }
 
 std::shared_ptr<ASTree> Parser::numericalExpression(){
-    auto currentNode = std::make_shared<ASTree>(ASTNodeType::NUMERICAL_EXPRESSION, Token("numexp", currentToken.line, currentToken.column));
     auto child = expression();
     
     if(currentToken.type != TokenType::_AROP){
-        currentNode->pushChild(child);
-        return currentNode;
+        return child;
     }
-    auto tempNode = currentNode; //tempNode->pushChild(child);
+
+    auto currentNode = std::make_shared<ASTree>(ASTNodeType::NUMERICAL_EXPRESSION, Token("dummyNode", currentToken.line, currentToken.column));
+    auto tempNode = currentNode;
 
     while(currentToken.type == TokenType::_AROP){
-        tempNode->pushChild(std::make_shared<ASTree>(ASTNodeType::NUMERICAL_EXPRESSION, Token(currentToken.value, currentToken.line, currentToken.column)));
+        tempNode->pushChild(std::make_shared<ASTree>(ASTNodeType::NUMERICAL_EXPRESSION, Token(currentToken)));
         tempNode = tempNode->getChildren().back();
         tempNode->pushChild(child);
         eat(TokenType::_AROP);
@@ -237,32 +237,30 @@ std::shared_ptr<ASTree> Parser::numericalExpression(){
             tempNode->pushChild(child);
         }
     }
-    return currentNode;
+    
+    return currentNode->getChildren().back();
 }
 
 std::shared_ptr<ASTree> Parser::expression(){
-    auto currentNode = std::make_shared<ASTree>(ASTNodeType::EXPRESSION, Token("expr", currentToken.line, currentToken.column));
     if(currentToken.type == TokenType::_LITERAL){
         scopeManager.pushSymbol(Symbol(currentToken.value, Kinds::LIT, Types::INT));
-        currentNode->pushChild(std::make_shared<ASTree>(ASTNodeType::LITERAL, currentToken));
-
+        auto token = currentToken;
         eat(TokenType::_LITERAL);
-        return currentNode;
+        return std::make_shared<ASTree>(ASTNodeType::LITERAL, token);
     }
     else if(currentToken.type == TokenType::_ID && lexer.peekAtNext().type == TokenType::_LPAREN){
-        currentNode->pushChild(functionCall());
-        return currentNode;
+        return functionCall();
     }
     else if(currentToken.type == TokenType::_ID){
-        currentNode->pushChild(std::make_shared<ASTree>(ASTNodeType::ID, currentToken));
+        auto token = currentToken;
         eat(TokenType::_ID);
-        return currentNode;
+        return std::make_shared<ASTree>(ASTNodeType::ID, token);
     }
     else if(currentToken.type == TokenType::_LPAREN){
         eat(TokenType::_LPAREN);
-        currentNode->pushChild(numericalExpression());
+        auto node = numericalExpression();
         eat(TokenType::_RPAREN);
-        return currentNode;
+        return node;
     }
     throw std::runtime_error("Line " + std::to_string(currentToken.line) + ", Column " + std::to_string(currentToken.column) 
         + " -> SYNTAX ERROR near: " + currentToken.value);
