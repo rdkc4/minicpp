@@ -205,12 +205,13 @@ std::shared_ptr<ASTree> Parser::ifStatement(){
     eat(TokenType::_IF);
     eat(TokenType::_LPAREN);
     currentNode->pushChild(relationalExpression());
+    auto nextNode = currentNode->getChildren().back();
     eat(TokenType::_RPAREN);
     scopeManager.pushScope();
-    statement();
+    nextNode->pushChild(statement());
     if(currentToken.type == TokenType::_ELSE){
         eat(TokenType::_ELSE);
-        currentNode->pushChild(statement());
+        nextNode->pushChild(statement());
     }
     scopeManager.popScope();
     return currentNode;
