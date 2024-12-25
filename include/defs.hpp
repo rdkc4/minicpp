@@ -5,7 +5,7 @@
 #include <unordered_map>
 
 enum class TokenType{_ID, _LITERAL, _AROP, _RELOP, _LPAREN, _RPAREN, _LBRACKET, _RBRACKET, _SEMICOLON,
-    _ASSIGN, _TYPE, _IF, _ELSE, _RETURN, _COMMA, _EOF, _INVALID
+    _ASSIGN, _TYPE, _IF, _ELSE, _RETURN, _COMMA, _EOF, _INVALID, _NODE
 };
 
 enum class Types{INT, UNSIGNED, VOID, NO_TYPE};
@@ -16,11 +16,19 @@ enum class ArithmeticOperators{ADD, SUB, MUL, DIV, AROP_NUMBER};
 
 enum class RelationalOperator{LT, GT, LE, GE, EQ, NE, RELOP_NUMBER};
 
+enum class ASTNodeType{PROGRAM, FUNCTION_LIST, FUNCTION, PARAMETER, BODY, VARIABLE_LIST, VARIABLE, STATEMENT_LIST, STATEMENT,
+    COMPOUND_STATEMENT, ASSIGNMENT_STATEMENT, RETURN_STATEMENT, IF_STATEMENT, NUMERICAL_EXPRESSION, EXPRESSION,
+    RELATIONAL_EXPRESSION, FUNCTION_CALL, ARGUMENT
+};
+
 struct Token{
     TokenType type;
     std::string value;
+    size_t line;
+    size_t column;
 
-    Token(TokenType type, const std::string& value): type(type), value(value){}
+    Token() : type(TokenType::_NODE), value(""), line(0), column(0){}
+    Token(TokenType type, const std::string& value, size_t line, size_t column): type(type), value(value), line(line), column(column){}
 };
 
 const std::unordered_map<TokenType, std::string> tokenTypeToString = {

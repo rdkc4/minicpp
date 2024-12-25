@@ -3,57 +3,61 @@
 
 #include "lexer.hpp"
 #include "scope_manager.hpp"
+#include "ASTree.hpp"
 
 class Parser {
-public:
-    Parser(Lexer& lexer, ScopeManager& scopeManager);
-    
-    void parseProgram();
+    public:
+        Parser(Lexer& lexer, ScopeManager& scopeManager);
+        
+        void parseProgram();
 
-private:
-    Lexer& lexer;
-    ScopeManager& scopeManager;
-    Token currentToken;
+    private:
+        Lexer& lexer;
+        ScopeManager& scopeManager;
+        Token currentToken;
+        
+        std::shared_ptr<ASTree> root;
+        std::shared_ptr<ASTree> current;
 
-    Types returnType;
+        Types returnType;
 
-    Types getType(Token token);
+        Types getType(Token token);
 
-    void eat(TokenType type);
+        void eat(TokenType type);
 
-    void functionList();
+        void functionList();
 
-    void function();
+        void function();
 
-    void parameter();
+        void parameter();
 
-    void body();
+        void body();
 
-    void variableList();
+        void variableList();
 
-    void variable();
+        void variable();
 
-    void statementList();
+        void statementList();
 
-    void statement();
+        void statement();
 
-    void compoundStatement();
+        void compoundStatement();
 
-    void assignmentStatement();
+        void assignmentStatement();
 
-    void returnStatement();
+        void returnStatement();
 
-    void ifStatement();
+        void ifStatement();
 
-    void numericalExpression();
+        void numericalExpression();
 
-    bool expression();
+        bool expression();
 
-    void relationalExpression();
+        void relationalExpression();
 
-    void functionCall();
+        void functionCall();
 
-    void argument();
+        void argument();
 
 };
 

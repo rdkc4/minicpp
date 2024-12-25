@@ -24,7 +24,8 @@ void Parser::parseProgram(){
     
     functionList();
     if(currentToken.type != TokenType::_EOF){
-        throw std::runtime_error("Line x: SYNTAX ERROR near: " + currentToken.value);
+        throw std::runtime_error("Line " + std::to_string(currentToken.line) + ", Column " + std::to_string(currentToken.column) 
+            + " -> SYNTAX ERROR near: " + currentToken.value);
     }
     
     //scopeManager.printSymbolTable();
@@ -36,7 +37,8 @@ void Parser::eat(TokenType type){
         currentToken = lexer.nextToken();
     } 
     else{
-        throw std::runtime_error("Line x: SYNTAX ERROR near: " + currentToken.value);
+        throw std::runtime_error("Line " + std::to_string(currentToken.line) + ", Column " + std::to_string(currentToken.column) 
+            + " -> SYNTAX ERROR near: " + currentToken.value);
     }
 }
 
@@ -122,7 +124,8 @@ void Parser::statement(){
         compoundStatement();
     }
     else{
-        throw std::runtime_error("Line x: SYNTAX ERROR near: " + currentToken.value);
+        throw std::runtime_error("Line " + std::to_string(currentToken.line) + ", Column " + std::to_string(currentToken.column) 
+            + " -> SYNTAX ERROR near: " + currentToken.value);
     }
 }
 
@@ -144,7 +147,8 @@ void Parser::assignmentStatement(){
         eat(TokenType::_SEMICOLON);
     }
     else{
-        throw std::runtime_error("Line x: SYNTAX ERROR near: " + currentToken.value);
+        throw std::runtime_error("Line " + std::to_string(currentToken.line) + ", Column " + std::to_string(currentToken.column) 
+            + " -> SYNTAX ERROR near: " + currentToken.value);
     }
 }
 
@@ -160,7 +164,8 @@ void Parser::returnStatement(){
         }
     }
     else{
-        throw std::runtime_error("Line x: SYNTAX ERROR near: " + currentToken.value);
+        throw std::runtime_error("Line " + std::to_string(currentToken.line) + ", Column " + std::to_string(currentToken.column) 
+            + " -> SYNTAX ERROR near: " + currentToken.value);
     }
 }
 
@@ -183,12 +188,14 @@ void Parser::numericalExpression(){
         while(currentToken.type == TokenType::_AROP){
             eat(TokenType::_AROP);
             if(!expression()){
-                throw std::runtime_error("Line x: SYNTAX ERROR near: " + currentToken.value);
+                throw std::runtime_error("Line " + std::to_string(currentToken.line) + ", Column " + std::to_string(currentToken.column) 
+                    + " -> SYNTAX ERROR near: " + currentToken.value);
             }
         }
     }
     else{
-        throw std::runtime_error("Line x: SYNTAX ERROR near: " + currentToken.value);
+        throw std::runtime_error("Line " + std::to_string(currentToken.line) + ", Column " + std::to_string(currentToken.column) 
+            + " -> SYNTAX ERROR near: " + currentToken.value);
     }
 }
 
