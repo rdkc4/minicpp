@@ -50,7 +50,7 @@ class Parser {
 
         std::shared_ptr<ASTree> numericalExpression();
 
-        std::pair<bool,std::shared_ptr<ASTree>> expression();
+        std::shared_ptr<ASTree> expression();
 
         std::shared_ptr<ASTree> relationalExpression();
 

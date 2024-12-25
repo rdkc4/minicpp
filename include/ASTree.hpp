@@ -27,9 +27,9 @@ class ASTree{
 
         const std::shared_ptr<Token> getToken() const;
 
-        void toString();
+        std::string toString();
 
-        void traverse();
+        void traverse(size_t offset);
 
     private:
         ASTNodeType nodeType;
