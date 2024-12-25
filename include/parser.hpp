@@ -3,57 +3,60 @@
 
 #include "lexer.hpp"
 #include "scope_manager.hpp"
+#include "ASTree.hpp"
 
 class Parser {
-public:
-    Parser(Lexer& lexer, ScopeManager& scopeManager);
-    
-    void parseProgram();
+    public:
+        Parser(Lexer& lexer, ScopeManager& scopeManager);
+        
+        void parseProgram();
 
-private:
-    Lexer& lexer;
-    ScopeManager& scopeManager;
-    Token currentToken;
+    private:
+        Lexer& lexer;
+        ScopeManager& scopeManager;
+        Token currentToken;
 
-    Types returnType;
+        std::shared_ptr<ASTree> root;
 
-    Types getType(Token token);
+        Types returnType;
 
-    void eat(TokenType type);
+        Types getType(Token token);
 
-    void functionList();
+        void eat(TokenType type);
 
-    void function();
+        std::shared_ptr<ASTree> functionList();
 
-    void parameter();
+        std::shared_ptr<ASTree> function();
 
-    void body();
+        std::shared_ptr<ASTree> parameter();
 
-    void variableList();
+        std::shared_ptr<ASTree> body();
 
-    void variable();
+        std::shared_ptr<ASTree> variableList();
 
-    void statementList();
+        std::shared_ptr<ASTree> variable();
 
-    void statement();
+        std::shared_ptr<ASTree> statementList();
 
-    void compoundStatement();
+        std::shared_ptr<ASTree> statement();
 
-    void assignmentStatement();
+        std::shared_ptr<ASTree> compoundStatement();
 
-    void returnStatement();
+        std::shared_ptr<ASTree> assignmentStatement();
 
-    void ifStatement();
+        std::shared_ptr<ASTree> returnStatement();
 
-    void numericalExpression();
+        std::shared_ptr<ASTree> ifStatement();
 
-    bool expression();
+        std::shared_ptr<ASTree> numericalExpression();
 
-    void relationalExpression();
+        std::shared_ptr<ASTree> expression();
 
-    void functionCall();
+        std::shared_ptr<ASTree> relationalExpression();
 
-    void argument();
+        std::shared_ptr<ASTree> functionCall();
+
+        std::shared_ptr<ASTree> argument();
 
 };
 

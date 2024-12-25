@@ -26,7 +26,9 @@ class Lexer{
     private:
         std::string input;
         size_t position;
+
         size_t lineNumber;
+        size_t prevLineLen;
 
         std::vector<Token> tokens;
         size_t _nextToken = 0;
