@@ -15,9 +15,8 @@ class Parser {
         Lexer& lexer;
         ScopeManager& scopeManager;
         Token currentToken;
-        
+
         std::shared_ptr<ASTree> root;
-        std::shared_ptr<ASTree> current;
 
         Types returnType;
 
@@ -25,39 +24,39 @@ class Parser {
 
         void eat(TokenType type);
 
-        void functionList();
+        std::shared_ptr<ASTree> functionList();
 
-        void function();
+        std::shared_ptr<ASTree> function();
 
-        void parameter();
+        std::shared_ptr<ASTree> parameter();
 
-        void body();
+        std::shared_ptr<ASTree> body();
 
-        void variableList();
+        std::shared_ptr<ASTree> variableList();
 
-        void variable();
+        std::shared_ptr<ASTree> variable();
 
-        void statementList();
+        std::shared_ptr<ASTree> statementList();
 
-        void statement();
+        std::shared_ptr<ASTree> statement();
 
-        void compoundStatement();
+        std::shared_ptr<ASTree> compoundStatement();
 
-        void assignmentStatement();
+        std::shared_ptr<ASTree> assignmentStatement();
 
-        void returnStatement();
+        std::shared_ptr<ASTree> returnStatement();
 
-        void ifStatement();
+        std::shared_ptr<ASTree> ifStatement();
 
-        void numericalExpression();
+        std::shared_ptr<ASTree> numericalExpression();
 
-        bool expression();
+        std::pair<bool,std::shared_ptr<ASTree>> expression();
 
-        void relationalExpression();
+        std::shared_ptr<ASTree> relationalExpression();
 
-        void functionCall();
+        std::shared_ptr<ASTree> functionCall();
 
-        void argument();
+        std::shared_ptr<ASTree> argument();
 
 };
 
