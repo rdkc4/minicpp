@@ -20,6 +20,10 @@ bool SymbolTable::insertSymbol(const std::string& name, Symbol symbol){
     return true;
 }
 
+Symbol SymbolTable::getSymbol(const std::string& name){
+    return symbolTable.at(name);
+}
+
 void SymbolTable::deleteSymbol(const std::string& name){
     symbolTable.erase(name);
 }

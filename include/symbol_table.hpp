@@ -13,6 +13,8 @@ class SymbolTable{
 
         bool insertSymbol(const std::string& name, Symbol symbol);
 
+        Symbol getSymbol(const std::string& name);
+
         void deleteSymbol(const std::string& name);
 
         void clearSymbols();

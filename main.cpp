@@ -21,7 +21,7 @@ int main(){
 
     try {
         parser.parseProgram();
-        std::cout << "Program parsed successfully!" << std::endl;
+        std::cout << "Program compiled successfully!" << std::endl;
     } catch (const std::exception& e) {
         std::cerr << "Error: " << e.what() << std::endl;
     }

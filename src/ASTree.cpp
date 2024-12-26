@@ -24,6 +24,10 @@ void ASTree::setType(Types t){
     type = t;
 }
 
+ASTNodeType ASTree::getNodeType() const{
+    return nodeType;
+}
+
 std::optional<Types> ASTree::getType() const{
     return type;
 }

@@ -23,6 +23,8 @@ class ASTree{
 
         void setType(Types t);
 
+        ASTNodeType getNodeType() const;
+
         std::optional<Types> getType() const;
 
         const std::shared_ptr<Token> getToken() const;
