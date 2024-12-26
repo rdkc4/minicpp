@@ -20,7 +20,7 @@ class Parser {
 
         Types returnType;
 
-        Types getType(Token token);
+        Types getTypeFromToken(Token token);
 
         void eat(TokenType type);
 
@@ -57,6 +57,18 @@ class Parser {
         std::shared_ptr<ASTree> functionCall();
 
         std::shared_ptr<ASTree> argument();
+
+        //-----------------------------------------------
+        //should be separate class
+        void semanticCheck(std::shared_ptr<ASTree> root);
+
+        void functionCheck(std::shared_ptr<ASTree> node);
+
+        void parameterCheck(std::shared_ptr<ASTree> node);
+
+        void checkRelexp(std::shared_ptr<ASTree> node);
+
+        void checkID(std::shared_ptr<ASTree> node);
 
 };
 

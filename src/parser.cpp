@@ -4,7 +4,7 @@ Parser::Parser(Lexer& lexer, ScopeManager& scopeManager) : lexer(lexer), scopeMa
     returnType = Types::NO_TYPE;
 }
 
-Types Parser::getType(Token token){
+Types Parser::getTypeFromToken(Token token){
     if(token.value == "int"){
         return Types::INT;
     }
@@ -20,7 +20,6 @@ Types Parser::getType(Token token){
 }
 
 void Parser::parseProgram(){
-    scopeManager.pushScope();
     root = std::make_shared<ASTree>(ASTNodeType::PROGRAM, Token("program", 0, 0));
 
     root->pushChild(functionList());
@@ -28,10 +27,9 @@ void Parser::parseProgram(){
         throw std::runtime_error("Line " + std::to_string(currentToken.line) + ", Column " + std::to_string(currentToken.column) 
             + " -> SYNTAX ERROR near: " + currentToken.value);
     }
-    
-    //scopeManager.printSymbolTable();
-    scopeManager.popScope();
+
     root->traverse(1);
+    semanticCheck(root);
 }
 
 void Parser::eat(TokenType type){
@@ -53,13 +51,10 @@ std::shared_ptr<ASTree> Parser::functionList(){
 }
 
 std::shared_ptr<ASTree> Parser::function(){
-    returnType = getType(currentToken);
+    returnType = getTypeFromToken(currentToken);
     eat(TokenType::_TYPE);
     auto token = currentToken;
     eat(TokenType::_ID);
-    
-    scopeManager.pushSymbol(Symbol(token.value, Kinds::FUN, returnType));
-    scopeManager.pushScope();
     
     auto currentNode = std::make_shared<ASTree>(ASTNodeType::FUNCTION, Token(token), returnType);
 
@@ -68,20 +63,17 @@ std::shared_ptr<ASTree> Parser::function(){
     eat(TokenType::_RPAREN);
     currentNode->pushChild(body());
     
-    //scopeManager.printSymbolTable();
-    scopeManager.popScope();
     return currentNode;
 }
 
 std::shared_ptr<ASTree> Parser::parameter(){
     auto currentNode = std::make_shared<ASTree>(ASTNodeType::PARAMETER, Token());
     while(currentToken.type == TokenType::_TYPE){
-        Types type = getType(currentToken);
+        Types type = getTypeFromToken(currentToken);
         eat(TokenType::_TYPE);
         auto token = currentToken;
         eat(TokenType::_ID);
         
-        scopeManager.pushSymbol(Symbol(token.value, Kinds::PAR, type));
         currentNode->pushChild(std::make_shared<ASTree>(ASTNodeType::PARAMETER, Token(token), type));
 
         if(currentToken.type == TokenType::_COMMA && lexer.peekAtNext().type == TokenType::_TYPE){
@@ -109,13 +101,12 @@ std::shared_ptr<ASTree> Parser::variableList(){
 }
 
 std::shared_ptr<ASTree> Parser::variable(){
-    Types type = getType(currentToken);
+    Types type = getTypeFromToken(currentToken);
     eat(TokenType::_TYPE);
     auto token = currentToken;
     eat(TokenType::_ID);
     eat(TokenType::_SEMICOLON);
 
-    scopeManager.pushSymbol(Symbol(token.value, Kinds::VAR, type));
     return std::make_shared<ASTree>(ASTNodeType::VARIABLE, Token(token), type);
 }
 
@@ -149,15 +140,12 @@ std::shared_ptr<ASTree> Parser::statement(){
 }
 
 std::shared_ptr<ASTree> Parser::compoundStatement(){
-    scopeManager.pushScope();
-    
     auto currentNode = std::make_shared<ASTree>(ASTNodeType::COMPOUND_STATEMENT, Token("cpnd_statement", currentToken.line, currentToken.column));
 
     eat(TokenType::_LBRACKET);
     currentNode->pushChild(statementList());
     eat(TokenType::_RBRACKET);
     
-    scopeManager.popScope();
     return currentNode;
 }
 
@@ -207,13 +195,13 @@ std::shared_ptr<ASTree> Parser::ifStatement(){
     currentNode->pushChild(relationalExpression());
     auto nextNode = currentNode->getChildren().back();
     eat(TokenType::_RPAREN);
-    scopeManager.pushScope();
+    
     nextNode->pushChild(statement());
     if(currentToken.type == TokenType::_ELSE){
         eat(TokenType::_ELSE);
         nextNode->pushChild(statement());
     }
-    scopeManager.popScope();
+    
     return currentNode;
 }
 
@@ -243,10 +231,9 @@ std::shared_ptr<ASTree> Parser::numericalExpression(){
 
 std::shared_ptr<ASTree> Parser::expression(){
     if(currentToken.type == TokenType::_LITERAL){
-        scopeManager.pushSymbol(Symbol(currentToken.value, Kinds::LIT, Types::INT));
         auto token = currentToken;
         eat(TokenType::_LITERAL);
-        return std::make_shared<ASTree>(ASTNodeType::LITERAL, token);
+        return std::make_shared<ASTree>(ASTNodeType::LITERAL, token, Types::INT); //temporary
     }
     else if(currentToken.type == TokenType::_ID && lexer.peekAtNext().type == TokenType::_LPAREN){
         return functionCall();
@@ -254,7 +241,7 @@ std::shared_ptr<ASTree> Parser::expression(){
     else if(currentToken.type == TokenType::_ID){
         auto token = currentToken;
         eat(TokenType::_ID);
-        return std::make_shared<ASTree>(ASTNodeType::ID, token);
+        return std::make_shared<ASTree>(ASTNodeType::ID, token, Types::INT); // temporary
     }
     else if(currentToken.type == TokenType::_LPAREN){
         eat(TokenType::_LPAREN);
@@ -294,3 +281,81 @@ std::shared_ptr<ASTree> Parser::argument(){
     }
     return currentNode;
 }
+
+//------------------------------------------------------------------------------------------------------------------
+//should be in separate class
+void Parser::semanticCheck(std::shared_ptr<ASTree> root){
+    auto flist = root;
+    flist = flist->getChildren().back();
+    scopeManager.pushScope();
+
+    for(const auto& child : flist->getChildren()){
+        scopeManager.pushSymbol(Symbol(child->getToken()->value, Kinds::FUN, child->getType().value(), 0, 0));
+    }
+
+    if(!scopeManager.getSymbolTable().lookupSymbol("main", {Kinds::FUN})){
+        throw std::runtime_error("'main' function not found");
+    }
+    for(const auto& child : flist->getChildren()){
+        functionCheck(child);
+    }
+    scopeManager.popScope();
+}
+
+void Parser::functionCheck(std::shared_ptr<ASTree> node){
+    scopeManager.pushScope();
+    node->getToken();
+    scopeManager.popScope();
+}
+
+void Parser::parameterCheck(std::shared_ptr<ASTree> node){
+    for(const auto& child : node->getChildren()){
+        if(!scopeManager.pushSymbol(Symbol(child->getToken()->value, Kinds::PAR, child->getType().value(), 0, 0))){
+            throw std::runtime_error("Line " + std::to_string(node->getToken()->line) + " Column " + std::to_string(node->getToken()->column)
+                + ": SEMANTIC ERROR -> redefined variable " + node->getToken()->value);
+        }
+    }
+}
+
+/*void bodyCheck(std::shared_ptr<ASTree> node);
+
+void checkVariables(std::shared_ptr<ASTree> node);
+
+void checkStatements(std::shared_ptr<ASTree> node){
+    for(const auto& child : node->getChildren()){
+        checkStatement(child);
+    }
+}
+
+void checkStatement(std::shared_ptr<ASTree> node){
+
+}
+
+void checkNumexp(std::shared_ptr<ASTree> node);
+*/
+
+void Parser::checkRelexp(std::shared_ptr<ASTree> node){
+    auto lchild = node->getChild(0);
+    auto rchild = node->getChild(1);
+    if(lchild->getToken()->type == TokenType::_ID){
+        checkID(lchild);
+    }
+    if(rchild->getToken()->type == TokenType::_ID){
+        checkID(rchild);
+    }
+    if((lchild->getType() != rchild->getType()) || !lchild->getType().has_value()){
+        throw std::runtime_error("Line " + std::to_string(node->getToken()->line) + " Column " + std::to_string(node->getToken()->column)
+            + ": SEMANTIC ERROR -> type mismatch " + node->getToken()->value);
+    }
+}
+
+void Parser::checkID(std::shared_ptr<ASTree> node){
+    if(!scopeManager.getSymbolTable().lookupSymbol(node->getToken()->value, {Kinds::VAR, Kinds::PAR})){
+        throw std::runtime_error("Line " + std::to_string(node->getToken()->line) + " Column " + std::to_string(node->getToken()->column)
+            + ":SEMANTIC ERROR -> undefined variable " + node->getToken()->value);
+    }
+}
+
+/*
+void Parser::checkArgument
+*/

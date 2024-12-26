@@ -18,6 +18,8 @@ class ScopeManager{
 
         void printSymbolTable();
 
+        SymbolTable getSymbolTable();
+
     private:
 
         SymbolTable& symbolTable;

@@ -41,27 +41,5 @@ void ASTree::traverse(size_t offset){
     for(const auto& child:children){
         child->traverse(offset+1);
     }
-    
+
 }
-
-/*
-std::queue<std::shared_ptr<ASTree>> q;
-    q.push(std::make_shared<ASTree>(*this));
-
-    while(!q.empty()){
-        int sz = q.size();
-        for(int i = 0; i < sz; i++){
-            auto curr = q.front();
-            std::cout << "parent: ";
-            curr->toString();
-            std::cout << "\n";
-            q.pop();
-            for(const auto& child: curr->getChildren()){
-                q.push(child);
-                child->toString();
-            }
-            std::cout << "\n\n";
-        }
-        std::cout << "--------------------\n";
-
-*/

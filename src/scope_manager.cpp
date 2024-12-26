@@ -27,3 +27,7 @@ void ScopeManager::printSymbolTable(){
     symbolTable.printSymbolTable();
     std::cout << std::string(20,'-') << "\n";
 }
+
+SymbolTable ScopeManager::getSymbolTable(){
+    return symbolTable;
+}
