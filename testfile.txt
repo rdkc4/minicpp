@@ -3,21 +3,41 @@ int main(){
     int y;
     int z;
     int f;
-    if(x>y)
-        y = xyz(x,y,z) + x + y;
-    else{
-        x = z - x + f;
+    unsigned n;
+    unsigned v;
+    unsigned l;
+    
+    if(x>y){
+        y = +3;
     }
+    else{
+        y = -3 + 3;
+        x = y + (3+1) + xyz() - (xyz() + 3);
+    }
+    
+    n = 3u + v + +3u;
+
+    l = 3u + 5u;
+
+    v = n + l;
+
+    v = n + fun(l) + l;
 
     if(x>y)
         if(z>f)
             return x;
         else
             return x;
-    else
+    else{
         x = x - 1;
+        f = 3;
+    }
 
-    return;
+    return 1;
+}
+
+unsigned fun(unsigned i){
+    return i + i;
 }
 
 int xyz(int x, int y, int z){

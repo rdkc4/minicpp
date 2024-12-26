@@ -47,7 +47,7 @@ void Analyzer::parameterCheck(std::shared_ptr<ASTree> node){
         }
         if(!scopeManager.pushSymbol(Symbol(child->getToken()->value, Kinds::PAR, child->getType().value(), 0, 0))){
             throw std::runtime_error("Line " + std::to_string(child->getToken()->line) + " Column " + std::to_string(child->getToken()->column)
-                + ": SEMANTIC ERROR -> redefined variable " + child->getToken()->value);
+                + ": SEMANTIC ERROR -> redefined '" + child->getToken()->value + "'");
         }
     }
 }
@@ -66,15 +66,14 @@ void Analyzer::checkVariables(std::shared_ptr<ASTree> node){
         }
         if(!scopeManager.pushSymbol(Symbol(child->getToken()->value, Kinds::VAR, type))){
             throw std::runtime_error("Line " + std::to_string(child->getToken()->line) + " Column " + std::to_string(child->getToken()->column)
-                + ": SEMANTIC ERROR -> redefined variable " + child->getToken()->value);
+                + ": SEMANTIC ERROR -> redefined '" + child->getToken()->value + "'");
         }
     }
 }
 
 void Analyzer::checkStatements(std::shared_ptr<ASTree> node){
     for(const auto& child : node->getChildren()){
-       checkStatement(child);
-       child->getChild(1);
+        checkStatement(child);
     }
 }
 
@@ -122,7 +121,8 @@ void Analyzer::checkAssignmentStatement(std::shared_ptr<ASTree> node){
             ltype = scopeManager.getSymbolTable().getSymbol(lchild->getToken()->value).getType();
             break;
         case ASTNodeType::LITERAL:
-            ltype = Types::INT; //temporary
+            checkLiteral(lchild);
+            ltype = lchild->getType().value();
             break;
         default:
             break;
@@ -159,7 +159,8 @@ Types Analyzer::getNumericalExpressionType(std::shared_ptr<ASTree> node){
         return scopeManager.getSymbolTable().getSymbol(node->getToken()->value).getType();
     }
     else if(node->getNodeType() == ASTNodeType::LITERAL){
-        return Types::INT; //temporary
+        checkLiteral(node);
+        return node->getType().value();
     }
     else if(node->getNodeType() == ASTNodeType::FUNCTION_CALL){
         checkFunctionCall(node);
@@ -168,13 +169,14 @@ Types Analyzer::getNumericalExpressionType(std::shared_ptr<ASTree> node){
     if(node->getChildren().size() == 1){
         return getNumericalExpressionType(node->getChild(0));
     }else{
-        auto lchild = node->getChild(0);
-        auto rchild = node->getChild(1);
-        if(getNumericalExpressionType(lchild) != getNumericalExpressionType(rchild)){
+        auto ltype = getNumericalExpressionType(node->getChild(0));
+        auto rtype = getNumericalExpressionType(node->getChild(1));
+        if(ltype != rtype){
             throw std::runtime_error("Line " + std::to_string(node->getToken()->line) + " Column " + std::to_string(node->getToken()->column)
                 + ": SEMANTIC ERROR -> type mismatch near " + node->getToken()->value);
         }
-        return scopeManager.getSymbolTable().getSymbol(lchild->getToken()->value).getType();
+        
+        return ltype;
     }
 }
 
@@ -200,6 +202,18 @@ void Analyzer::checkID(std::shared_ptr<ASTree> node){
     if(!scopeManager.getSymbolTable().lookupSymbol(name, {Kinds::VAR, Kinds::PAR})){
         throw std::runtime_error("Line " + std::to_string(node->getToken()->line) + " Column " + std::to_string(node->getToken()->column)
             + ":SEMANTIC ERROR -> undefined variable " + name);
+    }
+}
+
+void Analyzer::checkLiteral(std::shared_ptr<ASTree> node){
+    auto name = node->getToken()->value;
+    if(node->getType().value() == Types::UNSIGNED && (name.back() != 'u' || name.front() == '-')){
+        throw std::runtime_error("Line " + std::to_string(node->getToken()->line) + " Column " + std::to_string(node->getToken()->column)
+            + ":SEMANTIC ERROR -> invalid literal " + name);
+    }
+    else if(node->getType().value() == Types::INT && name.back() == 'u'){
+        throw std::runtime_error("Line " + std::to_string(node->getToken()->line) + " Column " + std::to_string(node->getToken()->column)
+            + ":SEMANTIC ERROR -> invalid literal " + name);
     }
 }
 

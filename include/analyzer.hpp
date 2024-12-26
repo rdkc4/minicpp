@@ -46,6 +46,8 @@ class Analyzer{
 
         void checkID(std::shared_ptr<ASTree> node);
 
+        void checkLiteral(std::shared_ptr<ASTree> node);
+
         void checkFunctionCall(std::shared_ptr<ASTree> node);
     
         void checkArgument(std::shared_ptr<ASTree> node);

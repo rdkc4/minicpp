@@ -57,6 +57,8 @@ class Parser{
 
         std::shared_ptr<ASTree> argument();
 
+        std::shared_ptr<ASTree> literal();
+
 };
 
 #endif

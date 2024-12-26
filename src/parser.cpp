@@ -229,9 +229,9 @@ std::shared_ptr<ASTree> Parser::numericalExpression(){
 
 std::shared_ptr<ASTree> Parser::expression(){
     if(currentToken.type == TokenType::_LITERAL){
-        auto token = currentToken;
+        auto node = literal();
         eat(TokenType::_LITERAL);
-        return std::make_shared<ASTree>(ASTNodeType::LITERAL, token, Types::INT); //temporary
+        return node;
     }
     else if(currentToken.type == TokenType::_ID && lexer.peekAtNext().type == TokenType::_LPAREN){
         return functionCall();
@@ -239,7 +239,7 @@ std::shared_ptr<ASTree> Parser::expression(){
     else if(currentToken.type == TokenType::_ID){
         auto token = currentToken;
         eat(TokenType::_ID);
-        return std::make_shared<ASTree>(ASTNodeType::ID, token); // temporary
+        return std::make_shared<ASTree>(ASTNodeType::ID, token);
     }
     else if(currentToken.type == TokenType::_LPAREN){
         eat(TokenType::_LPAREN);
@@ -278,4 +278,11 @@ std::shared_ptr<ASTree> Parser::argument(){
         }
     }
     return currentNode;
+}
+
+std::shared_ptr<ASTree> Parser::literal(){
+    if(currentToken.value.back() == 'u'){
+        return std::make_shared<ASTree>(ASTNodeType::LITERAL, Token(currentToken), Types::UNSIGNED);
+    }
+    return std::make_shared<ASTree>(ASTNodeType::LITERAL, Token(currentToken), Types::INT);
 }
