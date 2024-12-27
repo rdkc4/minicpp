@@ -4,8 +4,9 @@
 #include "lexer.hpp"
 #include "scope_manager.hpp"
 #include "ASTree.hpp"
+#include "analyzer.hpp"
 
-class Parser {
+class Parser{
     public:
         Parser(Lexer& lexer, ScopeManager& scopeManager);
         
@@ -13,14 +14,12 @@ class Parser {
 
     private:
         Lexer& lexer;
-        ScopeManager& scopeManager;
         Token currentToken;
+        Analyzer analyzer;
 
         std::shared_ptr<ASTree> root;
 
-        Types returnType;
-
-        Types getType(Token token);
+        Types getTypeFromToken(Token token);
 
         void eat(TokenType type);
 
@@ -57,6 +56,8 @@ class Parser {
         std::shared_ptr<ASTree> functionCall();
 
         std::shared_ptr<ASTree> argument();
+
+        std::shared_ptr<ASTree> literal();
 
 };
 

@@ -25,6 +25,16 @@ void Lexer::tokenize(){
                 else if(std::isdigit(curr)){
                     tokens.push_back(Token(TokenType::_LITERAL, getLiteral(), lineNumber, position - prevLineLen));
                 }
+                else if((curr == '-' || curr == '+') && position < input.size()-1 && std::isdigit(input[position+1]) 
+                        && !tokens.empty() && tokens[tokens.size()-1].type != TokenType::_LITERAL && tokens[tokens.size()-1].type != TokenType::_ID){
+                    std::string val = "";
+                    if(curr == '-'){
+                        val += curr;
+                    }
+                    ++position;
+                    val += getLiteral();
+                    tokens.push_back(Token(TokenType::_LITERAL, val, lineNumber, position - prevLineLen));
+                }
                 else if(isAritOperator(curr)){
                     tokens.push_back(Token(TokenType::_AROP, std::string(1, curr), lineNumber, position - prevLineLen));
                     ++position;
@@ -119,6 +129,9 @@ std::string Lexer::getID(){
 std::string Lexer::getLiteral(){
     size_t start = position;
     while(position < input.size() && std::isdigit(input[position])){
+        ++position;
+    }
+    if(position < input.size() && input[position] == 'u'){
         ++position;
     }
     return input.substr(start, position - start);

@@ -5,7 +5,7 @@
 #include <memory>
 #include <optional>
 #include <queue>
-#include "symbol.hpp"
+#include "defs.hpp"
 
 class ASTree{
     public:
@@ -22,6 +22,8 @@ class ASTree{
         const std::vector<std::shared_ptr<ASTree>>& getChildren() const;
 
         void setType(Types t);
+
+        ASTNodeType getNodeType() const;
 
         std::optional<Types> getType() const;
 
