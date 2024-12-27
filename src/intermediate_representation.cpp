@@ -30,11 +30,11 @@ std::shared_ptr<IRTree> IntermediateRepresentation::function(std::shared_ptr<AST
 }
 
 std::shared_ptr<IRTree> IntermediateRepresentation::parameter(std::shared_ptr<ASTree> node){
-    return std::make_shared<IRTree>(IRNodeType::PARAMETER, std::string(node->getToken()->value), "", node->getType().value());
+    return std::make_shared<IRTree>(IRNodeType::PARAMETER, std::string(node->getToken()->value), "0", node->getType().value());
 }
 
 std::shared_ptr<IRTree> IntermediateRepresentation::variable(std::shared_ptr<ASTree> node){
-    return std::make_shared<IRTree>(IRNodeType::VARIABLE, std::string(node->getToken()->value), "", node->getType().value());
+    return std::make_shared<IRTree>(IRNodeType::VARIABLE, std::string(node->getToken()->value), "0", node->getType().value());
 }
 
 std::shared_ptr<IRTree> IntermediateRepresentation::statement(std::shared_ptr<ASTree> node){
@@ -132,10 +132,7 @@ T IntermediateRepresentation::mergeValues(T l, T r, std::string& arop){
     if(arop == "+"){
         return l + r;
     }
-    else if(arop == "-"){ //arop == "-"
-        if(r > l && std::is_unsigned<T>::value){
-            throw std::runtime_error("Invalid operation");
-        }
+    else if(arop == "-"){
         return l - r;
     }
     else{

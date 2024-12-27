@@ -59,7 +59,9 @@ std::optional<Types> IRTree::getType() const{
 }
 
 std::string IRTree::toString(){
-    return iNodeToString.at(nodeType) + " n:" + name + " v:" + value + '\n';
+    std::string _name = !name.empty() ? " name: " + name : "";
+    std::string _value = !value.empty() ? " value: " + value : "";
+    return iNodeToString.at(nodeType) + _name + _value + '\n';
 }
 
 void IRTree::traverse(size_t offset){
