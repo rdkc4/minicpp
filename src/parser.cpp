@@ -28,6 +28,9 @@ void Parser::parseProgram(){
 
     root->traverse(1);
     analyzer.semanticCheck(root);
+    std::cout << "\n\n";
+    intermediateRepresentation.formIR(root);
+    intermediateRepresentation.getRoot()->traverse(1);
 }
 
 void Parser::eat(TokenType type){
@@ -189,14 +192,12 @@ std::shared_ptr<ASTree> Parser::ifStatement(){
     eat(TokenType::_IF);
     eat(TokenType::_LPAREN);
     currentNode->pushChild(relationalExpression());
-    //auto nextNode = currentNode->getChildren().back();
+    
     eat(TokenType::_RPAREN);
     
-    //nextNode->pushChild(statement());
     currentNode->pushChild(statement());
     if(currentToken.type == TokenType::_ELSE){
         eat(TokenType::_ELSE);
-        //nextNode->pushChild(statement());
         currentNode->pushChild(statement());
     }
     
