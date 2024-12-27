@@ -65,7 +65,7 @@ std::shared_ptr<ASTree> Parser::function(){
 }
 
 std::shared_ptr<ASTree> Parser::parameter(){
-    auto currentNode = std::make_shared<ASTree>(ASTNodeType::PARAMETER, Token());
+    auto currentNode = std::make_shared<ASTree>(ASTNodeType::PARAMETER, Token("params", currentToken.line, currentToken.column));
     while(currentToken.type == TokenType::_TYPE){
         Types type = getTypeFromToken(currentToken);
         eat(TokenType::_TYPE);

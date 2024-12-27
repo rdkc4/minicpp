@@ -4,7 +4,7 @@ bool SymbolTable::lookupSymbol(const std::string& name, std::vector<Kinds> kind)
     auto it = symbolTable.find(name);
     if(it != symbolTable.end()){
         for(const auto& _kind : kind){
-            if(it->second.getKind() == _kind){
+            if(it->second->getKind() == _kind){
                 return true;
             }
         }
@@ -12,7 +12,7 @@ bool SymbolTable::lookupSymbol(const std::string& name, std::vector<Kinds> kind)
     return false;
 }
 
-bool SymbolTable::insertSymbol(const std::string& name, Symbol symbol){
+bool SymbolTable::insertSymbol(const std::string& name, std::shared_ptr<Symbol> symbol){
     auto result = symbolTable.insert({name, symbol});
     if(!result.second){
         return false;
@@ -20,7 +20,7 @@ bool SymbolTable::insertSymbol(const std::string& name, Symbol symbol){
     return true;
 }
 
-Symbol SymbolTable::getSymbol(const std::string& name){
+std::shared_ptr<Symbol> SymbolTable::getSymbol(const std::string& name){
     return symbolTable.at(name);
 }
 
@@ -34,6 +34,6 @@ void SymbolTable::clearSymbols(){
 
 void SymbolTable::printSymbolTable(){
     for(auto it = symbolTable.begin(); it != symbolTable.end(); it++){
-        std::cout << it->second.symbolToString();
+        std::cout << it->second->symbolToString();
     }
 }

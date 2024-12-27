@@ -1,6 +1,7 @@
 #ifndef ANALYZER_HPP
 #define ANALYZER_HPP
 
+#include <unordered_map>
 #include "ASTree.hpp"
 #include "scope_manager.hpp"
 
@@ -16,7 +17,6 @@ class Analyzer{
         ScopeManager scopeManager;
         std::string activeFunction;
         bool returned;
-
 
         void functionCheck(std::shared_ptr<ASTree> node);
 

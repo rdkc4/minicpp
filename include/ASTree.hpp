@@ -5,7 +5,7 @@
 #include <memory>
 #include <optional>
 #include <queue>
-#include "symbol.hpp"
+#include "defs.hpp"
 
 class ASTree{
     public:

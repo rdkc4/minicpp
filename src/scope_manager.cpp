@@ -15,9 +15,9 @@ void ScopeManager::popScope(){
     scope.pop();
 }
 
-bool ScopeManager::pushSymbol(const Symbol& symbol){
-    if(symbolTable.insertSymbol(symbol.getName(), symbol)){
-        scope.top().push(symbol.getName());
+bool ScopeManager::pushSymbol(std::shared_ptr<Symbol> symbol){
+    if(symbolTable.insertSymbol(symbol->getName(), symbol)){
+        scope.top().push(symbol->getName());
         return true;
     }
     return false;

@@ -1,7 +1,7 @@
 #include "../include/symbol.hpp"
 
-Symbol::Symbol(std::string& name, Kinds kind, Types type, unsigned atr1, unsigned atr2)
-    : name(name), kind(kind), type(type), atribute1(atr1), atribute2(atr2) {}
+Symbol::Symbol(std::string& name, Kinds kind, Types type, unsigned varnum)
+    : name(name), kind(kind), type(type), variableNumber(varnum), parameters(nullptr){}
 
 std::string Symbol::getName() const{
     return name;
@@ -15,12 +15,12 @@ Types Symbol::getType() const{
     return type;
 }
 
-unsigned Symbol::getAtribute1() const{
-    return atribute1;
+unsigned Symbol::getVariableNumber() const{
+    return variableNumber;
 }
 
-unsigned Symbol::getAtribute2() const{
-    return atribute2;
+std::shared_ptr<ASTree> Symbol::getParameters() const{
+    return parameters;
 }
 
 void Symbol::setName(const std::string& _name){
@@ -35,15 +35,15 @@ void Symbol::setType(const Types& _type){
     type = _type;
 }
 
-void Symbol::setAtribute1(const unsigned atr1){
-    atribute1 = atr1;
+void Symbol::setVariableNum(const unsigned varNum){
+    variableNumber = varNum;
 }
 
-void Symbol::setAtribute2(const unsigned atr2){
-    atribute2 = atr2;
+void Symbol::setParameters(std::shared_ptr<ASTree> par){
+    parameters = par;
 }
 
 std::string Symbol::symbolToString(){
     return name + " | " + kindToString.at(kind) + " | " + typeToString.at(type) + " | " 
-        + std::to_string(atribute1) + " | " + std::to_string(atribute2) + "\n";
+        + std::to_string(variableNumber) + " | " + std::to_string(parameters != nullptr ? parameters->getChildren().size() : 0) + "\n";
 }

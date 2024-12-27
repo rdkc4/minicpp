@@ -14,7 +14,7 @@ class ScopeManager{
 
         void popScope();
 
-        bool pushSymbol(const Symbol& symbol);
+        bool pushSymbol(const std::shared_ptr<Symbol> symbol);
 
         void printSymbolTable();
 
