@@ -8,50 +8,6 @@
 
 #include "defs.hpp"
 
-enum class IRNodeType{PROGRAM, FUNCTION, PARAMETER, VARIABLE, ARGUMENT, ID, LITERAL, IF, ASSIGN, COMPOUND, CALL, RETURN, ADD, SUB, CMP};
-
-const std::unordered_map<IRNodeType, std::string> iNodeToString = {
-    {IRNodeType::PROGRAM, "PROGRAM"},
-    {IRNodeType::FUNCTION, "FUNCTION"},
-    {IRNodeType::PARAMETER, "PARAMETER"},
-    {IRNodeType::VARIABLE, "VARIABLE"},
-    {IRNodeType::ARGUMENT, "ARGUMENT"},
-    {IRNodeType::ID, "ID"},
-    {IRNodeType::LITERAL, "LITERAL"},
-    {IRNodeType::IF, "IF"},
-    {IRNodeType::ASSIGN, "ASSIGN"},
-    {IRNodeType::COMPOUND, "COMPOUND"},
-    {IRNodeType::CALL, "CALL"},
-    {IRNodeType::RETURN, "RETURN"},
-    {IRNodeType::ASSIGN, "ASSIGN"},
-    {IRNodeType::ADD, "add"},
-    {IRNodeType::SUB, "sub"},
-    {IRNodeType::CMP, "cmp"}
-};
-
-const std::unordered_map<std::string, IRNodeType> stringToArop = {
-    {"+", IRNodeType::ADD},
-    {"-", IRNodeType::SUB}
-};
-
-const std::unordered_map<std::string, std::vector<std::string>> stringToJMP = {
-    {">", {"jg", "ja"}},
-    {">=", {"jge", "jae"}},
-    {"<", {"jl", "jb"}},
-    {"<=", {"jle", "jbe"}},
-    {"==", {"je", "je"}},
-    {"!=", {"jne", "jne"}}
-};
-
-const std::unordered_map<std::string, std::vector<std::string>> stringToOppJMP = {
-    {">", {"jle", "jbe"}},
-    {">=", {"jl", "jb"}},
-    {"<", {"jge", "jae"}},
-    {"<=", {"jg", "ja"}},
-    {"==", {"jne", "jne"}},
-    {"!=", {"je", "je"}}
-};
-
 class IRTree{
     
     public:

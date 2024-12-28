@@ -1,5 +1,4 @@
 #include <iostream>
-#include <fstream>
 
 #include "include/defs.hpp"
 #include "include/symbol_table.hpp"
@@ -7,13 +6,13 @@
 
 
 int main(){
-    std::string filePath = "testfile.txt";
-    std::ifstream file(filePath);
-    if(!file){
-        std::cout << "Invalid file path!\n";
-        return -1;
+    std::string input;
+    std::string line;
+
+    while (std::getline(std::cin, line)) {
+        input += line;
     }
-    std::string input = std::string(std::istreambuf_iterator<char>(file), {});
+
     Lexer lexer(input);
     SymbolTable symbolTable;
     ScopeManager scopeManager(symbolTable);

@@ -24,7 +24,7 @@ $(EXEC): $(OBJS)
 
 # Run the program
 run: $(EXEC)
-	./$(EXEC)
+	./$(EXEC) < testfile.txt
 
 # Clean up object files and executable
 clean:

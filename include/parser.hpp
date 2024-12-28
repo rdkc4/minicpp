@@ -2,6 +2,7 @@
 #define PARSER_HPP
 
 #include <stack>
+
 #include "lexer.hpp"
 #include "scope_manager.hpp"
 #include "ASTree.hpp"
