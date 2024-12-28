@@ -8,13 +8,15 @@
 
 #include "defs.hpp"
 
-enum class IRNodeType{PROGRAM, FUNCTION, PARAMETER, VARIABLE, LITERAL, IF, ASSIGN, COMPOUND, CALL, RETURN, ADD, SUB, CMP};
+enum class IRNodeType{PROGRAM, FUNCTION, PARAMETER, VARIABLE, ARGUMENT, ID, LITERAL, IF, ASSIGN, COMPOUND, CALL, RETURN, ADD, SUB, CMP};
 
 const std::unordered_map<IRNodeType, std::string> iNodeToString = {
     {IRNodeType::PROGRAM, "PROGRAM"},
     {IRNodeType::FUNCTION, "FUNCTION"},
     {IRNodeType::PARAMETER, "PARAMETER"},
     {IRNodeType::VARIABLE, "VARIABLE"},
+    {IRNodeType::ARGUMENT, "ARGUMENT"},
+    {IRNodeType::ID, "ID"},
     {IRNodeType::LITERAL, "LITERAL"},
     {IRNodeType::IF, "IF"},
     {IRNodeType::ASSIGN, "ASSIGN"},
@@ -22,14 +24,32 @@ const std::unordered_map<IRNodeType, std::string> iNodeToString = {
     {IRNodeType::CALL, "CALL"},
     {IRNodeType::RETURN, "RETURN"},
     {IRNodeType::ASSIGN, "ASSIGN"},
-    {IRNodeType::ADD, "ADD"},
-    {IRNodeType::SUB, "SUB"},
-    {IRNodeType::CMP, "CMP"}
+    {IRNodeType::ADD, "add"},
+    {IRNodeType::SUB, "sub"},
+    {IRNodeType::CMP, "cmp"}
 };
 
 const std::unordered_map<std::string, IRNodeType> stringToArop = {
     {"+", IRNodeType::ADD},
     {"-", IRNodeType::SUB}
+};
+
+const std::unordered_map<std::string, std::vector<std::string>> stringToJMP = {
+    {">", {"jg", "ja"}},
+    {">=", {"jge", "jae"}},
+    {"<", {"jl", "jb"}},
+    {"<=", {"jle", "jbe"}},
+    {"==", {"je", "je"}},
+    {"!=", {"jne", "jne"}}
+};
+
+const std::unordered_map<std::string, std::vector<std::string>> stringToOppJMP = {
+    {">", {"jle", "jbe"}},
+    {">=", {"jl", "jb"}},
+    {"<", {"jge", "jae"}},
+    {"<=", {"jg", "ja"}},
+    {"==", {"jne", "jne"}},
+    {"!=", {"je", "je"}}
 };
 
 class IRTree{
@@ -57,9 +77,9 @@ class IRTree{
 
         IRNodeType getNodeType() const;
 
-        std::optional<std::string> getName() const;
+        std::string getName() const;
 
-        std::optional<std::string> getValue() const;
+        std::string getValue() const;
 
         std::optional<Types> getType() const;
 

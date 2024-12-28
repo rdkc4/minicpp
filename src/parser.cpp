@@ -33,6 +33,7 @@ void Parser::parseProgram(){
     intermediateRepresentation.formIR(root);
     std::cout << "IR REPRESENTATION\n";
     intermediateRepresentation.getRoot()->traverse(1);
+    codeGen.generateCode(intermediateRepresentation.getRoot());
 }
 
 void Parser::eat(TokenType type){
