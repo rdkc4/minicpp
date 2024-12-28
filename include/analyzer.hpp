@@ -17,6 +17,7 @@ class Analyzer{
         ScopeManager scopeManager;
         std::string activeFunction;
         bool returned;
+        unsigned varNumber;
 
         void functionCheck(std::shared_ptr<ASTree> node);
 

@@ -26,8 +26,13 @@ void Parser::parseProgram(){
             + " -> SYNTAX ERROR near: " + currentToken.value);
     }
 
+    std::cout << "AST REPRESENTATION\n";
     root->traverse(1);
     analyzer.semanticCheck(root);
+    std::cout << "\n\n";
+    intermediateRepresentation.formIR(root);
+    std::cout << "IR REPRESENTATION\n";
+    intermediateRepresentation.getRoot()->traverse(1);
 }
 
 void Parser::eat(TokenType type){
@@ -189,14 +194,12 @@ std::shared_ptr<ASTree> Parser::ifStatement(){
     eat(TokenType::_IF);
     eat(TokenType::_LPAREN);
     currentNode->pushChild(relationalExpression());
-    //auto nextNode = currentNode->getChildren().back();
+    
     eat(TokenType::_RPAREN);
     
-    //nextNode->pushChild(statement());
     currentNode->pushChild(statement());
     if(currentToken.type == TokenType::_ELSE){
         eat(TokenType::_ELSE);
-        //nextNode->pushChild(statement());
         currentNode->pushChild(statement());
     }
     
@@ -205,26 +208,30 @@ std::shared_ptr<ASTree> Parser::ifStatement(){
 
 std::shared_ptr<ASTree> Parser::numericalExpression(){
     auto child = expression();
-    
-    if(currentToken.type != TokenType::_AROP){
-        return child;
-    }
 
-    auto currentNode = std::make_shared<ASTree>(ASTNodeType::NUMERICAL_EXPRESSION, Token("dummyNode", currentToken.line, currentToken.column));
-    auto tempNode = currentNode;
-
+    std::stack<std::shared_ptr<ASTree>> st;
+    st.push(child);
     while(currentToken.type == TokenType::_AROP){
-        tempNode->pushChild(std::make_shared<ASTree>(ASTNodeType::NUMERICAL_EXPRESSION, Token(currentToken)));
-        tempNode = tempNode->getChildren().back();
-        tempNode->pushChild(child);
+        auto arOperator = std::make_shared<ASTree>(ASTNodeType::NUMERICAL_EXPRESSION, Token(currentToken));
         eat(TokenType::_AROP);
         child = expression();
-        if(currentToken.type != TokenType::_AROP){
-            tempNode->pushChild(child);
-        }
+        st.push(child);
+        st.push(arOperator);
     }
-    
-    return currentNode->getChildren().back();
+
+    auto head = st.top();
+    st.pop();
+    auto current = head;
+    while(!st.empty()){
+        auto r = st.top();
+        st.pop();
+        auto l = st.top();
+        st.pop();
+        current->pushChild(l);
+        current->pushChild(r);
+        current = l;
+    }
+    return head;
 }
 
 std::shared_ptr<ASTree> Parser::expression(){

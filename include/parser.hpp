@@ -1,10 +1,12 @@
 #ifndef PARSER_HPP
 #define PARSER_HPP
 
+#include <stack>
 #include "lexer.hpp"
 #include "scope_manager.hpp"
 #include "ASTree.hpp"
 #include "analyzer.hpp"
+#include "intermediate_representation.hpp"
 
 class Parser{
     public:
@@ -18,6 +20,8 @@ class Parser{
         Analyzer analyzer;
 
         std::shared_ptr<ASTree> root;
+
+        IntermediateRepresentation intermediateRepresentation;
 
         Types getTypeFromToken(Token token);
 
