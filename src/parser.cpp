@@ -135,6 +135,9 @@ std::shared_ptr<ASTree> Parser::statement(){
     else if(currentToken.type == TokenType::_LBRACKET){
         return compoundStatement();
     }
+    else if(currentToken.type == TokenType::_WHILE){
+        return whileStatement();
+    }
     else{
         throw std::runtime_error("Line " + std::to_string(currentToken.line) + ", Column " + std::to_string(currentToken.column) 
             + " -> SYNTAX ERROR near: " + currentToken.value);
@@ -191,7 +194,7 @@ std::shared_ptr<ASTree> Parser::returnStatement(){
 }
 
 std::shared_ptr<ASTree> Parser::ifStatement(){
-    auto currentNode = std::make_shared<ASTree>(ASTNodeType::IF_STATEMENT, Token("ifstat", currentToken.line, currentToken.column));
+    auto currentNode = std::make_shared<ASTree>(ASTNodeType::IF_STATEMENT, Token("if_stat", currentToken.line, currentToken.column));
     eat(TokenType::_IF);
     eat(TokenType::_LPAREN);
     currentNode->pushChild(relationalExpression());
@@ -204,6 +207,19 @@ std::shared_ptr<ASTree> Parser::ifStatement(){
         currentNode->pushChild(statement());
     }
     
+    return currentNode;
+}
+
+std::shared_ptr<ASTree> Parser::whileStatement(){
+    auto currentNode = std::make_shared<ASTree>(ASTNodeType::WHILE_STATEMENT, Token("while_stat", currentToken.line, currentToken.column));
+    eat(TokenType::_WHILE);
+    
+    eat(TokenType::_LPAREN);
+    currentNode->pushChild(relationalExpression());
+    eat(TokenType::_RPAREN);
+    
+    currentNode->pushChild(statement());
+
     return currentNode;
 }
 

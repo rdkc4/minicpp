@@ -33,6 +33,8 @@ class IntermediateRepresentation{
         std::shared_ptr<IRTree> assignmentStatement(std::shared_ptr<ASTree> node);
 
         std::shared_ptr<IRTree> returnStatement(std::shared_ptr<ASTree> node);
+        
+        std::shared_ptr<IRTree> whileStatement(std::shared_ptr<ASTree> node);
 
         std::shared_ptr<IRTree> numericalExpression(std::shared_ptr<ASTree> node);
 

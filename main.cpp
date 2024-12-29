@@ -6,11 +6,11 @@
 
 
 int main(){
-    std::string input;
+    std::string input = "";
     std::string line;
 
     while (std::getline(std::cin, line)) {
-        input += line;
+        input += line + "\n";
     }
 
     Lexer lexer(input);

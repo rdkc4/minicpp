@@ -91,20 +91,26 @@ void CodeGenerator::generateStatement(std::shared_ptr<IRTree> node){
     switch(node->getNodeType()){
         case IRNodeType::IF:
             generateIfStatement(node);
+            generatedCode << "\n";
             break;
         case IRNodeType::COMPOUND:
             generateCompoundStatement(node);
             break;
         case IRNodeType::ASSIGN:
             generateAssignmentStatement(node);
+            generatedCode << "\n";
             break;
         case IRNodeType::RETURN:
             generateReturnStatement(node);
+            generatedCode << "\n";
+            break;
+        case IRNodeType::WHILE:
+            generateWhileStatement(node);
+            generatedCode << "\n";
             break;
         default:
             throw std::runtime_error("Invalid statement" + iNodeToString.at(node->getNodeType()));
     }
-    generatedCode << "\n";
 }
 
 void CodeGenerator::generateIfStatement(std::shared_ptr<IRTree> node){
@@ -127,6 +133,21 @@ void CodeGenerator::generateIfStatement(std::shared_ptr<IRTree> node){
 
     generatedCode << "if" + labNumStr + "_end:\n";
 
+}
+
+void CodeGenerator::generateWhileStatement(std::shared_ptr<IRTree> node){
+    auto labNum = getNextLabelNum();
+    std::string labNumStr = std::to_string(labNum);
+
+    generatedCode << "while" + labNumStr + ":\n";
+    generateRelationalExpression(node->getChild(0));
+
+    auto type = node->getChild(0)->getChild(0)->getType() == Types::INT ? 0 : 1;
+    generatedCode << "\t" + stringToOppJMP.at(node->getChild(0)->getValue())[type] << " while" + labNumStr + "_end\n\n";
+
+    generateStatement(node->getChild(1));
+    generatedCode << "\tjmp while" + labNumStr + "\n";
+    generatedCode << "\nwhile" + labNumStr + "_end:\n";
 }
 
 void CodeGenerator::generateCompoundStatement(std::shared_ptr<IRTree> node){
@@ -177,13 +198,13 @@ void CodeGenerator::generateNumericalExpression(std::shared_ptr<IRTree> node){
     }
 }
 
-void CodeGenerator::generateRelationalExpression(std::shared_ptr<IRTree> node){ //switch to work with numexp
+void CodeGenerator::generateRelationalExpression(std::shared_ptr<IRTree> node){
     generateNumericalExpression(node->getChild(0));
     generateNumericalExpression(node->getChild(1));
     generatedCode << "\tpop %rdx\n";
     generatedCode << "\tpop %rcx\n";
 
-    generatedCode << "\tcmp %rcx, %rdx\n";
+    generatedCode << "\tcmp %rdx, %rcx\n";
 }
 
 void CodeGenerator::generateID(std::shared_ptr<IRTree> node){
@@ -207,7 +228,7 @@ void CodeGenerator::generateFunctionCall(std::shared_ptr<IRTree> node){
     clearArguments(node->getChild(0));
 }
 
-void CodeGenerator::generateArgument(std::shared_ptr<IRTree> node){ // switch to work with numexp
+void CodeGenerator::generateArgument(std::shared_ptr<IRTree> node){
     for(const auto& arg : node->getChildren()){
         generateNumericalExpression(arg);
     }

@@ -33,6 +33,8 @@ class Analyzer{
 
         void checkIfStatement(std::shared_ptr<ASTree> node);
 
+        void checkWhileStatement(std::shared_ptr<ASTree> node);
+
         void checkCompoundStatement(std::shared_ptr<ASTree> node);
 
         void checkAssignmentStatement(std::shared_ptr<ASTree> node);

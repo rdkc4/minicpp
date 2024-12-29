@@ -39,7 +39,8 @@ class Lexer{
             {"else", TokenType::_ELSE},
             {"int", TokenType::_TYPE},
             {"unsigned", TokenType::_TYPE},
-            {"void", TokenType::_TYPE}
+            {"void", TokenType::_TYPE},
+            {"while", TokenType::_WHILE}
         };
 
         const std::unordered_map<std::string, RelationalOperator> relOperators = {

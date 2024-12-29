@@ -93,6 +93,9 @@ void Analyzer::checkStatement(std::shared_ptr<ASTree> node){
         case ASTNodeType::IF_STATEMENT:
             checkIfStatement(node);
             break;
+        case ASTNodeType::WHILE_STATEMENT:
+            checkWhileStatement(node);
+            break;
         case ASTNodeType::ASSIGNMENT_STATEMENT:
             checkAssignmentStatement(node);
             break;
@@ -112,6 +115,11 @@ void Analyzer::checkIfStatement(std::shared_ptr<ASTree> node){
     for(size_t i = 1; i < node->getChildren().size(); i++){
         checkStatement(node->getChild(i));
     }
+}
+
+void Analyzer::checkWhileStatement(std::shared_ptr<ASTree> node){
+    checkRelationalExpression(node->getChild(0));
+    checkStatement(node->getChild(1));
 }
 
 void Analyzer::checkCompoundStatement(std::shared_ptr<ASTree> node){
@@ -185,14 +193,12 @@ Types Analyzer::getNumericalExpressionType(std::shared_ptr<ASTree> node){
 void Analyzer::checkRelationalExpression(std::shared_ptr<ASTree> node){
     auto lchild = node->getChild(0);
     auto rchild = node->getChild(1);
-    if(lchild->getToken()->type == TokenType::_ID){
-        checkID(lchild);
-    }
-    if(rchild->getToken()->type == TokenType::_ID){
-        checkID(rchild);
-    }
-    auto ltype = scopeManager.getSymbolTable().getSymbol(lchild->getToken()->value)->getType();
-    auto rtype = scopeManager.getSymbolTable().getSymbol(rchild->getToken()->value)->getType();
+
+    checkNumericalExpression(lchild);
+    auto ltype = lchild->getType().value();
+    checkNumericalExpression(rchild);
+    auto rtype = rchild->getType().value();
+    
     if(ltype != rtype){
         throw std::runtime_error("Line " + std::to_string(node->getToken()->line) + " Column " + std::to_string(node->getToken()->column)
             + ": SEMANTIC ERROR -> type mismatch " + node->getToken()->value);

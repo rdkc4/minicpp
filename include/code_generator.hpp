@@ -38,6 +38,8 @@ class CodeGenerator{
 
         void generateIfStatement(std::shared_ptr<IRTree> node);
 
+        void generateWhileStatement(std::shared_ptr<IRTree> node);
+
         void generateCompoundStatement(std::shared_ptr<IRTree> node);
 
         void generateAssignmentStatement(std::shared_ptr<IRTree> node);

@@ -55,6 +55,8 @@ class Parser{
 
         std::shared_ptr<ASTree> ifStatement();
 
+        std::shared_ptr<ASTree> whileStatement();
+
         std::shared_ptr<ASTree> numericalExpression();
 
         std::shared_ptr<ASTree> expression();
