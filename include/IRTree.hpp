@@ -8,30 +8,6 @@
 
 #include "defs.hpp"
 
-enum class IRNodeType{PROGRAM, FUNCTION, PARAMETER, VARIABLE, LITERAL, IF, ASSIGN, COMPOUND, CALL, RETURN, ADD, SUB, CMP};
-
-const std::unordered_map<IRNodeType, std::string> iNodeToString = {
-    {IRNodeType::PROGRAM, "PROGRAM"},
-    {IRNodeType::FUNCTION, "FUNCTION"},
-    {IRNodeType::PARAMETER, "PARAMETER"},
-    {IRNodeType::VARIABLE, "VARIABLE"},
-    {IRNodeType::LITERAL, "LITERAL"},
-    {IRNodeType::IF, "IF"},
-    {IRNodeType::ASSIGN, "ASSIGN"},
-    {IRNodeType::COMPOUND, "COMPOUND"},
-    {IRNodeType::CALL, "CALL"},
-    {IRNodeType::RETURN, "RETURN"},
-    {IRNodeType::ASSIGN, "ASSIGN"},
-    {IRNodeType::ADD, "ADD"},
-    {IRNodeType::SUB, "SUB"},
-    {IRNodeType::CMP, "CMP"}
-};
-
-const std::unordered_map<std::string, IRNodeType> stringToArop = {
-    {"+", IRNodeType::ADD},
-    {"-", IRNodeType::SUB}
-};
-
 class IRTree{
     
     public:
@@ -57,9 +33,9 @@ class IRTree{
 
         IRNodeType getNodeType() const;
 
-        std::optional<std::string> getName() const;
+        std::string getName() const;
 
-        std::optional<std::string> getValue() const;
+        std::string getValue() const;
 
         std::optional<Types> getType() const;
 

@@ -2,22 +2,23 @@
 #define DEFS_HPP
 
 #include <iostream>
+#include <vector>
 #include <unordered_map>
 
 enum class TokenType{_ID, _LITERAL, _AROP, _RELOP, _LPAREN, _RPAREN, _LBRACKET, _RBRACKET, _SEMICOLON,
-    _ASSIGN, _TYPE, _IF, _ELSE, _RETURN, _COMMA, _EOF, _INVALID, _NODE
+    _ASSIGN, _TYPE, _IF, _ELSE, _WHILE, _RETURN, _COMMA, _EOF, _INVALID, _NODE
 };
 
 enum class Types{INT, UNSIGNED, VOID, NO_TYPE};
 
-enum class Kinds{NO_KIND = 0x1, REG = 0x2, LIT = 0x4, FUN = 0x8, VAR = 0x10, PAR = 0x20};
+enum class Kinds{NO_KIND, REG, LIT, FUN, VAR, PAR};
 
 enum class ArithmeticOperators{ADD, SUB, MUL, DIV, AROP_NUMBER};
 
 enum class RelationalOperator{LT, GT, LE, GE, EQ, NE, RELOP_NUMBER};
 
 enum class ASTNodeType{PROGRAM, FUNCTION_LIST, FUNCTION, PARAMETER, BODY, VARIABLE_LIST, VARIABLE, STATEMENT_LIST, STATEMENT,
-    COMPOUND_STATEMENT, ASSIGNMENT_STATEMENT, RETURN_STATEMENT, IF_STATEMENT, NUMERICAL_EXPRESSION, EXPRESSION,
+    COMPOUND_STATEMENT, ASSIGNMENT_STATEMENT, RETURN_STATEMENT, IF_STATEMENT, WHILE_STATEMENT, NUMERICAL_EXPRESSION, EXPRESSION,
     RELATIONAL_EXPRESSION, FUNCTION_CALL, ARGUMENT, LITERAL, ID
 };
 
@@ -46,6 +47,7 @@ const std::unordered_map<TokenType, std::string> tokenTypeToString = {
     {TokenType::_TYPE, "TYPE"},
     {TokenType::_IF, "IF"},
     {TokenType::_ELSE, "ELSE"},
+    {TokenType::_WHILE, "WHILE"},
     {TokenType::_RETURN, "RETURN"},
     {TokenType::_COMMA, "COMMA"},
     {TokenType::_EOF, "EOF"},
@@ -82,6 +84,7 @@ const std::unordered_map<ASTNodeType, std::string> nodeTypeToString = {
     {ASTNodeType::ASSIGNMENT_STATEMENT, "ASSIGNMENT_STATEMENT"},
     {ASTNodeType::RETURN_STATEMENT, "RETURN_STATEMENT"},
     {ASTNodeType::IF_STATEMENT, "IF_STATEMENT"},
+    {ASTNodeType::WHILE_STATEMENT, "WHILE_STATEMENT"},
     {ASTNodeType::NUMERICAL_EXPRESSION, "NUMERICAL_EXPRESSION"},
     {ASTNodeType::EXPRESSION, "EXPRESSION"},
     {ASTNodeType::RELATIONAL_EXPRESSION, "RELATIONAL_EXPRESSION"},
@@ -90,6 +93,51 @@ const std::unordered_map<ASTNodeType, std::string> nodeTypeToString = {
     {ASTNodeType::LITERAL, "LITERAL"},
     {ASTNodeType::ID, "ID"}
 
+};
+
+enum class IRNodeType{PROGRAM, FUNCTION, PARAMETER, VARIABLE, ARGUMENT, ID, LITERAL, IF, WHILE, ASSIGN, COMPOUND, CALL, RETURN, ADD, SUB, CMP};
+
+const std::unordered_map<IRNodeType, std::string> iNodeToString = {
+    {IRNodeType::PROGRAM, "PROGRAM"},
+    {IRNodeType::FUNCTION, "FUNCTION"},
+    {IRNodeType::PARAMETER, "PARAMETER"},
+    {IRNodeType::VARIABLE, "VARIABLE"},
+    {IRNodeType::ARGUMENT, "ARGUMENT"},
+    {IRNodeType::ID, "ID"},
+    {IRNodeType::LITERAL, "LITERAL"},
+    {IRNodeType::IF, "IF"},
+    {IRNodeType::WHILE, "WHILE"},
+    {IRNodeType::ASSIGN, "ASSIGN"},
+    {IRNodeType::COMPOUND, "COMPOUND"},
+    {IRNodeType::CALL, "CALL"},
+    {IRNodeType::RETURN, "RETURN"},
+    {IRNodeType::ASSIGN, "ASSIGN"},
+    {IRNodeType::ADD, "add"},
+    {IRNodeType::SUB, "sub"},
+    {IRNodeType::CMP, "cmp"}
+};
+
+const std::unordered_map<std::string, IRNodeType> stringToArop = {
+    {"+", IRNodeType::ADD},
+    {"-", IRNodeType::SUB}
+};
+
+const std::unordered_map<std::string, std::vector<std::string>> stringToJMP = {
+    {">", {"jg", "ja"}},
+    {">=", {"jge", "jae"}},
+    {"<", {"jl", "jb"}},
+    {"<=", {"jle", "jbe"}},
+    {"==", {"je", "je"}},
+    {"!=", {"jne", "jne"}}
+};
+
+const std::unordered_map<std::string, std::vector<std::string>> stringToOppJMP = {
+    {">", {"jle", "jbe"}},
+    {">=", {"jl", "jb"}},
+    {"<", {"jge", "jae"}},
+    {"<=", {"jg", "ja"}},
+    {"==", {"jne", "jne"}},
+    {"!=", {"je", "je"}}
 };
 
 #endif

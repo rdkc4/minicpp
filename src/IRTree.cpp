@@ -46,11 +46,11 @@ IRNodeType IRTree::getNodeType() const{
     return nodeType;
 }
 
-std::optional<std::string> IRTree::getName() const{
-    return value;
+std::string IRTree::getName() const{
+    return name;
 }
 
-std::optional<std::string> IRTree::getValue() const{
+std::string IRTree::getValue() const{
     return value;
 }
 

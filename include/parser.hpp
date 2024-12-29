@@ -2,11 +2,13 @@
 #define PARSER_HPP
 
 #include <stack>
+
 #include "lexer.hpp"
 #include "scope_manager.hpp"
 #include "ASTree.hpp"
 #include "analyzer.hpp"
 #include "intermediate_representation.hpp"
+#include "code_generator.hpp"
 
 class Parser{
     public:
@@ -22,6 +24,8 @@ class Parser{
         std::shared_ptr<ASTree> root;
 
         IntermediateRepresentation intermediateRepresentation;
+
+        CodeGenerator codeGen;
 
         Types getTypeFromToken(Token token);
 
@@ -50,6 +54,8 @@ class Parser{
         std::shared_ptr<ASTree> returnStatement();
 
         std::shared_ptr<ASTree> ifStatement();
+
+        std::shared_ptr<ASTree> whileStatement();
 
         std::shared_ptr<ASTree> numericalExpression();
 
