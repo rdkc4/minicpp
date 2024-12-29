@@ -143,6 +143,9 @@ std::shared_ptr<ASTree> Parser::statement(){
     else if(currentToken.type == TokenType::_FOR){
         return forStatement();
     }
+    else if(currentToken.type == TokenType::_DO){
+        return doWhileStatement();
+    }
     else{
         throw std::runtime_error("Line " + std::to_string(currentToken.line) + ", Column " + std::to_string(currentToken.column) 
             + " -> SYNTAX ERROR near: " + currentToken.value);
@@ -241,6 +244,20 @@ std::shared_ptr<ASTree> Parser::forStatement(){
     eat(TokenType::_RPAREN);
     currentNode->pushChild(statement());
     
+    return currentNode;
+}
+
+std::shared_ptr<ASTree> Parser::doWhileStatement(){
+    auto currentNode = std::make_shared<ASTree>(ASTNodeType::DO_WHILE_STATEMENT, Token("dowhile_stat", currentToken.line, currentToken.column));
+    eat(TokenType::_DO);
+    currentNode->pushChild(statement());
+    eat(TokenType::_WHILE);
+
+    eat(TokenType::_LPAREN);
+    currentNode->pushChild(relationalExpression());
+    eat(TokenType::_RPAREN);
+    eat(TokenType::_SEMICOLON);
+
     return currentNode;
 }
 

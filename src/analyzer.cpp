@@ -108,6 +108,9 @@ void Analyzer::checkStatement(std::shared_ptr<ASTree> node){
         case ASTNodeType::RETURN_STATEMENT:
             checkReturnStatement(node);
             break;
+        case ASTNodeType::DO_WHILE_STATEMENT:
+            checkDoWhileStatement(node);
+            break;
         default:
             return;
     }
@@ -139,6 +142,11 @@ void Analyzer::checkForStatement(std::shared_ptr<ASTree> node){
     }
 
     checkStatement(node->getChild(3));
+}
+
+void Analyzer::checkDoWhileStatement(std::shared_ptr<ASTree> node){
+    checkStatement(node->getChild(0));
+    checkRelationalExpression(node->getChild(1));
 }
 
 void Analyzer::checkCompoundStatement(std::shared_ptr<ASTree> node){

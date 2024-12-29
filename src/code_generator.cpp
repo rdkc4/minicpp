@@ -112,6 +112,10 @@ void CodeGenerator::generateStatement(std::shared_ptr<IRTree> node){
             generateForStatement(node);
             generatedCode << "\n";
             break;
+        case IRNodeType::DO_WHILE:
+            generateDoWhileStatement(node);
+            generatedCode << "\n";
+            break;
         default:
             throw std::runtime_error("Invalid statement" + iNodeToString.at(node->getNodeType()));
     }
@@ -171,6 +175,18 @@ void CodeGenerator::generateForStatement(std::shared_ptr<IRTree> node){
 
     generatedCode << "\nfor" + labNumStr + "_end:\n";  
 
+}
+
+void CodeGenerator::generateDoWhileStatement(std::shared_ptr<IRTree> node){
+    auto labNum = getNextLabelNum();
+    std::string labNumStr = std::to_string(labNum);
+
+    generatedCode << "do_while" + labNumStr + ":\n";
+    generateStatement(node->getChild(0));
+    
+    generateRelationalExpression(node->getChild(1));
+    auto type = node->getChild(1)->getChild(0)->getType() == Types::INT ? 0 : 1;
+    generatedCode << "\t" + stringToJMP.at(node->getChild(1)->getValue())[type] + " do_while" + labNumStr + "\n";
 }
 
 void CodeGenerator::generateCompoundStatement(std::shared_ptr<IRTree> node){

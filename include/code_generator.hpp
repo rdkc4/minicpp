@@ -42,6 +42,8 @@ class CodeGenerator{
 
         void generateForStatement(std::shared_ptr<IRTree> node);
 
+        void generateDoWhileStatement(std::shared_ptr<IRTree> node);
+
         void generateCompoundStatement(std::shared_ptr<IRTree> node);
 
         void generateAssignmentStatement(std::shared_ptr<IRTree> node);

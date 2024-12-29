@@ -38,6 +38,8 @@ class IntermediateRepresentation{
 
         std::shared_ptr<IRTree> forStatement(std::shared_ptr<ASTree> node);
 
+        std::shared_ptr<IRTree> doWhileStatement(std::shared_ptr<ASTree> node);
+
         std::shared_ptr<IRTree> numericalExpression(std::shared_ptr<ASTree> node);
 
         std::shared_ptr<IRTree> mergeLiterals(std::shared_ptr<IRTree> lchild, std::shared_ptr<IRTree> rchild, std::string& arop);

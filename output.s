@@ -197,20 +197,37 @@ for4:
 
 for4_end:
 
-if5:
+do_while5:
+	push -32(%rbp)
+	push $5
+	pop %rbx
+	pop %rax
+	sub %rbx, %rax
+	push %rax
+	pop %rax
+	mov %rax, -32(%rbp)
+
+	push -32(%rbp)
+	push $10
+	pop %rdx
+	pop %rcx
+	cmp %rdx, %rcx
+	jge do_while5
+
+if6:
 	push -40(%rbp)
 	push -48(%rbp)
 	pop %rdx
 	pop %rcx
 	cmp %rdx, %rcx
-	jbe else5
+	jbe else6
 	push $-1
 	pop %rax
 	jmp main_end
 
-	jmp if5_end
+	jmp if6_end
 
-else5:
+else6:
 	push -32(%rbp)
 	push -24(%rbp)
 	pop %rbx
@@ -220,7 +237,7 @@ else5:
 	pop %rax
 	jmp main_end
 
-if5_end:
+if6_end:
 
 main_end:
 	add $48, %rsp
