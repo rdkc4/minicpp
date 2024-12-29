@@ -57,6 +57,8 @@ std::shared_ptr<IRTree> IntermediateRepresentation::statement(std::shared_ptr<AS
             return forStatement(node);
         case ASTNodeType::DO_WHILE_STATEMENT:
             return doWhileStatement(node);
+        case ASTNodeType::SWITCH_STATEMENT:
+            return switchStatement(node);
         default:
             throw std::runtime_error("Invalid statement\n");
     }
@@ -117,6 +119,46 @@ std::shared_ptr<IRTree> IntermediateRepresentation::doWhileStatement(std::shared
     iChild->pushChild(relationalExpression(node->getChild(1)));
 
     return iChild;
+}
+
+std::shared_ptr<IRTree> IntermediateRepresentation::switchStatement(std::shared_ptr<ASTree> node){
+    auto iChild = std::make_shared<IRTree>(IRNodeType::SWITCH);
+    iChild->pushChild(id(node->getChild(0)));
+    size_t i = 1;
+    for(; i < node->getChildren().size(); i++){
+        auto child = node->getChild(i);
+        if(child->getNodeType() == ASTNodeType::CASE){
+            iChild->pushChild(_case(child));
+        }
+        else{
+            iChild->pushChild(_default(child));
+        }
+    }
+    return iChild;
+}
+
+std::shared_ptr<IRTree> IntermediateRepresentation::_case(std::shared_ptr<ASTree> node){
+    auto iChild = std::make_shared<IRTree>(IRNodeType::CASE);
+    iChild->pushChild(literal(node->getChild(0)));
+    for(const auto& child : node->getChild(1)->getChildren()){
+        iChild->pushChild(statement(child));
+    }
+    if(node->getChildren().size() == 3){
+        iChild->pushChild(_break());
+    }
+    return iChild;
+}
+
+std::shared_ptr<IRTree> IntermediateRepresentation::_default(std::shared_ptr<ASTree> node){
+    auto iChild = std::make_shared<IRTree>(IRNodeType::DEFAULT);
+    for(const auto& child : node->getChild(0)->getChildren()){
+        iChild->pushChild(statement(child));
+    }
+    return iChild;
+}
+
+std::shared_ptr<IRTree> IntermediateRepresentation::_break(){
+    return std::make_shared<IRTree>(IRNodeType::BREAK);
 }
 
 std::shared_ptr<IRTree> IntermediateRepresentation::numericalExpression(std::shared_ptr<ASTree> node){

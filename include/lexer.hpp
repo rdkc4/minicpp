@@ -42,7 +42,11 @@ class Lexer{
             {"void", TokenType::_TYPE},
             {"while", TokenType::_WHILE},
             {"for", TokenType::_FOR},
-            {"do", TokenType::_DO}
+            {"do", TokenType::_DO},
+            {"switch", TokenType::_SWITCH},
+            {"case", TokenType::_CASE},
+            {"default", TokenType::_DEFAULT},
+            {"break", TokenType::_BREAK}
         };
 
         const std::unordered_map<std::string, RelationalOperator> relOperators = {

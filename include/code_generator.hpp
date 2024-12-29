@@ -50,6 +50,8 @@ class CodeGenerator{
 
         void generateReturnStatement(std::shared_ptr<IRTree> node);
 
+        void generateSwitchStatement(std::shared_ptr<IRTree> node);
+
         void generateNumericalExpression(std::shared_ptr<IRTree> node);
 
         void generateRelationalExpression(std::shared_ptr<IRTree> node);

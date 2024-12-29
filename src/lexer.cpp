@@ -70,6 +70,10 @@ void Lexer::tokenize(){
                     tokens.push_back(Token(TokenType::_SEMICOLON, std::string(1,curr), lineNumber, position - prevLineLen));
                     ++position;
                 }
+                else if(curr == ':'){
+                    tokens.push_back(Token(TokenType::_COLON, std::string(1, curr), lineNumber, position - prevLineLen));
+                    ++position;
+                }
                 else{
                     tokens.push_back(Token(TokenType::_INVALID, std::string(1,curr), lineNumber, position - prevLineLen));
                     throw std::runtime_error("Line " + std::to_string(lineNumber) + ", Column " + std::to_string(position - prevLineLen) 

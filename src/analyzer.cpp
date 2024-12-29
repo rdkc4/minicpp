@@ -111,6 +111,9 @@ void Analyzer::checkStatement(std::shared_ptr<ASTree> node){
         case ASTNodeType::DO_WHILE_STATEMENT:
             checkDoWhileStatement(node);
             break;
+        case ASTNodeType::SWITCH_STATEMENT:
+            checkSwitchStatement(node);
+            break;
         default:
             return;
     }
@@ -147,6 +150,74 @@ void Analyzer::checkForStatement(std::shared_ptr<ASTree> node){
 void Analyzer::checkDoWhileStatement(std::shared_ptr<ASTree> node){
     checkStatement(node->getChild(0));
     checkRelationalExpression(node->getChild(1));
+}
+
+void Analyzer::checkSwitchStatement(std::shared_ptr<ASTree> node){
+    checkID(node->getChild(0));
+    if(node->getChild(0)->getType().value() == Types::INT){
+        checkSwitchStatementInt(node);
+    }
+    else if(node->getChild(0)->getType().value() == Types::UNSIGNED){
+        checkSwitchStatementUnsigned(node);
+    }
+    else{
+        throw std::runtime_error("Line " + std::to_string(node->getToken()->line) + " Column " + std::to_string(node->getToken()->column)
+            + ": SEMANTIC ERROR -> invalid type");
+    }
+}
+
+void Analyzer::checkSwitchStatementInt(std::shared_ptr<ASTree> node){
+    std::unordered_set<int> set;
+    size_t i = 1;
+    for(; i < node->getChildren().size(); i++){
+        auto child = node->getChild(i);
+        if(child->getNodeType() == ASTNodeType::CASE){
+            checkLiteral(child->getChild(0));
+            int val;
+            if(child->getChild(0)->getType().value() != Types::INT){
+                throw std::runtime_error("Line " + std::to_string(child->getToken()->line) + " Column " + std::to_string(child->getToken()->column)
+                    + ": SEMANTIC ERROR -> type mismatch");
+            }
+            else if(set.find(val = std::stoi(child->getChild(0)->getToken()->value)) != set.end()){
+                throw std::runtime_error("Line " + std::to_string(child->getToken()->line) + " Column " + std::to_string(child->getToken()->column)
+                    + ": SEMANTIC ERROR -> duplicate case");
+            }
+            else{
+                checkStatements(child->getChild(1));
+                set.insert(val);
+            }
+        }
+        else{
+            checkStatements(child->getChild(0));
+        }
+    }
+}
+
+void Analyzer::checkSwitchStatementUnsigned(std::shared_ptr<ASTree> node){
+    std::unordered_set<unsigned> set;
+    size_t i = 1;
+    for(; i < node->getChildren().size(); i++){
+        auto child = node->getChild(i);
+        if(child->getNodeType() == ASTNodeType::CASE){
+            checkLiteral(child->getChild(0));
+            unsigned val;
+            if(child->getChild(0)->getType().value() != Types::UNSIGNED){
+                throw std::runtime_error("Line " + std::to_string(child->getToken()->line) + " Column " + std::to_string(child->getToken()->column)
+                    + ": SEMANTIC ERROR -> type mismatch");
+            }
+            else if(set.find(val = std::stoul(child->getChild(0)->getToken()->value)) != set.end()){
+                throw std::runtime_error("Line " + std::to_string(child->getToken()->line) + " Column " + std::to_string(child->getToken()->column)
+                    + ": SEMANTIC ERROR -> duplicate case");
+            }
+            else{
+                checkStatements(child->getChild(1));
+                set.insert(val);
+            }
+        }
+        else{
+            checkStatements(child->getChild(0));
+        }
+    }
 }
 
 void Analyzer::checkCompoundStatement(std::shared_ptr<ASTree> node){

@@ -61,6 +61,16 @@ class Parser{
 
         std::shared_ptr<ASTree> doWhileStatement();
 
+        std::shared_ptr<ASTree> switchStatement();
+
+        std::shared_ptr<ASTree> switchCaseStatementList();
+
+        std::shared_ptr<ASTree> _case();
+
+        std::shared_ptr<ASTree> _default();
+
+        std::shared_ptr<ASTree> _break();
+
         std::shared_ptr<ASTree> numericalExpression();
 
         std::shared_ptr<ASTree> expression();
@@ -70,6 +80,8 @@ class Parser{
         std::shared_ptr<ASTree> functionCall();
 
         std::shared_ptr<ASTree> argument();
+
+        std::shared_ptr<ASTree> id();
 
         std::shared_ptr<ASTree> literal();
 

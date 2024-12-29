@@ -116,6 +116,10 @@ void CodeGenerator::generateStatement(std::shared_ptr<IRTree> node){
             generateDoWhileStatement(node);
             generatedCode << "\n";
             break;
+        case IRNodeType::SWITCH:
+            generateSwitchStatement(node);
+            generatedCode << "\n";
+            break;
         default:
             throw std::runtime_error("Invalid statement" + iNodeToString.at(node->getNodeType()));
     }
@@ -213,11 +217,53 @@ void CodeGenerator::generateReturnStatement(std::shared_ptr<IRTree> node){
     generatedCode << "\tjmp " + activeFunction + "_end\n";
 }
 
+void CodeGenerator::generateSwitchStatement(std::shared_ptr<IRTree> node){
+    auto labNum = getNextLabelNum();
+    std::string labNumStr = std::to_string(labNum);
+
+    generatedCode << "switch" + labNumStr + ":\n";
+
+    size_t i = 1;
+    auto size = node->getChildren().size();
+    auto var = node->getChild(0)->getName();
+    bool hasDefault = node->getChildren().back()->getNodeType() == IRNodeType::DEFAULT;
+    
+    for(; i < size; i++){
+        auto child = node->getChild(i);
+        if(child->getNodeType() == IRNodeType::CASE){
+            generatedCode << "switch" + labNumStr + "_case" + std::to_string(i-1) + ":\n";
+            generatedCode << "\tmovq " + variableMapping.at(var) + ", %rcx\n";
+            generatedCode << "\tmovq ";
+            generateLiteral(child->getChild(0));
+            generatedCode << ", %rdx\n";
+            generatedCode << "\tcmp %rcx, %rdx\n";
+            
+            if(hasDefault){
+                generatedCode << "\tjne switch" + labNumStr + "_" + (i < size-2 ?  "case" + std::to_string(i) : "default") + '\n';
+            }
+            else{
+                generatedCode << "\tjne switch" + labNumStr + "_" + (i < size-1 ?  "case" + std::to_string(i) : "end") + '\n';
+            }
+
+            generateStatement(child->getChild(1));
+            if(child->getChildren().size()==3){
+                generatedCode << "\tjmp switch" + labNumStr + "_end\n";
+            }
+
+        }else{
+            generatedCode << "switch" + labNumStr + "_default:\n";
+            generateStatement(node->getChild(i)->getChild(0));
+        }
+    }
+    generatedCode << "switch" + labNumStr + "_end:\n";
+}
+
 void CodeGenerator::generateNumericalExpression(std::shared_ptr<IRTree> node){
     if(node->getNodeType() == IRNodeType::ID){
-        generatedCode << "\tpush ";
+        generatedCode << "\tmovq ";
         generateID(node);
-        generatedCode << "\n";
+        generatedCode << ", %r8\n";
+        generatedCode << "\tpush %r8\n";
     }
     else if(node->getNodeType() == IRNodeType::LITERAL){
         generatedCode << "\tpush ";
@@ -268,8 +314,8 @@ void CodeGenerator::generateFunctionCall(std::shared_ptr<IRTree> node){
 }
 
 void CodeGenerator::generateArgument(std::shared_ptr<IRTree> node){
-    for(const auto& arg : node->getChildren()){
-        generateNumericalExpression(arg);
+    for(int i = (int)node->getChildren().size()-1; i >= 0; i--){
+        generateNumericalExpression(node->getChild(i));
     }
 }
 

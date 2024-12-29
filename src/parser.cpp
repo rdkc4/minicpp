@@ -128,27 +128,24 @@ std::shared_ptr<ASTree> Parser::statement(){
         eat(TokenType::_SEMICOLON);
         return node;
     }
-    else if(currentToken.type == TokenType::_RETURN){
-        return returnStatement();
-    }
-    else if(currentToken.type == TokenType::_IF){
-        return ifStatement();
-    }
-    else if(currentToken.type == TokenType::_LBRACKET){
-        return compoundStatement();
-    }
-    else if(currentToken.type == TokenType::_WHILE){
-        return whileStatement();
-    }
-    else if(currentToken.type == TokenType::_FOR){
-        return forStatement();
-    }
-    else if(currentToken.type == TokenType::_DO){
-        return doWhileStatement();
-    }
-    else{
-        throw std::runtime_error("Line " + std::to_string(currentToken.line) + ", Column " + std::to_string(currentToken.column) 
-            + " -> SYNTAX ERROR near: " + currentToken.value);
+    switch(currentToken.type){
+        case TokenType::_RETURN:
+            return returnStatement();
+        case TokenType::_IF:
+            return ifStatement();
+        case TokenType::_LBRACKET:
+            return compoundStatement();
+        case TokenType::_WHILE:
+            return whileStatement();
+        case TokenType::_FOR:
+            return forStatement();
+        case TokenType::_DO:
+            return doWhileStatement();
+        case TokenType::_SWITCH:
+            return switchStatement();
+        default:
+            throw std::runtime_error("Line " + std::to_string(currentToken.line) + ", Column " + std::to_string(currentToken.column) 
+                + " -> SYNTAX ERROR near: " + currentToken.value);
     }
 }
 
@@ -261,6 +258,74 @@ std::shared_ptr<ASTree> Parser::doWhileStatement(){
     return currentNode;
 }
 
+std::shared_ptr<ASTree> Parser::switchStatement(){
+    auto currentNode = std::make_shared<ASTree>(ASTNodeType::SWITCH_STATEMENT, Token("switch_stat", currentToken.line, currentToken.column));
+    eat(TokenType::_SWITCH);
+
+    eat(TokenType::_LPAREN);
+    currentNode->pushChild(id());
+    eat(TokenType::_RPAREN);
+
+    eat(TokenType::_LBRACKET);
+    
+    currentNode->pushChild(_case());
+    while(currentToken.type == TokenType::_CASE){
+        currentNode->pushChild(_case());
+    }
+    
+    if(currentToken.type == TokenType::_DEFAULT){
+        currentNode->pushChild(_default());
+    }
+
+    eat(TokenType::_RBRACKET);
+    return currentNode;
+}
+
+std::shared_ptr<ASTree> Parser::switchCaseStatementList(){
+    auto currentNode = std::make_shared<ASTree>(ASTNodeType::STATEMENT_LIST, Token("statement_list", currentToken.line, currentToken.column));
+    while(currentToken.type != TokenType::_CASE && currentToken.type != TokenType::_DEFAULT && 
+            currentToken.type != TokenType::_RBRACKET && currentToken.type != TokenType::_BREAK){
+        
+        currentNode->pushChild(statement());
+    }
+
+    return currentNode;
+}
+
+std::shared_ptr<ASTree> Parser::_case(){
+    auto currentNode = std::make_shared<ASTree>(ASTNodeType::CASE, Token("case", currentToken.line, currentToken.column));
+    eat(TokenType::_CASE);
+    currentNode->pushChild(literal());
+    eat(TokenType::_LITERAL);
+    eat(TokenType::_COLON);
+    currentNode->pushChild(switchCaseStatementList());
+    if(currentToken.type == TokenType::_BREAK){
+        currentNode->pushChild(_break());
+    }
+
+    return currentNode;
+}
+
+std::shared_ptr<ASTree> Parser::_default(){
+    auto currentNode = std::make_shared<ASTree>(ASTNodeType::DEFAULT, Token("default", currentToken.line, currentToken.column));
+    eat(TokenType::_DEFAULT);
+    eat(TokenType::_COLON);
+    currentNode->pushChild(switchCaseStatementList());
+    if(currentToken.type == TokenType::_BREAK){
+        eat(TokenType::_BREAK);
+        eat(TokenType::_SEMICOLON);
+    }
+
+    return currentNode;
+}
+
+std::shared_ptr<ASTree> Parser::_break(){
+    auto currentNode = std::make_shared<ASTree>(ASTNodeType::BREAK, Token("break", currentToken.line, currentToken.column));
+    eat(TokenType::_BREAK);
+    eat(TokenType::_SEMICOLON);
+    return currentNode;
+}
+
 std::shared_ptr<ASTree> Parser::numericalExpression(){
     auto child = expression();
 
@@ -299,9 +364,7 @@ std::shared_ptr<ASTree> Parser::expression(){
         return functionCall();
     }
     else if(currentToken.type == TokenType::_ID){
-        auto token = currentToken;
-        eat(TokenType::_ID);
-        return std::make_shared<ASTree>(ASTNodeType::ID, token);
+        return id();    
     }
     else if(currentToken.type == TokenType::_LPAREN){
         eat(TokenType::_LPAREN);
@@ -340,6 +403,13 @@ std::shared_ptr<ASTree> Parser::argument(){
         }
     }
     return currentNode;
+}
+
+std::shared_ptr<ASTree> Parser::id(){
+    auto token = currentToken;
+    eat(TokenType::_ID);
+
+    return std::make_shared<ASTree>(ASTNodeType::ID, token);
 }
 
 std::shared_ptr<ASTree> Parser::literal(){

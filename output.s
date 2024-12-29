@@ -26,7 +26,8 @@ fib:
 	mov %rax, -24(%rbp)
 
 if0:
-	push 16(%rbp)
+	movq 16(%rbp), %r8
+	push %r8
 	push $0
 	pop %rdx
 	pop %rcx
@@ -42,8 +43,10 @@ else0:
 if0_end:
 
 while1:
-	push -8(%rbp)
-	push 16(%rbp)
+	movq -8(%rbp), %r8
+	push %r8
+	movq 16(%rbp), %r8
+	push %r8
 	push $2
 	pop %rbx
 	pop %rax
@@ -55,14 +58,18 @@ while1:
 	jge while1_end
 
 if2:
-	push -16(%rbp)
-	push -24(%rbp)
+	movq -16(%rbp), %r8
+	push %r8
+	movq -24(%rbp), %r8
+	push %r8
 	pop %rdx
 	pop %rcx
 	cmp %rdx, %rcx
 	jle else2
-	push -16(%rbp)
-	push -24(%rbp)
+	movq -16(%rbp), %r8
+	push %r8
+	movq -24(%rbp), %r8
+	push %r8
 	pop %rbx
 	pop %rax
 	add %rbx, %rax
@@ -73,8 +80,10 @@ if2:
 	jmp if2_end
 
 else2:
-	push -16(%rbp)
-	push -24(%rbp)
+	movq -16(%rbp), %r8
+	push %r8
+	movq -24(%rbp), %r8
+	push %r8
 	pop %rbx
 	pop %rax
 	add %rbx, %rax
@@ -84,7 +93,8 @@ else2:
 
 if2_end:
 
-	push -8(%rbp)
+	movq -8(%rbp), %r8
+	push %r8
 	push $1
 	pop %rbx
 	pop %rax
@@ -98,20 +108,24 @@ if2_end:
 while1_end:
 
 if3:
-	push -16(%rbp)
-	push -24(%rbp)
+	movq -16(%rbp), %r8
+	push %r8
+	movq -24(%rbp), %r8
+	push %r8
 	pop %rdx
 	pop %rcx
 	cmp %rdx, %rcx
 	jle else3
-	push -16(%rbp)
+	movq -16(%rbp), %r8
+	push %r8
 	pop %rax
 	jmp fib_end
 
 	jmp if3_end
 
 else3:
-	push -24(%rbp)
+	movq -24(%rbp), %r8
+	push %r8
 	pop %rax
 	jmp fib_end
 
@@ -119,6 +133,100 @@ if3_end:
 
 fib_end:
 	add $24, %rsp
+	mov %rbp, %rsp
+	pop %rbp
+	ret
+
+fun:
+	push %rbp
+	mov %rsp, %rbp
+	sub $8, %rsp
+
+	movq $0, -8(%rbp)
+
+	movq 16(%rbp), %r8
+	push %r8
+	movq 24(%rbp), %r8
+	push %r8
+	pop %rbx
+	pop %rax
+	add %rbx, %rax
+	push %rax
+	movq 32(%rbp), %r8
+	push %r8
+	pop %rbx
+	pop %rax
+	sub %rbx, %rax
+	push %rax
+	movq 40(%rbp), %r8
+	push %r8
+	pop %rbx
+	pop %rax
+	add %rbx, %rax
+	push %rax
+	pop %rax
+	mov %rax, -8(%rbp)
+
+switch4:
+switch4_case0:
+	movq -8(%rbp), %rcx
+	movq $5, %rdx
+	cmp %rcx, %rdx
+	jne switch4_case1
+	movq -8(%rbp), %r8
+	push %r8
+	pop %rax
+	jmp fun_end
+
+switch4_case1:
+	movq -8(%rbp), %rcx
+	movq $10, %rdx
+	cmp %rcx, %rdx
+	jne switch4_case2
+	movq 16(%rbp), %r8
+	push %r8
+	pop %rax
+	jmp fun_end
+
+switch4_case2:
+	movq -8(%rbp), %rcx
+	movq $15, %rdx
+	cmp %rcx, %rdx
+	jne switch4_case3
+	movq 24(%rbp), %r8
+	push %r8
+	pop %rax
+	jmp fun_end
+
+switch4_case3:
+	movq -8(%rbp), %rcx
+	movq $20, %rdx
+	cmp %rcx, %rdx
+	jne switch4_case4
+	movq 32(%rbp), %r8
+	push %r8
+	pop %rax
+	jmp fun_end
+
+switch4_case4:
+	movq -8(%rbp), %rcx
+	movq $25, %rdx
+	cmp %rcx, %rdx
+	jne switch4_default
+	movq 40(%rbp), %r8
+	push %r8
+	pop %rax
+	jmp fun_end
+
+switch4_default:
+	push $0
+	pop %rax
+	jmp fun_end
+
+switch4_end:
+
+fun_end:
+	add $8, %rsp
 	mov %rbp, %rsp
 	pop %rbp
 	ret
@@ -139,7 +247,8 @@ main:
 	pop %rax
 	mov %rax, -16(%rbp)
 
-	push -16(%rbp)
+	movq -16(%rbp), %r8
+	push %r8
 	call fib
 	pop %r9
 	push %rax
@@ -151,7 +260,8 @@ main:
 	mov %rax, -40(%rbp)
 
 	push $3
-	push -40(%rbp)
+	movq -40(%rbp), %r8
+	push %r8
 	push $2
 	pop %rbx
 	pop %rax
@@ -168,15 +278,17 @@ main:
 	pop %rax
 	mov %rax, -24(%rbp)
 
-for4:
-	push -24(%rbp)
+for5:
+	movq -24(%rbp), %r8
+	push %r8
 	push $10
 	pop %rdx
 	pop %rcx
 	cmp %rdx, %rcx
-	jge for4_end
+	jge for5_end
 
-	push -32(%rbp)
+	movq -32(%rbp), %r8
+	push %r8
 	push $2
 	pop %rbx
 	pop %rax
@@ -185,7 +297,8 @@ for4:
 	pop %rax
 	mov %rax, -32(%rbp)
 
-	push -24(%rbp)
+	movq -24(%rbp), %r8
+	push %r8
 	push $1
 	pop %rbx
 	pop %rax
@@ -193,12 +306,13 @@ for4:
 	push %rax
 	pop %rax
 	mov %rax, -24(%rbp)
-	jmp for4
+	jmp for5
 
-for4_end:
+for5_end:
 
-do_while5:
-	push -32(%rbp)
+do_while6:
+	movq -32(%rbp), %r8
+	push %r8
 	push $5
 	pop %rbx
 	pop %rax
@@ -207,37 +321,63 @@ do_while5:
 	pop %rax
 	mov %rax, -32(%rbp)
 
-	push -32(%rbp)
+	movq -32(%rbp), %r8
+	push %r8
 	push $10
 	pop %rdx
 	pop %rcx
 	cmp %rdx, %rcx
-	jge do_while5
+	jge do_while6
 
-if6:
-	push -40(%rbp)
-	push -48(%rbp)
+	push $6
+	push $1
+	movq -32(%rbp), %r8
+	push %r8
+	movq -24(%rbp), %r8
+	push %r8
+	call fun
+	pop %r9
+	pop %r9
+	pop %r9
+	pop %r9
+	push %rax
+	pop %rax
+	mov %rax, -8(%rbp)
+
+if7:
+	movq -40(%rbp), %r8
+	push %r8
+	movq -48(%rbp), %r8
+	push %r8
 	pop %rdx
 	pop %rcx
 	cmp %rdx, %rcx
-	jbe else6
+	jbe else7
 	push $-1
 	pop %rax
 	jmp main_end
 
-	jmp if6_end
+	jmp if7_end
 
-else6:
-	push -32(%rbp)
-	push -24(%rbp)
+else7:
+	movq -32(%rbp), %r8
+	push %r8
+	movq -24(%rbp), %r8
+	push %r8
 	pop %rbx
 	pop %rax
 	add %rbx, %rax
 	push %rax
+	movq -8(%rbp), %r8
+	push %r8
+	pop %rbx
+	pop %rax
+	sub %rbx, %rax
+	push %rax
 	pop %rax
 	jmp main_end
 
-if6_end:
+if7_end:
 
 main_end:
 	add $48, %rsp
