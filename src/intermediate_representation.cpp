@@ -53,6 +53,8 @@ std::shared_ptr<IRTree> IntermediateRepresentation::statement(std::shared_ptr<AS
             return returnStatement(node);
         case ASTNodeType::WHILE_STATEMENT:
             return whileStatement(node);
+        case ASTNodeType::FOR_STATEMENT:
+            return forStatement(node);
         default:
             throw std::runtime_error("Invalid statement\n");
     }
@@ -94,6 +96,16 @@ std::shared_ptr<IRTree> IntermediateRepresentation::whileStatement(std::shared_p
     auto iChild = std::make_shared<IRTree>(IRNodeType::WHILE);
     iChild->pushChild(relationalExpression(node->getChild(0)));
     iChild->pushChild(statement(node->getChild(1)));
+    return iChild;
+}
+
+std::shared_ptr<IRTree> IntermediateRepresentation::forStatement(std::shared_ptr<ASTree> node){
+    auto iChild = std::make_shared<IRTree>(IRNodeType::FOR);
+    iChild->pushChild(assignmentStatement(node->getChild(0)));
+    iChild->pushChild(relationalExpression(node->getChild(1)));
+    iChild->pushChild(assignmentStatement(node->getChild(2)));
+    iChild->pushChild(statement(node->getChild(3)));
+
     return iChild;
 }
 

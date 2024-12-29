@@ -124,7 +124,9 @@ std::shared_ptr<ASTree> Parser::statementList(){
 
 std::shared_ptr<ASTree> Parser::statement(){
     if(lexer.peekAtNext().type == TokenType::_ASSIGN){
-        return assignmentStatement();
+        auto node = assignmentStatement();
+        eat(TokenType::_SEMICOLON);
+        return node;
     }
     else if(currentToken.type == TokenType::_RETURN){
         return returnStatement();
@@ -137,6 +139,9 @@ std::shared_ptr<ASTree> Parser::statement(){
     }
     else if(currentToken.type == TokenType::_WHILE){
         return whileStatement();
+    }
+    else if(currentToken.type == TokenType::_FOR){
+        return forStatement();
     }
     else{
         throw std::runtime_error("Line " + std::to_string(currentToken.line) + ", Column " + std::to_string(currentToken.column) 
@@ -161,7 +166,6 @@ std::shared_ptr<ASTree> Parser::assignmentStatement(){
         auto currentNode = std::make_shared<ASTree>(ASTNodeType::ASSIGNMENT_STATEMENT, Token("=", currentToken.line, currentToken.column));
         eat(TokenType::_ASSIGN);
         auto lchild = numericalExpression();
-        eat(TokenType::_SEMICOLON);
         
         currentNode->pushChild(lchild);
         currentNode->pushChild(rchild);
@@ -220,6 +224,23 @@ std::shared_ptr<ASTree> Parser::whileStatement(){
     
     currentNode->pushChild(statement());
 
+    return currentNode;
+}
+
+std::shared_ptr<ASTree> Parser::forStatement(){
+    auto currentNode = std::make_shared<ASTree>(ASTNodeType::FOR_STATEMENT, Token("for_stat", currentToken.line, currentToken.column));
+    eat(TokenType::_FOR);
+
+    eat(TokenType::_LPAREN);
+    currentNode->pushChild(assignmentStatement());
+    eat(TokenType::_SEMICOLON);
+
+    currentNode->pushChild(relationalExpression());
+    eat(TokenType::_SEMICOLON);
+    currentNode->pushChild(assignmentStatement());
+    eat(TokenType::_RPAREN);
+    currentNode->pushChild(statement());
+    
     return currentNode;
 }
 

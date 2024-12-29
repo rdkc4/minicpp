@@ -28,6 +28,8 @@ int fib(int n){
 int main(){
     int x;
     int y;
+    int i;
+    int j;
     unsigned z;
     unsigned k;
 
@@ -38,9 +40,13 @@ int main(){
     z = 5u;
     k = 3u + (z-2u);
 
+    for(i = 0; i < 10; i = i + 1){
+        j = j + 2;
+    }
+
     if(z > k){
         return -1;
     }else{
-        return x;
+        return j + i;
     }
 }

@@ -40,7 +40,8 @@ class Lexer{
             {"int", TokenType::_TYPE},
             {"unsigned", TokenType::_TYPE},
             {"void", TokenType::_TYPE},
-            {"while", TokenType::_WHILE}
+            {"while", TokenType::_WHILE},
+            {"for", TokenType::_FOR}
         };
 
         const std::unordered_map<std::string, RelationalOperator> relOperators = {

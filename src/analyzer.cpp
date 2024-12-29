@@ -96,6 +96,9 @@ void Analyzer::checkStatement(std::shared_ptr<ASTree> node){
         case ASTNodeType::WHILE_STATEMENT:
             checkWhileStatement(node);
             break;
+        case ASTNodeType::FOR_STATEMENT:
+            checkForStatement(node);
+            break;
         case ASTNodeType::ASSIGNMENT_STATEMENT:
             checkAssignmentStatement(node);
             break;
@@ -120,6 +123,22 @@ void Analyzer::checkIfStatement(std::shared_ptr<ASTree> node){
 void Analyzer::checkWhileStatement(std::shared_ptr<ASTree> node){
     checkRelationalExpression(node->getChild(0));
     checkStatement(node->getChild(1));
+}
+
+void Analyzer::checkForStatement(std::shared_ptr<ASTree> node){
+    checkAssignmentStatement(node->getChild(0));
+    checkRelationalExpression(node->getChild(1));
+    checkAssignmentStatement(node->getChild(2));
+
+    auto lname = node->getChild(0)->getChild(1)->getToken()->value;
+    auto rname = node->getChild(2)->getChild(1)->getToken()->value;
+    
+    if(lname != rname){
+        throw std::runtime_error("Line " + std::to_string(node->getToken()->line) + " Column " + std::to_string(node->getToken()->column)
+            + ": SEMANTIC ERROR -> variable mismatch '" + lname + "' ! '" + rname + "'");
+    }
+
+    checkStatement(node->getChild(3));
 }
 
 void Analyzer::checkCompoundStatement(std::shared_ptr<ASTree> node){
