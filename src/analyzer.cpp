@@ -59,6 +59,11 @@ void Analyzer::functionCheck(std::shared_ptr<ASTree> node){
 void Analyzer::parameterCheck(std::shared_ptr<ASTree> node){
     scopeManager.getSymbolTable().getSymbol(activeFunction)->setParameters(node); //pointer to parameters for easier function call type checking
     
+    if(activeFunction == "main" && node->getChildren().size() > 0){
+        throw std::runtime_error("Line " + std::to_string(node->getToken()->line) + " Column " + std::to_string(node->getToken()->column)
+            + ":SEMANTIC ERROR -> function 'main' can't take parameters");
+    }
+
     for(const auto& child : node->getChildren()){
         auto type = child->getType().value();
         if(type == Types::VOID || type == Types::NO_TYPE){
@@ -419,6 +424,11 @@ void Analyzer::checkFunctionCall(std::shared_ptr<ASTree> node){
     if(!scopeManager.getSymbolTable().lookupSymbol(node->getToken()->value, {Kinds::FUN})){
         throw std::runtime_error("Line " + std::to_string(node->getToken()->line) + " Column " + std::to_string(node->getToken()->column)
             + ":SEMANTIC ERROR -> undefined function " + node->getToken()->value);
+    }
+
+    if(node->getToken()->value == "main"){
+        throw std::runtime_error("Line " + std::to_string(node->getToken()->line) + " Column " + std::to_string(node->getToken()->column)
+            + ":SEMANTIC ERROR -> 'main' is not callable function ");
     }
 
     if(node->getChild(0)->getChildren().size() != scopeManager.getSymbolTable().getSymbol(node->getToken()->value)->getParameters()->getChildren().size()){
