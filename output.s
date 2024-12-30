@@ -152,18 +152,6 @@ fun:
 	pop %rax
 	add %rbx, %rax
 	push %rax
-	movq 32(%rbp), %r8
-	push %r8
-	pop %rbx
-	pop %rax
-	sub %rbx, %rax
-	push %rax
-	movq 40(%rbp), %r8
-	push %r8
-	pop %rbx
-	pop %rax
-	add %rbx, %rax
-	push %rax
 	pop %rax
 	mov %rax, -8(%rbp)
 
@@ -192,28 +180,8 @@ switch4_case2:
 	movq -8(%rbp), %rcx
 	movq $15, %rdx
 	cmp %rcx, %rdx
-	jne switch4_case3
-	movq 24(%rbp), %r8
-	push %r8
-	pop %rax
-	jmp fun_end
-
-switch4_case3:
-	movq -8(%rbp), %rcx
-	movq $20, %rdx
-	cmp %rcx, %rdx
-	jne switch4_case4
-	movq 32(%rbp), %r8
-	push %r8
-	pop %rax
-	jmp fun_end
-
-switch4_case4:
-	movq -8(%rbp), %rcx
-	movq $25, %rdx
-	cmp %rcx, %rdx
 	jne switch4_default
-	movq 40(%rbp), %r8
+	movq 24(%rbp), %r8
 	push %r8
 	pop %rax
 	jmp fun_end
@@ -329,15 +297,11 @@ do_while6:
 	cmp %rdx, %rcx
 	jge do_while6
 
-	push $6
-	push $1
 	movq -32(%rbp), %r8
 	push %r8
 	movq -24(%rbp), %r8
 	push %r8
 	call fun
-	pop %r9
-	pop %r9
 	pop %r9
 	pop %r9
 	push %rax

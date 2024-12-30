@@ -18,9 +18,6 @@ class Lexer{
 
         Token peekAtNext();
         
-        size_t getNextTokenPosition() const;
-        void setNextTokenPosition(const size_t nt);
-
         void printTokens(const std::vector<Token>& tokens) const;
 
     private:
