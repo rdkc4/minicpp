@@ -39,6 +39,12 @@ void Lexer::tokenize(){
                     val += getLiteral();
                     tokens.push_back(Token(TokenType::_LITERAL, val, lineNumber, position - prevLineLen));
                 }
+                else if(curr == '/' && position < input.size() - 1 && input[position + 1] == '/'){
+                    singleLineComment();
+                }
+                else if(curr == '/' && position < input.size() - 1 && input[position + 1] == '*'){
+                    multiLineComment();
+                }
                 else if(isAritOperator(curr)){
                     tokens.push_back(Token(TokenType::_AROP, std::string(1, curr), lineNumber, position - prevLineLen));
                     ++position;
@@ -187,4 +193,38 @@ std::string Lexer::getRelOperator(){
         }
     }
     return op;
+}
+
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
+// COMMENTS - // single-line
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
+void Lexer::singleLineComment(){
+    position += 2;
+    while(position < input.size() && input[position] != '\n'){
+        ++position;
+    }
+}
+
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
+// COMMENTS - /* multi-line */
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
+void Lexer::multiLineComment(){
+    size_t startLine = lineNumber;
+    size_t startPosition = position - prevLineLen;
+
+    position += 2;
+    while(position < input.size()-1 && input[position]!='*' && input[position+1]!='/'){
+        if(input[position] == '\n'){
+            ++lineNumber;
+            prevLineLen = position;
+        }
+        ++position;
+    }
+    if(input[position] == '*' && input[position + 1] == '/'){
+        position += 2;
+    }
+    else{
+        std::cerr << "Line " << lineNumber << ", Column " << position - prevLineLen << ": SYNTAX ERROR - multi-line comment starting at " 
+            << "line " << startLine << ", column " << startPosition << " is not closed\n";
+    }
 }

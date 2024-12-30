@@ -31,7 +31,7 @@ void Parser::parseProgram(){
     root->pushChild(functionList());
     if(currentToken.type != TokenType::_EOF){
         throw std::runtime_error("Line " + std::to_string(currentToken.line) + ", Column " + std::to_string(currentToken.column) 
-            + " -> SYNTAX ERROR near: " + currentToken.value);
+            + " -> SYNTAX ERROR near: '" + currentToken.value + "'");
     }
 
     std::cout << "AST REPRESENTATION\n";
@@ -53,7 +53,7 @@ void Parser::eat(TokenType type){
     } 
     else{
         throw std::runtime_error("Line " + std::to_string(currentToken.line) + ", Column " + std::to_string(currentToken.column) 
-            + " -> SYNTAX ERROR near: " + currentToken.value);
+            + " -> SYNTAX ERROR near: '" + currentToken.value + "'");
     }
 }
 
@@ -180,7 +180,7 @@ std::shared_ptr<ASTree> Parser::statement(){
             return switchStatement();
         default:
             throw std::runtime_error("Line " + std::to_string(currentToken.line) + ", Column " + std::to_string(currentToken.column) 
-                + " -> SYNTAX ERROR near: " + currentToken.value);
+                + " -> SYNTAX ERROR near: '" + currentToken.value + "'");
     }
 }
 
@@ -214,7 +214,7 @@ std::shared_ptr<ASTree> Parser::assignmentStatement(){
     }
     else{
         throw std::runtime_error("Line " + std::to_string(currentToken.line) + ", Column " + std::to_string(currentToken.column) 
-            + " -> SYNTAX ERROR near: " + currentToken.value);
+            + " -> SYNTAX ERROR near: '" + currentToken.value + "'");
     }
 }
 
@@ -237,7 +237,7 @@ std::shared_ptr<ASTree> Parser::returnStatement(){
     }
     else{
         throw std::runtime_error("Line " + std::to_string(currentToken.line) + ", Column " + std::to_string(currentToken.column) 
-            + " -> SYNTAX ERROR near: " + currentToken.value);
+            + " -> SYNTAX ERROR near: '" + currentToken.value + "'");
     }
 }
 
@@ -452,7 +452,7 @@ std::shared_ptr<ASTree> Parser::expression(){
         return node;
     }
     throw std::runtime_error("Line " + std::to_string(currentToken.line) + ", Column " + std::to_string(currentToken.column) 
-        + " -> SYNTAX ERROR near: " + currentToken.value);
+        + " -> SYNTAX ERROR near: '" + currentToken.value + "'");
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------

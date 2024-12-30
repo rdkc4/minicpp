@@ -74,6 +74,10 @@ class Lexer{
 
         std::string getRelOperator();
 
+        void singleLineComment();
+
+        void multiLineComment();
+
 };
 
 #endif

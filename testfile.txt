@@ -63,7 +63,13 @@ int main(){
         j = j - 5;
     }while(j >= 10);
 
-    x = fun(i, j);
+    x = fun(i, j); //this is single-line comment
+
+    /*
+        this is
+        multi-line
+        comment
+    */
 
     if(z > k){
         return -1;
