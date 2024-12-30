@@ -25,9 +25,26 @@ int fib(int n){
     }
 }
 
+int fun(int y, int z){
+    int x; 
+    x = y + z;
+    switch(x){
+        case 5:
+            return x;
+        case 10:
+            return y;
+        case 15:
+            return z;
+        default:
+            return 0;
+    }
+}
+
 int main(){
     int x;
     int y;
+    int i;
+    int j;
     unsigned z;
     unsigned k;
 
@@ -38,9 +55,19 @@ int main(){
     z = 5u;
     k = 3u + (z-2u);
 
+    for(i = 0; i < 10; i = i + 1){
+        j = j + 2;
+    }
+
+    do{
+        j = j - 5;
+    }while(j >= 10);
+
+    x = fun(i, j);
+
     if(z > k){
         return -1;
     }else{
-        return x;
+        return j + i - x;
     }
 }

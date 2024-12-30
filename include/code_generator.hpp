@@ -40,11 +40,17 @@ class CodeGenerator{
 
         void generateWhileStatement(std::shared_ptr<IRTree> node);
 
+        void generateForStatement(std::shared_ptr<IRTree> node);
+
+        void generateDoWhileStatement(std::shared_ptr<IRTree> node);
+
         void generateCompoundStatement(std::shared_ptr<IRTree> node);
 
         void generateAssignmentStatement(std::shared_ptr<IRTree> node);
 
         void generateReturnStatement(std::shared_ptr<IRTree> node);
+
+        void generateSwitchStatement(std::shared_ptr<IRTree> node);
 
         void generateNumericalExpression(std::shared_ptr<IRTree> node);
 

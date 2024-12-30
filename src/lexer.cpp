@@ -2,6 +2,10 @@
 
 Lexer::Lexer(const std::string& input) : input(input), position(0), lineNumber(1), prevLineLen(0){}
 
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
+// LEXICAL CHECK
+//tokenization of entire file
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
 void Lexer::tokenize(){
     while(position < input.size()){
                 char curr = input[position];
@@ -70,6 +74,10 @@ void Lexer::tokenize(){
                     tokens.push_back(Token(TokenType::_SEMICOLON, std::string(1,curr), lineNumber, position - prevLineLen));
                     ++position;
                 }
+                else if(curr == ':'){
+                    tokens.push_back(Token(TokenType::_COLON, std::string(1, curr), lineNumber, position - prevLineLen));
+                    ++position;
+                }
                 else{
                     tokens.push_back(Token(TokenType::_INVALID, std::string(1,curr), lineNumber, position - prevLineLen));
                     throw std::runtime_error("Line " + std::to_string(lineNumber) + ", Column " + std::to_string(position - prevLineLen) 
@@ -80,6 +88,10 @@ void Lexer::tokenize(){
             //printTokens(tokens);
 }
 
+
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
+// MOVING ON TO THE NEXT TOKEN
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
 Token Lexer::nextToken(){
     if(tokens.empty()){
         tokenize();
@@ -90,6 +102,9 @@ Token Lexer::nextToken(){
     return tokens[_nextToken++];
 }
 
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
+// RETRIEVAL OF NEXT TOKEN
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
 Token Lexer::peekAtNext(){
     if(tokens.empty()){
         tokenize();
@@ -100,14 +115,9 @@ Token Lexer::peekAtNext(){
     return tokens[_nextToken];
 }
 
-size_t Lexer::getNextTokenPosition() const{ 
-    return _nextToken; 
-}
-
-void Lexer::setNextTokenPosition(const size_t nt){ 
-    _nextToken = nt; 
-}
-
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
+// DISPLAYING ALL TOKENS (debbuging purpose)
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
 void Lexer::printTokens(const std::vector<Token>& tokens) const{
     for(const auto& token: tokens){
         std::cout << "Token: type - " + tokenTypeToString.at(token.type);      
@@ -118,6 +128,9 @@ void Lexer::printTokens(const std::vector<Token>& tokens) const{
     }
 }
 
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
+// retrieval of ID token ([A-Za-z0-9_])
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::string Lexer::getID(){
     size_t start = position;
     while(position < input.size() && (std::isalnum(input[position]) || input[position] == '_')){
@@ -126,6 +139,9 @@ std::string Lexer::getID(){
     return input.substr(start, position - start);
 }
 
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
+// retrieval of Literal token ([-]?[0-9]+[u]?)
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::string Lexer::getLiteral(){
     size_t start = position;
     while(position < input.size() && std::isdigit(input[position])){
@@ -137,18 +153,30 @@ std::string Lexer::getLiteral(){
     return input.substr(start, position - start);
 }
 
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
+// check for predefined tokens
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
 bool Lexer::isKeyword(const std::string& value) const{
     return keywords.find(value) != keywords.end();
 }
 
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
+// arithmetic operator checking
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
 bool Lexer::isAritOperator(char curr) const{
     return aritOperators.find(std::string(1, curr)) != aritOperators.end();
 }
 
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
+// relational operator checking
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
 bool Lexer::isRelOperator(char curr) const{
     return relOperators.find(std::string(1,curr)) != relOperators.end() || curr == '=';
 }
 
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
+// retrieval of rleational operator
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::string Lexer::getRelOperator(){
     std::string op(1, input[position++]);
     if(position < input.size() && (op == "=" || op == "!" || op == "<" || op == ">")){

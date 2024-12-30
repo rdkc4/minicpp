@@ -7,6 +7,9 @@ IRTree::IRTree(IRNodeType nodeType, std::string name, std::string value, Types t
 
 IRTree::~IRTree() = default;
 
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
+// ADD CHILD TO IR TREE 
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
 void IRTree::pushChild(std::shared_ptr<IRTree> child){
     children.push_back(child);
 }
@@ -31,6 +34,9 @@ void IRTree::setType(Types newType){
     type = newType;
 }
 
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
+// RETURN CHILD AT GIVEN INDEX
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::shared_ptr<IRTree> IRTree::getChild(size_t index){
     if(index < children.size()){
         return children.at(index);
@@ -38,6 +44,9 @@ std::shared_ptr<IRTree> IRTree::getChild(size_t index){
     return nullptr;
 }
 
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
+// RETURN ALL CHILDREN
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
 const std::vector<std::shared_ptr<IRTree>>& IRTree::getChildren() const{
     return children;
 }
@@ -64,6 +73,9 @@ std::string IRTree::toString(){
     return iNodeToString.at(nodeType) + _name + _value + '\n';
 }
 
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
+// DISPLAY IR TREE (debbuging purposes)
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
 void IRTree::traverse(size_t offset){
     std::cout << std::string(offset*2, ' ') + "|->" + toString();
     for(const auto& child:children){

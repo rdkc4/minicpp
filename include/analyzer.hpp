@@ -2,6 +2,7 @@
 #define ANALYZER_HPP
 
 #include <unordered_map>
+#include <unordered_set>
 
 #include "ASTree.hpp"
 #include "scope_manager.hpp"
@@ -34,6 +35,16 @@ class Analyzer{
         void checkIfStatement(std::shared_ptr<ASTree> node);
 
         void checkWhileStatement(std::shared_ptr<ASTree> node);
+
+        void checkForStatement(std::shared_ptr<ASTree> node);
+
+        void checkDoWhileStatement(std::shared_ptr<ASTree> node);
+
+        void checkSwitchStatement(std::shared_ptr<ASTree> node);
+
+        void checkSwitchStatementInt(std::shared_ptr<ASTree> node);
+
+        void checkSwitchStatementUnsigned(std::shared_ptr<ASTree> node);
 
         void checkCompoundStatement(std::shared_ptr<ASTree> node);
 
