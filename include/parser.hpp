@@ -73,6 +73,8 @@ class Parser{
 
         std::shared_ptr<ASTree> numericalExpression();
 
+        std::shared_ptr<ASTree> rpnToTree(std::stack<std::shared_ptr<ASTree>>& st, std::shared_ptr<ASTree> parent);
+
         std::shared_ptr<ASTree> expression();
 
         std::shared_ptr<ASTree> relationalExpression();

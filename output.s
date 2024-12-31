@@ -233,7 +233,14 @@ main:
 	push $2
 	pop %rbx
 	pop %rax
-	sub %rbx, %rax
+	xor %rdx, %rdx
+	mul %rbx
+	push %rax
+	push $3
+	pop %rbx
+	pop %rax
+	xor %rdx, %rdx
+	div %rbx
 	push %rax
 	pop %rbx
 	pop %rax
@@ -304,6 +311,29 @@ do_while6:
 	call fun
 	pop %r9
 	pop %r9
+	push %rax
+	pop %rax
+	mov %rax, -8(%rbp)
+
+	movq -8(%rbp), %r8
+	push %r8
+	push $2
+	pop %rbx
+	pop %rax
+	xor %rdx, %rdx
+	imul %rbx
+	push %rax
+	movq -32(%rbp), %r8
+	push %r8
+	push $2
+	pop %rbx
+	pop %rax
+	xor %rdx, %rdx
+	idiv %rbx
+	push %rax
+	pop %rbx
+	pop %rax
+	sub %rbx, %rax
 	push %rax
 	pop %rax
 	mov %rax, -8(%rbp)

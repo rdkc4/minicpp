@@ -214,7 +214,7 @@ std::shared_ptr<IRTree> IntermediateRepresentation::_break(){
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-// NUMEXP - reduced to (id, literal, function call) or arithmetic operation (add, sub)
+// NUMEXP - reduced to (id, literal, function call) or arithmetic operation (add, sub, mul, div)
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::shared_ptr<IRTree> IntermediateRepresentation::numericalExpression(std::shared_ptr<ASTree> node){
     if(node->getNodeType() == ASTNodeType::ID){
@@ -238,6 +238,7 @@ std::shared_ptr<IRTree> IntermediateRepresentation::numericalExpression(std::sha
         }
 
         auto iChild = std::make_shared<IRTree>(stringToArop.at(node->getToken()->value));
+        iChild->setType(lchild->getType().value());
         iChild->pushChild(lchild);
         iChild->pushChild(rchild);
         return iChild;
@@ -270,6 +271,17 @@ T IntermediateRepresentation::mergeValues(T l, T r, std::string& arop){
     }
     else if(arop == "-"){
         return l - r;
+    }
+    else if(arop == "*"){
+        return l * r;
+    }
+    else if(arop == "/"){
+        if(r == 0){
+            throw std::runtime_error("SEMANTIC ERROR - division by ZERO");
+        }
+        else{
+            return l/r;
+        }
     }
     else{
         throw std::runtime_error("Invalid arithmetic operator");

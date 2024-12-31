@@ -30,7 +30,9 @@ void Lexer::tokenize(){
                     tokens.push_back(Token(TokenType::_LITERAL, getLiteral(), lineNumber, position - prevLineLen));
                 }
                 else if((curr == '-' || curr == '+') && position < input.size()-1 && std::isdigit(input[position+1]) 
-                        && !tokens.empty() && tokens[tokens.size()-1].type != TokenType::_LITERAL && tokens[tokens.size()-1].type != TokenType::_ID){
+                        && !tokens.empty() && tokens[tokens.size()-1].type != TokenType::_LITERAL && 
+                        tokens[tokens.size()-1].type != TokenType::_ID && tokens[tokens.size()-1].type != TokenType::_RPAREN){
+                    
                     std::string val = "";
                     if(curr == '-'){
                         val += curr;

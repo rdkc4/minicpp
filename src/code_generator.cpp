@@ -325,7 +325,18 @@ void CodeGenerator::generateNumericalExpression(std::shared_ptr<IRTree> node){
         generateNumericalExpression(node->getChild(1));
         generatedCode << "\tpop %rbx\n";
         generatedCode << "\tpop %rax\n";
-        generatedCode << "\t" + iNodeToString.at(node->getNodeType()) + " %rbx, %rax\n";
+        if(node->getNodeType() == IRNodeType::MUL || node->getNodeType() == IRNodeType::DIV){ // result of MUL || DIV is in RDX:RAX
+            generatedCode << "\txor %rdx, %rdx\n"; //add overflow check (TODO)
+            if(node->getType().value() == Types::INT){
+                generatedCode << "\ti" + iNodeToString.at(node->getNodeType()) + " %rbx\n"; 
+            }
+            else{
+                generatedCode << "\t" + iNodeToString.at(node->getNodeType()) + " %rbx\n";
+            }
+        }
+        else{
+            generatedCode << "\t" + iNodeToString.at(node->getNodeType()) + " %rbx, %rax\n";
+        }
         generatedCode << "\tpush %rax\n";
     }
 }

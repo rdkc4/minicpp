@@ -23,7 +23,7 @@ enum class ASTNodeType{PROGRAM, FUNCTION_LIST, FUNCTION, PARAMETER, BODY, VARIAB
 };
 
 enum class IRNodeType{PROGRAM, FUNCTION, PARAMETER, VARIABLE, ARGUMENT, ID, LITERAL, IF, WHILE, FOR, DO_WHILE, SWITCH, CASE, DEFAULT, BREAK,
-    ASSIGN, COMPOUND, CALL, RETURN, ADD, SUB, CMP
+    ASSIGN, COMPOUND, CALL, RETURN, ADD, SUB, DIV, MUL, CMP
 };
 
 struct Token{
@@ -137,12 +137,16 @@ const std::unordered_map<IRNodeType, std::string> iNodeToString = {
     {IRNodeType::ASSIGN, "ASSIGN"},
     {IRNodeType::ADD, "add"},
     {IRNodeType::SUB, "sub"},
+    {IRNodeType::MUL, "mul"},
+    {IRNodeType::DIV, "div"},
     {IRNodeType::CMP, "cmp"}
 };
 
 const std::unordered_map<std::string, IRNodeType> stringToArop = {
     {"+", IRNodeType::ADD},
-    {"-", IRNodeType::SUB}
+    {"-", IRNodeType::SUB},
+    {"*", IRNodeType::MUL},
+    {"/", IRNodeType::DIV}
 };
 
 const std::unordered_map<std::string, std::vector<std::string>> stringToJMP = {

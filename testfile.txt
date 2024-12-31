@@ -53,7 +53,7 @@ int main(){
     x = fib(y);
 
     z = 5u;
-    k = 3u + (z-2u);
+    k = 3u + (z * 2u) / 3u;
 
     for(i = 0; i < 10; i = i + 1){
         j = j + 2;
@@ -65,6 +65,7 @@ int main(){
 
     x = fun(i, j); //this is single-line comment
 
+    x = x * 2 - j/2;
     /*
         this is
         multi-line

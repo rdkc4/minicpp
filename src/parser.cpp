@@ -36,11 +36,14 @@ void Parser::parseProgram(){
 
     std::cout << "AST REPRESENTATION\n";
     root->traverse(1);
+    
     analyzer.semanticCheck(root);
     std::cout << "\n\n";
+    
     intermediateRepresentation.formIR(root);
     std::cout << "IR REPRESENTATION\n";
     intermediateRepresentation.getRoot()->traverse(1);
+    
     codeGen.generateCode(intermediateRepresentation.getRoot());
 }
 
@@ -400,11 +403,10 @@ std::shared_ptr<ASTree> Parser::_break(){
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // NUMERICAL_EXPRESSION : EXPRESSION | NUMERICAL_EXPRESSION AROP EXPRESSION
 // organized in a tree as reverse polish notation (RPN)
-// -> rework for MUV and DIV (TODO) 
+// helper method rpnToTree(stack, node)
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::shared_ptr<ASTree> Parser::numericalExpression(){
     auto child = expression();
-
     std::stack<std::shared_ptr<ASTree>> st;
     st.push(child);
     while(currentToken.type == TokenType::_AROP){
@@ -412,22 +414,39 @@ std::shared_ptr<ASTree> Parser::numericalExpression(){
         eat(TokenType::_AROP);
         child = expression();
         st.push(child);
+
+        while((arOperator->getToken()->value == "+" || arOperator->getToken()->value == "-") && (currentToken.value == "*" || currentToken.value == "/")){
+            auto strongArOp = std::make_shared<ASTree>(ASTNodeType::NUMERICAL_EXPRESSION, Token(currentToken));
+            eat(TokenType::_AROP);
+            auto strongChild = expression();
+            st.push(strongChild);
+            st.push(strongArOp);
+        }
         st.push(arOperator);
     }
 
-    auto head = st.top();
+    auto root = st.top();
     st.pop();
-    auto current = head;
-    while(!st.empty()){
-        auto r = st.top();
-        st.pop();
-        auto l = st.top();
-        st.pop();
-        current->pushChild(l);
-        current->pushChild(r);
-        current = l;
+
+    return rpnToTree(st, root);
+}
+
+std::shared_ptr<ASTree> Parser::rpnToTree(std::stack<std::shared_ptr<ASTree>>& st, std::shared_ptr<ASTree> parent){
+    if(parent->getNodeType() != ASTNodeType::NUMERICAL_EXPRESSION || !parent->getChildren().empty()){ //if parent has children it's already handled
+        return parent;
     }
-    return head;
+    auto r = st.top();
+    st.pop();
+    auto rchild = rpnToTree(st,r);
+
+    auto l = st.top();
+    st.pop();
+    auto lchild = rpnToTree(st, l);
+
+    parent->pushChild(lchild);
+    parent->pushChild(rchild);
+
+    return parent;
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
