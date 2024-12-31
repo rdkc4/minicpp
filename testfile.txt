@@ -56,7 +56,7 @@ int main(){
     x = fib(y);
 
     z = 5u;
-    k = 3u + (z * 2u) / 3u;
+    k = 3u & 5u + (z * 2u) / 3u | 2u ^ 11u;
 
     for(i = 0; i < 10; i = i + 1){
         j = j + 2;

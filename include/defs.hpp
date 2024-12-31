@@ -4,18 +4,21 @@
 #include <iostream>
 #include <vector>
 #include <unordered_map>
+#include <unordered_set>
 
-enum class TokenType{_ID, _LITERAL, _AROP, _RELOP, _LPAREN, _RPAREN, _LBRACKET, _RBRACKET, _SEMICOLON, _COLON,
-    _ASSIGN, _TYPE, _IF, _ELSE, _WHILE, _DO, _FOR, _SWITCH, _CASE, _DEFAULT, _BREAK, _RETURN, _COMMA, _EOF, _INVALID, _NODE
+enum class TokenType{_ID, _LITERAL, _AROP, _BITWISE, _RELOP, _LPAREN, _RPAREN, _LBRACKET, _RBRACKET, _SEMICOLON, _COLON, _ASSIGN, _TYPE, _IF, _ELSE, 
+    _WHILE, _DO, _FOR, _SWITCH, _CASE, _DEFAULT, _BREAK, _RETURN, _COMMA, _EOF, _INVALID, _NODE
 };
 
 enum class Types{INT, UNSIGNED, VOID, NO_TYPE};
 
 enum class Kinds{NO_KIND, REG, LIT, FUN, VAR, PAR};
 
-enum class ArithmeticOperators{ADD, SUB, MUL, DIV, AROP_NUMBER};
+const std::unordered_set<std::string> relationalOperators = {"<", ">", "<=", ">=", "==", "!=" };
 
-enum class RelationalOperator{LT, GT, LE, GE, EQ, NE, RELOP_NUMBER};
+const std::unordered_set<std::string> arithmeticOperators = {"+", "-", "*", "/"};
+
+const std::unordered_set<std::string> bitwiseOperators = {"&", "|", "^"};
 
 enum class ASTNodeType{PROGRAM, FUNCTION_LIST, FUNCTION, PARAMETER, BODY, VARIABLE_LIST, VARIABLE, STATEMENT_LIST, STATEMENT,
     COMPOUND_STATEMENT, ASSIGNMENT_STATEMENT, RETURN_STATEMENT, IF_STATEMENT, WHILE_STATEMENT, FOR_STATEMENT, DO_WHILE_STATEMENT, 
@@ -23,7 +26,7 @@ enum class ASTNodeType{PROGRAM, FUNCTION_LIST, FUNCTION, PARAMETER, BODY, VARIAB
 };
 
 enum class IRNodeType{PROGRAM, FUNCTION, PARAMETER, VARIABLE, ARGUMENT, ID, LITERAL, IF, WHILE, FOR, DO_WHILE, SWITCH, CASE, DEFAULT, BREAK,
-    ASSIGN, COMPOUND, CALL, RETURN, ADD, SUB, DIV, MUL, CMP
+    ASSIGN, COMPOUND, CALL, RETURN, ADD, SUB, DIV, MUL, CMP, AND, OR, XOR
 };
 
 struct Token{
@@ -35,6 +38,22 @@ struct Token{
     Token() : type(TokenType::_NODE), value(""), line(0), column(0){}
     Token(std::string value, size_t line, size_t column) : type(TokenType::_NODE), value(value), line(line), column(column){}
     Token(TokenType type, const std::string& value, size_t line, size_t column): type(type), value(value), line(line), column(column){}
+};
+
+const std::unordered_map<std::string, TokenType> keywords = {
+    {"return", TokenType::_RETURN},
+    {"if", TokenType::_IF},
+    {"else", TokenType::_ELSE},
+    {"int", TokenType::_TYPE},
+    {"unsigned", TokenType::_TYPE},
+    {"void", TokenType::_TYPE},
+    {"while", TokenType::_WHILE},
+    {"for", TokenType::_FOR},
+    {"do", TokenType::_DO},
+    {"switch", TokenType::_SWITCH},
+    {"case", TokenType::_CASE},
+    {"default", TokenType::_DEFAULT},
+    {"break", TokenType::_BREAK}
 };
 
 const std::unordered_map<TokenType, std::string> tokenTypeToString = {
@@ -139,7 +158,10 @@ const std::unordered_map<IRNodeType, std::string> iNodeToString = {
     {IRNodeType::SUB, "sub"},
     {IRNodeType::MUL, "mul"},
     {IRNodeType::DIV, "div"},
-    {IRNodeType::CMP, "cmp"}
+    {IRNodeType::CMP, "cmp"},
+    {IRNodeType::AND, "and"},
+    {IRNodeType::OR, "or"},
+    {IRNodeType::XOR, "xor"}
 };
 
 const std::unordered_map<std::string, IRNodeType> stringToArop = {
@@ -147,6 +169,12 @@ const std::unordered_map<std::string, IRNodeType> stringToArop = {
     {"-", IRNodeType::SUB},
     {"*", IRNodeType::MUL},
     {"/", IRNodeType::DIV}
+};
+
+const std::unordered_map<std::string, IRNodeType> stringToBitop = {
+    {"&", IRNodeType::AND},
+    {"|", IRNodeType::OR},
+    {"^", IRNodeType::XOR}
 };
 
 const std::unordered_map<std::string, std::vector<std::string>> stringToJMP = {

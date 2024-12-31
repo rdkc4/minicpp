@@ -240,8 +240,11 @@ std::shared_ptr<IRTree> IntermediateRepresentation::numericalExpression(std::sha
         if(lchild->getNodeType() == rchild->getNodeType() && lchild->getNodeType() == IRNodeType::LITERAL){
             return mergeLiterals(lchild, rchild, node->getToken()->value);
         }
-
-        auto iChild = std::make_shared<IRTree>(stringToArop.at(node->getToken()->value));
+        
+        auto val = node->getToken()->value;
+        IRNodeType iNodeType = arithmeticOperators.find(val) != arithmeticOperators.end() ? stringToArop.at(val) : stringToBitop.at(val);
+        auto iChild = std::make_shared<IRTree>(iNodeType);
+        
         iChild->setType(lchild->getType().value());
         iChild->pushChild(lchild);
         iChild->pushChild(rchild);
@@ -253,43 +256,43 @@ std::shared_ptr<IRTree> IntermediateRepresentation::numericalExpression(std::sha
 // MERGE LITERALS - simplify arithmetic operations if both nodes are literals
 // helper function mergeValues
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-std::shared_ptr<IRTree> IntermediateRepresentation::mergeLiterals(std::shared_ptr<IRTree> lchild, std::shared_ptr<IRTree> rchild, std::string& arop){
+std::shared_ptr<IRTree> IntermediateRepresentation::mergeLiterals(std::shared_ptr<IRTree> lchild, std::shared_ptr<IRTree> rchild, std::string& op){
     if(lchild->getType().value() == Types::INT){
         int lval = std::stoi(lchild->getValue());
         int rval = std::stoi(rchild->getValue());
-        int result = mergeValues<int>(lval, rval, arop);
+        int result = mergeValues<int>(lval, rval, op);
         return std::make_shared<IRTree>(IRNodeType::LITERAL, "", std::to_string(result), Types::INT);
     }
     else{
         unsigned lval = std::stoul(lchild->getValue());
         unsigned rval = std::stoul(rchild->getValue());
-        unsigned result = mergeValues<unsigned>(lval, rval, arop);
+        unsigned result = mergeValues<unsigned>(lval, rval, op);
         return std::make_shared<IRTree>(IRNodeType::LITERAL, "", std::to_string(result)+"u", Types::UNSIGNED);
     }
 }
 
 template<typename T>
-T IntermediateRepresentation::mergeValues(T l, T r, std::string& arop){
-    if(arop == "+"){
+T IntermediateRepresentation::mergeValues(T l, T r, std::string& op){
+    if(op == "+") 
         return l + r;
-    }
-    else if(arop == "-"){
+    else if(op == "-") 
         return l - r;
-    }
-    else if(arop == "*"){
+    else if(op == "*") 
         return l * r;
-    }
-    else if(arop == "/"){
+    else if(op == "/"){
         if(r == 0){
             throw std::runtime_error("SEMANTIC ERROR - division by ZERO");
         }
-        else{
-            return l/r;
-        }
+        return l / r;
     }
-    else{
+    else if(op == "&") 
+        return l & r;
+    else if(op == "|") 
+        return l | r;
+    else if(op == "^") 
+        return l ^ r;
+    else
         throw std::runtime_error("Invalid arithmetic operator");
-    }
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------

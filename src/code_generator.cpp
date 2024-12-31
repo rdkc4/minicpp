@@ -361,6 +361,9 @@ void CodeGenerator::generateNumericalExpression(std::shared_ptr<IRTree> node){
                 generatedCode << "\t" << iNodeToString.at(node->getNodeType()) << " %rbx\n";
             }
         }
+        else if(node->getNodeType() == IRNodeType::AND || node->getNodeType() == IRNodeType::OR || node->getNodeType() == IRNodeType::XOR){
+            generatedCode << "\t" << iNodeToString.at(node->getNodeType()) << " %rbx, %rax\n";
+        }
         else{
             generatedCode << "\t" << iNodeToString.at(node->getNodeType()) << " %rbx, %rax\n";
         }

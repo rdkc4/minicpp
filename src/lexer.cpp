@@ -47,6 +47,10 @@ void Lexer::tokenize(){
                 else if(curr == '/' && position < input.size() - 1 && input[position + 1] == '*'){
                     multiLineComment();
                 }
+                else if(isBitwiseOperator(curr)){
+                    tokens.push_back(Token(TokenType::_BITWISE, std::string(1,curr), lineNumber, position - prevLineLen));
+                    ++position;
+                }
                 else if(isAritOperator(curr)){
                     tokens.push_back(Token(TokenType::_AROP, std::string(1, curr), lineNumber, position - prevLineLen));
                     ++position;
@@ -148,7 +152,7 @@ std::string Lexer::getID(){
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-// retrieval of Literal token ([-]?[0-9]+[u]?)
+// retrieval of Literal token ([-]?[0-9][0-9]*[u]?)
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::string Lexer::getLiteral(){
     size_t start = position;
@@ -172,14 +176,21 @@ bool Lexer::isKeyword(const std::string& value) const{
 // arithmetic operator checking
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 bool Lexer::isAritOperator(char curr) const{
-    return aritOperators.find(std::string(1, curr)) != aritOperators.end();
+    return arithmeticOperators.find(std::string(1, curr)) != arithmeticOperators.end();
+}
+
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
+// bitwise operator checking
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
+bool Lexer::isBitwiseOperator(char curr) const{
+    return bitwiseOperators.find(std::string(1, curr)) != bitwiseOperators.end();
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // relational operator checking
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 bool Lexer::isRelOperator(char curr) const{
-    return relOperators.find(std::string(1,curr)) != relOperators.end() || curr == '=';
+    return relationalOperators.find(std::string(1,curr)) != relationalOperators.end() || curr == '=';
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------

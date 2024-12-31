@@ -50,10 +50,10 @@ class IntermediateRepresentation{
 
         std::shared_ptr<IRTree> numericalExpression(std::shared_ptr<ASTree> node);
 
-        std::shared_ptr<IRTree> mergeLiterals(std::shared_ptr<IRTree> lchild, std::shared_ptr<IRTree> rchild, std::string& arop);
+        std::shared_ptr<IRTree> mergeLiterals(std::shared_ptr<IRTree> lchild, std::shared_ptr<IRTree> rchild, std::string& op);
 
         template<typename T>
-        T mergeValues(T l, T r, std::string& arop);
+        T mergeValues(T l, T r, std::string& op);
 
         std::shared_ptr<IRTree> relationalExpression(std::shared_ptr<ASTree> node);
 

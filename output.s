@@ -240,6 +240,7 @@ main:
 	mov %rax, -40(%rbp)
 
 	push $3
+	push $5
 	movq -40(%rbp), %r8
 	push %r8
 	push $2
@@ -247,6 +248,10 @@ main:
 	pop %rax
 	xor %rdx, %rdx
 	mul %rbx
+	push %rax
+	pop %rbx
+	pop %rax
+	add %rbx, %rax
 	push %rax
 	push $3
 	pop %rbx
@@ -256,7 +261,12 @@ main:
 	push %rax
 	pop %rbx
 	pop %rax
-	add %rbx, %rax
+	and %rbx, %rax
+	push %rax
+	push $9
+	pop %rbx
+	pop %rax
+	or %rbx, %rax
 	push %rax
 	pop %rax
 	mov %rax, -48(%rbp)

@@ -422,15 +422,23 @@ std::shared_ptr<ASTree> Parser::numericalExpression(){
     auto child = expression();
     std::stack<std::shared_ptr<ASTree>> rpn;
     rpn.push(child);
-    while(currentToken.type == TokenType::_AROP){
+    while(currentToken.type == TokenType::_AROP || currentToken.type == TokenType::_BITWISE){
         auto arOperator = std::make_shared<ASTree>(ASTNodeType::NUMERICAL_EXPRESSION, Token(currentToken));
-        eat(TokenType::_AROP);
+        if(currentToken.type == TokenType::_BITWISE){
+            eat(TokenType::_BITWISE);
+        }else{
+            eat(TokenType::_AROP);
+        }
         child = expression();
         rpn.push(child);
 
         while(getPrecedence(arOperator->getToken()->value) < getPrecedence(currentToken.value)){
             auto strongArOp = std::make_shared<ASTree>(ASTNodeType::NUMERICAL_EXPRESSION, Token(currentToken));
-            eat(TokenType::_AROP);
+            if(currentToken.type == TokenType::_BITWISE){
+                eat(TokenType::_BITWISE);
+            }else{
+                eat(TokenType::_AROP);
+            }
             auto strongChild = expression();
             rpn.push(strongChild);
             rpn.push(strongArOp);
@@ -449,11 +457,20 @@ std::shared_ptr<ASTree> Parser::numericalExpression(){
 // -> expand for more operators (todo)
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 int Parser::getPrecedence(std::string& op){
-    if(op == "-" || op == "+"){
+    if(op == "|"){
         return 1;
     }
-    else if (op == "*" || op == "/"){
+    else if(op == "^"){
         return 2;
+    }
+    else if(op == "&"){
+        return 3;
+    }
+    else if(op == "-" || op == "+"){
+        return 4;
+    }
+    else if (op == "*" || op == "/"){
+        return 5;
     }
     else{
         return 0;
@@ -578,7 +595,7 @@ std::shared_ptr<ASTree> Parser::literal(){
 // -> MATCH KEYWORD (TODO)
 // -> INCLUDE / HANDLING MULTIPLE FILES (TODO)
 // -> PRE/POST INCREMENT/DECREMENT (TODO)
-// -> BITWISE OPERATORS (TODO)
+// -> BITWISE OPERATORS (<<, >>, ~) (TODO)
 // -> TERNARY OPERATOR ? : (TODO)
 // -> IN-PLACE INITIALIZATION (TODO)
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
