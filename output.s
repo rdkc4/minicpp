@@ -32,14 +32,26 @@ if0:
 	pop %rdx
 	pop %rcx
 	cmp %rdx, %rcx
-	jge else0
+	jge elif0_0
 	push $0
 	pop %rax
 	jmp fib_end
 
 	jmp if0_end
 
-else0:
+elif0_0:
+	movq 16(%rbp), %r8
+	push %r8
+	push $3
+	pop %rdx
+	pop %rcx
+	cmp %rdx, %rcx
+	jge if0_end
+	push $1
+	pop %rax
+	jmp fib_end
+
+	jmp if0_end
 if0_end:
 
 while1:

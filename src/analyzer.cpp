@@ -147,21 +147,25 @@ void Analyzer::checkStatement(std::shared_ptr<ASTree> node){
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // IF STATEMENT CHECK - relational expression check
-// if->child(0) - relexp
-// if->child(1) - if statements
-// if->child(2) - else statements
+// child 0 - if relexp, child 1 - if statement
+// for child > 1 -> child % 2 == 0 ? relexp : statement
+// if there is odd number of children, else statement is at the back
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 void Analyzer::checkIfStatement(std::shared_ptr<ASTree> node){
-    checkRelationalExpression(node->getChild(0));
-    for(size_t i = 1; i < node->getChildren().size(); i++){
-        checkStatement(node->getChild(i));
+    for(const auto& child : node->getChildren()){
+        if(child->getNodeType() == ASTNodeType::RELATIONAL_EXPRESSION){
+            checkRelationalExpression(child);
+        }
+        else{
+            checkStatement(child);
+        }
     }
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // WHILE STATEMENT CHECK - relational expression check
-// while->child(0) - relexp
-// while->child(1) - while statements 
+// child 0 - relexp
+// child 1 - statements
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 void Analyzer::checkWhileStatement(std::shared_ptr<ASTree> node){
     checkRelationalExpression(node->getChild(0));
@@ -170,18 +174,18 @@ void Analyzer::checkWhileStatement(std::shared_ptr<ASTree> node){
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // FOR STATEMENT CHECK - type check, relational expression check, assignment check; id assign_st(1) == id assign_st(2)
-// for->child(0) - assignment statement (init)
-// for->child(1) - relexp
-// for->child(2) - assignment statement (inc)
-// for->child(3) - for statements
+// child 0 - assignment statement (init)
+// child 1 - relexp
+// child 2 - assignment statement (inc)
+// child 3 - for statements
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 void Analyzer::checkForStatement(std::shared_ptr<ASTree> node){
     checkAssignmentStatement(node->getChild(0));
     checkRelationalExpression(node->getChild(1));
     checkAssignmentStatement(node->getChild(2));
 
-    auto lname = node->getChild(0)->getChild(1)->getToken()->value;
-    auto rname = node->getChild(2)->getChild(1)->getToken()->value;
+    auto lname = node->getChild(0)->getChild(0)->getToken()->value;
+    auto rname = node->getChild(2)->getChild(0)->getToken()->value;
     
     if(lname != rname){
         throw std::runtime_error("Line " + std::to_string(node->getToken()->line) + " Column " + std::to_string(node->getToken()->column)
@@ -193,8 +197,8 @@ void Analyzer::checkForStatement(std::shared_ptr<ASTree> node){
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // DO WHILE STATEMENT CHECK - statement check, relational expression check
-// dowhile->child(0) - dowhile statements
-// dowhile->child(1) - relexp
+// child 0 - statements
+// child 1 - relexp
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 void Analyzer::checkDoWhileStatement(std::shared_ptr<ASTree> node){
     checkStatement(node->getChild(0));
@@ -203,13 +207,13 @@ void Analyzer::checkDoWhileStatement(std::shared_ptr<ASTree> node){
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // SWITCH STATEMENT CHECK - id check, cases check (duplicate check, type check)
-// switch->child(0) - id
-// switch->child(1) - cases + default
-// cases->child(0) - literal
-// cases->child(1) - statements
-// cases->child(2) - break
-// default->child(0) - statements (no need for break memorization)
-// helper methods checkSwitchStatement(Int/Unsigned)
+// child 0 - id
+// child 1 - cases + default
+// cases child 0 - literal
+// cases child 1 - statements
+// cases child 2 - break (optional)
+// default child 0 - statements (break can exist, but it will be ignored)
+// helper methods checkSwitchStatement(Int/Unsigned) - checking for duplicates / type mismatch
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 void Analyzer::checkSwitchStatement(std::shared_ptr<ASTree> node){
     checkID(node->getChild(0));
@@ -288,18 +292,18 @@ void Analyzer::checkCompoundStatement(std::shared_ptr<ASTree> node){
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // ASSIGNMENT STATEMENT CHECK - type checking
-// assign->child(0) - numexp
-// assign->child(1) - destination variable
+// child 0 - destination variable
+// child 1 - numexp
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 void Analyzer::checkAssignmentStatement(std::shared_ptr<ASTree> node){
     auto lchild = node->getChild(0);
     auto rchild = node->getChild(1);
     
-    checkNumericalExpression(lchild);
-    Types ltype = lchild->getType().value();
+    checkNumericalExpression(rchild);
+    Types rtype = rchild->getType().value();
     
-    checkID(rchild);
-    Types rtype = scopeManager.getSymbolTable().getSymbol(rchild->getToken()->value)->getType();
+    checkID(lchild);
+    Types ltype = scopeManager.getSymbolTable().getSymbol(lchild->getToken()->value)->getType();
     
     if(rtype != ltype){
         throw std::runtime_error("Line " + std::to_string(node->getToken()->line) + " Column " + std::to_string(node->getToken()->column)
@@ -371,8 +375,8 @@ Types Analyzer::getNumericalExpressionType(std::shared_ptr<ASTree> node){
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // RELATIONAL EXPRESSION CHECK - type check
 // node - contains rel operator
-// node->child(0) - left operand
-// node->child(1) - right operand
+// child 0 - left operand
+// child 1 - right operand
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 void Analyzer::checkRelationalExpression(std::shared_ptr<ASTree> node){
     auto lchild = node->getChild(0);
@@ -418,7 +422,7 @@ void Analyzer::checkLiteral(std::shared_ptr<ASTree> node){
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // FUNCTION CALL CHECK - argument check
-// call->child(0) - arguments
+// child 0 - arguments
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 void Analyzer::checkFunctionCall(std::shared_ptr<ASTree> node){
     if(!scopeManager.getSymbolTable().lookupSymbol(node->getToken()->value, {Kinds::FUN})){

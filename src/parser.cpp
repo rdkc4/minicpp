@@ -205,11 +205,11 @@ std::shared_ptr<ASTree> Parser::compoundStatement(){
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::shared_ptr<ASTree> Parser::assignmentStatement(){
     if(currentToken.type == TokenType::_ID){
-        auto rchild = std::make_shared<ASTree>(ASTNodeType::VARIABLE, Token(currentToken));
+        auto lchild = std::make_shared<ASTree>(ASTNodeType::VARIABLE, Token(currentToken));
         eat(TokenType::_ID);
         auto currentNode = std::make_shared<ASTree>(ASTNodeType::ASSIGNMENT_STATEMENT, Token("=", currentToken.line, currentToken.column));
         eat(TokenType::_ASSIGN);
-        auto lchild = numericalExpression();
+        auto rchild = numericalExpression();
         
         currentNode->pushChild(lchild);
         currentNode->pushChild(rchild);
@@ -245,7 +245,7 @@ std::shared_ptr<ASTree> Parser::returnStatement(){
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-// IF_STATEMENT : IF LPAREN RELATIONAL_EXPRESSION RPAREN STATEMENT | IF LPAREN RELATIONAL_EXPRESSION RPAREN STATEMENT ELSE STATEMENT
+// IF_STATEMENT : IF LPAREN RELATIONAL_EXPRESSION RPAREN STATEMENT | IF_STATEMENT ELSE STATEMENT | IF_STATEMENT ELSE IF_STATEMENT
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::shared_ptr<ASTree> Parser::ifStatement(){
     auto currentNode = std::make_shared<ASTree>(ASTNodeType::IF_STATEMENT, Token("if_stat", currentToken.line, currentToken.column));
@@ -256,6 +256,18 @@ std::shared_ptr<ASTree> Parser::ifStatement(){
     eat(TokenType::_RPAREN);
     
     currentNode->pushChild(statement());
+
+    while(currentToken.type == TokenType::_ELSE && lexer.peekAtNext().type == TokenType::_IF){
+        eat(TokenType::_ELSE);
+        eat(TokenType::_IF);
+
+        eat(TokenType::_LPAREN);
+        currentNode->pushChild(relationalExpression());
+        eat(TokenType::_RPAREN);
+        
+        currentNode->pushChild(statement());
+    }
+
     if(currentToken.type == TokenType::_ELSE){
         eat(TokenType::_ELSE);
         currentNode->pushChild(statement());
@@ -403,45 +415,67 @@ std::shared_ptr<ASTree> Parser::_break(){
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // NUMERICAL_EXPRESSION : EXPRESSION | NUMERICAL_EXPRESSION AROP EXPRESSION
 // organized in a tree as reverse polish notation (RPN)
-// helper method rpnToTree(stack, node)
+// helper method getPrecedence(operator)
+// helper method rpnToTree(rpnStack, parentNode)
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::shared_ptr<ASTree> Parser::numericalExpression(){
     auto child = expression();
-    std::stack<std::shared_ptr<ASTree>> st;
-    st.push(child);
+    std::stack<std::shared_ptr<ASTree>> rpn;
+    rpn.push(child);
     while(currentToken.type == TokenType::_AROP){
         auto arOperator = std::make_shared<ASTree>(ASTNodeType::NUMERICAL_EXPRESSION, Token(currentToken));
         eat(TokenType::_AROP);
         child = expression();
-        st.push(child);
+        rpn.push(child);
 
-        while((arOperator->getToken()->value == "+" || arOperator->getToken()->value == "-") && (currentToken.value == "*" || currentToken.value == "/")){
+        while(getPrecedence(arOperator->getToken()->value) < getPrecedence(currentToken.value)){
             auto strongArOp = std::make_shared<ASTree>(ASTNodeType::NUMERICAL_EXPRESSION, Token(currentToken));
             eat(TokenType::_AROP);
             auto strongChild = expression();
-            st.push(strongChild);
-            st.push(strongArOp);
+            rpn.push(strongChild);
+            rpn.push(strongArOp);
         }
-        st.push(arOperator);
+        rpn.push(arOperator);
     }
 
-    auto root = st.top();
-    st.pop();
+    auto root = rpn.top();
+    rpn.pop();
 
-    return rpnToTree(st, root);
+    return rpnToTree(rpn, root);
 }
 
-std::shared_ptr<ASTree> Parser::rpnToTree(std::stack<std::shared_ptr<ASTree>>& st, std::shared_ptr<ASTree> parent){
-    if(parent->getNodeType() != ASTNodeType::NUMERICAL_EXPRESSION || !parent->getChildren().empty()){ //if parent has children it's already handled
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
+// determining the importance of the operator
+// -> expand for more operators (todo)
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
+int Parser::getPrecedence(std::string& op){
+    if(op == "-" || op == "+"){
+        return 1;
+    }
+    else if (op == "*" || op == "/"){
+        return 2;
+    }
+    else{
+        return 0;
+    }
+}
+
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
+// recursive top-down tree building from rpn based stack
+// if child is not numerical expression - leaf
+// if parent has two children - subtree is handled
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
+std::shared_ptr<ASTree> Parser::rpnToTree(std::stack<std::shared_ptr<ASTree>>& rpn, std::shared_ptr<ASTree> parent){
+    if(parent->getNodeType() != ASTNodeType::NUMERICAL_EXPRESSION || !parent->getChildren().empty()){
         return parent;
     }
-    auto r = st.top();
-    st.pop();
-    auto rchild = rpnToTree(st,r);
+    auto r = rpn.top();
+    rpn.pop();
+    auto rchild = rpnToTree(rpn,r);
 
-    auto l = st.top();
-    st.pop();
-    auto lchild = rpnToTree(st, l);
+    auto l = rpn.top();
+    rpn.pop();
+    auto lchild = rpnToTree(rpn, l);
 
     parent->pushChild(lchild);
     parent->pushChild(rchild);
@@ -546,6 +580,5 @@ std::shared_ptr<ASTree> Parser::literal(){
 // -> PRE/POST INCREMENT/DECREMENT (TODO)
 // -> BITWISE OPERATORS (TODO)
 // -> TERNARY OPERATOR ? : (TODO)
-// -> ELSE IF (ELIF) KEYWORD (TODO)
 // -> IN-PLACE INITIALIZATION (TODO)
 //-----------------------------------------------------------------------------------------------------------------------------------------------------

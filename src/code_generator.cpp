@@ -41,7 +41,7 @@ void CodeGenerator::generateCode(std::shared_ptr<IRTree> root){
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 void CodeGenerator::generateFunction(std::shared_ptr<IRTree> node){
     activeFunction = node->getName();
-    generatedCode << "\n" + activeFunction + ":\n";
+    generatedCode << "\n" << activeFunction << ":\n";
     generatedCode << "\tpush %rbp\n";
     generatedCode << "\tmov %rsp, %rbp\n";
 
@@ -53,11 +53,11 @@ void CodeGenerator::generateFunction(std::shared_ptr<IRTree> node){
         generateStatement(node->getChild(i));
     }
 
-    generatedCode << activeFunction + "_end:\n";
+    generatedCode << activeFunction << "_end:\n";
     
     size_t varCount = node->getChild(1)->getChildren().size();
     if(varCount > 0){
-        generatedCode << "\tadd $" + std::to_string(varCount*8) + ", %rsp\n";
+        generatedCode << "\tadd $" << varCount*8 << ", %rsp\n";
     }
     
     generatedCode << "\tmov %rbp, %rsp\n";
@@ -96,7 +96,7 @@ void CodeGenerator::generateVariable(std::shared_ptr<IRTree> node){
     if(varCount == 0){
         return;
     }
-    generatedCode << "\tsub $" + std::to_string(varCount*8) + ", %rsp\n\n";
+    generatedCode << "\tsub $" << varCount*8 << ", %rsp\n\n";
 
     size_t i = 1;
     for(const auto& var : node->getChildren()){
@@ -139,7 +139,7 @@ void CodeGenerator::generateStatement(std::shared_ptr<IRTree> node){
             generateSwitchStatement(node);
             break;
         default:
-            throw std::runtime_error("Invalid statement" + iNodeToString.at(node->getNodeType()));
+            throw std::runtime_error("Invalid statement " + iNodeToString.at(node->getNodeType()));
     }
     generatedCode << "\n";
 }
@@ -149,23 +149,54 @@ void CodeGenerator::generateStatement(std::shared_ptr<IRTree> node){
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 void CodeGenerator::generateIfStatement(std::shared_ptr<IRTree> node){
     auto labNum = getNextLabelNum();
-    std::string labNumStr = std::to_string(labNum);
+    auto size = node->getChildren().size();
 
-    generatedCode << "if" + std::to_string(labNum) + ":\n";
+    generatedCode << "if" << labNum << ":\n";
     generateRelationalExpression(node->getChild(0));
 
     auto type = node->getChild(0)->getChild(0)->getType() == Types::INT ? 0 : 1;
-    generatedCode << "\t" + stringToOppJMP.at(node->getChild(0)->getValue())[type] << " else" + labNumStr + "\n";
-
-    generateStatement(node->getChild(1));
-    generatedCode << "\tjmp if" + labNumStr + "_end\n";
-
-    generatedCode << "\nelse" + labNumStr + ":\n";
-    if(node->getChildren().size() > 2){
-        generateStatement(node->getChild(2));
+    generatedCode << "\t" + stringToOppJMP.at(node->getChild(0)->getValue())[type];
+    if(size > 3){
+        generatedCode << " elif" << labNum << "_0\n";
+    }
+    else if(size == 3){
+        generatedCode << " else" << labNum << "\n";
+    }
+    else{
+        generatedCode << " if_end" << labNum << "\n";
     }
 
-    generatedCode << "if" + labNumStr + "_end:\n";
+    generateStatement(node->getChild(1));
+    generatedCode << "\tjmp if" << labNum << "_end\n";
+
+    for(size_t i = 2; i < size; i+=2){
+        if(node->getChild(i)->getNodeType() == IRNodeType::CMP){
+            generatedCode << "\nelif" << labNum << "_" << i/2-1 << ":\n";
+            generateRelationalExpression(node->getChild(i));
+
+            type = node->getChild(i)->getChild(0)->getType() == Types::INT ? 0 : 1;
+            generatedCode << "\t" << stringToOppJMP.at(node->getChild(i)->getValue())[type];
+            if(i+2 <= size){
+                generatedCode << " if" << labNum << "_end\n";
+            }
+            else if(i+2 == size+1){
+                generatedCode << " else" << labNum << "\n";
+            }
+            else{
+                generatedCode << " elif" << labNum << "_" << i/2 << "\n"; 
+            }
+
+            generateStatement(node->getChild(i+1));
+            generatedCode << "\tjmp if" << labNum << "_end\n"; 
+        }
+    }
+
+    if(size % 2 == 1){
+        generatedCode << "\nelse" << labNum << ":\n";
+        generateStatement(node->getChildren().back());
+    }
+
+    generatedCode << "if" << labNum << "_end:\n";
 
 }
 
@@ -174,17 +205,16 @@ void CodeGenerator::generateIfStatement(std::shared_ptr<IRTree> node){
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 void CodeGenerator::generateWhileStatement(std::shared_ptr<IRTree> node){
     auto labNum = getNextLabelNum();
-    std::string labNumStr = std::to_string(labNum);
 
-    generatedCode << "while" + labNumStr + ":\n";
+    generatedCode << "while" << labNum << ":\n";
     generateRelationalExpression(node->getChild(0));
 
     auto type = node->getChild(0)->getChild(0)->getType() == Types::INT ? 0 : 1;
-    generatedCode << "\t" + stringToOppJMP.at(node->getChild(0)->getValue())[type] << " while" + labNumStr + "_end\n\n";
+    generatedCode << "\t" << stringToOppJMP.at(node->getChild(0)->getValue())[type] << " while" << labNum << "_end\n\n";
 
     generateStatement(node->getChild(1));
-    generatedCode << "\tjmp while" + labNumStr + "\n";
-    generatedCode << "\nwhile" + labNumStr + "_end:\n";
+    generatedCode << "\tjmp while" << labNum << "\n";
+    generatedCode << "\nwhile" << labNum << "_end:\n";
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -192,20 +222,19 @@ void CodeGenerator::generateWhileStatement(std::shared_ptr<IRTree> node){
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 void CodeGenerator::generateForStatement(std::shared_ptr<IRTree> node){
     auto labNum = getNextLabelNum();
-    std::string labNumStr = std::to_string(labNum);
 
     generateAssignmentStatement(node->getChild(0));
-    generatedCode << "\nfor" + labNumStr + ":\n";
+    generatedCode << "\nfor" << labNum << ":\n";
     generateRelationalExpression(node->getChild(1));
 
     auto type = node->getChild(0)->getChild(0)->getType() == Types::INT ? 0 : 1;
-    generatedCode << "\t" + stringToOppJMP.at(node->getChild(1)->getValue())[type] << " for" + labNumStr + "_end\n\n";
+    generatedCode << "\t" << stringToOppJMP.at(node->getChild(1)->getValue())[type] << " for" << labNum << "_end\n\n";
 
     generateStatement(node->getChild(3));
     generateAssignmentStatement(node->getChild(2));
-    generatedCode << "\tjmp for" + labNumStr + "\n";
+    generatedCode << "\tjmp for" << labNum << "\n";
 
-    generatedCode << "\nfor" + labNumStr + "_end:\n";  
+    generatedCode << "\nfor" << labNum << "_end:\n";  
 
 }
 
@@ -214,14 +243,13 @@ void CodeGenerator::generateForStatement(std::shared_ptr<IRTree> node){
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 void CodeGenerator::generateDoWhileStatement(std::shared_ptr<IRTree> node){
     auto labNum = getNextLabelNum();
-    std::string labNumStr = std::to_string(labNum);
 
-    generatedCode << "do_while" + labNumStr + ":\n";
+    generatedCode << "do_while" << labNum << ":\n";
     generateStatement(node->getChild(0));
     
     generateRelationalExpression(node->getChild(1));
     auto type = node->getChild(1)->getChild(0)->getType() == Types::INT ? 0 : 1;
-    generatedCode << "\t" + stringToJMP.at(node->getChild(1)->getValue())[type] + " do_while" + labNumStr + "\n";
+    generatedCode << "\t" << stringToJMP.at(node->getChild(1)->getValue())[type] << " do_while" << labNum << "\n";
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -254,7 +282,7 @@ void CodeGenerator::generateReturnStatement(std::shared_ptr<IRTree> node){
     }else{
         generatedCode << "\txor %rax, %rax\n";
     }
-    generatedCode << "\tjmp " + activeFunction + "_end\n";
+    generatedCode << "\tjmp " << activeFunction << "_end\n";
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -262,9 +290,8 @@ void CodeGenerator::generateReturnStatement(std::shared_ptr<IRTree> node){
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 void CodeGenerator::generateSwitchStatement(std::shared_ptr<IRTree> node){
     auto labNum = getNextLabelNum();
-    std::string labNumStr = std::to_string(labNum);
 
-    generatedCode << "switch" + labNumStr + ":\n";
+    generatedCode << "switch" << labNum << ":\n";
 
     size_t i = 1;
     auto size = node->getChildren().size();
@@ -274,35 +301,35 @@ void CodeGenerator::generateSwitchStatement(std::shared_ptr<IRTree> node){
     for(; i < size; i++){
         auto child = node->getChild(i);
         if(child->getNodeType() == IRNodeType::CASE){
-            generatedCode << "switch" + labNumStr + "_case" + std::to_string(i-1) + ":\n";
-            generatedCode << "\tmovq " + variableMapping.at(var) + ", %rcx\n";
+            generatedCode << "switch" << labNum << "_case" << i-1 << ":\n";
+            generatedCode << "\tmovq " << variableMapping.at(var) << ", %rcx\n";
             generatedCode << "\tmovq ";
             generateLiteral(child->getChild(0));
             generatedCode << ", %rdx\n";
             generatedCode << "\tcmp %rcx, %rdx\n";
             
             if(hasDefault){
-                generatedCode << "\tjne switch" + labNumStr + "_" + (i < size-2 ?  "case" + std::to_string(i) : "default") + '\n';
+                generatedCode << "\tjne switch" << labNum << "_" << (i < size-2 ?  "case" + std::to_string(i) : "default") << '\n';
             }
             else{
-                generatedCode << "\tjne switch" + labNumStr + "_" + (i < size-1 ?  "case" + std::to_string(i) : "end") + '\n';
+                generatedCode << "\tjne switch" << labNum + "_" << (i < size-1 ?  "case" + std::to_string(i) : "end") << '\n';
             }
 
             generateStatement(child->getChild(1));
             if(child->getChildren().size()==3){
-                generatedCode << "\tjmp switch" + labNumStr + "_end\n";
+                generatedCode << "\tjmp switch" << labNum << "_end\n";
             }
 
         }else{
-            generatedCode << "switch" + labNumStr + "_default:\n";
+            generatedCode << "switch" << labNum << "_default:\n";
             generateStatement(node->getChild(i)->getChild(0));
         }
     }
-    generatedCode << "switch" + labNumStr + "_end:\n";
+    generatedCode << "switch" << labNum << "_end:\n";
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-// NUMERICAL EXPRESSION - evaluating equations with stack
+// NUMERICAL EXPRESSION - evaluating equations using stack
 // -> probably terrible for performance, optimize (TODO)
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 void CodeGenerator::generateNumericalExpression(std::shared_ptr<IRTree> node){
@@ -328,14 +355,14 @@ void CodeGenerator::generateNumericalExpression(std::shared_ptr<IRTree> node){
         if(node->getNodeType() == IRNodeType::MUL || node->getNodeType() == IRNodeType::DIV){ // result of MUL || DIV is in RDX:RAX
             generatedCode << "\txor %rdx, %rdx\n"; //add overflow check (TODO)
             if(node->getType().value() == Types::INT){
-                generatedCode << "\ti" + iNodeToString.at(node->getNodeType()) + " %rbx\n"; 
+                generatedCode << "\ti" << iNodeToString.at(node->getNodeType()) << " %rbx\n"; 
             }
             else{
-                generatedCode << "\t" + iNodeToString.at(node->getNodeType()) + " %rbx\n";
+                generatedCode << "\t" << iNodeToString.at(node->getNodeType()) << " %rbx\n";
             }
         }
         else{
-            generatedCode << "\t" + iNodeToString.at(node->getNodeType()) + " %rbx, %rax\n";
+            generatedCode << "\t" << iNodeToString.at(node->getNodeType()) << " %rbx, %rax\n";
         }
         generatedCode << "\tpush %rax\n";
     }
@@ -368,7 +395,7 @@ void CodeGenerator::generateLiteral(std::shared_ptr<IRTree> node){
     if(node->getType() == Types::UNSIGNED){
         val.pop_back();
     }
-    generatedCode << "$" + val;
+    generatedCode << "$" << val;
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -378,7 +405,7 @@ void CodeGenerator::generateFunctionCall(std::shared_ptr<IRTree> node){
     
     generateArgument(node->getChild(0));
 
-    generatedCode << "\tcall " + node->getName() + '\n';
+    generatedCode << "\tcall " << node->getName() << '\n';
 
     clearArguments(node->getChild(0));
 }

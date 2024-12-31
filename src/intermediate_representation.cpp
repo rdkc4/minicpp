@@ -84,13 +84,17 @@ std::shared_ptr<IRTree> IntermediateRepresentation::statement(std::shared_ptr<AS
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-// IF NODE - relexp, ifstatement, elsestatement(optional)
+// IF NODE - relexp, if statement, relexp else if statements (optional),  else statement(optional)
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::shared_ptr<IRTree> IntermediateRepresentation::ifStatement(std::shared_ptr<ASTree> node){
     auto iChild = std::make_shared<IRTree>(IRNodeType::IF);
-    iChild->pushChild(relationalExpression(node->getChild(0)));
-    for(size_t i = 1; i < node->getChildren().size(); i++){
-        iChild->pushChild(statement(node->getChild(i)));
+    for(const auto& child : node->getChildren()){
+        if(child->getNodeType() == ASTNodeType::RELATIONAL_EXPRESSION){
+            iChild->pushChild(relationalExpression(child));
+        }
+        else{
+            iChild->pushChild(statement(child));
+        }
     }
     return iChild;
 }
@@ -111,8 +115,8 @@ std::shared_ptr<IRTree> IntermediateRepresentation::compoundStatement(std::share
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::shared_ptr<IRTree> IntermediateRepresentation::assignmentStatement(std::shared_ptr<ASTree> node){
     auto iChild = std::make_shared<IRTree>(IRNodeType::ASSIGN);
-    iChild->pushChild(id(node->getChild(1)));
-    iChild->pushChild(numericalExpression(node->getChild(0)));
+    iChild->pushChild(id(node->getChild(0)));
+    iChild->pushChild(numericalExpression(node->getChild(1)));
     return iChild;
 }
 

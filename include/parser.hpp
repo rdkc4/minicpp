@@ -73,6 +73,8 @@ class Parser{
 
         std::shared_ptr<ASTree> numericalExpression();
 
+        int getPrecedence(std::string& op);
+
         std::shared_ptr<ASTree> rpnToTree(std::stack<std::shared_ptr<ASTree>>& st, std::shared_ptr<ASTree> parent);
 
         std::shared_ptr<ASTree> expression();
