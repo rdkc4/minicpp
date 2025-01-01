@@ -448,7 +448,7 @@ std::shared_ptr<ASTree> Parser::numericalExpression(){
             else
                 rpn.push(strongArOp);
         }
-        while(!weakOperators.empty()){
+        while(!weakOperators.empty() && getPrecedence(weakOperators.top()->getToken()->value) > getPrecedence(currentToken.value)){
             rpn.push(weakOperators.top());
             weakOperators.pop();
         }
