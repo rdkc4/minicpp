@@ -380,15 +380,15 @@ else7:
 	push %r8
 	movq -24(%rbp), %r8
 	push %r8
+	pop %rbx
+	pop %rax
+	add %rbx, %rax
+	push %rax
 	movq -8(%rbp), %r8
 	push %r8
 	pop %rbx
 	pop %rax
 	sub %rbx, %rax
-	push %rax
-	pop %rbx
-	pop %rax
-	add %rbx, %rax
 	push %rax
 	pop %rax
 	jmp main_end
