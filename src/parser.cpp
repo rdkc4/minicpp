@@ -421,6 +421,7 @@ std::shared_ptr<ASTree> Parser::_break(){
 std::shared_ptr<ASTree> Parser::numericalExpression(){
     auto child = expression();
     std::stack<std::shared_ptr<ASTree>> rpn;
+    std::stack<std::shared_ptr<ASTree>> weakOperators;
     rpn.push(child);
     while(currentToken.type == TokenType::_AROP || currentToken.type == TokenType::_BITWISE){
         auto arOperator = std::make_shared<ASTree>(ASTNodeType::NUMERICAL_EXPRESSION, Token(currentToken));
@@ -432,7 +433,8 @@ std::shared_ptr<ASTree> Parser::numericalExpression(){
         child = expression();
         rpn.push(child);
 
-        while(getPrecedence(arOperator->getToken()->value) < getPrecedence(currentToken.value)){
+        weakOperators.push(arOperator);
+        while(getPrecedence(weakOperators.top()->getToken()->value) < getPrecedence(currentToken.value)){
             auto strongArOp = std::make_shared<ASTree>(ASTNodeType::NUMERICAL_EXPRESSION, Token(currentToken));
             if(currentToken.type == TokenType::_BITWISE){
                 eat(TokenType::_BITWISE);
@@ -441,9 +443,15 @@ std::shared_ptr<ASTree> Parser::numericalExpression(){
             }
             auto strongChild = expression();
             rpn.push(strongChild);
-            rpn.push(strongArOp);
+            if(getPrecedence(strongArOp->getToken()->value) < getPrecedence(currentToken.value))
+                weakOperators.push(strongArOp);
+            else
+                rpn.push(strongArOp);
         }
-        rpn.push(arOperator);
+        while(!weakOperators.empty()){
+            rpn.push(weakOperators.top());
+            weakOperators.pop();
+        }
     }
 
     auto root = rpn.top();

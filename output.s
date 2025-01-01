@@ -249,15 +249,15 @@ main:
 	xor %rdx, %rdx
 	mul %rbx
 	push %rax
-	pop %rbx
-	pop %rax
-	add %rbx, %rax
-	push %rax
 	push $3
 	pop %rbx
 	pop %rax
 	xor %rdx, %rdx
 	div %rbx
+	push %rax
+	pop %rbx
+	pop %rax
+	add %rbx, %rax
 	push %rax
 	pop %rbx
 	pop %rax
