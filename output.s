@@ -25,11 +25,9 @@ fib:
 if0:
 	movq 16(%rbp), %r8
 	movq $0, %r9
-	movq %r9, %rdx
-	movq %r8, %rcx
-	cmp %rdx, %rcx
-
+	cmp %r9, %r8
 	jge elif0_0
+
 	movq $0, %r8
 	movq %r8, %rax
 	jmp fib_end
@@ -39,9 +37,7 @@ if0:
 elif0_0:
 	movq 16(%rbp), %r8
 	movq $3, %r9
-	movq %r9, %rdx
-	movq %r8, %rcx
-	cmp %rdx, %rcx
+	cmp %r9, %r8
 	jge if0_end
 	movq $1, %r8
 	movq %r8, %rax
@@ -54,31 +50,19 @@ while1:
 	movq -8(%rbp), %r8
 	movq 16(%rbp), %r9
 	movq $2, %r10
-	movq %r10, %rbx
-	movq %r9, %rax
-	sub %rbx, %rax
-	movq %rax, %r9
-
-	movq %r9, %rdx
-	movq %r8, %rcx
-	cmp %rdx, %rcx
+	sub %r10, %r9
+	cmp %r9, %r8
 	jge while1_end
 
 if2:
 	movq -16(%rbp), %r8
 	movq -24(%rbp), %r9
-	movq %r9, %rdx
-	movq %r8, %rcx
-	cmp %rdx, %rcx
-
+	cmp %r9, %r8
 	jle else2
+
 	movq -16(%rbp), %r8
 	movq -24(%rbp), %r9
-	movq %r9, %rbx
-	movq %r8, %rax
-	add %rbx, %rax
-	movq %rax, %r8
-
+	add %r9, %r8
 	movq %r8, -24(%rbp)
 
 	jmp if2_end
@@ -86,22 +70,14 @@ if2:
 else2:
 	movq -16(%rbp), %r8
 	movq -24(%rbp), %r9
-	movq %r9, %rbx
-	movq %r8, %rax
-	add %rbx, %rax
-	movq %rax, %r8
-
+	add %r9, %r8
 	movq %r8, -16(%rbp)
 
 if2_end:
 
 	movq -8(%rbp), %r8
 	movq $1, %r9
-	movq %r9, %rbx
-	movq %r8, %rax
-	add %rbx, %rax
-	movq %rax, %r8
-
+	add %r9, %r8
 	movq %r8, -8(%rbp)
 
 	jmp while1
@@ -111,11 +87,9 @@ while1_end:
 if3:
 	movq -16(%rbp), %r8
 	movq -24(%rbp), %r9
-	movq %r9, %rdx
-	movq %r8, %rcx
-	cmp %rdx, %rcx
-
+	cmp %r9, %r8
 	jle else3
+
 	movq -16(%rbp), %r8
 	movq %r8, %rax
 	jmp fib_end
@@ -144,11 +118,7 @@ fun:
 
 	movq 16(%rbp), %r8
 	movq 24(%rbp), %r9
-	movq %r9, %rbx
-	movq %r8, %rax
-	add %rbx, %rax
-	movq %rax, %r8
-
+	add %r9, %r8
 	movq %r8, -8(%rbp)
 
 switch4:
@@ -217,39 +187,25 @@ main:
 	movq $5, %r8
 	movq %r8, -40(%rbp)
 
-	movq $3, %r8
+	movq -40(%rbp), %r8
+	movq $2, %r9
+	xor %rdx, %rdx
+	movq %r8, %rax
+	mul %r9
+	movq %rax, %r8
+
+	movq $3, %r9
+	xor %rdx, %rdx
+	movq %r8, %rax
+	div %r9
+	movq %rax, %r8
+
 	movq $5, %r9
-	movq -40(%rbp), %r10
-	movq $2, %r11
-	movq %r11, %rbx
-	movq %r10, %rax
-	xor %rdx, %rdx
-	mul %rbx
-	movq %rax, %r10
-
-	movq $3, %r11
-	movq %r11, %rbx
-	movq %r10, %rax
-	xor %rdx, %rdx
-	div %rbx
-	movq %rax, %r10
-
-	movq %r10, %rbx
-	movq %r9, %rax
-	add %rbx, %rax
-	movq %rax, %r9
-
-	movq %r9, %rbx
-	movq %r8, %rax
-	and %rbx, %rax
-	movq %rax, %r8
-
+	add %r8, %r9
+	movq $3, %r9
+	and %r8, %r9
 	movq $9, %r9
-	movq %r9, %rbx
-	movq %r8, %rax
-	or %rbx, %rax
-	movq %rax, %r8
-
+	or %r9, %r8
 	movq %r8, -48(%rbp)
 
 	movq $0, %r8
@@ -258,27 +214,17 @@ main:
 for5:
 	movq -24(%rbp), %r8
 	movq $10, %r9
-	movq %r9, %rdx
-	movq %r8, %rcx
-	cmp %rdx, %rcx
+	cmp %r9, %r8
 	jge for5_end
 
 	movq -32(%rbp), %r8
 	movq $2, %r9
-	movq %r9, %rbx
-	movq %r8, %rax
-	add %rbx, %rax
-	movq %rax, %r8
-
+	add %r9, %r8
 	movq %r8, -32(%rbp)
 
 	movq -24(%rbp), %r8
 	movq $1, %r9
-	movq %r9, %rbx
-	movq %r8, %rax
-	add %rbx, %rax
-	movq %rax, %r8
-
+	add %r9, %r8
 	movq %r8, -24(%rbp)
 	jmp for5
 
@@ -287,18 +233,12 @@ for5_end:
 do_while6:
 	movq -32(%rbp), %r8
 	movq $5, %r9
-	movq %r9, %rbx
-	movq %r8, %rax
-	sub %rbx, %rax
-	movq %rax, %r8
-
+	sub %r9, %r8
 	movq %r8, -32(%rbp)
 
 	movq -32(%rbp), %r8
 	movq $10, %r9
-	movq %r9, %rdx
-	movq %r8, %rcx
-	cmp %rdx, %rcx
+	cmp %r9, %r8
 	jge do_while6
 
 	movq -32(%rbp), %r8
@@ -313,35 +253,27 @@ do_while6:
 
 	movq -8(%rbp), %r8
 	movq $2, %r9
-	movq %r9, %rbx
-	movq %r8, %rax
 	xor %rdx, %rdx
-	imul %rbx
+	movq %r8, %rax
+	imul %r9
 	movq %rax, %r8
 
 	movq -32(%rbp), %r9
 	movq $2, %r10
-	movq %r10, %rbx
-	movq %r9, %rax
 	xor %rdx, %rdx
-	idiv %rbx
+	movq %r9, %rax
+	idiv %r10
 	movq %rax, %r9
 
-	movq %r9, %rbx
-	movq %r8, %rax
-	sub %rbx, %rax
-	movq %rax, %r8
-
+	sub %r9, %r8
 	movq %r8, -8(%rbp)
 
 if7:
 	movq -40(%rbp), %r8
 	movq -48(%rbp), %r9
-	movq %r9, %rdx
-	movq %r8, %rcx
-	cmp %rdx, %rcx
-
+	cmp %r9, %r8
 	jbe else7
+
 	movq $-1, %r8
 	movq %r8, %rax
 	jmp main_end
@@ -351,17 +283,9 @@ if7:
 else7:
 	movq -32(%rbp), %r8
 	movq -24(%rbp), %r9
-	movq %r9, %rbx
-	movq %r8, %rax
-	add %rbx, %rax
-	movq %rax, %r8
-
+	add %r9, %r8
 	movq -8(%rbp), %r9
-	movq %r9, %rbx
-	movq %r8, %rax
-	sub %rbx, %rax
-	movq %rax, %r8
-
+	sub %r9, %r8
 	movq %r8, %rax
 	jmp main_end
 

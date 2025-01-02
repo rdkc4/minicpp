@@ -133,6 +133,10 @@ const std::unordered_map<ASTNodeType, std::string> nodeTypeToString = {
 
 };
 
+const std::unordered_set<IRNodeType> irOperators = {IRNodeType::ADD, IRNodeType::SUB, IRNodeType::DIV, IRNodeType::MUL, 
+    IRNodeType::AND, IRNodeType::OR, IRNodeType::XOR
+};
+
 const std::unordered_map<IRNodeType, std::string> iNodeToString = {
     {IRNodeType::PROGRAM, "PROGRAM"},
     {IRNodeType::FUNCTION, "FUNCTION"},

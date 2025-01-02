@@ -168,7 +168,6 @@ void CodeGenerator::generateIfStatement(std::shared_ptr<IRTree> node){
 
     generatedCode << "if" << labNum << ":\n";
     generateRelationalExpression(node->getChild(0));
-    generatedCode << "\n";
 
     auto type = node->getChild(0)->getChild(0)->getType() == Types::INT ? 0 : 1;
     generatedCode << "\t" + stringToOppJMP.at(node->getChild(0)->getValue())[type];
@@ -181,6 +180,7 @@ void CodeGenerator::generateIfStatement(std::shared_ptr<IRTree> node){
     else{
         generatedCode << " if_end" << labNum << "\n";
     }
+    generatedCode << "\n";
 
     generateStatement(node->getChild(1));
     generatedCode << "\tjmp if" << labNum << "_end\n";
@@ -347,6 +347,7 @@ void CodeGenerator::generateSwitchStatement(std::shared_ptr<IRTree> node){
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // NUMERICAL EXPRESSION - evaluating equations using general-purpose registers r(8-15)
+// -> maybe use queue instead of a tree for numexp, easier generation, better reg usage (TODO?)
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 void CodeGenerator::generateNumericalExpression(std::shared_ptr<IRTree> node){
     if(node->getNodeType() == IRNodeType::ID){
@@ -366,30 +367,46 @@ void CodeGenerator::generateNumericalExpression(std::shared_ptr<IRTree> node){
         takeGpReg();
     }
     else{
-        generateNumericalExpression(node->getChild(0));
-        generateNumericalExpression(node->getChild(1));
-        freeGpReg();
-        generatedCode << "\tmovq " << gpRegisters.at(gpFreeRegPos) << ", %rbx\n";
-        freeGpReg();
-        generatedCode << "\tmovq " << gpRegisters.at(gpFreeRegPos) << ", %rax\n";
+        std::string rbxsub;
+        std::string raxsub;
+        //preventing allocation of non-existant reg
+        if(irOperators.find(node->getChild(0)->getNodeType()) == irOperators.end() && irOperators.find(node->getChild(1)->getNodeType()) != irOperators.end()){
+            generateNumericalExpression(node->getChild(1));
+            generateNumericalExpression(node->getChild(0));
 
+            freeGpReg();
+            raxsub = gpRegisters.at(gpFreeRegPos);
+            freeGpReg();
+            rbxsub = gpRegisters.at(gpFreeRegPos);
+        }
+        else{
+            generateNumericalExpression(node->getChild(0));
+            generateNumericalExpression(node->getChild(1));
+            
+            freeGpReg();
+            rbxsub = gpRegisters.at(gpFreeRegPos);
+            freeGpReg();
+            raxsub = gpRegisters.at(gpFreeRegPos);
+        }
 
         if(node->getNodeType() == IRNodeType::MUL || node->getNodeType() == IRNodeType::DIV){ // result of MUL || DIV is in RDX:RAX
             generatedCode << "\txor %rdx, %rdx\n"; //add overflow check (TODO)
+            generatedCode << "\tmovq " << raxsub << ", %rax\n";
             if(node->getType().value() == Types::INT){
-                generatedCode << "\ti" << iNodeToString.at(node->getNodeType()) << " %rbx\n"; 
+                generatedCode << "\ti" << iNodeToString.at(node->getNodeType()) << " " << rbxsub << "\n"; 
             }
             else{
-                generatedCode << "\t" << iNodeToString.at(node->getNodeType()) << " %rbx\n";
+                generatedCode << "\t" << iNodeToString.at(node->getNodeType()) << " " << rbxsub << "\n";
             }
+            generatedCode << "\tmovq %rax, " << raxsub << "\n\n";
         }
         else if(node->getNodeType() == IRNodeType::AND || node->getNodeType() == IRNodeType::OR || node->getNodeType() == IRNodeType::XOR){
-            generatedCode << "\t" << iNodeToString.at(node->getNodeType()) << " %rbx, %rax\n";
+            generatedCode << "\t" << iNodeToString.at(node->getNodeType()) << " " << rbxsub << ", " << raxsub << "\n";
         }
         else{
-            generatedCode << "\t" << iNodeToString.at(node->getNodeType()) << " %rbx, %rax\n";
+            generatedCode << "\t" << iNodeToString.at(node->getNodeType()) << " " << rbxsub << ", " << raxsub << "\n";
         }
-        generatedCode << "\tmovq %rax, " << gpRegisters.at(gpFreeRegPos) << "\n\n";
+
         takeGpReg();
     }
 }
@@ -401,10 +418,9 @@ void CodeGenerator::generateRelationalExpression(std::shared_ptr<IRTree> node){
     generateNumericalExpression(node->getChild(0));
     generateNumericalExpression(node->getChild(1));
     freeGpReg();
-    generatedCode << "\tmovq " << gpRegisters.at(gpFreeRegPos) << ", %rdx\n";
+    generatedCode << "\tcmp " << gpRegisters.at(gpFreeRegPos) << ", ";
     freeGpReg();
-    generatedCode << "\tmovq " << gpRegisters.at(gpFreeRegPos) << ", %rcx\n";
-    generatedCode << "\tcmp %rdx, %rcx\n";
+    generatedCode << gpRegisters.at(gpFreeRegPos) << "\n";
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
