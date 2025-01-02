@@ -2,6 +2,7 @@
 #define CODE_GENERATOR_HPP
 
 #include <fstream>
+#include <vector>
 #include <memory>
 #include <unordered_map>
 
@@ -25,6 +26,13 @@ class CodeGenerator{
         std::unordered_map<std::string, std::string> variableMapping;
 
         size_t labelNum = 0;
+
+        const std::vector<std::string> gpRegisters = {"%r8", "%r9", "%r10", "%r11", "%r12", "%r13", "%r14", "%r15"};
+        size_t gpFreeRegPos = 0;
+
+        void takeGpReg();
+
+        void freeGpReg();
 
         size_t getNextLabelNum();
 
