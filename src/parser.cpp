@@ -166,25 +166,23 @@ std::shared_ptr<ASTree> Parser::statement(){
         eat(TokenType::_SEMICOLON);
         return node;
     }
-    switch(currentToken.type){
-        case TokenType::_RETURN:
-            return returnStatement();
-        case TokenType::_IF:
-            return ifStatement();
-        case TokenType::_LBRACKET:
-            return compoundStatement();
-        case TokenType::_WHILE:
-            return whileStatement();
-        case TokenType::_FOR:
-            return forStatement();
-        case TokenType::_DO:
-            return doWhileStatement();
-        case TokenType::_SWITCH:
-            return switchStatement();
-        default:
-            throw std::runtime_error("Line " + std::to_string(currentToken.line) + ", Column " + std::to_string(currentToken.column) 
-                + " -> SYNTAX ERROR near: '" + currentToken.value + "'");
-    }
+    else if(currentToken.type == TokenType::_RETURN)
+        return returnStatement();
+    else if(currentToken.type == TokenType::_IF)
+        return ifStatement();
+    else if(currentToken.type == TokenType::_LBRACKET)
+        return compoundStatement();
+    else if(currentToken.type == TokenType::_WHILE)
+        return whileStatement();
+    else if(currentToken.type == TokenType::_FOR)
+        return forStatement();
+    else if(currentToken.type == TokenType::_DO)
+        return doWhileStatement();
+    else if(currentToken.type == TokenType::_SWITCH)
+        return switchStatement();
+    else
+        throw std::runtime_error("Line " + std::to_string(currentToken.line) + ", Column " + std::to_string(currentToken.column) 
+            + " -> SYNTAX ERROR near: '" + currentToken.value + "'");
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -226,22 +224,18 @@ std::shared_ptr<ASTree> Parser::assignmentStatement(){
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::shared_ptr<ASTree> Parser::returnStatement(){
     auto currentNode = std::make_shared<ASTree>(ASTNodeType::RETURN_STATEMENT, Token("return_statement", currentToken.line, currentToken.column));
-    if(currentToken.type == TokenType::_RETURN){
-        eat(TokenType::_RETURN);
-        if(currentToken.type == TokenType::_SEMICOLON){
-            currentNode->setType(Types::VOID);
-            eat(TokenType::_SEMICOLON);
-        }
-        else{
-            currentNode->pushChild(numericalExpression());
-            eat(TokenType::_SEMICOLON);
-        }
-        return currentNode;
+    eat(TokenType::_RETURN);
+
+    if(currentToken.type == TokenType::_SEMICOLON){
+        currentNode->setType(Types::VOID);
+        eat(TokenType::_SEMICOLON);
     }
     else{
-        throw std::runtime_error("Line " + std::to_string(currentToken.line) + ", Column " + std::to_string(currentToken.column) 
-            + " -> SYNTAX ERROR near: '" + currentToken.value + "'");
+        currentNode->pushChild(numericalExpression());
+        eat(TokenType::_SEMICOLON);
     }
+
+    return currentNode;   
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -252,7 +246,6 @@ std::shared_ptr<ASTree> Parser::ifStatement(){
     eat(TokenType::_IF);
     eat(TokenType::_LPAREN);
     currentNode->pushChild(relationalExpression());
-    
     eat(TokenType::_RPAREN);
     
     currentNode->pushChild(statement());
@@ -302,11 +295,11 @@ std::shared_ptr<ASTree> Parser::forStatement(){
     eat(TokenType::_LPAREN);
     currentNode->pushChild(assignmentStatement());
     eat(TokenType::_SEMICOLON);
-
     currentNode->pushChild(relationalExpression());
     eat(TokenType::_SEMICOLON);
     currentNode->pushChild(assignmentStatement());
     eat(TokenType::_RPAREN);
+
     currentNode->pushChild(statement());
     
     return currentNode;
@@ -378,6 +371,7 @@ std::shared_ptr<ASTree> Parser::_case(){
     currentNode->pushChild(literal());
     eat(TokenType::_LITERAL);
     eat(TokenType::_COLON);
+    
     currentNode->pushChild(switchCaseStatementList());
     if(currentToken.type == TokenType::_BREAK){
         currentNode->pushChild(_break());
@@ -393,6 +387,7 @@ std::shared_ptr<ASTree> Parser::_default(){
     auto currentNode = std::make_shared<ASTree>(ASTNodeType::DEFAULT, Token("default", currentToken.line, currentToken.column));
     eat(TokenType::_DEFAULT);
     eat(TokenType::_COLON);
+    
     currentNode->pushChild(switchCaseStatementList());
     if(currentToken.type == TokenType::_BREAK){
         eat(TokenType::_BREAK);
@@ -422,6 +417,7 @@ std::shared_ptr<ASTree> Parser::numericalExpression(){
     auto child = expression();
     std::stack<std::shared_ptr<ASTree>> rpn;
     std::stack<std::shared_ptr<ASTree>> weakOperators;
+    
     rpn.push(child);
     while(currentToken.type == TokenType::_AROP || currentToken.type == TokenType::_BITWISE){
         auto arOperator = std::make_shared<ASTree>(ASTNodeType::NUMERICAL_EXPRESSION, Token(currentToken));

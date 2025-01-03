@@ -17,7 +17,6 @@ void Lexer::tokenize(){
                     getID();
                 }
                 else if(std::isdigit(curr)){
-                    std::cout << lineNumber << "\n";
                     getLiteral();
                 }
                 else if(isSignedLiteral(curr)){
