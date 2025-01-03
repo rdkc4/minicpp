@@ -29,19 +29,31 @@ class Lexer{
         std::vector<Token> tokens;
         size_t _nextToken = 0;
 
-        std::string getID();
+        void updatePosition(char curr);
 
-        std::string getLiteral();
+        void getID();
+
+        void getLiteral(bool sign = false);
+
+        void getAssignOperator(char curr);
+
+        void getBitwiseOperator(char curr);
+
+        void getAritOperator(char curr);
+
+        void getRelOperator();
+
+        bool isAssignOperator(char curr) const;
 
         bool isKeyword(const std::string& value) const;
+
+        bool isSignedLiteral(char curr) const;
 
         bool isAritOperator(char curr) const;
 
         bool isBitwiseOperator(char curr) const;
 
         bool isRelOperator(char curr) const;
-
-        std::string getRelOperator();
 
         void singleLineComment();
 

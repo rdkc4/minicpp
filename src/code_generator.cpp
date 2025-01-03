@@ -348,6 +348,7 @@ void CodeGenerator::generateSwitchStatement(std::shared_ptr<IRTree> node){
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // NUMERICAL EXPRESSION - evaluating equations using general-purpose registers r(8-15)
 // -> maybe use queue instead of a tree for numexp, easier generation, better reg usage (TODO?)
+// -> needs rework, possible invalid allocation -> fix (TODO) 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 void CodeGenerator::generateNumericalExpression(std::shared_ptr<IRTree> node){
     if(node->getNodeType() == IRNodeType::ID){
@@ -369,7 +370,7 @@ void CodeGenerator::generateNumericalExpression(std::shared_ptr<IRTree> node){
     else{
         std::string rbxsub;
         std::string raxsub;
-        //preventing allocation of non-existant reg
+
         if(irOperators.find(node->getChild(0)->getNodeType()) == irOperators.end() && irOperators.find(node->getChild(1)->getNodeType()) != irOperators.end()){
             generateNumericalExpression(node->getChild(1));
             generateNumericalExpression(node->getChild(0));
