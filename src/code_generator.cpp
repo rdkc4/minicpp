@@ -352,19 +352,38 @@ void CodeGenerator::generateSwitchStatement(std::shared_ptr<IRTree> node){
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 void CodeGenerator::generateNumericalExpression(std::shared_ptr<IRTree> node){
     if(node->getNodeType() == IRNodeType::ID){
-        generatedCode << "\tmovq ";
-        generateID(node);
-        generatedCode << ", " << gpRegisters.at(gpFreeRegPos) << "\n";
+        if(gpFreeRegPos < gpRegisters.size()){
+            generatedCode << "\tmovq ";
+            generateID(node);
+            generatedCode << ", " << gpRegisters.at(gpFreeRegPos) << "\n";
+        }
+        else{
+            generatedCode << "\tpush ";
+            generateID(node);
+            generatedCode << "\n";
+        }
         takeGpReg();
     }
     else if(node->getNodeType() == IRNodeType::LITERAL){
-        generatedCode << "\tmovq ";
-        generateLiteral(node);
-        generatedCode << ", " << gpRegisters.at(gpFreeRegPos) << "\n";
+        if(gpFreeRegPos < gpRegisters.size()){
+            generatedCode << "\tmovq ";
+            generateLiteral(node);
+            generatedCode << ", " << gpRegisters.at(gpFreeRegPos) << "\n";
+        }
+        else{
+            generatedCode << "\tpush ";
+            generateLiteral(node);
+            generatedCode << "\n";
+        }
         takeGpReg();
     }else if (node->getNodeType() == IRNodeType::CALL){
         generateFunctionCall(node);
-        generatedCode << "\tmovq %rax, " << gpRegisters.at(gpFreeRegPos) << "\n";
+        if(gpFreeRegPos < gpRegisters.size()){
+            generatedCode << "\tmovq %rax, " << gpRegisters.at(gpFreeRegPos) << "\n";
+        }
+        else{
+            generatedCode << "\tpush %rax\n";
+        }
         takeGpReg();
     }
     else{
@@ -376,18 +395,42 @@ void CodeGenerator::generateNumericalExpression(std::shared_ptr<IRTree> node){
             generateNumericalExpression(node->getChild(0));
 
             freeGpReg();
-            raxsub = gpRegisters.at(gpFreeRegPos);
+            if(gpFreeRegPos >= gpRegisters.size()){
+                raxsub = "%rsi";
+                generatedCode << "\tpop %rsi\n";
+            }
+            else{
+                raxsub = gpRegisters.at(gpFreeRegPos);
+            }
             freeGpReg();
-            rbxsub = gpRegisters.at(gpFreeRegPos);
+            if(gpFreeRegPos >= gpRegisters.size()){
+                rbxsub = "%rdi";
+                generatedCode << "\tpop %rdi\n";
+            }
+            else{
+                rbxsub = gpRegisters.at(gpFreeRegPos);
+            }
         }
         else{
             generateNumericalExpression(node->getChild(0));
             generateNumericalExpression(node->getChild(1));
             
             freeGpReg();
-            rbxsub = gpRegisters.at(gpFreeRegPos);
+            if(gpFreeRegPos >= gpRegisters.size()){
+                rbxsub = "%rdi";
+                generatedCode << "\tpop %rdi\n";
+            }
+            else{
+                rbxsub = gpRegisters.at(gpFreeRegPos);
+            }
             freeGpReg();
-            raxsub = gpRegisters.at(gpFreeRegPos);
+            if(gpFreeRegPos >= gpRegisters.size()){
+                raxsub = "%rsi";
+                generatedCode << "\tpop %rsi\n";
+            }
+            else{
+                raxsub = gpRegisters.at(gpFreeRegPos);
+            }
         }
 
         if(node->getNodeType() == IRNodeType::MUL || node->getNodeType() == IRNodeType::DIV){ // result of MUL || DIV is in RDX:RAX
@@ -407,7 +450,9 @@ void CodeGenerator::generateNumericalExpression(std::shared_ptr<IRTree> node){
         else{
             generatedCode << "\t" << iNodeToString.at(node->getNodeType()) << " " << rbxsub << ", " << raxsub << "\n";
         }
-
+        if(gpFreeRegPos >= gpRegisters.size()){
+            generatedCode << "\tpush " << raxsub << "\n";
+        }
         takeGpReg();
     }
 }
