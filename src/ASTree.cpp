@@ -1,9 +1,42 @@
 #include "../include/ASTree.hpp"
 
 ASTree::ASTree(ASTNodeType nodeType, const Token& token) : nodeType(nodeType), token(std::make_shared<Token>(token)){}
+
 ASTree::ASTree(ASTNodeType nodeType, const Token& token, Types type) : nodeType(nodeType), token(std::make_shared<Token>(token)), type(type){}
 
 ASTree::~ASTree() = default;
+
+const std::unordered_map<ASTNodeType, std::string> astNodeTypeToString = {
+    {ASTNodeType::PROGRAM, "PROGRAM"},
+    {ASTNodeType::FUNCTION_LIST, "FUNCTION_LIST"},
+    {ASTNodeType::FUNCTION, "FUNCTION"},
+    {ASTNodeType::PARAMETER, "PARAMETER"},
+    {ASTNodeType::BODY, "BODY"},
+    {ASTNodeType::VARIABLE_LIST, "VARIABLE_LIST"},
+    {ASTNodeType::VARIABLE, "VARIABLE"},
+    {ASTNodeType::STATEMENT_LIST, "STATEMENT_LIST"},
+    {ASTNodeType::STATEMENT, "STATEMENT"},
+    {ASTNodeType::COMPOUND_STATEMENT, "COMPOUND_STATEMENT"},
+    {ASTNodeType::ASSIGNMENT_STATEMENT, "ASSIGNMENT_STATEMENT"},
+    {ASTNodeType::RETURN_STATEMENT, "RETURN_STATEMENT"},
+    {ASTNodeType::IF_STATEMENT, "IF_STATEMENT"},
+    {ASTNodeType::WHILE_STATEMENT, "WHILE_STATEMENT"},
+    {ASTNodeType::FOR_STATEMENT, "FOR_STATEMENT"},
+    {ASTNodeType::DO_WHILE_STATEMENT, "DO_WHILE_STATEMENT"},
+    {ASTNodeType::SWITCH_STATEMENT, "SWITCH_STATEMENT"},
+    {ASTNodeType::CASE, "CASE"},
+    {ASTNodeType::DEFAULT, "DEFAULT"},
+    {ASTNodeType::BREAK, "BREAK"},
+    {ASTNodeType::NUMERICAL_EXPRESSION, "NUMERICAL_EXPRESSION"},
+    {ASTNodeType::EXPRESSION, "EXPRESSION"},
+    {ASTNodeType::RELATIONAL_EXPRESSION, "RELATIONAL_EXPRESSION"},
+    {ASTNodeType::FUNCTION_CALL, "FUNCTION_CALL"},
+    {ASTNodeType::ARGUMENT, "ARGUMENT"},
+    {ASTNodeType::LITERAL, "LITERAL"},
+    {ASTNodeType::ID, "ID"},
+    {ASTNodeType::CASE, "CASE"},
+    {ASTNodeType::DEFAULT, "DEFAULT"}
+};
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // ADD CHILD TO AST TREE
@@ -46,7 +79,7 @@ const std::shared_ptr<Token> ASTree::getToken() const {
 }
 
 std::string ASTree::toString(){
-    return "|" + nodeTypeToString.at(nodeType) + " | " + token->value + "\n";
+    return "|" + astNodeTypeToString.at(nodeType) + " | " + token->value + "\n";
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------

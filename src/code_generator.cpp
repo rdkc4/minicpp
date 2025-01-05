@@ -154,7 +154,7 @@ void CodeGenerator::generateStatement(std::shared_ptr<IRTree> node){
             generateSwitchStatement(node);
             break;
         default:
-            throw std::runtime_error("Invalid statement " + iNodeToString.at(node->getNodeType()));
+            throw std::runtime_error("Invalid statement " + irNodeToString.at(node->getNodeType()));
     }
     generatedCode << "\n";
 }
@@ -437,18 +437,18 @@ void CodeGenerator::generateNumericalExpression(std::shared_ptr<IRTree> node){
             generatedCode << "\txor %rdx, %rdx\n"; //add overflow check (TODO)
             generatedCode << "\tmovq " << raxsub << ", %rax\n";
             if(node->getType().value() == Types::INT){
-                generatedCode << "\ti" << iNodeToString.at(node->getNodeType()) << " " << rbxsub << "\n"; 
+                generatedCode << "\ti" << irNodeToString.at(node->getNodeType()) << " " << rbxsub << "\n"; 
             }
             else{
-                generatedCode << "\t" << iNodeToString.at(node->getNodeType()) << " " << rbxsub << "\n";
+                generatedCode << "\t" << irNodeToString.at(node->getNodeType()) << " " << rbxsub << "\n";
             }
             generatedCode << "\tmovq %rax, " << raxsub << "\n\n";
         }
         else if(node->getNodeType() == IRNodeType::AND || node->getNodeType() == IRNodeType::OR || node->getNodeType() == IRNodeType::XOR){
-            generatedCode << "\t" << iNodeToString.at(node->getNodeType()) << " " << rbxsub << ", " << raxsub << "\n";
+            generatedCode << "\t" << irNodeToString.at(node->getNodeType()) << " " << rbxsub << ", " << raxsub << "\n";
         }
         else{
-            generatedCode << "\t" << iNodeToString.at(node->getNodeType()) << " " << rbxsub << ", " << raxsub << "\n";
+            generatedCode << "\t" << irNodeToString.at(node->getNodeType()) << " " << rbxsub << ", " << raxsub << "\n";
         }
         if(gpFreeRegPos >= gpRegisters.size()){
             generatedCode << "\tpush " << raxsub << "\n";
