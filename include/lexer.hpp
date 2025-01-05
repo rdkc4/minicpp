@@ -6,6 +6,9 @@
 #include <stdexcept>
 
 #include "defs.hpp"
+#include "token.hpp"
+
+extern const std::unordered_map<std::string, TokenType> keywords;
 
 class Lexer{
     public:

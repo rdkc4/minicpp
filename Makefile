@@ -4,6 +4,8 @@ CXXFLAGS = -std=c++20 -Wall -Wextra -Werror -g
 
 # Source files
 SRCS = main.cpp \
+	src/defs.cpp \
+	src/token.cpp \
 	src/lexer.cpp \
 	src/parser.cpp \
 	src/symbol.cpp \

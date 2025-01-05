@@ -8,6 +8,19 @@
 
 #include "defs.hpp"
 
+enum class IRNodeType{
+    PROGRAM, FUNCTION, PARAMETER, VARIABLE, ARGUMENT, ID, LITERAL, IF, WHILE, FOR, DO_WHILE, SWITCH, CASE, 
+    DEFAULT, BREAK, ASSIGN, COMPOUND, CALL, RETURN, ADD, SUB, DIV, MUL, CMP, AND, OR, XOR
+};
+
+extern const std::unordered_set<IRNodeType> irOperators;
+
+extern const std::unordered_map<IRNodeType, std::string> irNodeToString;
+
+extern const std::unordered_map<std::string, IRNodeType> stringToArop;
+
+extern const std::unordered_map<std::string, IRNodeType> stringToBitop;
+
 class IRTree{
     
     public:
