@@ -1,6 +1,11 @@
 #include "lexer.hpp"
 
-Lexer::Lexer(const std::string& input) : input(input), position(0), lineNumber(1), prevLineLen(0){}
+#include <iostream>
+#include <stdexcept>
+
+#include "../common/defs/defs.hpp"
+
+Lexer::Lexer(const std::string& input) : input(input), position(0), lineNumber(1), prevLineLen(0), nextTokenIdx(0){}
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // keywords reserved for the programming language
@@ -27,74 +32,74 @@ const std::unordered_map<std::string, TokenType> keywords = {
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 void Lexer::tokenize(){
     while(position < input.size()){
-                char curr = input[position];
-                
-                if(std::isspace(curr)){
-                    updatePosition(curr);
-                }
-                else if(std::isalpha(curr)){
-                    getID();
-                }
-                else if(std::isdigit(curr)){
-                    getLiteral();
-                }
-                else if(isSignedLiteral(curr)){
-                    getLiteral(true);
-                }
-                else if(curr == '/' && position < input.size() - 1 && input[position + 1] == '/'){
-                    singleLineComment();
-                }
-                else if(curr == '/' && position < input.size() - 1 && input[position + 1] == '*'){
-                    multiLineComment();
-                }
-                else if(isBitwiseOperator(curr)){
-                    getBitwiseOperator(curr);
-                }
-                else if(isAritOperator(curr)){
-                    getAritOperator(curr);
-                }
-                else if(isAssignOperator(curr)){
-                    getAssignOperator(curr);
-                }
-                else if(isRelOperator(curr)){
-                    getRelOperator();
-                }
-                else if(curr == '('){
-                    tokens.push_back(Token(TokenType::_LPAREN, std::string(1,curr), lineNumber, position - prevLineLen));
-                    ++position;
-                }
-                else if(curr == ')'){
-                    tokens.push_back(Token(TokenType::_RPAREN, std::string(1,curr), lineNumber, position - prevLineLen));
-                    ++position;
-                }
-                else if(curr == '{'){
-                    tokens.push_back(Token(TokenType::_LBRACKET, std::string(1,curr), lineNumber, position - prevLineLen));
-                    ++position;
-                }
-                else if(curr == '}'){
-                    tokens.push_back(Token(TokenType::_RBRACKET, std::string(1,curr), lineNumber, position - prevLineLen));
-                    ++position;
-                }
-                else if(curr == ','){
-                    tokens.push_back(Token(TokenType::_COMMA, std::string(1,curr), lineNumber, position - prevLineLen));
-                    ++position;
-                }
-                else if(curr == ';'){
-                    tokens.push_back(Token(TokenType::_SEMICOLON, std::string(1,curr), lineNumber, position - prevLineLen));
-                    ++position;
-                }
-                else if(curr == ':'){
-                    tokens.push_back(Token(TokenType::_COLON, std::string(1, curr), lineNumber, position - prevLineLen));
-                    ++position;
-                }
-                else{
-                    tokens.push_back(Token(TokenType::_INVALID, std::string(1,curr), lineNumber, position - prevLineLen));
-                    throw std::runtime_error("Line " + std::to_string(lineNumber) + ", Column " + std::to_string(position - prevLineLen) 
-                        + ": LEXICAL ERROR at char '" + std::string(1, curr) + "'");
-                }
-            }
-            tokens.push_back(Token(TokenType::_EOF, "", lineNumber, position - prevLineLen));
-            //printTokens(tokens);
+        char curr = input[position];
+        
+        if(std::isspace(curr)){
+            updatePosition(curr);
+        }
+        else if(std::isalpha(curr)){
+            getID();
+        }
+        else if(std::isdigit(curr)){
+            getLiteral();
+        }
+        else if(isSignedLiteral(curr)){
+            getLiteral(true);
+        }
+        else if(curr == '/' && position < input.size() - 1 && input[position + 1] == '/'){
+            singleLineComment();
+        }
+        else if(curr == '/' && position < input.size() - 1 && input[position + 1] == '*'){
+            multiLineComment();
+        }
+        else if(isBitwiseOperator(curr)){
+            getBitwiseOperator(curr);
+        }
+        else if(isAritOperator(curr)){
+            getAritOperator(curr);
+        }
+        else if(isAssignOperator(curr)){
+            getAssignOperator(curr);
+        }
+        else if(isRelOperator(curr)){
+            getRelOperator();
+        }
+        else if(curr == '('){
+            tokens.push_back(Token(TokenType::_LPAREN, std::string(1,curr), lineNumber, position - prevLineLen));
+            ++position;
+        }
+        else if(curr == ')'){
+            tokens.push_back(Token(TokenType::_RPAREN, std::string(1,curr), lineNumber, position - prevLineLen));
+            ++position;
+        }
+        else if(curr == '{'){
+            tokens.push_back(Token(TokenType::_LBRACKET, std::string(1,curr), lineNumber, position - prevLineLen));
+            ++position;
+        }
+        else if(curr == '}'){
+            tokens.push_back(Token(TokenType::_RBRACKET, std::string(1,curr), lineNumber, position - prevLineLen));
+            ++position;
+        }
+        else if(curr == ','){
+            tokens.push_back(Token(TokenType::_COMMA, std::string(1,curr), lineNumber, position - prevLineLen));
+            ++position;
+        }
+        else if(curr == ';'){
+            tokens.push_back(Token(TokenType::_SEMICOLON, std::string(1,curr), lineNumber, position - prevLineLen));
+            ++position;
+        }
+        else if(curr == ':'){
+            tokens.push_back(Token(TokenType::_COLON, std::string(1, curr), lineNumber, position - prevLineLen));
+            ++position;
+        }
+        else{
+            tokens.push_back(Token(TokenType::_INVALID, std::string(1,curr), lineNumber, position - prevLineLen));
+            throw std::runtime_error("Line " + std::to_string(lineNumber) + ", Column " + std::to_string(position - prevLineLen) 
+                + ": LEXICAL ERROR at char '" + std::string(1, curr) + "'");
+        }
+    }
+    tokens.push_back(Token(TokenType::_EOF, "", lineNumber, position - prevLineLen));
+    //printTokens(tokens);
 }
 
 
@@ -105,10 +110,10 @@ Token Lexer::nextToken(){
     if(tokens.empty()){
         tokenize();
     }
-    if(_nextToken >= tokens.size()){
-            return Token(TokenType::_EOF, "", lineNumber, position - prevLineLen);
+    if(nextTokenIdx >= tokens.size()){
+        return Token(TokenType::_EOF, "", lineNumber, position - prevLineLen);
     }
-    return tokens[_nextToken++];
+    return tokens[nextTokenIdx++];
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -118,10 +123,10 @@ Token Lexer::peekAtNext(){
     if(tokens.empty()){
         tokenize();
     }
-    if(_nextToken >= tokens.size()){
+    if(nextTokenIdx >= tokens.size()){
         return Token(TokenType::_EOF, "", lineNumber, position - prevLineLen);
     }
-    return tokens[_nextToken];
+    return tokens[nextTokenIdx];
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------

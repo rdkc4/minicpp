@@ -6,7 +6,7 @@
 #include <memory>
 #include <unordered_map>
 
-#include "../intermediate-representation/intermediate_representation.hpp"
+#include "../common/intermediate-representation-tree/IRTree.hpp"
 
 class CodeGenerator{
 

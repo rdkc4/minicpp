@@ -1,5 +1,5 @@
 # Compiler and flags
-CXX = g++
+CXX = clang++
 CXXFLAGS = -std=c++23 -Wall -Wextra -Werror -g
 
 # Source files

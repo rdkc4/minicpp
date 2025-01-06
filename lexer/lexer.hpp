@@ -1,11 +1,9 @@
 #ifndef LEXER_HPP
 #define LEXER_HPP
 
-#include <iostream>
+#include <string>
 #include <vector>
-#include <stdexcept>
 
-#include "../common/defs/defs.hpp"
 #include "../common/token/token.hpp"
 
 extern const std::unordered_map<std::string, TokenType> keywords;
@@ -30,7 +28,7 @@ class Lexer{
         size_t prevLineLen;
 
         std::vector<Token> tokens;
-        size_t _nextToken = 0;
+        size_t nextTokenIdx;
 
         void updatePosition(char curr);
 

@@ -1,5 +1,7 @@
 #include "parser.hpp"
 
+#include <iostream>
+
 Parser::Parser(Lexer& lexer, ScopeManager& scopeManager) : lexer(lexer), currentToken(lexer.nextToken()), analyzer(scopeManager) {}
 
 

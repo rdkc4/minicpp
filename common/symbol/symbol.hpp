@@ -1,8 +1,7 @@
 #ifndef SYMBOL_HPP
 #define SYMBOL_HPP
 
-#include <iostream>
-#include <vector>
+#include <string>
 
 #include "../abstract-syntax-tree/ASTree.hpp"
 #include "../defs/defs.hpp"

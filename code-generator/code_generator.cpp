@@ -329,7 +329,7 @@ void CodeGenerator::generateSwitchStatement(std::shared_ptr<IRTree> node){
                 generatedCode << "\tjne switch" << labNum << "_" << (i < size-2 ?  "case" + std::to_string(i) : "default") << '\n';
             }
             else{
-                generatedCode << "\tjne switch" << labNum + "_" << (i < size-1 ?  "case" + std::to_string(i) : "end") << '\n';
+                generatedCode << "\tjne switch" << labNum << "_" << (i < size-1 ?  "case" + std::to_string(i) : "end") << '\n';
             }
 
             generateStatement(child->getChild(1));

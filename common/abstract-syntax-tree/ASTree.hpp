@@ -4,7 +4,6 @@
 #include <vector>
 #include <memory>
 #include <optional>
-#include <queue>
 
 #include "../defs/defs.hpp"
 #include "../token/token.hpp"

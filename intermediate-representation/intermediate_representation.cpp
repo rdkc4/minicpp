@@ -1,5 +1,7 @@
 #include "intermediate_representation.hpp"
 
+#include <stdexcept>
+
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // INTERMEDIATE REPRESENTATION TREE BUILDING
 // simplifying AST for easier code generation

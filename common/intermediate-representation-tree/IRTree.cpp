@@ -1,5 +1,7 @@
 #include "IRTree.hpp"
 
+#include <iostream>
+
 IRTree::IRTree(IRNodeType nodeType) : nodeType(nodeType){}
 
 IRTree::IRTree(IRNodeType nodeType, std::string name, std::string value, Types type)

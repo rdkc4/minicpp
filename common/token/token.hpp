@@ -1,7 +1,7 @@
 #ifndef TOKEN_HPP
 #define TOKEN_HPP
 
-#include <iostream>
+#include <string>
 #include <unordered_map>
 
 enum class TokenType{

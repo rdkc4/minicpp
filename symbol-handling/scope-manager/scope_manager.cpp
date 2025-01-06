@@ -1,5 +1,7 @@
 #include "scope_manager.hpp"
 
+#include <iostream>
+
 ScopeManager::ScopeManager(SymbolTable& symTab) : symbolTable(symTab){}
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------

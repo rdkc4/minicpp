@@ -1,5 +1,7 @@
 #include "analyzer.hpp"
 
+#include <stdexcept>
+
 Analyzer::Analyzer(ScopeManager& scopeManager) : scopeManager(scopeManager), activeFunction(""), returned(false){}
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
