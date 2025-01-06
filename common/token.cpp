@@ -1,4 +1,4 @@
-#include "../include/token.hpp"
+#include "token.hpp"
 
 const std::unordered_map<TokenType, std::string> tokenTypeToString = {
     {TokenType::_ID, "ID"},

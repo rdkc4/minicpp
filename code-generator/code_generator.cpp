@@ -1,4 +1,4 @@
-#include "../include/code_generator.hpp"
+#include "code_generator.hpp"
 
 CodeGenerator::CodeGenerator() : generatedCode("output.s"){}
 

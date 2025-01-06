@@ -1,4 +1,4 @@
-#include "../include/lexer.hpp"
+#include "lexer.hpp"
 
 Lexer::Lexer(const std::string& input) : input(input), position(0), lineNumber(1), prevLineLen(0){}
 

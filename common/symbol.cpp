@@ -1,4 +1,4 @@
-#include "../include/symbol.hpp"
+#include "symbol.hpp"
 
 Symbol::Symbol(std::string& name, Kinds kind, Types type)
     : name(name), kind(kind), type(type), parameters(nullptr){}

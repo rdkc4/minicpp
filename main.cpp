@@ -1,8 +1,7 @@
 #include <iostream>
 
-#include "include/defs.hpp"
-#include "include/symbol_table.hpp"
-#include "include/parser.hpp"
+#include "symbol-table/symbol_table.hpp"
+#include "parser/parser.hpp"
 
 
 int main(){

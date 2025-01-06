@@ -4,17 +4,18 @@ CXXFLAGS = -std=c++20 -Wall -Wextra -Werror -g
 
 # Source files
 SRCS = main.cpp \
-	src/defs.cpp \
-	src/token.cpp \
-	src/lexer.cpp \
-	src/parser.cpp \
-	src/symbol.cpp \
-	src/symbol_table.cpp \
-	src/scope_manager.cpp \
-	src/ASTree.cpp src/analyzer.cpp \
-	src/IRTree.cpp \
-	src/intermediate_representation.cpp \
-	src/code_generator.cpp
+	common/defs.cpp \
+	common/token.cpp \
+	lexer/lexer.cpp \
+	parser/parser.cpp \
+	common/symbol.cpp \
+	symbol-table/symbol_table.cpp \
+	symbol-table/scope_manager.cpp \
+	common/ASTree.cpp \
+	analyzer/analyzer.cpp \
+	common/IRTree.cpp \
+	intermediate-representation/intermediate_representation.cpp \
+	code-generator/code_generator.cpp
 
 # Object files (derived from the source files)
 OBJS = $(SRCS:.cpp=.o)

@@ -1,4 +1,4 @@
-#include "../include/scope_manager.hpp"
+#include "scope_manager.hpp"
 
 ScopeManager::ScopeManager(SymbolTable& symTab) : symbolTable(symTab){}
 
