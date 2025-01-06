@@ -6,7 +6,7 @@
 #include <optional>
 #include <unordered_map>
 
-#include "defs.hpp"
+#include "../defs/defs.hpp"
 
 enum class IRNodeType{
     PROGRAM, FUNCTION, PARAMETER, VARIABLE, ARGUMENT, ID, LITERAL, IF, WHILE, FOR, DO_WHILE, SWITCH, CASE, 

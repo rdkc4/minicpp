@@ -1,19 +1,19 @@
 # Compiler and flags
 CXX = g++
-CXXFLAGS = -std=c++20 -Wall -Wextra -Werror -g
+CXXFLAGS = -std=c++23 -Wall -Wextra -Werror -g
 
 # Source files
 SRCS = main.cpp \
-	common/defs.cpp \
-	common/token.cpp \
+	common/defs/defs.cpp \
+	common/token/token.cpp \
+	common/abstract-syntax-tree/ASTree.cpp \
+	common/symbol/symbol.cpp \
+	common/intermediate-representation-tree/IRTree.cpp \
 	lexer/lexer.cpp \
 	parser/parser.cpp \
-	common/symbol.cpp \
-	symbol-table/symbol_table.cpp \
-	symbol-table/scope_manager.cpp \
-	common/ASTree.cpp \
+	symbol-handling/symbol-table/symbol_table.cpp \
+	symbol-handling/scope-manager/scope_manager.cpp \
 	analyzer/analyzer.cpp \
-	common/IRTree.cpp \
 	intermediate-representation/intermediate_representation.cpp \
 	code-generator/code_generator.cpp
 

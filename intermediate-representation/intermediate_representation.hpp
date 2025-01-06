@@ -3,8 +3,8 @@
 
 #include <string>
 
-#include "../common/IRTree.hpp"
-#include "../common/ASTree.hpp"
+#include "../common/intermediate-representation-tree/IRTree.hpp"
+#include "../common/abstract-syntax-tree/ASTree.hpp"
 
 class IntermediateRepresentation{
 

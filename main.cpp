@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "symbol-table/symbol_table.hpp"
+#include "symbol-handling/symbol-table/symbol_table.hpp"
 #include "parser/parser.hpp"
 
 

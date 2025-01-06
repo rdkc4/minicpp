@@ -4,8 +4,8 @@
 #include <stack>
 
 #include "../lexer/lexer.hpp"
-#include "../symbol-table/scope_manager.hpp"
-#include "../common/ASTree.hpp"
+#include "../symbol-handling/scope-manager/scope_manager.hpp"
+#include "../common/abstract-syntax-tree/ASTree.hpp"
 #include "../analyzer/analyzer.hpp"
 #include "../intermediate-representation/intermediate_representation.hpp"
 #include "../code-generator/code_generator.hpp"

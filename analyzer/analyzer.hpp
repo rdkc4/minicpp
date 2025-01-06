@@ -4,8 +4,8 @@
 #include <unordered_map>
 #include <unordered_set>
 
-#include "../common/ASTree.hpp"
-#include "../symbol-table/scope_manager.hpp"
+#include "../common/abstract-syntax-tree/ASTree.hpp"
+#include "../symbol-handling/scope-manager/scope_manager.hpp"
 
 class Analyzer{
     public:

@@ -4,8 +4,8 @@
 #include <iostream>
 #include <vector>
 
-#include "ASTree.hpp"
-#include "defs.hpp"
+#include "../abstract-syntax-tree/ASTree.hpp"
+#include "../defs/defs.hpp"
 
 class Symbol{
     public:

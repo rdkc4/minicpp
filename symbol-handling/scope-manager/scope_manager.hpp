@@ -3,7 +3,7 @@
 
 #include <stack>
 
-#include "symbol_table.hpp"
+#include "../symbol-table/symbol_table.hpp"
 
 class ScopeManager{
     public:

@@ -6,8 +6,8 @@
 #include <optional>
 #include <queue>
 
-#include "defs.hpp"
-#include "token.hpp"
+#include "../defs/defs.hpp"
+#include "../token/token.hpp"
 
 enum class ASTNodeType{
     PROGRAM, FUNCTION_LIST, FUNCTION, PARAMETER, BODY, VARIABLE_LIST, VARIABLE, STATEMENT_LIST, STATEMENT, COMPOUND_STATEMENT, 

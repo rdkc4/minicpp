@@ -5,7 +5,7 @@
 #include <vector>
 #include <memory>
 
-#include "../common/symbol.hpp"
+#include "../../common/symbol/symbol.hpp"
 
 class SymbolTable{
     public:

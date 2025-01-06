@@ -5,8 +5,8 @@
 #include <vector>
 #include <stdexcept>
 
-#include "../common/defs.hpp"
-#include "../common/token.hpp"
+#include "../common/defs/defs.hpp"
+#include "../common/token/token.hpp"
 
 extern const std::unordered_map<std::string, TokenType> keywords;
 
