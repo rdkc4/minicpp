@@ -1,6 +1,6 @@
 #include "code_generator.hpp"
 
-CodeGenerator::CodeGenerator() : generatedCode("output.s"){}
+CodeGenerator::CodeGenerator(std::string& output) : generatedCode(output){}
 
 CodeGenerator::~CodeGenerator(){
     generatedCode.close();

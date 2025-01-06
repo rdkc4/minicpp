@@ -1,8 +1,9 @@
 #include "parser.hpp"
 
-#include <iostream>
+#include <memory>
+#include <stdexcept>
 
-Parser::Parser(Lexer& lexer, ScopeManager& scopeManager) : lexer(lexer), currentToken(lexer.nextToken()), analyzer(scopeManager) {}
+Parser::Parser(Lexer& lexer) : lexer(lexer), currentToken(lexer.nextToken()) {}
 
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -27,26 +28,14 @@ Types Parser::getTypeFromToken(Token token){
 // SYNTAX CHECK
 // ABSTRACT SYNTAX TREE BUILDING
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-void Parser::parseProgram(){
-    root = std::make_shared<ASTree>(ASTNodeType::PROGRAM, Token("program", 0, 0));
-
+std::shared_ptr<ASTree> Parser::parseProgram(){
+    std::shared_ptr<ASTree> root = std::make_shared<ASTree>(ASTNodeType::PROGRAM, Token("program", 0, 0));
     root->pushChild(functionList());
     if(currentToken.type != TokenType::_EOF){
         throw std::runtime_error("Line " + std::to_string(currentToken.line) + ", Column " + std::to_string(currentToken.column) 
             + " -> SYNTAX ERROR near: '" + currentToken.value + "'");
     }
-
-    std::cout << "AST REPRESENTATION\n";
-    root->traverse(1);
-    
-    analyzer.semanticCheck(root);
-    std::cout << "\n\n";
-    
-    intermediateRepresentation.formIR(root);
-    std::cout << "IR REPRESENTATION\n";
-    intermediateRepresentation.getRoot()->traverse(1);
-    
-    codeGen.generateCode(intermediateRepresentation.getRoot());
+    return root;
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------

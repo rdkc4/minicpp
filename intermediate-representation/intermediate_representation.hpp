@@ -10,13 +10,9 @@ class IntermediateRepresentation{
 
     public:
 
-        void formIR(std::shared_ptr<ASTree> astRoot);
-
-        std::shared_ptr<IRTree> getRoot() const;
+        std::shared_ptr<IRTree> formIR(std::shared_ptr<ASTree> astRoot);
 
     private:
-
-        std::shared_ptr<IRTree> root;
 
         std::shared_ptr<IRTree> function(std::shared_ptr<ASTree> node);
 

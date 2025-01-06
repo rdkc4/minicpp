@@ -107,9 +107,6 @@ void Lexer::tokenize(){
 // MOVING ON TO THE NEXT TOKEN
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 Token Lexer::nextToken(){
-    if(tokens.empty()){
-        tokenize();
-    }
     if(nextTokenIdx >= tokens.size()){
         return Token(TokenType::_EOF, "", lineNumber, position - prevLineLen);
     }
@@ -120,9 +117,6 @@ Token Lexer::nextToken(){
 // RETRIEVAL OF NEXT TOKEN
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 Token Lexer::peekAtNext(){
-    if(tokens.empty()){
-        tokenize();
-    }
     if(nextTokenIdx >= tokens.size()){
         return Token(TokenType::_EOF, "", lineNumber, position - prevLineLen);
     }

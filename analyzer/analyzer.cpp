@@ -17,11 +17,11 @@ void Analyzer::semanticCheck(std::shared_ptr<ASTree> root){
 
         if(type == Types::NO_TYPE){
             throw std::runtime_error("Line " + std::to_string(child->getToken()->line) + " Column " + std::to_string(child->getToken()->column)
-                + ":SEMANTIC ERROR -> invalid type " + typeToString.at(type) + " " + child->getToken()->value);
+                + ":SEMANTIC ERROR -> invalid type '" + typeToString.at(type) + " " + child->getToken()->value + "'");
         }
         if(!scopeManager.pushSymbol(std::make_shared<Symbol>(child->getToken()->value, Kinds::FUN, type))){
             throw std::runtime_error("Line " + std::to_string(child->getToken()->line) + " Column " + std::to_string(child->getToken()->column)
-                + ":SEMANTIC ERROR -> function redefined " + typeToString.at(type) + " " + child->getToken()->value);
+                + ":SEMANTIC ERROR -> function redefined '" + typeToString.at(type) + " " + child->getToken()->value + "'");
         }
         functionCheck(child);
     }
@@ -70,7 +70,7 @@ void Analyzer::parameterCheck(std::shared_ptr<ASTree> node){
         auto type = child->getType().value();
         if(type == Types::VOID || type == Types::NO_TYPE){
             throw std::runtime_error("Line " + std::to_string(child->getToken()->line) + " Column " + std::to_string(child->getToken()->column)
-                + ":SEMANTIC ERROR -> invalid type " + typeToString.at(type) + " " + child->getToken()->value);
+                + ":SEMANTIC ERROR -> invalid type '" + typeToString.at(type) + " " + child->getToken()->value + "'");
         }
         if(!scopeManager.pushSymbol(std::make_shared<Symbol>(child->getToken()->value, Kinds::PAR, child->getType().value()))){
             throw std::runtime_error("Line " + std::to_string(child->getToken()->line) + " Column " + std::to_string(child->getToken()->column)
@@ -95,7 +95,7 @@ void Analyzer::checkVariables(std::shared_ptr<ASTree> node){
         auto type = child->getType().value();
         if(type == Types::VOID || type == Types::NO_TYPE){
             throw std::runtime_error("Line " + std::to_string(child->getToken()->line) + " Column " + std::to_string(child->getToken()->column)
-                + ":SEMANTIC ERROR -> invalid type " + typeToString.at(type) + " " + child->getToken()->value);
+                + ":SEMANTIC ERROR -> invalid type '" + typeToString.at(type) + " " + child->getToken()->value + "'");
         }
         if(!scopeManager.pushSymbol(std::make_shared<Symbol>(child->getToken()->value, Kinds::VAR, type))){
             throw std::runtime_error("Line " + std::to_string(child->getToken()->line) + " Column " + std::to_string(child->getToken()->column)
@@ -309,7 +309,7 @@ void Analyzer::checkAssignmentStatement(std::shared_ptr<ASTree> node){
     
     if(rtype != ltype){
         throw std::runtime_error("Line " + std::to_string(node->getToken()->line) + " Column " + std::to_string(node->getToken()->column)
-            + ": SEMANTIC ERROR -> type mismatch near " + node->getToken()->value);
+            + ": SEMANTIC ERROR -> type mismatch '" + node->getToken()->value + "'");
     }
 }
 
@@ -346,7 +346,7 @@ Types Analyzer::getNumericalExpressionType(std::shared_ptr<ASTree> node){
     if(node->getNodeType() == ASTNodeType::ID){
         if(!scopeManager.getSymbolTable().lookupSymbol(node->getToken()->value, {Kinds::VAR, Kinds::PAR})){
             throw std::runtime_error("Line " + std::to_string(node->getToken()->line) + " Column " + std::to_string(node->getToken()->column)
-                + ":SEMANTIC ERROR -> undefined variable " + node->getToken()->value);
+                + ":SEMANTIC ERROR -> undefined variable '" + node->getToken()->value + "'");
         }
         auto type = scopeManager.getSymbolTable().getSymbol(node->getToken()->value)->getType();
         node->setType(type);
@@ -367,7 +367,7 @@ Types Analyzer::getNumericalExpressionType(std::shared_ptr<ASTree> node){
         auto rtype = getNumericalExpressionType(node->getChild(1));
         if(ltype != rtype){
             throw std::runtime_error("Line " + std::to_string(node->getToken()->line) + " Column " + std::to_string(node->getToken()->column)
-                + ": SEMANTIC ERROR -> type mismatch near " + node->getToken()->value);
+                + ": SEMANTIC ERROR -> type mismatch near '" + node->getToken()->value + "'");
         }
         
         return ltype;
@@ -391,7 +391,7 @@ void Analyzer::checkRelationalExpression(std::shared_ptr<ASTree> node){
     
     if(ltype != rtype){
         throw std::runtime_error("Line " + std::to_string(node->getToken()->line) + " Column " + std::to_string(node->getToken()->column)
-            + ": SEMANTIC ERROR -> type mismatch " + node->getToken()->value);
+            + ": SEMANTIC ERROR -> type mismatch near '" + node->getToken()->value + "'");
     }
 }
 
@@ -402,7 +402,7 @@ void Analyzer::checkID(std::shared_ptr<ASTree> node){
     auto name = node->getToken()->value;
     if(!scopeManager.getSymbolTable().lookupSymbol(name, {Kinds::VAR, Kinds::PAR})){
         throw std::runtime_error("Line " + std::to_string(node->getToken()->line) + " Column " + std::to_string(node->getToken()->column)
-            + ":SEMANTIC ERROR -> undefined variable " + name);
+            + ":SEMANTIC ERROR -> undefined variable '" + name + "'");
     }
     node->setType(scopeManager.getSymbolTable().getSymbol(node->getToken()->value)->getType());
 }
@@ -414,11 +414,11 @@ void Analyzer::checkLiteral(std::shared_ptr<ASTree> node){
     auto name = node->getToken()->value;
     if(node->getType().value() == Types::UNSIGNED && (name.back() != 'u' || name.front() == '-')){
         throw std::runtime_error("Line " + std::to_string(node->getToken()->line) + " Column " + std::to_string(node->getToken()->column)
-            + ":SEMANTIC ERROR -> invalid literal " + name);
+            + ":SEMANTIC ERROR -> invalid literal '" + name + "'");
     }
     else if(node->getType().value() == Types::INT && name.back() == 'u'){
         throw std::runtime_error("Line " + std::to_string(node->getToken()->line) + " Column " + std::to_string(node->getToken()->column)
-            + ":SEMANTIC ERROR -> invalid literal " + name);
+            + ":SEMANTIC ERROR -> invalid literal '" + name + "'");
     }
 }
 
@@ -429,7 +429,7 @@ void Analyzer::checkLiteral(std::shared_ptr<ASTree> node){
 void Analyzer::checkFunctionCall(std::shared_ptr<ASTree> node){
     if(!scopeManager.getSymbolTable().lookupSymbol(node->getToken()->value, {Kinds::FUN})){
         throw std::runtime_error("Line " + std::to_string(node->getToken()->line) + " Column " + std::to_string(node->getToken()->column)
-            + ":SEMANTIC ERROR -> undefined function " + node->getToken()->value);
+            + ":SEMANTIC ERROR -> undefined function '" + node->getToken()->value + ";");
     }
 
     if(node->getToken()->value == "main"){
@@ -439,7 +439,7 @@ void Analyzer::checkFunctionCall(std::shared_ptr<ASTree> node){
 
     if(node->getChild(0)->getChildren().size() != scopeManager.getSymbolTable().getSymbol(node->getToken()->value)->getParameters()->getChildren().size()){
         throw std::runtime_error("Line " + std::to_string(node->getToken()->line) + " Column " + std::to_string(node->getToken()->column)
-            + ":SEMANTIC ERROR -> invalid function call " + node->getToken()->value);
+            + ":SEMANTIC ERROR -> invalid function call '" + node->getToken()->value + "'");
     }
     node->setType(scopeManager.getSymbolTable().getSymbol(node->getToken()->value)->getType());
     checkArgument(node);
@@ -456,7 +456,7 @@ void Analyzer::checkArgument(std::shared_ptr<ASTree> node){
 
         if(arguments->getChild(i)->getType().value() != functionParameters->getChild(i)->getType().value()){
             throw std::runtime_error("Line " + std::to_string(node->getToken()->line) + " Column " + std::to_string(node->getToken()->column)
-                + ": SEMANTIC ERROR -> type mismatch " + node->getToken()->value);
+                + ": SEMANTIC ERROR -> type mismatch '" + node->getToken()->value + "'");
         }
     }
 }

@@ -1,22 +1,17 @@
 #include "intermediate_representation.hpp"
 
+#include <memory>
 #include <stdexcept>
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // INTERMEDIATE REPRESENTATION TREE BUILDING
 // simplifying AST for easier code generation
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-void IntermediateRepresentation::formIR(std::shared_ptr<ASTree> astRoot){
-    root = std::make_shared<IRTree>(IRNodeType::PROGRAM);
+std::shared_ptr<IRTree> IntermediateRepresentation::formIR(std::shared_ptr<ASTree> astRoot){
+    std::shared_ptr<IRTree> root = std::make_shared<IRTree>(IRNodeType::PROGRAM);
     for(const auto& child: astRoot->getChild(0)->getChildren()){
         root->pushChild(function(child));
     }
-}
-
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// GET ENTRY POINT OF IR TREE
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-std::shared_ptr<IRTree> IntermediateRepresentation::getRoot() const{
     return root;
 }
 

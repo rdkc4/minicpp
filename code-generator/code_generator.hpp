@@ -12,7 +12,7 @@ class CodeGenerator{
 
     public:
 
-        CodeGenerator();
+        CodeGenerator(std::string& output);
         ~CodeGenerator();
 
         void generateCode(std::shared_ptr<IRTree> root);

@@ -4,28 +4,17 @@
 #include <stack>
 
 #include "../lexer/lexer.hpp"
-#include "../symbol-handling/scope-manager/scope_manager.hpp"
 #include "../common/abstract-syntax-tree/ASTree.hpp"
-#include "../analyzer/analyzer.hpp"
-#include "../intermediate-representation/intermediate_representation.hpp"
-#include "../code-generator/code_generator.hpp"
 
 class Parser{
     public:
-        Parser(Lexer& lexer, ScopeManager& scopeManager);
+        Parser(Lexer& lexer);
         
-        void parseProgram();
+        std::shared_ptr<ASTree> parseProgram();
 
     private:
         Lexer& lexer;
         Token currentToken;
-        Analyzer analyzer;
-
-        std::shared_ptr<ASTree> root;
-
-        IntermediateRepresentation intermediateRepresentation;
-
-        CodeGenerator codeGen;
 
         Types getTypeFromToken(Token token);
 
