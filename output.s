@@ -187,23 +187,23 @@ main:
 	movq $5, %r8
 	movq %r8, -40(%rbp)
 
-	movq -40(%rbp), %r8
-	movq $2, %r9
-	xor %rdx, %rdx
-	movq %r8, %rax
-	mul %r9
-	movq %rax, %r8
-
-	movq $3, %r9
-	xor %rdx, %rdx
-	movq %r8, %rax
-	div %r9
-	movq %rax, %r8
-
+	movq $3, %r8
 	movq $5, %r9
-	add %r8, %r9
-	movq $3, %r9
-	and %r8, %r9
+	movq -40(%rbp), %r10
+	movq $2, %r11
+	xor %rdx, %rdx
+	movq %r10, %rax
+	mul %r11
+	movq %rax, %r10
+
+	movq $3, %r11
+	xor %rdx, %rdx
+	movq %r10, %rax
+	div %r11
+	movq %rax, %r10
+
+	add %r10, %r9
+	and %r9, %r8
 	movq $9, %r9
 	or %r9, %r8
 	movq %r8, -48(%rbp)
@@ -252,12 +252,9 @@ do_while6:
 	movq %r8, -8(%rbp)
 
 	movq -8(%rbp), %r8
-	movq $2, %r9
-	xor %rdx, %rdx
-	movq %r8, %rax
-	imul %r9
-	movq %rax, %r8
-
+	movq $1, %r9
+	movq %r9, %rcx
+	sal %rcx,%r8
 	movq -32(%rbp), %r9
 	movq $2, %r10
 	xor %rdx, %rdx

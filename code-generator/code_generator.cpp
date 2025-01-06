@@ -389,66 +389,48 @@ void CodeGenerator::generateNumericalExpression(std::shared_ptr<IRTree> node){
     else{
         std::string rbxsub;
         std::string raxsub;
-
-        if(irOperators.find(node->getChild(0)->getNodeType()) == irOperators.end() && irOperators.find(node->getChild(1)->getNodeType()) != irOperators.end()){
-            generateNumericalExpression(node->getChild(1));
-            generateNumericalExpression(node->getChild(0));
-
-            freeGpReg();
-            if(gpFreeRegPos >= gpRegisters.size()){
-                raxsub = "%rsi";
-                generatedCode << "\tpop %rsi\n";
-            }
-            else{
-                raxsub = gpRegisters.at(gpFreeRegPos);
-            }
-            freeGpReg();
-            if(gpFreeRegPos >= gpRegisters.size()){
-                rbxsub = "%rdi";
-                generatedCode << "\tpop %rdi\n";
-            }
-            else{
-                rbxsub = gpRegisters.at(gpFreeRegPos);
-            }
+        
+        generateNumericalExpression(node->getChild(0));
+        generateNumericalExpression(node->getChild(1));
+        
+        freeGpReg();
+        if(gpFreeRegPos >= gpRegisters.size()){
+            rbxsub = "%rdi";
+            generatedCode << "\tpop %rdi\n";
         }
         else{
-            generateNumericalExpression(node->getChild(0));
-            generateNumericalExpression(node->getChild(1));
-            
-            freeGpReg();
-            if(gpFreeRegPos >= gpRegisters.size()){
-                rbxsub = "%rdi";
-                generatedCode << "\tpop %rdi\n";
-            }
-            else{
-                rbxsub = gpRegisters.at(gpFreeRegPos);
-            }
-            freeGpReg();
-            if(gpFreeRegPos >= gpRegisters.size()){
-                raxsub = "%rsi";
-                generatedCode << "\tpop %rsi\n";
-            }
-            else{
-                raxsub = gpRegisters.at(gpFreeRegPos);
-            }
+            rbxsub = gpRegisters.at(gpFreeRegPos);
         }
-
-        if(node->getNodeType() == IRNodeType::MUL || node->getNodeType() == IRNodeType::DIV){ // result of MUL || DIV is in RDX:RAX
+        freeGpReg();
+        if(gpFreeRegPos >= gpRegisters.size()){
+            raxsub = "%rsi";
+            generatedCode << "\tpop %rsi\n";
+        }
+        else{
+            raxsub = gpRegisters.at(gpFreeRegPos);
+        }
+        
+        auto nodeType = node->getNodeType();
+        if(nodeType == IRNodeType::MUL || nodeType == IRNodeType::DIV){ // result of MUL || DIV is in RDX:RAX
             generatedCode << "\txor %rdx, %rdx\n"; //add overflow check (TODO)
             generatedCode << "\tmovq " << raxsub << ", %rax\n";
             if(node->getType().value() == Types::INT){
-                generatedCode << "\ti" << irNodeToString.at(node->getNodeType()) << " " << rbxsub << "\n"; 
+                generatedCode << "\ti" << irNodeToString.at(nodeType) << " " << rbxsub << "\n"; 
             }
             else{
-                generatedCode << "\t" << irNodeToString.at(node->getNodeType()) << " " << rbxsub << "\n";
+                generatedCode << "\t" << irNodeToString.at(nodeType) << " " << rbxsub << "\n";
             }
             generatedCode << "\tmovq %rax, " << raxsub << "\n\n";
         }
-        else if(node->getNodeType() == IRNodeType::AND || node->getNodeType() == IRNodeType::OR || node->getNodeType() == IRNodeType::XOR){
-            generatedCode << "\t" << irNodeToString.at(node->getNodeType()) << " " << rbxsub << ", " << raxsub << "\n";
+        else if(nodeType == IRNodeType::AND || nodeType == IRNodeType::OR || nodeType == IRNodeType::XOR){
+            generatedCode << "\t" << irNodeToString.at(nodeType) << " " << rbxsub << ", " << raxsub << "\n";
+        }
+        else if(nodeType == IRNodeType::SHL || nodeType == IRNodeType::SAL || nodeType == IRNodeType::SHR || nodeType == IRNodeType::SAR){
+            generatedCode << "\tmovq " << rbxsub << ", %rcx\n";
+            generatedCode << "\t" << irNodeToString.at(nodeType) << " %rcx," << raxsub << "\n";
         }
         else{
-            generatedCode << "\t" << irNodeToString.at(node->getNodeType()) << " " << rbxsub << ", " << raxsub << "\n";
+            generatedCode << "\t" << irNodeToString.at(nodeType) << " " << rbxsub << ", " << raxsub << "\n";
         }
         if(gpFreeRegPos >= gpRegisters.size()){
             generatedCode << "\tpush " << raxsub << "\n";

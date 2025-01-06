@@ -4,7 +4,7 @@ const std::unordered_set<std::string> relationalOperators = {"<", ">", "<=", ">=
 
 const std::unordered_set<std::string> arithmeticOperators = {"+", "-", "*", "/"};
 
-const std::unordered_set<std::string> bitwiseOperators = {"&", "|", "^"};
+const std::unordered_set<std::string> bitwiseOperators = {"&", "|", "^", "<<", ">>"};
 
 const std::unordered_map<Types, std::string> typeToString = {
     {Types::INT, "int"},

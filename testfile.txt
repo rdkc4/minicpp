@@ -68,7 +68,7 @@ int main(){
 
     x = fun(i, j); //this is single-line comment
 
-    x = x * 2 - j/2;
+    x = (x << 1) - j/2;
     /*
         this is
         multi-line

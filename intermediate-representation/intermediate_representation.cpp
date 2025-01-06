@@ -244,10 +244,11 @@ std::shared_ptr<IRTree> IntermediateRepresentation::numericalExpression(std::sha
         }
         
         auto val = node->getToken()->value;
-        IRNodeType iNodeType = arithmeticOperators.find(val) != arithmeticOperators.end() ? stringToArop.at(val) : stringToBitop.at(val);
+        auto type = lchild->getType().value();
+        IRNodeType iNodeType = arithmeticOperators.find(val) != arithmeticOperators.end() ? stringToArop.at(val) : stringToBitop.at(val)[type == Types::UNSIGNED];
         auto iChild = std::make_shared<IRTree>(iNodeType);
         
-        iChild->setType(lchild->getType().value());
+        iChild->setType(type);
         iChild->pushChild(lchild);
         iChild->pushChild(rchild);
         return iChild;

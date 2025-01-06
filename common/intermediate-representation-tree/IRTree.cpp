@@ -13,7 +13,7 @@ IRTree::~IRTree() = default;
 // operator IR Nodes
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 const std::unordered_set<IRNodeType> irOperators = {IRNodeType::ADD, IRNodeType::SUB, IRNodeType::DIV, IRNodeType::MUL, 
-    IRNodeType::AND, IRNodeType::OR, IRNodeType::XOR
+    IRNodeType::AND, IRNodeType::OR, IRNodeType::XOR, IRNodeType::SHL, IRNodeType::SAL, IRNodeType::SHR, IRNodeType::SAR
 };
 
 const std::unordered_map<IRNodeType, std::string> irNodeToString = {
@@ -43,7 +43,11 @@ const std::unordered_map<IRNodeType, std::string> irNodeToString = {
     {IRNodeType::CMP, "cmp"},
     {IRNodeType::AND, "and"},
     {IRNodeType::OR, "or"},
-    {IRNodeType::XOR, "xor"}
+    {IRNodeType::XOR, "xor"},
+    {IRNodeType::SHL, "shl"},
+    {IRNodeType::SAL, "sal"},
+    {IRNodeType::SHR, "shr"},
+    {IRNodeType::SAR, "sar"}
 };
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -59,10 +63,12 @@ const std::unordered_map<std::string, IRNodeType> stringToArop = {
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // sign to IR Bitwise operator node type
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-const std::unordered_map<std::string, IRNodeType> stringToBitop = {
-    {"&", IRNodeType::AND},
-    {"|", IRNodeType::OR},
-    {"^", IRNodeType::XOR}
+const std::unordered_map<std::string, std::vector<IRNodeType>> stringToBitop = {
+    {"&", {IRNodeType::AND, IRNodeType::AND}},
+    {"|", {IRNodeType::OR, IRNodeType::OR}},
+    {"^", {IRNodeType::XOR, IRNodeType::XOR}},
+    {"<<", {IRNodeType::SAL, IRNodeType::SHL}},
+    {">>", {IRNodeType::SAR, IRNodeType::SHR}}
 };
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -80,16 +86,16 @@ void IRTree::setNodeType(IRNodeType type){
     nodeType = type;
 }
 
-void IRTree::setName(std::string& newName){
-    name = newName;
+void IRTree::setName(std::string& _name){
+    name = _name;
 }
 
 void IRTree::setValue(std::string& val){
     value = val;
 }
 
-void IRTree::setType(Types newType){
-    type = newType;
+void IRTree::setType(Types _type){
+    type = _type;
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------

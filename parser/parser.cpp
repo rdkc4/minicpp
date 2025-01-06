@@ -472,11 +472,14 @@ int Parser::getPrecedence(std::string& op){
     else if(op == "&"){
         return 3;
     }
-    else if(op == "-" || op == "+"){
+    else if(op == "<<" || op == ">>"){
         return 4;
     }
-    else if (op == "*" || op == "/"){
+    else if(op == "-" || op == "+"){
         return 5;
+    }
+    else if (op == "*" || op == "/"){
+        return 6;
     }
     else{
         return 0;
@@ -601,7 +604,7 @@ std::shared_ptr<ASTree> Parser::literal(){
 // -> MATCH KEYWORD (TODO)
 // -> INCLUDE / HANDLING MULTIPLE FILES (TODO)
 // -> PRE/POST INCREMENT/DECREMENT (TODO)
-// -> BITWISE OPERATORS (<<, >>, ~) (TODO)
+// -> BITWISE OPERATORS (!, ~) (TODO)
 // -> TERNARY OPERATOR ? : (TODO)
 // -> IN-PLACE INITIALIZATION (TODO)
 //-----------------------------------------------------------------------------------------------------------------------------------------------------

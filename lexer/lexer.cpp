@@ -154,7 +154,7 @@ void Lexer::updatePosition(char curr){
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-// retrieval of ID token ([A-Za-z0-9_])
+// retrieval of ID token ([A-Za-z][A-Za-z0-9_]*)
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 void Lexer::getID(){
     size_t start = position;
@@ -171,7 +171,7 @@ void Lexer::getID(){
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-// retrieval of Literal token ([-]?[0-9][0-9]*[u]?)
+// retrieval of Literal token ([+-]?[0-9][0-9]*[u]?)
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 void Lexer::getLiteral(bool sign){
     size_t start = sign ? ++position : position;
@@ -200,8 +200,12 @@ void Lexer::getAssignOperator(char curr){
 // retrieval of bitwise operator
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 void Lexer::getBitwiseOperator(char curr){
-    tokens.push_back(Token(TokenType::_BITWISE, std::string(1,curr), lineNumber, position - prevLineLen));
-    ++position;
+    std::string op = "";
+    if(curr == '<' || curr == '>'){
+        op += input[position++];
+    }
+    op += input[position++];
+    tokens.push_back(Token(TokenType::_BITWISE, op, lineNumber, position - prevLineLen));
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -228,7 +232,7 @@ void Lexer::getRelOperator(){
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-// check for predefined tokens
+// check for predefined keywords
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 bool Lexer::isKeyword(const std::string& value) const{
     return keywords.find(value) != keywords.end();
@@ -239,8 +243,8 @@ bool Lexer::isKeyword(const std::string& value) const{
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 bool Lexer::isSignedLiteral(char curr) const{
     return ((curr == '-' || curr == '+') && position < input.size()-1 && std::isdigit(input[position+1]) 
-            && !tokens.empty() && tokens[tokens.size()-1].type != TokenType::_LITERAL && 
-            tokens[tokens.size()-1].type != TokenType::_ID && tokens[tokens.size()-1].type != TokenType::_RPAREN);
+            && !tokens.empty() && tokens[tokens.size()-1].type != TokenType::_LITERAL 
+            && tokens[tokens.size()-1].type != TokenType::_ID && tokens[tokens.size()-1].type != TokenType::_RPAREN);
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -251,24 +255,26 @@ bool Lexer::isAssignOperator(char curr) const{
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-// arithmetic operator checking
+// arithmetic operator checking (+, -, *, /)
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 bool Lexer::isAritOperator(char curr) const{
     return arithmeticOperators.find(std::string(1, curr)) != arithmeticOperators.end();
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-// bitwise operator checking
+// bitwise operator checking (&, |, ^, <<, >>)
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 bool Lexer::isBitwiseOperator(char curr) const{
-    return bitwiseOperators.find(std::string(1, curr)) != bitwiseOperators.end();
+    return bitwiseOperators.find(std::string(1, curr)) != bitwiseOperators.end()
+        || (position + 1 < input.size() && bitwiseOperators.find(std::string(1, curr) + input[position + 1]) != bitwiseOperators.end());
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-// relational operator checking
+// relational operator checking (<, >, <=, >=, ==, !=)
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 bool Lexer::isRelOperator(char curr) const{
-    return relationalOperators.find(std::string(1,curr)) != relationalOperators.end() || curr == '=';
+    return relationalOperators.find(std::string(1,curr)) != relationalOperators.end() 
+        || (position + 1 < input.size() && relationalOperators.find(std::string(1, curr) + input[position + 1]) != relationalOperators.end());
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------

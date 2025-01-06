@@ -10,7 +10,7 @@
 
 enum class IRNodeType{
     PROGRAM, FUNCTION, PARAMETER, VARIABLE, ARGUMENT, ID, LITERAL, IF, WHILE, FOR, DO_WHILE, SWITCH, CASE, 
-    DEFAULT, BREAK, ASSIGN, COMPOUND, CALL, RETURN, ADD, SUB, DIV, MUL, CMP, AND, OR, XOR
+    DEFAULT, BREAK, ASSIGN, COMPOUND, CALL, RETURN, ADD, SUB, DIV, MUL, CMP, AND, OR, XOR, SHL, SAL, SHR, SAR
 };
 
 extern const std::unordered_set<IRNodeType> irOperators;
@@ -19,7 +19,7 @@ extern const std::unordered_map<IRNodeType, std::string> irNodeToString;
 
 extern const std::unordered_map<std::string, IRNodeType> stringToArop;
 
-extern const std::unordered_map<std::string, IRNodeType> stringToBitop;
+extern const std::unordered_map<std::string, std::vector<IRNodeType>> stringToBitop;
 
 class IRTree{
     
@@ -34,11 +34,11 @@ class IRTree{
 
         void setNodeType(IRNodeType type);
 
-        void setName(std::string& newName);
+        void setName(std::string& _name);
 
         void setValue(std::string& val);
 
-        void setType(Types newType);
+        void setType(Types _type);
 
         std::shared_ptr<IRTree> getChild(size_t index);
 
