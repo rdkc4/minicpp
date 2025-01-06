@@ -294,6 +294,10 @@ T IntermediateRepresentation::mergeValues(T l, T r, std::string& op){
         return l | r;
     else if(op == "^") 
         return l ^ r;
+    else if(op == "<<")
+        return l << r;
+    else if(op == ">>")
+        return l >> r;
     else
         throw std::runtime_error("Invalid arithmetic operator");
 }
