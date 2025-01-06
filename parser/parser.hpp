@@ -3,12 +3,12 @@
 
 #include <stack>
 
-#include "lexer.hpp"
-#include "scope_manager.hpp"
-#include "ASTree.hpp"
-#include "analyzer.hpp"
-#include "intermediate_representation.hpp"
-#include "code_generator.hpp"
+#include "../lexer/lexer.hpp"
+#include "../symbol-table/scope_manager.hpp"
+#include "../common/ASTree.hpp"
+#include "../analyzer/analyzer.hpp"
+#include "../intermediate-representation/intermediate_representation.hpp"
+#include "../code-generator/code_generator.hpp"
 
 class Parser{
     public:

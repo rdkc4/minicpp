@@ -1,4 +1,4 @@
-#include "../include/defs.hpp"
+#include "defs.hpp"
 
 const std::unordered_set<std::string> relationalOperators = {"<", ">", "<=", ">=", "==", "!=" };
 

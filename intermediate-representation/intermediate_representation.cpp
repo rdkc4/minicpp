@@ -1,4 +1,4 @@
-#include "../include/intermediate_representation.hpp"
+#include "intermediate_representation.hpp"
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // INTERMEDIATE REPRESENTATION TREE BUILDING

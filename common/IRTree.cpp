@@ -1,4 +1,4 @@
-#include "../include/IRTree.hpp"
+#include "IRTree.hpp"
 
 IRTree::IRTree(IRNodeType nodeType) : nodeType(nodeType){}
 

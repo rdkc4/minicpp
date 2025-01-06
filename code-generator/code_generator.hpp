@@ -6,7 +6,7 @@
 #include <memory>
 #include <unordered_map>
 
-#include "intermediate_representation.hpp"
+#include "../intermediate-representation/intermediate_representation.hpp"
 
 class CodeGenerator{
 

@@ -1,4 +1,4 @@
-#include "../include/parser.hpp"
+#include "parser.hpp"
 
 Parser::Parser(Lexer& lexer, ScopeManager& scopeManager) : lexer(lexer), currentToken(lexer.nextToken()), analyzer(scopeManager) {}
 

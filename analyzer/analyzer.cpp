@@ -1,4 +1,4 @@
-#include "../include/analyzer.hpp"
+#include "analyzer.hpp"
 
 Analyzer::Analyzer(ScopeManager& scopeManager) : scopeManager(scopeManager), activeFunction(""), returned(false){}
 

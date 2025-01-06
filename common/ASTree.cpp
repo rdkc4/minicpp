@@ -1,4 +1,4 @@
-#include "../include/ASTree.hpp"
+#include "ASTree.hpp"
 
 ASTree::ASTree(ASTNodeType nodeType, const Token& token) : nodeType(nodeType), token(std::make_shared<Token>(token)){}
 
