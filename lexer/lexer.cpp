@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <stdexcept>
+#include <format>
 
 #include "../common/defs/defs.hpp"
 
@@ -94,8 +95,8 @@ void Lexer::tokenize(){
         }
         else{
             tokens.push_back(Token(TokenType::_INVALID, std::string(1,curr), lineNumber, position - prevLineLen));
-            throw std::runtime_error("Line " + std::to_string(lineNumber) + ", Column " + std::to_string(position - prevLineLen) 
-                + ": LEXICAL ERROR at char '" + std::string(1, curr) + "'");
+            throw std::runtime_error(std::format("Line {}, Column {}: LEXICAL ERROR -> at char '{}'", 
+                lineNumber, position - prevLineLen, std::string(1, curr)));
         }
     }
     tokens.push_back(Token(TokenType::_EOF, "", lineNumber, position - prevLineLen));
@@ -128,9 +129,9 @@ Token Lexer::peekAtNext(){
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 void Lexer::printTokens(const std::vector<Token>& tokens) const{
     for(const auto& token: tokens){
-        std::cout << "Token: type - " + tokenTypeToString.at(token.type);      
+        std::cout << std::format("Token: type - {}", tokenTypeToString.at(token.type));
         if(token.type != TokenType::_EOF && token.type != TokenType::_INVALID){
-            std::cout << "\t| value - " << token.value;
+            std::cout << std::format("\t| value - {}", token.value);
         }
         std::cout << "\n";
     }
@@ -300,7 +301,7 @@ void Lexer::multiLineComment(){
         position += 2;
     }
     else{
-        std::cerr << "Line " << lineNumber << ", Column " << position - prevLineLen << ": SYNTAX ERROR - multi-line comment starting at " 
-            << "line " << startLine << ", column " << startPosition << " is not closed\n";
+        std::cerr << std::format("Line {}, Column {}: SYNTAX ERROR -> multi-line comment starting at line {}, column {}: not closed\n",
+            lineNumber, position - prevLineLen, startLine, startPosition);
     }
 }

@@ -1,5 +1,7 @@
 #include "symbol.hpp"
 
+#include <format>
+
 Symbol::Symbol(std::string& name, Kinds kind, Types type)
     : name(name), kind(kind), type(type), parameters(nullptr){}
 
@@ -36,6 +38,6 @@ void Symbol::setParameters(std::shared_ptr<ASTree> par){
 }
 
 std::string Symbol::symbolToString(){
-    return name + " | " + kindToString.at(kind) + " | " + typeToString.at(type) + " | " 
-        + " | " + std::to_string(parameters != nullptr ? parameters->getChildren().size() : 0) + "\n";
+    return std::format("| {:11} | {:3} | {:8} | {:1} |\n", 
+        name, kindToString.at(kind), typeToString.at(type), (parameters != nullptr ? parameters->getChildren().size() : 0));
 }

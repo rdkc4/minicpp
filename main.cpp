@@ -1,5 +1,6 @@
 #include <exception>
 #include <iostream>
+#include <format>
 
 #include "parser/parser.hpp"
 #include "analyzer/analyzer.hpp"
@@ -22,7 +23,7 @@ int main(){
         std::cout << "\nLexical check: successful!\n";
 
     } catch(const std::exception& e){
-        std::cerr << "\nLexical check: failed\n" << e.what() << "\n";
+        std::cerr << std::format("\nLexical check: failed\n{}\n", e.what());
         return -1;
     }
 
@@ -39,38 +40,38 @@ int main(){
     try {
         auto astRoot = parser.parseProgram();
         std::cout << "\nSyntax check: successful!\n";
-        astRoot->traverse(1);
+        astRoot->traverse(1); //display AST
 
         try{
             analyzer.semanticCheck(astRoot);
             std::cout << "\nSemantic check: successful!\n";
         
         } catch(const std::exception& e){
-            std::cerr << "\nSemantic check: failed!\n" << e.what() << "\n";
+            std::cerr << std::format("\nSemantic check: failed!\n{}\n", e.what());
             return -1;
         }
 
         try{
             auto irRoot = intermediateRepresentation.formIR(astRoot);
             std::cout << "\nForming Intermediate Representation: successful!\n";
-            irRoot->traverse(1);
+            irRoot->traverse(1); //display IRT
 
             try{
                 codeGenerator.generateCode(irRoot);
                 std::cout << "\nCode Generation: successful!\n";
                 
             } catch(const std::exception& e){
-                std::cerr << "\nCode Generation: failed\n" << e.what() << "\n";
+                std::cerr << std::format("\nCode Generation: failed!\n{}\n", e.what());
                 return -1;
             }
 
         } catch(const std::exception& e){
-            std::cerr << "\nForming Intermediate Representation: failed!" << e.what() << "\n";
+            std::cerr << std::format("\nForming Intermediate Representation: failed!\n{}\n", e.what());
             return -1;
         }
         
     } catch (const std::exception& e) {
-        std::cerr << "\nSyntax check: failed!\n" << e.what() << "\n";
+        std::cerr << std::format("\nSyntax check: failed!\n{}\n", e.what());
         return -1;
     }
     

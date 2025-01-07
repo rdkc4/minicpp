@@ -1,6 +1,7 @@
 #include "IRTree.hpp"
 
 #include <iostream>
+#include <format>
 
 IRTree::IRTree(IRNodeType nodeType) : nodeType(nodeType){}
 
@@ -132,16 +133,16 @@ std::optional<Types> IRTree::getType() const{
 }
 
 std::string IRTree::toString(){
-    std::string _name = !name.empty() ? " name: " + name : "";
-    std::string _value = !value.empty() ? " value: " + value : "";
-    return irNodeToString.at(nodeType) + _name + _value + '\n';
+    std::string _name = !name.empty() ? " | name: " + name : "";
+    std::string _value = !value.empty() ? " | value: " + value : "";
+    return std::format("{}{}{}\n", irNodeToString.at(nodeType), _name, _value);
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // DISPLAY IR TREE (debbuging purposes)
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 void IRTree::traverse(size_t offset){
-    std::cout << std::string(offset*2, ' ') + "|->" + toString();
+    std::cout << std::format("{}|-> {}", std::string(offset*2, ' '), toString());
     for(const auto& child:children){
         child->traverse(offset+1);
     }

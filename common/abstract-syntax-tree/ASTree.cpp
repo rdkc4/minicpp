@@ -1,6 +1,7 @@
 #include "ASTree.hpp"
 
 #include <iostream>
+#include <format>
 
 ASTree::ASTree(ASTNodeType nodeType, const Token& token) : nodeType(nodeType), token(std::make_shared<Token>(token)){}
 
@@ -81,14 +82,14 @@ const std::shared_ptr<Token> ASTree::getToken() const {
 }
 
 std::string ASTree::toString(){
-    return "|" + astNodeTypeToString.at(nodeType) + " | " + token->value + "\n";
+    return std::format("{} | '{}'\n", astNodeTypeToString.at(nodeType), token->value);
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // DISPLAY AST TREE (debbuging purposes)
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 void ASTree::traverse(size_t offset){
-    std::cout << std::string(offset*2, ' ') + "|->" + toString();
+    std::cout << std::format("{}|-> {}", std::string(offset*2, ' '), toString());
     for(const auto& child:children){
         child->traverse(offset+1);
     }

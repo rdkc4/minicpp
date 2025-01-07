@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <stdexcept>
+#include <format>
 
 Parser::Parser(Lexer& lexer) : lexer(lexer), currentToken(lexer.nextToken()) {}
 
@@ -32,8 +33,8 @@ std::shared_ptr<ASTree> Parser::parseProgram(){
     std::shared_ptr<ASTree> root = std::make_shared<ASTree>(ASTNodeType::PROGRAM, Token("program", 0, 0));
     root->pushChild(functionList());
     if(currentToken.type != TokenType::_EOF){
-        throw std::runtime_error("Line " + std::to_string(currentToken.line) + ", Column " + std::to_string(currentToken.column) 
-            + " -> SYNTAX ERROR near: '" + currentToken.value + "'");
+        throw std::runtime_error(std::format("Line {}, Column {}: SYNTAX ERROR -> near '{}'",
+            currentToken.line, currentToken.column, currentToken.value));
     }
     return root;
 }
@@ -46,8 +47,8 @@ void Parser::eat(TokenType type){
         currentToken = lexer.nextToken();
     } 
     else{
-        throw std::runtime_error("Line " + std::to_string(currentToken.line) + ", Column " + std::to_string(currentToken.column) 
-            + " -> SYNTAX ERROR near: '" + currentToken.value + "'");
+        throw std::runtime_error(std::format("Line {}, Column {}: SYNTAX ERROR -> near '{}'",
+            currentToken.line, currentToken.column, currentToken.value));
     }
 }
 
@@ -172,8 +173,8 @@ std::shared_ptr<ASTree> Parser::statement(){
     else if(currentToken.type == TokenType::_SWITCH)
         return switchStatement();
     else
-        throw std::runtime_error("Line " + std::to_string(currentToken.line) + ", Column " + std::to_string(currentToken.column) 
-            + " -> SYNTAX ERROR near: '" + currentToken.value + "'");
+        throw std::runtime_error(std::format("Line {}, Column {}: SYNTAX ERROR -> near '{}'",
+            currentToken.line, currentToken.column, currentToken.value));
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -205,8 +206,8 @@ std::shared_ptr<ASTree> Parser::assignmentStatement(){
         return currentNode;
     }
     else{
-        throw std::runtime_error("Line " + std::to_string(currentToken.line) + ", Column " + std::to_string(currentToken.column) 
-            + " -> SYNTAX ERROR near: '" + currentToken.value + "'");
+        throw std::runtime_error(std::format("Line {}, Column {}: SYNTAX ERROR -> near '{}'",
+            currentToken.line, currentToken.column, currentToken.value));
     }
 }
 
@@ -519,8 +520,8 @@ std::shared_ptr<ASTree> Parser::expression(){
         eat(TokenType::_RPAREN);
         return node;
     }
-    throw std::runtime_error("Line " + std::to_string(currentToken.line) + ", Column " + std::to_string(currentToken.column) 
-        + " -> SYNTAX ERROR near: '" + currentToken.value + "'");
+    throw std::runtime_error(std::format("Line {}, Column {}: SYNTAX ERROR -> near '{}'",
+            currentToken.line, currentToken.column, currentToken.value));
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------

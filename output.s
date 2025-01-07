@@ -254,7 +254,7 @@ do_while6:
 	movq -8(%rbp), %r8
 	movq $1, %r9
 	movq %r9, %rcx
-	sal %rcx,%r8
+	sal %rcx, %r8
 	movq -32(%rbp), %r9
 	movq $2, %r10
 	xor %rdx, %rdx

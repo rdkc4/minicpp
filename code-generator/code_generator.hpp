@@ -64,9 +64,9 @@ class CodeGenerator{
 
         void generateRelationalExpression(std::shared_ptr<IRTree> node);
 
-        void generateID(std::shared_ptr<IRTree> node);
+        std::string generateID(std::shared_ptr<IRTree> node);
 
-        void generateLiteral(std::shared_ptr<IRTree> node);
+        std::string generateLiteral(std::shared_ptr<IRTree> node);
 
         void generateFunctionCall(std::shared_ptr<IRTree> node);
 
