@@ -16,8 +16,6 @@ class Parser{
         Lexer& lexer;
         Token currentToken;
 
-        Types getTypeFromToken(Token token);
-
         void eat(TokenType type);
 
         std::shared_ptr<ASTree> functionList();

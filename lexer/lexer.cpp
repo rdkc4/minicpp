@@ -95,7 +95,7 @@ void Lexer::tokenize(){
         }
         else{
             tokens.push_back(Token(TokenType::_INVALID, std::string(1,curr), lineNumber, position - prevLineLen));
-            throw std::runtime_error(std::format("Line {}, Column {}: LEXICAL ERROR -> at char '{}'", 
+            throw std::runtime_error(std::format("Line {}, Column {}: LEXICAL ERROR -> unknown symbol '{}'", 
                 lineNumber, position - prevLineLen, std::string(1, curr)));
         }
     }

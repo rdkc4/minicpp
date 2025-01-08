@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <stdexcept>
+#include <string>
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // INTERMEDIATE REPRESENTATION TREE BUILDING
@@ -76,7 +77,8 @@ std::shared_ptr<IRTree> IntermediateRepresentation::statement(std::shared_ptr<AS
         case ASTNodeType::SWITCH_STATEMENT:
             return switchStatement(node);
         default:
-            throw std::runtime_error("Invalid statement\n");
+            throw std::runtime_error(std::format("Line {}, Column {}: SYNTAX ERROR -> Invalid statement '{}'\n", 
+                node->getToken()->line, node->getToken()->column, astNodeTypeToString.at(node->getNodeType())));
     }
 }
 
@@ -235,7 +237,12 @@ std::shared_ptr<IRTree> IntermediateRepresentation::numericalExpression(std::sha
         auto rchild = numericalExpression(node->getChild(1));
 
         if(lchild->getNodeType() == rchild->getNodeType() && lchild->getNodeType() == IRNodeType::LITERAL){
-            return mergeLiterals(lchild, rchild, node->getToken()->value);
+            if(lchild->getType().value() == Types::INT){
+                return mergeLiterals<int>(lchild, rchild, node);
+            }
+            else if(lchild->getType().value() == Types::UNSIGNED){
+                return mergeLiterals<unsigned>(lchild, rchild, node);
+            }
         }
         
         auto val = node->getToken()->value;
@@ -254,23 +261,21 @@ std::shared_ptr<IRTree> IntermediateRepresentation::numericalExpression(std::sha
 // MERGE LITERALS - simplify arithmetic operations if both nodes are literals
 // helper function mergeValues
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-std::shared_ptr<IRTree> IntermediateRepresentation::mergeLiterals(std::shared_ptr<IRTree> lchild, std::shared_ptr<IRTree> rchild, std::string& op){
-    if(lchild->getType().value() == Types::INT){
-        int lval = std::stoi(lchild->getValue());
-        int rval = std::stoi(rchild->getValue());
-        int result = mergeValues<int>(lval, rval, op);
-        return std::make_shared<IRTree>(IRNodeType::LITERAL, "", std::to_string(result), Types::INT);
-    }
-    else{
-        unsigned lval = std::stoul(lchild->getValue());
-        unsigned rval = std::stoul(rchild->getValue());
-        unsigned result = mergeValues<unsigned>(lval, rval, op);
-        return std::make_shared<IRTree>(IRNodeType::LITERAL, "", std::to_string(result)+"u", Types::UNSIGNED);
-    }
+template<typename T>
+std::shared_ptr<IRTree> IntermediateRepresentation::mergeLiterals(std::shared_ptr<IRTree> lchild, std::shared_ptr<IRTree> rchild, std::shared_ptr<ASTree> node){
+    T lval = (std::is_same<T, int>::value ? std::stoi(lchild->getValue()) : std::stoul(lchild->getValue()));
+    T rval = (std::is_same<T, int>::value ? std::stoi(rchild->getValue()) : std::stoul(rchild->getValue()));
+    T result = mergeValues<T>(lval, rval,node);
+
+    Types type = std::is_same<T, int>::value ? Types::INT : Types::UNSIGNED;
+    auto suffix = type == Types::INT ? "" : "u";
+
+    return std::make_shared<IRTree>(IRNodeType::LITERAL, "", std::to_string(result) + suffix, type);
 }
 
 template<typename T>
-T IntermediateRepresentation::mergeValues(T l, T r, std::string& op){
+T IntermediateRepresentation::mergeValues(T l, T r, std::shared_ptr<ASTree> node){
+    std::string op = node->getToken()->value;
     if(op == "+") 
         return l + r;
     else if(op == "-") 
@@ -279,7 +284,8 @@ T IntermediateRepresentation::mergeValues(T l, T r, std::string& op){
         return l * r;
     else if(op == "/"){
         if(r == 0){
-            throw std::runtime_error("SEMANTIC ERROR - division by ZERO");
+            throw std::runtime_error(std::format("Line {}, Column {}: SEMANTIC ERROR -> division by ZERO",
+                node->getToken()->line, node->getToken()->column));
         }
         return l / r;
     }
@@ -294,7 +300,8 @@ T IntermediateRepresentation::mergeValues(T l, T r, std::string& op){
     else if(op == ">>")
         return l >> r;
     else
-        throw std::runtime_error("Invalid arithmetic operator");
+        throw std::runtime_error(std::format("Line {}, Column {}: SYNTAX ERROR -> Invalid arithmetic operator '{}'",
+            node->getToken()->line, node->getToken()->column, op));
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------

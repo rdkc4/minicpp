@@ -18,6 +18,8 @@ extern const std::unordered_set<std::string> bitwiseOperators;
 
 extern const std::unordered_map<Types, std::string> typeToString;
 
+extern const std::unordered_map<std::string, Types> stringToType;
+
 extern const std::unordered_map<Kinds, std::string> kindToString;
 
 extern const std::unordered_map<std::string, std::vector<std::string>> stringToJMP;

@@ -6,25 +6,6 @@
 
 Parser::Parser(Lexer& lexer) : lexer(lexer), currentToken(lexer.nextToken()) {}
 
-
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// RETRIEVAL OF A TYPE
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-Types Parser::getTypeFromToken(Token token){
-    if(token.value == "int"){
-        return Types::INT;
-    }
-    else if(token.value == "unsigned"){
-        return Types::UNSIGNED;
-    }
-    else if(token.value == "void"){
-        return Types::VOID;
-    }
-    else{
-        return Types::NO_TYPE;
-    }
-}
-
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // SYNTAX CHECK
 // ABSTRACT SYNTAX TREE BUILDING
@@ -47,8 +28,8 @@ void Parser::eat(TokenType type){
         currentToken = lexer.nextToken();
     } 
     else{
-        throw std::runtime_error(std::format("Line {}, Column {}: SYNTAX ERROR -> near '{}'",
-            currentToken.line, currentToken.column, currentToken.value));
+        throw std::runtime_error(std::format("Line {}, Column {}: SYNTAX ERROR -> expected '{}', got '{} {}'",
+            currentToken.line, currentToken.column, tokenTypeToString.at(type), tokenTypeToString.at(currentToken.type), currentToken.value));
     }
 }
 
@@ -57,9 +38,10 @@ void Parser::eat(TokenType type){
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::shared_ptr<ASTree> Parser::functionList(){
     auto currentNode = std::make_shared<ASTree>(ASTNodeType::FUNCTION_LIST, Token("function_list", 0, 0)); 
-    while(currentToken.type == TokenType::_TYPE){
+    do{
         currentNode->pushChild(function());
-    }
+    } while(currentToken.type == TokenType::_TYPE);
+
     return currentNode;
 }
 
@@ -67,9 +49,9 @@ std::shared_ptr<ASTree> Parser::functionList(){
 // FUNCTION : TYPE ID LPAREN PARAMETER(0+) RPAREN BODY
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::shared_ptr<ASTree> Parser::function(){
-    auto returnType = getTypeFromToken(currentToken);
+    Types returnType = stringToType.find(currentToken.value) != stringToType.end() ? stringToType.at(currentToken.value) : Types::NO_TYPE;
     eat(TokenType::_TYPE);
-    auto token = currentToken;
+    Token token = currentToken;
     eat(TokenType::_ID);
     
     auto currentNode = std::make_shared<ASTree>(ASTNodeType::FUNCTION, Token(token), returnType);
@@ -88,7 +70,7 @@ std::shared_ptr<ASTree> Parser::function(){
 std::shared_ptr<ASTree> Parser::parameter(){
     auto currentNode = std::make_shared<ASTree>(ASTNodeType::PARAMETER, Token("params", currentToken.line, currentToken.column));
     while(currentToken.type == TokenType::_TYPE){
-        Types type = getTypeFromToken(currentToken);
+        Types type = stringToType.at(currentToken.value);
         eat(TokenType::_TYPE);
         auto token = currentToken;
         eat(TokenType::_ID);
@@ -129,7 +111,7 @@ std::shared_ptr<ASTree> Parser::variableList(){
 // VARIABLE : TYPE ID SEMICOLON
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::shared_ptr<ASTree> Parser::variable(){
-    Types type = getTypeFromToken(currentToken);
+    Types type = stringToType.find(currentToken.value) != stringToType.end() ? stringToType.at(currentToken.value) : Types::NO_TYPE;;
     eat(TokenType::_TYPE);
     auto token = currentToken;
     eat(TokenType::_ID);
@@ -206,8 +188,8 @@ std::shared_ptr<ASTree> Parser::assignmentStatement(){
         return currentNode;
     }
     else{
-        throw std::runtime_error(std::format("Line {}, Column {}: SYNTAX ERROR -> near '{}'",
-            currentToken.line, currentToken.column, currentToken.value));
+        throw std::runtime_error(std::format("Line {}, Column {}: SYNTAX ERROR -> invalid assignment statement: expected 'ID', got '{} {}'",
+            currentToken.line, currentToken.column, tokenTypeToString.at(currentToken.type), currentToken.value));
     }
 }
 
@@ -520,8 +502,8 @@ std::shared_ptr<ASTree> Parser::expression(){
         eat(TokenType::_RPAREN);
         return node;
     }
-    throw std::runtime_error(std::format("Line {}, Column {}: SYNTAX ERROR -> near '{}'",
-            currentToken.line, currentToken.column, currentToken.value));
+    throw std::runtime_error(std::format("Line {}, Column {}: SYNTAX ERROR -> expected 'EXPRESSION', got '{} {}'",
+            currentToken.line, currentToken.column, tokenTypeToString.at(currentToken.type), currentToken.value));
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
