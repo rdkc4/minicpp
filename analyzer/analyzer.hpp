@@ -39,9 +39,8 @@ class Analyzer{
 
         void checkSwitchStatement(std::shared_ptr<ASTree> node);
 
-        void checkSwitchStatementInt(std::shared_ptr<ASTree> node);
-
-        void checkSwitchStatementUnsigned(std::shared_ptr<ASTree> node);
+        template<typename T>
+        void checkSwitchStatementCases(std::shared_ptr<ASTree> node);
 
         void checkCompoundStatement(std::shared_ptr<ASTree> node);
 

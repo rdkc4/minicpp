@@ -211,68 +211,46 @@ void Analyzer::checkDoWhileStatement(std::shared_ptr<ASTree> node){
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // SWITCH STATEMENT CHECK - id check, cases check (duplicate check, type check)
 // child 0 - id
-// child 1 - cases + default
-// cases child 0 - literal
-// cases child 1 - statements
-// cases child 2 - break (optional)
-// default child 0 - statements (break can exist, but it will be ignored)
-// helper methods checkSwitchStatement(Int/Unsigned) - checking for duplicates / type mismatch
+// child 1 - cases / default
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 void Analyzer::checkSwitchStatement(std::shared_ptr<ASTree> node){
     checkID(node->getChild(0));
     if(node->getChild(0)->getType().value() == Types::INT){
-        checkSwitchStatementInt(node);
+        checkSwitchStatementCases<int>(node);
     }
     else if(node->getChild(0)->getType().value() == Types::UNSIGNED){
-        checkSwitchStatementUnsigned(node);
+        checkSwitchStatementCases<unsigned>(node);
     }
     else{
         throw std::runtime_error(std::format("Line {}, Column {}: SEMANTIC ERROR -> invalid type", node->getToken()->line, node->getToken()->column));
     }
 }
 
-void Analyzer::checkSwitchStatementInt(std::shared_ptr<ASTree> node){
-    std::unordered_set<int> set;
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
+// SWITCH STATEMENT CASE/DEFAULT CHECK - duplicate check / type check
+// cases child 0 - literal
+// cases child 1 - statements
+// cases child 2 - break (optional)
+// default child 0 - statements (break can exist, but it will be ignored)
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
+template<typename T>
+void Analyzer::checkSwitchStatementCases(std::shared_ptr<ASTree> node){
+    std::unordered_set<T> set;
     size_t i = 1;
     for(; i < node->getChildren().size(); i++){
         auto child = node->getChild(i);
         if(child->getNodeType() == ASTNodeType::CASE){
             checkLiteral(child->getChild(0));
-            int val;
-            if(child->getChild(0)->getType().value() != Types::INT){
-                throw std::runtime_error(std::format("Line {}, Column {}: SEMANTIC ERROR -> type mismatch", 
-                    node->getToken()->line, node->getToken()->column));
+            T val;
+            if(child->getChild(0)->getType().value() != (std::is_same<T, int>::value ? Types::INT : Types::UNSIGNED)){
+                throw std::runtime_error(std::format("Line {}, Column {}: SEMANTIC ERROR -> type mismatch '{}'", 
+                    child->getToken()->line, child->getToken()->column, child->getChild(0)->getToken()->value));
             }
-            else if(set.find(val = std::stoi(child->getChild(0)->getToken()->value)) != set.end()){
-                throw std::runtime_error(std::format("Line {}, Column {}: SEMANTIC ERROR -> duplicate case", 
-                    node->getToken()->line, node->getToken()->column));
-            }
-            else{
-                checkStatements(child->getChild(1));
-                set.insert(val);
-            }
-        }
-        else{
-            checkStatements(child->getChild(0));
-        }
-    }
-}
-
-void Analyzer::checkSwitchStatementUnsigned(std::shared_ptr<ASTree> node){
-    std::unordered_set<unsigned> set;
-    size_t i = 1;
-    for(; i < node->getChildren().size(); i++){
-        auto child = node->getChild(i);
-        if(child->getNodeType() == ASTNodeType::CASE){
-            checkLiteral(child->getChild(0));
-            unsigned val;
-            if(child->getChild(0)->getType().value() != Types::UNSIGNED){
-                throw std::runtime_error(std::format("Line {}, Column {}: SEMANTIC ERROR -> type mismatch", 
-                    node->getToken()->line, node->getToken()->column));
-            }
-            else if(set.find(val = std::stoul(child->getChild(0)->getToken()->value)) != set.end()){
-                throw std::runtime_error(std::format("Line {}, Column {}: SEMANTIC ERROR -> duplicate case", 
-                    node->getToken()->line, node->getToken()->column));
+            else if(set.find(val = (std::is_same<T, int>::value ? std::stoi(child->getChild(0)->getToken()->value) 
+                                                                : std::stoul(child->getChild(0)->getToken()->value))) != set.end()){
+                
+                throw std::runtime_error(std::format("Line {}, Column {}: SEMANTIC ERROR -> duplicate case '{}'", 
+                    child->getToken()->line, child->getToken()->column, child->getChild(0)->getToken()->value));
             }
             else{
                 checkStatements(child->getChild(1));
