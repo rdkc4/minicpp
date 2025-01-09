@@ -9,16 +9,10 @@ fib:
 	mov %rsp, %rbp
 	sub $24, %rsp
 
-	movq $0, -8(%rbp)
-	movq $0, -16(%rbp)
-	movq $0, -24(%rbp)
-
 	movq $0, %r8
 	movq %r8, -8(%rbp)
-
 	movq $1, %r8
 	movq %r8, -16(%rbp)
-
 	movq $1, %r8
 	movq %r8, -24(%rbp)
 
@@ -114,8 +108,6 @@ fun:
 	mov %rsp, %rbp
 	sub $8, %rsp
 
-	movq $0, -8(%rbp)
-
 	movq 16(%rbp), %r8
 	movq 24(%rbp), %r9
 	add %r9, %r8
@@ -167,26 +159,18 @@ main:
 	mov %rsp, %rbp
 	sub $48, %rsp
 
-	movq $0, -8(%rbp)
-	movq $0, -16(%rbp)
-	movq $0, -24(%rbp)
-	movq $0, -32(%rbp)
-	movq $0, -40(%rbp)
-	movq $0, -48(%rbp)
-
 	movq $10, %r8
-	movq %r8, -16(%rbp)
-
-	movq -16(%rbp), %r8
+	movq %r8, -8(%rbp)
+	movq -8(%rbp), %r8
 	push %r8
 	call fib
 	pop %r8
 	movq %rax, %r8
-	movq %r8, -8(%rbp)
-
+	movq %r8, -16(%rbp)
+	movq $0, -24(%rbp)
+	movq $0, -32(%rbp)
 	movq $5, %r8
 	movq %r8, -40(%rbp)
-
 	movq $3, %r8
 	movq $5, %r9
 	movq -40(%rbp), %r10
@@ -249,9 +233,9 @@ do_while6:
 	pop %r8
 	pop %r8
 	movq %rax, %r8
-	movq %r8, -8(%rbp)
+	movq %r8, -16(%rbp)
 
-	movq -8(%rbp), %r8
+	movq -16(%rbp), %r8
 	movq $1, %r9
 	movq %r9, %rcx
 	sal %rcx, %r8
@@ -263,7 +247,7 @@ do_while6:
 	movq %rax, %r9
 
 	sub %r9, %r8
-	movq %r8, -8(%rbp)
+	movq %r8, -16(%rbp)
 
 if7:
 	movq -40(%rbp), %r8
@@ -281,7 +265,7 @@ else7:
 	movq -32(%rbp), %r8
 	movq -24(%rbp), %r9
 	add %r9, %r8
-	movq -8(%rbp), %r9
+	movq -16(%rbp), %r9
 	sub %r9, %r8
 	movq %r8, %rax
 	jmp main_end

@@ -102,6 +102,9 @@ void Analyzer::checkVariables(std::shared_ptr<ASTree> node){
             throw std::runtime_error(std::format("Line {}, Column {}: SEMANTIC ERROR -> variable redefined '{}'", 
                 node->getToken()->line, node->getToken()->column, node->getToken()->value));
         }
+        if(child->getChildren().size() != 0){
+            checkStatement(child->getChild(0));
+        }
     }
 }
 

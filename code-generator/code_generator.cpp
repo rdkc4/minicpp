@@ -12,8 +12,7 @@ CodeGenerator::~CodeGenerator(){
 // allocating general-purpose register r(8-15)
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 void CodeGenerator::takeGpReg(){
-    ++gpFreeRegPos;
-    
+    ++gpFreeRegPos;    
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -110,18 +109,22 @@ void CodeGenerator::generateParameter(std::shared_ptr<IRTree> node){
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 void CodeGenerator::generateVariable(std::shared_ptr<IRTree> node){
     size_t varCount = node->getChildren().size();
-    if(varCount == 0){
-        return;
-    }
-    generatedCode << std::format("\tsub ${}, %rsp\n\n", varCount*8);
+    if(varCount > 0){
+        generatedCode << std::format("\tsub ${}, %rsp\n\n", varCount*8);
 
-    size_t i = 1;
-    for(const auto& var : node->getChildren()){
-        variableMapping.insert({var->getName(), std::format("-{}(%rbp)", i*8)});
-        generatedCode << std::format("\tmovq $0, {}\n", generateID(var));
-        ++i;
+        size_t i = 1;
+        for(const auto& var : node->getChildren()){
+            variableMapping.insert({var->getName(), std::format("-{}(%rbp)", i*8)});
+            if(var->getChildren().size() != 0){
+                generateAssignmentStatement(var->getChild(0));
+            }
+            else{
+                generatedCode << std::format("\tmovq $0, {}\n", generateID(var));
+            }
+            ++i;
+        }
+        generatedCode << "\n";
     }
-    generatedCode << "\n";
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------

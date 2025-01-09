@@ -1,10 +1,7 @@
 int fib(int n){
-    int i;
-    int a;
-    int b;
-    i = 0;
-    a = 1;
-    b = 1;
+    int i = 0;
+    int a = 1;
+    int b = 1;
     if(n < 0){
         return 0;
     }
@@ -29,8 +26,7 @@ int fib(int n){
 }
 
 int fun(int y, int z){
-    int x; 
-    x = y + z;
+    int x = y + z;
     switch(x){
         case 5:
             return x;
@@ -44,19 +40,12 @@ int fun(int y, int z){
 }
 
 int main(){
-    int x;
-    int y;
+    int y = 10;
+    int x = fib(y);
     int i;
     int j;
-    unsigned z;
-    unsigned k;
-
-    y = 10;
-
-    x = fib(y);
-
-    z = 5u;
-    k = 3u & 5u + (z * 2u) / 3u | 2u ^ 11u;
+    unsigned z = 5u;
+    unsigned k = 3u & 5u + (z * 2u) / 3u | 2u ^ 11u;
 
     for(i = 0; i < 10; i = i + 1){
         j = j + 2;

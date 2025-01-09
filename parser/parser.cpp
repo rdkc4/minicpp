@@ -54,7 +54,7 @@ std::shared_ptr<ASTree> Parser::function(){
     Token token = currentToken;
     eat(TokenType::_ID);
     
-    auto currentNode = std::make_shared<ASTree>(ASTNodeType::FUNCTION, Token(token), returnType);
+    auto currentNode = std::make_shared<ASTree>(ASTNodeType::FUNCTION, token, returnType);
 
     eat(TokenType::_LPAREN);
     currentNode->pushChild(parameter());
@@ -75,7 +75,7 @@ std::shared_ptr<ASTree> Parser::parameter(){
         auto token = currentToken;
         eat(TokenType::_ID);
         
-        currentNode->pushChild(std::make_shared<ASTree>(ASTNodeType::PARAMETER, Token(token), type));
+        currentNode->pushChild(std::make_shared<ASTree>(ASTNodeType::PARAMETER, token, type));
 
         if(currentToken.type == TokenType::_COMMA && lexer.peekAtNext().type == TokenType::_TYPE){
             eat(TokenType::_COMMA);
@@ -114,10 +114,12 @@ std::shared_ptr<ASTree> Parser::variable(){
     Types type = stringToType.find(currentToken.value) != stringToType.end() ? stringToType.at(currentToken.value) : Types::NO_TYPE;;
     eat(TokenType::_TYPE);
     auto token = currentToken;
-    eat(TokenType::_ID);
+    auto variable = std::make_shared<ASTree>(ASTNodeType::VARIABLE, token, type);
+    
+    lexer.peekAtNext().type == TokenType::_ASSIGN ? variable->pushChild(assignmentStatement()) : eat(TokenType::_ID);
     eat(TokenType::_SEMICOLON);
 
-    return std::make_shared<ASTree>(ASTNodeType::VARIABLE, Token(token), type);
+    return variable;
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -578,5 +580,4 @@ std::shared_ptr<ASTree> Parser::literal(){
 // -> PRE/POST INCREMENT/DECREMENT (TODO)
 // -> BITWISE OPERATORS (!, ~) (TODO)
 // -> TERNARY OPERATOR ? : (TODO)
-// -> IN-PLACE INITIALIZATION (TODO)
 //-----------------------------------------------------------------------------------------------------------------------------------------------------

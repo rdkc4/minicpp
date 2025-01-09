@@ -50,7 +50,11 @@ std::shared_ptr<IRTree> IntermediateRepresentation::parameter(std::shared_ptr<AS
 std::shared_ptr<IRTree> IntermediateRepresentation::variable(std::shared_ptr<ASTree> node){
     auto iChild = std::make_shared<IRTree>(IRNodeType::VARIABLE);
     for(const auto& child : node->getChildren()){
-        iChild->pushChild(std::make_shared<IRTree>(IRNodeType::ID, std::string(child->getToken()->value), "0", child->getType().value()));
+        std::shared_ptr<IRTree> variable = std::make_shared<IRTree>(IRNodeType::ID, std::string(child->getToken()->value), "0", child->getType().value());
+        if(child->getChildren().size() != 0){
+            variable->pushChild(assignmentStatement(child->getChild(0)));
+        }
+        iChild->pushChild(variable);
     }
     return iChild;
 }
