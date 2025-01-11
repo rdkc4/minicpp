@@ -6,7 +6,7 @@
 #include <unordered_map>
 #include <unordered_set>
 
-enum class Types{INT, UNSIGNED, VOID, NO_TYPE};
+enum class Types{INT, UNSIGNED, VOID, AUTO, NO_TYPE};
 
 enum class Kinds{NO_KIND, REG, LIT, FUN, VAR, PAR};
 

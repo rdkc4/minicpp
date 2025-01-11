@@ -10,13 +10,15 @@ const std::unordered_map<Types, std::string> typeToString = {
     {Types::INT, "int"},
     {Types::UNSIGNED, "unsigned"},
     {Types::VOID, "void"},
+    {Types::AUTO, "auto"},
     {Types::NO_TYPE, "no_type"}
 };
 
 const std::unordered_map<std::string, Types> stringToType = {
     {"int", Types::INT},
     {"unsigned", Types::UNSIGNED},
-    {"void", Types::VOID}
+    {"void", Types::VOID},
+    {"auto", Types::AUTO}
 };
 
 const std::unordered_map<Kinds, std::string> kindToString = {

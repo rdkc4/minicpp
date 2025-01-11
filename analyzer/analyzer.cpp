@@ -20,6 +20,11 @@ void Analyzer::semanticCheck(std::shared_ptr<ASTree> root){
             throw std::runtime_error(std::format("Line {}, Column {}: SEMANTIC ERROR -> invalid type '{} {}'", 
                 child->getToken()->line, child->getToken()->column, typeToString.at(type), child->getToken()->value));
         }
+        else if(type == Types::AUTO){
+            throw std::runtime_error(std::format("Line {}, Column {}: SEMANTIC ERROR -> type deduction cannot be performed on function '{} {}'", 
+                child->getToken()->line, child->getToken()->column, typeToString.at(type), child->getToken()->value));
+        }
+
         if(!scopeManager.pushSymbol(std::make_shared<Symbol>(child->getToken()->value, Kinds::FUN, type))){
             throw std::runtime_error(std::format("Line {}, Column {}: SEMANTIC ERROR -> function redefined '{} {}'", 
                 child->getToken()->line, child->getToken()->column, typeToString.at(type), child->getToken()->value));
@@ -71,11 +76,16 @@ void Analyzer::parameterCheck(std::shared_ptr<ASTree> node){
         auto type = child->getType().value();
         if(type == Types::VOID || type == Types::NO_TYPE){
             throw std::runtime_error(std::format("Line {}, Column {}: SEMANTIC ERROR -> invalid type '{} {}'", 
-                node->getToken()->line, node->getToken()->column, typeToString.at(type), node->getToken()->value));
+                child->getToken()->line, child->getToken()->column, typeToString.at(type), child->getToken()->value));
         }
+        else if(type == Types::AUTO){
+            throw std::runtime_error(std::format("Line {}, Column {}: SEMANTIC ERROR -> type deduction cannot be performed on parameters '{} {}'", 
+                child->getToken()->line, child->getToken()->column, typeToString.at(type), child->getToken()->value));
+        }
+
         if(!scopeManager.pushSymbol(std::make_shared<Symbol>(child->getToken()->value, Kinds::PAR, child->getType().value()))){
             throw std::runtime_error(std::format("Line {}, Column {}: SEMANTIC ERROR -> variable redefined '{}'", 
-                node->getToken()->line, node->getToken()->column, node->getToken()->value));
+                child->getToken()->line, child->getToken()->column, child->getToken()->value));
         }
     }
 }
@@ -96,11 +106,16 @@ void Analyzer::checkVariables(std::shared_ptr<ASTree> node){
         auto type = child->getType().value();
         if(type == Types::VOID || type == Types::NO_TYPE){
             throw std::runtime_error(std::format("Line {}, Column {}: SEMANTIC ERROR -> invalid type '{} {}'", 
-                node->getToken()->line, node->getToken()->column, typeToString.at(type), node->getToken()->value));
+                child->getToken()->line, child->getToken()->column, typeToString.at(type), child->getToken()->value));
         }
+        else if(type == Types::AUTO && child->getChildren().empty()){
+            throw std::runtime_error(std::format("Line {}, Column {}: SEMANTIC ERROR -> type deduction failed '{} {}'", 
+                child->getToken()->line, child->getToken()->column, typeToString.at(type), child->getToken()->value));
+        }
+
         if(!scopeManager.pushSymbol(std::make_shared<Symbol>(child->getToken()->value, Kinds::VAR, type))){
             throw std::runtime_error(std::format("Line {}, Column {}: SEMANTIC ERROR -> variable redefined '{}'", 
-                node->getToken()->line, node->getToken()->column, node->getToken()->value));
+                child->getToken()->line, child->getToken()->column, child->getToken()->value));
         }
         if(child->getChildren().size() != 0){
             checkStatement(child->getChild(0));
@@ -293,9 +308,13 @@ void Analyzer::checkAssignmentStatement(std::shared_ptr<ASTree> node){
     checkID(lchild);
     Types ltype = scopeManager.getSymbolTable().getSymbol(lchild->getToken()->value)->getType();
     
-    if(rtype != ltype){
+    if(rtype != ltype && ltype != Types::AUTO){
         throw std::runtime_error(std::format("Line {}, Column {}: SEMANTIC ERROR -> invalid assignment statement - type mismatch: expected '{}', got '{}'", 
             node->getToken()->line, node->getToken()->column, typeToString.at(ltype), typeToString.at(rtype)));
+    }
+
+    if(ltype == Types::AUTO){
+        scopeManager.getSymbolTable().getSymbol(lchild->getToken()->value)->setType(rtype);
     }
 }
 
@@ -443,7 +462,7 @@ void Analyzer::checkArgument(std::shared_ptr<ASTree> node){
         auto rtype = functionParameters->getChild(i)->getType().value();
         if(ltype != rtype){
             throw std::runtime_error(std::format("Line {}, Column {}: SEMANTIC ERROR -> invalid argument - type mismatch: expected '{}', got '{} {}'",
-                node->getToken()->line, node->getToken()->column, typeToString.at(rtype), typeToString.at(ltype), child->getToken()->value));
+                child->getToken()->line, child->getToken()->column, typeToString.at(rtype), typeToString.at(ltype), child->getToken()->value));
         }
         ++i;
     }

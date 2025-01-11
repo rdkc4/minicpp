@@ -570,7 +570,6 @@ std::shared_ptr<ASTree> Parser::literal(){
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-// -> AUTO KEYWORD (TODO)
 // -> GLOBAL VARIABLES (TODO)
 // -> ENUMERATORS (TODO)
 // -> LISTS (TODO)
