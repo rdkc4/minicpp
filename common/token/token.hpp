@@ -17,9 +17,9 @@ struct Token{
     size_t line;
     size_t column;
 
-    Token() : type(TokenType::_NODE), value(""), line(0), column(0){}
-    Token(std::string value, size_t line, size_t column) : type(TokenType::_NODE), value(value), line(line), column(column){}
-    Token(TokenType type, const std::string& value, size_t line, size_t column): type(type), value(value), line(line), column(column){}
+    Token();
+    Token(std::string value, size_t line, size_t column);
+    Token(TokenType type, const std::string& value, size_t line, size_t column);
 };
 
 #endif

@@ -1,10 +1,18 @@
 #include "defs.hpp"
 
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
+// supported operators (relational, arithmetic, bitwise)
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
+
 const std::unordered_set<std::string> relationalOperators = {"<", ">", "<=", ">=", "==", "!=" };
 
 const std::unordered_set<std::string> arithmeticOperators = {"+", "-", "*", "/"};
 
 const std::unordered_set<std::string> bitwiseOperators = {"&", "|", "^", "<<", ">>"};
+
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
+// conversions
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
 
 const std::unordered_map<Types, std::string> typeToString = {
     {Types::INT, "int"},
@@ -28,22 +36,4 @@ const std::unordered_map<Kinds, std::string> kindToString = {
     {Kinds::FUN, "FUN"},
     {Kinds::VAR, "VAR"},
     {Kinds::PAR, "PAR"}
-};
-
-const std::unordered_map<std::string, std::vector<std::string>> stringToJMP = {
-    {">", {"jg", "ja"}},
-    {">=", {"jge", "jae"}},
-    {"<", {"jl", "jb"}},
-    {"<=", {"jle", "jbe"}},
-    {"==", {"je", "je"}},
-    {"!=", {"jne", "jne"}}
-};
-
-const std::unordered_map<std::string, std::vector<std::string>> stringToOppJMP = {
-    {">", {"jle", "jbe"}},
-    {">=", {"jl", "jb"}},
-    {"<", {"jge", "jae"}},
-    {"<=", {"jg", "ja"}},
-    {"==", {"jne", "jne"}},
-    {"!=", {"je", "je"}}
 };

@@ -4,22 +4,9 @@
 #include <vector>
 #include <memory>
 #include <optional>
-#include <unordered_map>
 
 #include "../defs/defs.hpp"
-
-enum class IRNodeType{
-    PROGRAM, FUNCTION, PARAMETER, VARIABLE, ARGUMENT, ID, LITERAL, IF, WHILE, FOR, DO_WHILE, SWITCH, CASE, 
-    DEFAULT, BREAK, ASSIGN, COMPOUND, CALL, RETURN, ADD, SUB, DIV, MUL, CMP, AND, OR, XOR, SHL, SAL, SHR, SAR
-};
-
-extern const std::unordered_set<IRNodeType> irOperators;
-
-extern const std::unordered_map<IRNodeType, std::string> irNodeToString;
-
-extern const std::unordered_map<std::string, IRNodeType> stringToArop;
-
-extern const std::unordered_map<std::string, std::vector<IRNodeType>> stringToBitop;
+#include "defs/IRTree_defs.hpp"
 
 class IRTree{
     

@@ -2,6 +2,8 @@
 #include <string>
 #include <format>
 
+#include "defs/code_generator_defs.hpp"
+
 CodeGenerator::CodeGenerator(std::string& output) : generatedCode(output){}
 
 CodeGenerator::~CodeGenerator(){
@@ -166,13 +168,13 @@ void CodeGenerator::generateStatement(std::shared_ptr<IRTree> node){
 // IF STATEMENT - cmp relexp, opposite jmp to else/end, if statement, else statement
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 void CodeGenerator::generateIfStatement(std::shared_ptr<IRTree> node){
-    auto labNum = getNextLabelNum();
-    auto size = node->getChildren().size();
+    size_t labNum = getNextLabelNum();
+    size_t size = node->getChildren().size();
 
     generatedCode << std::format("if{}:\n", labNum);
     generateRelationalExpression(node->getChild(0));
 
-    auto type = node->getChild(0)->getChild(0)->getType() == Types::INT ? 0 : 1;
+    int type = node->getChild(0)->getChild(0)->getType() == Types::INT ? 0 : 1;
     generatedCode << std::format("\t{}", stringToOppJMP.at(node->getChild(0)->getValue())[type]);
 
     if(size > 3){
@@ -224,12 +226,12 @@ void CodeGenerator::generateIfStatement(std::shared_ptr<IRTree> node){
 // WHILE STATEMENT - cmp relexp, opposite jump to end, while statements
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 void CodeGenerator::generateWhileStatement(std::shared_ptr<IRTree> node){
-    auto labNum = getNextLabelNum();
+    size_t labNum = getNextLabelNum();
 
     generatedCode << std::format("while{}:\n", labNum);
     generateRelationalExpression(node->getChild(0));
 
-    auto type = node->getChild(0)->getChild(0)->getType() == Types::INT ? 0 : 1;
+    int type = node->getChild(0)->getChild(0)->getType() == Types::INT ? 0 : 1;
     generatedCode << std::format("\t{} while{}_end\n\n", stringToOppJMP.at(node->getChild(0)->getValue())[type], labNum);
 
     generateStatement(node->getChild(1));
@@ -241,13 +243,13 @@ void CodeGenerator::generateWhileStatement(std::shared_ptr<IRTree> node){
 // FOR STATEMENT - assign(init) statement (before loop), cmp relexp, opposite jmp, statements, assign(inc) statement
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 void CodeGenerator::generateForStatement(std::shared_ptr<IRTree> node){
-    auto labNum = getNextLabelNum();
+    size_t labNum = getNextLabelNum();
 
     generateAssignmentStatement(node->getChild(0));
     generatedCode << std::format("\nfor{}:\n", labNum);
     generateRelationalExpression(node->getChild(1));
 
-    auto type = node->getChild(0)->getChild(0)->getType() == Types::INT ? 0 : 1;
+    int type = node->getChild(0)->getChild(0)->getType() == Types::INT ? 0 : 1;
     generatedCode << std::format("\t{} for{}_end\n\n", stringToOppJMP.at(node->getChild(1)->getValue())[type], labNum);
 
     generateStatement(node->getChild(3));
@@ -261,13 +263,13 @@ void CodeGenerator::generateForStatement(std::shared_ptr<IRTree> node){
 // DO_WHILE STATEMENT - statements, relexp regular jmp
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 void CodeGenerator::generateDoWhileStatement(std::shared_ptr<IRTree> node){
-    auto labNum = getNextLabelNum();
+    size_t labNum = getNextLabelNum();
 
     generatedCode << std::format("do_while{}:\n", labNum);
     generateStatement(node->getChild(0));
     
     generateRelationalExpression(node->getChild(1));
-    auto type = node->getChild(1)->getChild(0)->getType() == Types::INT ? 0 : 1;
+    int type = node->getChild(1)->getChild(0)->getType() == Types::INT ? 0 : 1;
     generatedCode << std::format("\t{} do_while{}\n", stringToJMP.at(node->getChild(1)->getValue())[type], labNum);
 }
 
@@ -307,17 +309,17 @@ void CodeGenerator::generateReturnStatement(std::shared_ptr<IRTree> node){
 // SWITCH STATEMENT - generate cases, cmp each case, opposite jmp to next case/default/end
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 void CodeGenerator::generateSwitchStatement(std::shared_ptr<IRTree> node){
-    auto labNum = getNextLabelNum();
+    size_t labNum = getNextLabelNum();
 
     generatedCode << std::format("switch{}:\n", labNum);
 
     size_t i = 1;
-    auto size = node->getChildren().size();
-    auto var = node->getChild(0)->getName();
+    size_t size = node->getChildren().size();
+    std::string var = node->getChild(0)->getName();
     bool hasDefault = node->getChildren().back()->getNodeType() == IRNodeType::DEFAULT;
     
     for(; i < size; i++){
-        auto child = node->getChild(i);
+        std::shared_ptr<IRTree> child = node->getChild(i);
         if(child->getNodeType() == IRNodeType::CASE){
             generatedCode << std::format("switch{}_case{}:\n", labNum, i-1);
             generatedCode << std::format("\tmovq {}, %rcx\n", variableMapping.at(var));
@@ -401,7 +403,7 @@ void CodeGenerator::generateNumericalExpression(std::shared_ptr<IRTree> node){
             rreg = gpRegisters.at(gpFreeRegPos);
         }
         
-        auto nodeType = node->getNodeType();
+        IRNodeType nodeType = node->getNodeType();
         if(nodeType == IRNodeType::MUL || nodeType == IRNodeType::DIV){ // result of MUL || DIV is in RDX:RAX
             generatedCode << "\txor %rdx, %rdx\n"; //add overflow check (TODO)
             generatedCode << std::format("\tmovq {}, %rax\n", rreg);
@@ -438,9 +440,9 @@ void CodeGenerator::generateRelationalExpression(std::shared_ptr<IRTree> node){
     generateNumericalExpression(node->getChild(1));
     
     freeGpReg();
-    auto lreg = gpRegisters.at(gpFreeRegPos);
+    std::string lreg = gpRegisters.at(gpFreeRegPos);
     freeGpReg();
-    auto rreg = gpRegisters.at(gpFreeRegPos);
+    std::string rreg = gpRegisters.at(gpFreeRegPos);
     generatedCode << std::format("\tcmp {}, {}\n", lreg, rreg);
 }
 

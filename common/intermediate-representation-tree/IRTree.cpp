@@ -11,68 +11,6 @@ IRTree::IRTree(IRNodeType nodeType, std::string name, std::string value, Types t
 IRTree::~IRTree() = default;
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-// operator IR Nodes
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-const std::unordered_set<IRNodeType> irOperators = {IRNodeType::ADD, IRNodeType::SUB, IRNodeType::DIV, IRNodeType::MUL, 
-    IRNodeType::AND, IRNodeType::OR, IRNodeType::XOR, IRNodeType::SHL, IRNodeType::SAL, IRNodeType::SHR, IRNodeType::SAR
-};
-
-const std::unordered_map<IRNodeType, std::string> irNodeToString = {
-    {IRNodeType::PROGRAM, "PROGRAM"}, {IRNodeType::FUNCTION, "FUNCTION"},
-    {IRNodeType::PARAMETER, "PARAMETER"},
-    {IRNodeType::VARIABLE, "VARIABLE"},
-    {IRNodeType::ARGUMENT, "ARGUMENT"},
-    {IRNodeType::ID, "ID"},
-    {IRNodeType::LITERAL, "LITERAL"},
-    {IRNodeType::IF, "IF"},
-    {IRNodeType::WHILE, "WHILE"},
-    {IRNodeType::FOR, "FOR"},
-    {IRNodeType::DO_WHILE, "DO_WHILE"},
-    {IRNodeType::SWITCH, "SWITCH"},
-    {IRNodeType::CASE, "CASE"},
-    {IRNodeType::DEFAULT, "DEFAULT"},
-    {IRNodeType::BREAK, "BREAK"},
-    {IRNodeType::ASSIGN, "ASSIGN"},
-    {IRNodeType::COMPOUND, "COMPOUND"},
-    {IRNodeType::CALL, "CALL"},
-    {IRNodeType::RETURN, "RETURN"},
-    {IRNodeType::ASSIGN, "ASSIGN"},
-    {IRNodeType::ADD, "add"},
-    {IRNodeType::SUB, "sub"},
-    {IRNodeType::MUL, "mul"},
-    {IRNodeType::DIV, "div"},
-    {IRNodeType::CMP, "cmp"},
-    {IRNodeType::AND, "and"},
-    {IRNodeType::OR, "or"},
-    {IRNodeType::XOR, "xor"},
-    {IRNodeType::SHL, "shl"},
-    {IRNodeType::SAL, "sal"},
-    {IRNodeType::SHR, "shr"},
-    {IRNodeType::SAR, "sar"}
-};
-
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// sign to IR Arithmetic operator node type
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-const std::unordered_map<std::string, IRNodeType> stringToArop = {
-    {"+", IRNodeType::ADD},
-    {"-", IRNodeType::SUB},
-    {"*", IRNodeType::MUL},
-    {"/", IRNodeType::DIV}
-};
-
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// sign to IR Bitwise operator node type
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-const std::unordered_map<std::string, std::vector<IRNodeType>> stringToBitop = {
-    {"&", {IRNodeType::AND, IRNodeType::AND}},
-    {"|", {IRNodeType::OR, IRNodeType::OR}},
-    {"^", {IRNodeType::XOR, IRNodeType::XOR}},
-    {"<<", {IRNodeType::SAL, IRNodeType::SHL}},
-    {">>", {IRNodeType::SAR, IRNodeType::SHR}}
-};
-
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 // ADD CHILD TO IR TREE 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 void IRTree::pushChild(std::shared_ptr<IRTree> child){
@@ -82,6 +20,10 @@ void IRTree::pushChild(std::shared_ptr<IRTree> child){
 void IRTree::clearChildren(){
     children.clear();
 }
+
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
+// SETTERS
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
 
 void IRTree::setNodeType(IRNodeType type){
     nodeType = type;
@@ -116,6 +58,10 @@ const std::vector<std::shared_ptr<IRTree>>& IRTree::getChildren() const{
     return children;
 }
 
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
+// GETTERS
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
+
 IRNodeType IRTree::getNodeType() const{
     return nodeType;
 }
@@ -132,6 +78,9 @@ std::optional<Types> IRTree::getType() const{
     return type;
 }
 
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
+// PRINT IRT NODE
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::string IRTree::toString(){
     std::string _name = !name.empty() ? " | name: " + name : "";
     std::string _value = !value.empty() ? " | value: " + value : "";

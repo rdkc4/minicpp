@@ -6,15 +6,19 @@ CXXFLAGS = -std=c++23 -Wall -Wextra -Werror -g
 SRCS = main.cpp \
 	common/defs/defs.cpp \
 	common/token/token.cpp \
+	common/abstract-syntax-tree/defs/ASTree_defs.cpp \
 	common/abstract-syntax-tree/ASTree.cpp \
 	common/symbol/symbol.cpp \
+	common/intermediate-representation-tree/defs/IRTree_defs.cpp \
 	common/intermediate-representation-tree/IRTree.cpp \
+	lexer/defs/lexer_defs.cpp \
 	lexer/lexer.cpp \
 	parser/parser.cpp \
 	symbol-handling/symbol-table/symbol_table.cpp \
 	symbol-handling/scope-manager/scope_manager.cpp \
 	analyzer/analyzer.cpp \
 	intermediate-representation/intermediate_representation.cpp \
+	code-generator/defs/code_generator_defs.cpp \
 	code-generator/code_generator.cpp
 
 # Object files (derived from the source files)
