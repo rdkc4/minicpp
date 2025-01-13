@@ -9,13 +9,7 @@
 #include "intermediate-representation/intermediate_representation.hpp"
 #include "code-generator/code_generator.hpp"
 
-int main(){
-    std::string input = "";
-    std::string line;
-
-    while (std::getline(std::cin, line)) {
-        input += line + "\n";
-    }
+bool compile(std::string input){
 
     Lexer lexer(input);
     try{
@@ -24,7 +18,7 @@ int main(){
 
     } catch(const std::exception& e){
         std::cerr << std::format("\nLexical check: failed\n{}\n", e.what());
-        return -1;
+        return false;
     }
 
     Parser parser(lexer);
@@ -32,7 +26,7 @@ int main(){
     SymbolTable symbolTable;
     ScopeManager scopeManager(symbolTable);
     Analyzer analyzer(scopeManager);
-    
+
     std::string output = "output.s";
     IntermediateRepresentation intermediateRepresentation;
     CodeGenerator codeGenerator(output);
@@ -45,10 +39,10 @@ int main(){
         try{
             analyzer.semanticCheck(astRoot);
             std::cout << "\nSemantic check: successful!\n";
-        
+
         } catch(const std::exception& e){
             std::cerr << std::format("\nSemantic check: failed!\n{}\n", e.what());
-            return -1;
+            return false;
         }
 
         try{
@@ -59,21 +53,41 @@ int main(){
             try{
                 codeGenerator.generateCode(irRoot);
                 std::cout << "\nCode Generation: successful!\n";
-                
+
             } catch(const std::exception& e){
                 std::cerr << std::format("\nCode Generation: failed!\n{}\n", e.what());
-                return -1;
+                return false;
             }
 
         } catch(const std::exception& e){
             std::cerr << std::format("\nForming Intermediate Representation: failed!\n{}\n", e.what());
-            return -1;
+            return false;
         }
-        
+
     } catch (const std::exception& e) {
         std::cerr << std::format("\nSyntax check: failed!\n{}\n", e.what());
-        return -1;
+        return false;
     }
+    return true;
+}
+
+int main(){
+
+    std::string input = "";
+    std::string line;
+
+    while (std::getline(std::cin, line)) {
+        input += line + "\n";
+    }
+
+    bool ret = compile(input);
     
+    if(ret){
+        std::cout << "\nProgram successfully compiled!\n";
+    }
+    else{
+        std::cerr << "\nProgram failed to compile!\n";
+    }
+
     return 0;
 }

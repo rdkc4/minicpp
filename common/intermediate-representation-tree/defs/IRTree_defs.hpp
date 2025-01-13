@@ -6,6 +6,10 @@
 #include <string>
 #include <vector>
 
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
+// definitions related to intermediate representation
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
+
 enum class IRNodeType{
     PROGRAM, FUNCTION, PARAMETER, VARIABLE, ARGUMENT, ID, LITERAL, IF, WHILE, FOR, DO_WHILE, SWITCH, CASE, 
     DEFAULT, BREAK, ASSIGN, COMPOUND, CALL, RETURN, ADD, SUB, DIV, MUL, CMP, AND, OR, XOR, SHL, SAL, SHR, SAR

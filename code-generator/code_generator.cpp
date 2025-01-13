@@ -4,7 +4,7 @@
 
 #include "defs/code_generator_defs.hpp"
 
-CodeGenerator::CodeGenerator(std::string& output) : generatedCode(output){}
+CodeGenerator::CodeGenerator(std::string& output) : generatedCode(output), labelNum(0), gpFreeRegPos(0){}
 
 CodeGenerator::~CodeGenerator(){
     generatedCode.close();
@@ -55,7 +55,6 @@ void CodeGenerator::generateCode(std::shared_ptr<IRTree> root){
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // HANDLING STACK - obtaining variables, parameters, generating statements
-// variableMapping - unordered_map which maps variable name to memory location on stack relative to %rbp
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 void CodeGenerator::generateFunction(std::shared_ptr<IRTree> node){
     activeFunction = node->getName();
@@ -90,7 +89,7 @@ void CodeGenerator::generateFunction(std::shared_ptr<IRTree> node){
         generatedCode << "\tsyscall\n";
     }
 
-    variableMapping.clear();
+    variableMap.clear();
 
 }
 
@@ -101,7 +100,7 @@ void CodeGenerator::generateFunction(std::shared_ptr<IRTree> node){
 void CodeGenerator::generateParameter(std::shared_ptr<IRTree> node){
     size_t i = 2;
     for(const auto& parameter : node->getChildren()){
-        variableMapping.insert({parameter->getName(), std::format("{}(%rbp)", i*8)});
+        variableMap.insert({parameter->getName(), std::format("{}(%rbp)", i*8)});
         ++i;
     }
 }
@@ -116,7 +115,7 @@ void CodeGenerator::generateVariable(std::shared_ptr<IRTree> node){
 
         size_t i = 1;
         for(const auto& var : node->getChildren()){
-            variableMapping.insert({var->getName(), std::format("-{}(%rbp)", i*8)});
+            variableMap.insert({var->getName(), std::format("-{}(%rbp)", i*8)});
             if(var->getChildren().size() != 0){
                 generateAssignmentStatement(var->getChild(0));
             }
@@ -322,7 +321,7 @@ void CodeGenerator::generateSwitchStatement(std::shared_ptr<IRTree> node){
         std::shared_ptr<IRTree> child = node->getChild(i);
         if(child->getNodeType() == IRNodeType::CASE){
             generatedCode << std::format("switch{}_case{}:\n", labNum, i-1);
-            generatedCode << std::format("\tmovq {}, %rcx\n", variableMapping.at(var));
+            generatedCode << std::format("\tmovq {}, %rcx\n", variableMap.at(var));
             generatedCode << std::format("\tmovq {}, %rdx\n", generateLiteral(child->getChild(0)));
             generatedCode << "\tcmp %rcx, %rdx\n";
             
@@ -447,10 +446,10 @@ void CodeGenerator::generateRelationalExpression(std::shared_ptr<IRTree> node){
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-// ID - retrieve address from variableMapping
+// ID - retrieve address from variableMap
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::string CodeGenerator::generateID(std::shared_ptr<IRTree> node){
-    return variableMapping.at(node->getName());
+    return variableMap.at(node->getName());
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
