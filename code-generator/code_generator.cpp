@@ -1,4 +1,5 @@
 #include "code_generator.hpp"
+#include <memory>
 #include <string>
 #include <format>
 
@@ -49,6 +50,7 @@ void CodeGenerator::generateCode(std::shared_ptr<IRTree> root){
     generatedCode << "\tjmp main\n";
 
     for(const auto& child : root->getChildren()){
+        variableNum = 1;
         generateFunction(child);
     }
 }
@@ -61,22 +63,17 @@ void CodeGenerator::generateFunction(std::shared_ptr<IRTree> node){
     generatedCode << std::format("\n{}:\n", activeFunction);
     generatedCode << "\tpush %rbp\n";
     generatedCode << "\tmov %rsp, %rbp\n";
+    generatedCode << std::format("\tsub ${}, %rsp\n\n", node->getValue());
 
     generateParameter(node->getChild(0));
 
-    generateVariable(node->getChild(1));
-
-    for(size_t i = 2; i < node->getChildren().size(); i++){
-        generateStatement(node->getChild(i));
+    for(size_t i = 1; i < node->getChildren().size(); i++){
+        generateConstruct(node->getChild(i));
     }
 
     generatedCode << std::format("{}_end:\n", activeFunction);
     
-    size_t varCount = node->getChild(1)->getChildren().size();
-    if(varCount > 0){
-        generatedCode << std::format("\tadd ${}, %rsp\n", varCount*8);
-    }
-    
+    generatedCode << std::format("\tadd ${}, %rsp\n", node->getValue());
     generatedCode << "\tmov %rbp, %rsp\n";
     generatedCode << "\tpop %rbp\n";
 
@@ -106,26 +103,32 @@ void CodeGenerator::generateParameter(std::shared_ptr<IRTree> node){
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-// INSERTING LOCAL VARIABLES - moving stack pointer, assigning default values (0)
+// generating variable / statement
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
+void CodeGenerator::generateConstruct(std::shared_ptr<IRTree> node){
+    if(node->getNodeType() == IRNodeType::VARIABLE){
+        generateVariable(node);
+    }
+    else{
+        generateStatement(node);
+    }
+}
+
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
+// INSERTING LOCAL VARIABLES - assigning default values (0) or given values (n)
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 void CodeGenerator::generateVariable(std::shared_ptr<IRTree> node){
-    size_t varCount = node->getChildren().size();
-    if(varCount > 0){
-        generatedCode << std::format("\tsub ${}, %rsp\n\n", varCount*8);
-
-        size_t i = 1;
-        for(const auto& var : node->getChildren()){
-            variableMap.insert({var->getName(), std::format("-{}(%rbp)", i*8)});
-            if(var->getChildren().size() != 0){
-                generateAssignmentStatement(var->getChild(0));
-            }
-            else{
-                generatedCode << std::format("\tmovq $0, {}\n", generateID(var));
-            }
-            ++i;
-        }
-        generatedCode << "\n";
+    variableMap.insert({node->getName(), std::format("-{}(%rbp)", variableNum*8)});
+    ++variableNum;
+    if(node->getChildren().size() != 0){
+        generateAssignmentStatement(node->getChild(0));
     }
+    else{
+        generatedCode << std::format("\tmovq $0, {}\n", generateID(node));
+    }
+    
+    generatedCode << "\n";
+
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -164,7 +167,7 @@ void CodeGenerator::generateStatement(std::shared_ptr<IRTree> node){
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-// IF STATEMENT - cmp relexp, opposite jmp to else/end, if statement, else statement
+// IF STATEMENT - cmp relexp, opposite jmp to else/end, if constructs, else construct
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 void CodeGenerator::generateIfStatement(std::shared_ptr<IRTree> node){
     size_t labNum = getNextLabelNum();
@@ -207,14 +210,14 @@ void CodeGenerator::generateIfStatement(std::shared_ptr<IRTree> node){
                 generatedCode << std::format(" elif{}_{}\n", labNum, i/2); 
             }
 
-            generateStatement(node->getChild(i+1));
+            generateConstruct(node->getChild(i+1));
             generatedCode << std::format("\tjmp if{}_end\n", labNum); 
         }
     }
 
     if(size % 2 == 1){
         generatedCode << std::format("\nelse{}:\n", labNum);
-        generateStatement(node->getChildren().back());
+        generateConstruct(node->getChildren().back());
     }
 
     generatedCode << std::format("if{}_end:\n", labNum);
@@ -222,7 +225,7 @@ void CodeGenerator::generateIfStatement(std::shared_ptr<IRTree> node){
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-// WHILE STATEMENT - cmp relexp, opposite jump to end, while statements
+// WHILE STATEMENT - cmp relexp, opposite jump to end, while constructs
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 void CodeGenerator::generateWhileStatement(std::shared_ptr<IRTree> node){
     size_t labNum = getNextLabelNum();
@@ -233,13 +236,13 @@ void CodeGenerator::generateWhileStatement(std::shared_ptr<IRTree> node){
     int type = node->getChild(0)->getChild(0)->getType() == Types::INT ? 0 : 1;
     generatedCode << std::format("\t{} while{}_end\n\n", stringToOppJMP.at(node->getChild(0)->getValue())[type], labNum);
 
-    generateStatement(node->getChild(1));
+    generateConstruct(node->getChild(1));
     generatedCode << std::format("\tjmp while{}\n", labNum);
     generatedCode << std::format("\nwhile{}_end:\n", labNum);
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-// FOR STATEMENT - assign(init) statement (before loop), cmp relexp, opposite jmp, statements, assign(inc) statement
+// FOR STATEMENT - assign(init) statement (before loop), cmp relexp, opposite jmp, constructs, assign(inc) statement
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 void CodeGenerator::generateForStatement(std::shared_ptr<IRTree> node){
     size_t labNum = getNextLabelNum();
@@ -251,7 +254,7 @@ void CodeGenerator::generateForStatement(std::shared_ptr<IRTree> node){
     int type = node->getChild(0)->getChild(0)->getType() == Types::INT ? 0 : 1;
     generatedCode << std::format("\t{} for{}_end\n\n", stringToOppJMP.at(node->getChild(1)->getValue())[type], labNum);
 
-    generateStatement(node->getChild(3));
+    generateConstruct(node->getChild(3));
     generateAssignmentStatement(node->getChild(2));
     generatedCode << std::format("\tjmp for{}\n", labNum);
 
@@ -259,13 +262,13 @@ void CodeGenerator::generateForStatement(std::shared_ptr<IRTree> node){
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-// DO_WHILE STATEMENT - statements, relexp regular jmp
+// DO_WHILE STATEMENT - constructs, relexp regular jmp
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 void CodeGenerator::generateDoWhileStatement(std::shared_ptr<IRTree> node){
     size_t labNum = getNextLabelNum();
 
     generatedCode << std::format("do_while{}:\n", labNum);
-    generateStatement(node->getChild(0));
+    generateConstruct(node->getChild(0));
     
     generateRelationalExpression(node->getChild(1));
     int type = node->getChild(1)->getChild(0)->getType() == Types::INT ? 0 : 1;
@@ -273,11 +276,11 @@ void CodeGenerator::generateDoWhileStatement(std::shared_ptr<IRTree> node){
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-// COMPOUND STATEMENT - statements
+// COMPOUND STATEMENT - constructs
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 void CodeGenerator::generateCompoundStatement(std::shared_ptr<IRTree> node){
     for(const auto& child : node->getChildren()){
-        generateStatement(child);
+        generateConstruct(child);
     }
 }
 
@@ -332,14 +335,19 @@ void CodeGenerator::generateSwitchStatement(std::shared_ptr<IRTree> node){
                 generatedCode << std::format("\tjne switch{}_{}\n", labNum, (i < size-1 ?  "case" + std::to_string(i) : "end"));
             }
 
-            generateStatement(child->getChild(1));
+            for(size_t j = 1; j < child->getChildren().size(); ++j){
+                generateConstruct(child->getChild(j));
+            }
+
             if(child->getChildren().size()==3){
                 generatedCode << std::format("\tjmp switch{}_end\n", labNum);
             }
 
         }else{
             generatedCode << std::format("switch{}_default:\n", labNum);
-            generateStatement(node->getChild(i)->getChild(0));
+            for(size_t j = 0; j < child->getChildren().size(); ++j){
+                generateConstruct(child->getChild(j));
+            }
         }
     }
     generatedCode << std::format("switch{}_end:\n", labNum);

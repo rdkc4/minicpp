@@ -57,6 +57,12 @@ int main(){
 
     x = fun(i, j); //this is single-line comment
 
+    {
+        int abc = 3;
+    }
+
+    int abc = 1;
+
     x = (x << 1) - j/2;
     /*
         this is

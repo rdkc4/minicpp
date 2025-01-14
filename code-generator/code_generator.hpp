@@ -27,12 +27,14 @@ class CodeGenerator{
         // variable mapping - mapping variable name to its address relative to rbp
         // label number - number for next label
         // gp free register position - position of the first free register
+        // variable number - number for next variable -> -variableNum*8(%rbp)
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         std::ofstream generatedCode;
         std::string activeFunction;
         std::unordered_map<std::string, std::string> variableMap;
         size_t labelNum;
         size_t gpFreeRegPos;
+        size_t variableNum;
 
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         // register usage handlers
@@ -55,6 +57,8 @@ class CodeGenerator{
         // variables
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         void generateParameter(std::shared_ptr<IRTree> node);
+
+        void generateConstruct(std::shared_ptr<IRTree> node);
 
         void generateVariable(std::shared_ptr<IRTree> node);
 

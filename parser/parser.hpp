@@ -41,17 +41,17 @@ class Parser{
 
         std::shared_ptr<ASTree> body();
 
+        std::shared_ptr<ASTree> construct();
+
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         // variables
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
-        std::shared_ptr<ASTree> variableList();
 
         std::shared_ptr<ASTree> variable();
 
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         // statements
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
-        std::shared_ptr<ASTree> statementList();
 
         std::shared_ptr<ASTree> statement();
 
@@ -71,7 +71,7 @@ class Parser{
 
         std::shared_ptr<ASTree> switchStatement();
 
-        std::shared_ptr<ASTree> switchCaseStatementList();
+        std::shared_ptr<ASTree> switchCaseConstruct();
 
         std::shared_ptr<ASTree> _case();
 

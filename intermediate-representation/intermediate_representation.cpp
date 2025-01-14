@@ -17,18 +17,21 @@ std::shared_ptr<IRTree> IntermediateRepresentation::formIR(std::shared_ptr<ASTre
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-// FUNCTION NODE - PARAMETERS, VARIABLE, STATEMENTS (on same level)
+// FUNCTION NODE - parameters, constructs  
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::shared_ptr<IRTree> IntermediateRepresentation::function(std::shared_ptr<ASTree> node){
     std::shared_ptr<IRTree> iChild = std::make_shared<IRTree>(IRNodeType::FUNCTION, node->getToken()->value, "", node->getType().value());
+    
+    variableCount = 0;
 
     iChild->pushChild(parameter(node->getChild(0)));
 
-    iChild->pushChild(variable(node->getChild(1)->getChild(0)));
-
-    for(const auto& child : node->getChild(1)->getChild(1)->getChildren()){
-        iChild->pushChild(statement(child));
+    for(const auto& child : node->getChild(1)->getChildren()){
+        iChild->pushChild(construct(child));
     }
+
+    std::string varCountStr = std::to_string(variableCount * 8);
+    iChild->setValue(varCountStr);
 
     return iChild;
 }
@@ -45,18 +48,28 @@ std::shared_ptr<IRTree> IntermediateRepresentation::parameter(std::shared_ptr<AS
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
+// CONSTRUCT - variable / statement
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
+std::shared_ptr<IRTree> IntermediateRepresentation::construct(std::shared_ptr<ASTree> node){
+    if(node->getNodeType() == ASTNodeType::VARIABLE){
+        return variable(node);
+    }
+    else{
+        return statement(node);
+    }
+}
+
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
 // VARIABLE NODES - default values 0
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::shared_ptr<IRTree> IntermediateRepresentation::variable(std::shared_ptr<ASTree> node){
-    std::shared_ptr<IRTree> iChild = std::make_shared<IRTree>(IRNodeType::VARIABLE);
-    for(const auto& child : node->getChildren()){
-        std::shared_ptr<IRTree> variable = std::make_shared<IRTree>(IRNodeType::ID, std::string(child->getToken()->value), "0", child->getType().value());
-        if(child->getChildren().size() != 0){
-            variable->pushChild(assignmentStatement(child->getChild(0)));
-        }
-        iChild->pushChild(variable);
+    std::shared_ptr<IRTree> variable = std::make_shared<IRTree>(IRNodeType::VARIABLE, std::string(node->getToken()->value), "0", node->getType().value());
+    if(node->getChildren().size() != 0){
+        variable->pushChild(assignmentStatement(node->getChild(0)));
     }
-    return iChild;
+    ++variableCount;
+
+    return variable;
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -87,7 +100,7 @@ std::shared_ptr<IRTree> IntermediateRepresentation::statement(std::shared_ptr<AS
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-// IF NODE - relexp, if statement, relexp else if statements (optional),  else statement(optional)
+// IF NODE - relexp, if constructs, relexp else if constructs (optional),  else constructs (optional)
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::shared_ptr<IRTree> IntermediateRepresentation::ifStatement(std::shared_ptr<ASTree> node){
     std::shared_ptr<IRTree> iChild = std::make_shared<IRTree>(IRNodeType::IF);
@@ -96,19 +109,19 @@ std::shared_ptr<IRTree> IntermediateRepresentation::ifStatement(std::shared_ptr<
             iChild->pushChild(relationalExpression(child));
         }
         else{
-            iChild->pushChild(statement(child));
+            iChild->pushChild(construct(child));
         }
     }
     return iChild;
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-// COMPOUND NODE - statements
+// COMPOUND NODE - constructs
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::shared_ptr<IRTree> IntermediateRepresentation::compoundStatement(std::shared_ptr<ASTree> node){
     std::shared_ptr<IRTree> iChild = std::make_shared<IRTree>(IRNodeType::COMPOUND);
-    for(const auto& child : node->getChild(0)->getChildren()){
-        iChild->pushChild(statement(child));
+    for(const auto& child : node->getChildren()){
+        iChild->pushChild(construct(child));
     }
     return iChild;
 }
@@ -135,34 +148,34 @@ std::shared_ptr<IRTree> IntermediateRepresentation::returnStatement(std::shared_
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-// WHILE NODE - relexp, statements
+// WHILE NODE - relexp, constructs
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::shared_ptr<IRTree> IntermediateRepresentation::whileStatement(std::shared_ptr<ASTree> node){
     std::shared_ptr<IRTree> iChild = std::make_shared<IRTree>(IRNodeType::WHILE);
     iChild->pushChild(relationalExpression(node->getChild(0)));
-    iChild->pushChild(statement(node->getChild(1)));
+    iChild->pushChild(construct(node->getChild(1)));
     return iChild;
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-// FOR NODE - assign, relexp, assign, statement
+// FOR NODE - assign, relexp, assign, constructs
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::shared_ptr<IRTree> IntermediateRepresentation::forStatement(std::shared_ptr<ASTree> node){
     std::shared_ptr<IRTree> iChild = std::make_shared<IRTree>(IRNodeType::FOR);
     iChild->pushChild(assignmentStatement(node->getChild(0)));
     iChild->pushChild(relationalExpression(node->getChild(1)));
     iChild->pushChild(assignmentStatement(node->getChild(2)));
-    iChild->pushChild(statement(node->getChild(3)));
+    iChild->pushChild(construct(node->getChild(3)));
 
     return iChild;
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-// DO_WHILE NODE - statement, relexp
+// DO_WHILE NODE - constructs, relexp
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::shared_ptr<IRTree> IntermediateRepresentation::doWhileStatement(std::shared_ptr<ASTree> node){
     std::shared_ptr<IRTree> iChild = std::make_shared<IRTree>(IRNodeType::DO_WHILE);
-    iChild->pushChild(statement(node->getChild(0)));
+    iChild->pushChild(construct(node->getChild(0)));
     iChild->pushChild(relationalExpression(node->getChild(1)));
 
     return iChild;
@@ -188,13 +201,13 @@ std::shared_ptr<IRTree> IntermediateRepresentation::switchStatement(std::shared_
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-// CASE NODE - literal, statements, break(optional)
+// CASE NODE - literal, constructs, break(optional)
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::shared_ptr<IRTree> IntermediateRepresentation::_case(std::shared_ptr<ASTree> node){
     std::shared_ptr<IRTree> iChild = std::make_shared<IRTree>(IRNodeType::CASE);
     iChild->pushChild(literal(node->getChild(0)));
     for(const auto& child : node->getChild(1)->getChildren()){
-        iChild->pushChild(statement(child));
+        iChild->pushChild(construct(child));
     }
     if(node->getChildren().size() == 3){
         iChild->pushChild(_break());
@@ -203,12 +216,12 @@ std::shared_ptr<IRTree> IntermediateRepresentation::_case(std::shared_ptr<ASTree
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-// DEFAULT NODE - statements
+// DEFAULT NODE - constructs
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::shared_ptr<IRTree> IntermediateRepresentation::_default(std::shared_ptr<ASTree> node){
     std::shared_ptr<IRTree> iChild = std::make_shared<IRTree>(IRNodeType::DEFAULT);
     for(const auto& child : node->getChild(0)->getChildren()){
-        iChild->pushChild(statement(child));
+        iChild->pushChild(construct(child));
     }
     return iChild;
 }

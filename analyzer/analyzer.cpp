@@ -1,5 +1,6 @@
 #include "analyzer.hpp"
 
+#include <memory>
 #include <stdexcept>
 #include <format>
 
@@ -29,7 +30,7 @@ void Analyzer::semanticCheck(std::shared_ptr<ASTree> root){
             throw std::runtime_error(std::format("Line {}, Column {}: SEMANTIC ERROR -> function redefined '{} {}'", 
                 child->getToken()->line, child->getToken()->column, typeToString.at(type), child->getToken()->value));
         }
-        functionCheck(child);
+        checkFunction(child);
     }
 
     if(!scopeManager.getSymbolTable().lookupSymbol("main", {Kinds::FUN})){
@@ -42,13 +43,13 @@ void Analyzer::semanticCheck(std::shared_ptr<ASTree> root){
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // FUNCTION: type validation, parameter validation, body validation, return validation
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-void Analyzer::functionCheck(std::shared_ptr<ASTree> node){
+void Analyzer::checkFunction(std::shared_ptr<ASTree> node){
     activeFunction = node->getToken()->value;
     returned = false;
     
     scopeManager.pushScope();
-    parameterCheck(node->getChild(0));
-    bodyCheck(node->getChild(1));
+    checkParameter(node->getChild(0));
+    checkBody(node->getChild(1));
     scopeManager.popScope();
     
     Types returnType = scopeManager.getSymbolTable().getSymbol(activeFunction)->getType();
@@ -64,7 +65,7 @@ void Analyzer::functionCheck(std::shared_ptr<ASTree> node){
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // PARAMETER CHECK - type check, variable redefinition
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-void Analyzer::parameterCheck(std::shared_ptr<ASTree> node){
+void Analyzer::checkParameter(std::shared_ptr<ASTree> node){
     scopeManager.getSymbolTable().getSymbol(activeFunction)->setParameters(node); //pointer to parameters for easier function call type checking
     
     if(activeFunction == "main" && node->getChildren().size() > 0){
@@ -91,44 +92,46 @@ void Analyzer::parameterCheck(std::shared_ptr<ASTree> node){
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-// BODY CHECK - variable check, statement check
+// BODY CHECK - variable check, construct check
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-void Analyzer::bodyCheck(std::shared_ptr<ASTree> node){
-    checkVariables(node->getChild(0));
-    checkStatements(node->getChild(1));
+void Analyzer::checkBody(std::shared_ptr<ASTree> node){
+    for(const auto& child : node->getChildren()){
+        checkConstruct(child);
+    }
+}
+
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
+// CONSTRUCT CHECK - variable / statement check
+//-----------------------------------------------------------------------------------------------------------------------------------------------------
+void Analyzer::checkConstruct(std::shared_ptr<ASTree> node){
+    if(node->getNodeType() == ASTNodeType::VARIABLE){
+        checkVariable(node);
+    }
+    else{
+        checkStatement(node);
+    }
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // VARIABLE CHECK - type check, variable redefinition
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-void Analyzer::checkVariables(std::shared_ptr<ASTree> node){
-    for(const auto& child : node->getChildren()){
-        Types type = child->getType().value();
-        if(type == Types::VOID || type == Types::NO_TYPE){
-            throw std::runtime_error(std::format("Line {}, Column {}: SEMANTIC ERROR -> invalid type '{} {}'", 
-                child->getToken()->line, child->getToken()->column, typeToString.at(type), child->getToken()->value));
-        }
-        else if(type == Types::AUTO && child->getChildren().empty()){
-            throw std::runtime_error(std::format("Line {}, Column {}: SEMANTIC ERROR -> type deduction failed '{} {}'", 
-                child->getToken()->line, child->getToken()->column, typeToString.at(type), child->getToken()->value));
-        }
-
-        if(!scopeManager.pushSymbol(std::make_shared<Symbol>(child->getToken()->value, Kinds::VAR, type))){
-            throw std::runtime_error(std::format("Line {}, Column {}: SEMANTIC ERROR -> variable redefined '{}'", 
-                child->getToken()->line, child->getToken()->column, child->getToken()->value));
-        }
-        if(child->getChildren().size() != 0){
-            checkStatement(child->getChild(0));
-        }
+void Analyzer::checkVariable(std::shared_ptr<ASTree> node){
+    Types type = node->getType().value();
+    if(type == Types::VOID || type == Types::NO_TYPE){
+        throw std::runtime_error(std::format("Line {}, Column {}: SEMANTIC ERROR -> invalid type '{} {}'", 
+            node->getToken()->line, node->getToken()->column, typeToString.at(type), node->getToken()->value));
     }
-}
+    else if(type == Types::AUTO && node->getChildren().empty()){
+        throw std::runtime_error(std::format("Line {}, Column {}: SEMANTIC ERROR -> type deduction failed '{} {}'", 
+            node->getToken()->line, node->getToken()->column, typeToString.at(type), node->getToken()->value));
+    }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// CHECK STATEMENTS - statement check
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-void Analyzer::checkStatements(std::shared_ptr<ASTree> node){
-    for(const auto& child : node->getChildren()){
-        checkStatement(child);
+    if(!scopeManager.pushSymbol(std::make_shared<Symbol>(node->getToken()->value, Kinds::VAR, type))){
+        throw std::runtime_error(std::format("Line {}, Column {}: SEMANTIC ERROR -> variable redefined '{}'", 
+            node->getToken()->line, node->getToken()->column, node->getToken()->value));
+    }
+    if(node->getChildren().size() != 0){
+        checkStatement(node->getChild(0));
     }
 }
 
@@ -179,7 +182,7 @@ void Analyzer::checkIfStatement(std::shared_ptr<ASTree> node){
             checkRelationalExpression(child);
         }
         else{
-            checkStatement(child);
+            checkConstruct(child);
         }
     }
 }
@@ -187,11 +190,11 @@ void Analyzer::checkIfStatement(std::shared_ptr<ASTree> node){
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // WHILE STATEMENT CHECK - relational expression check
 // child 0 - relexp
-// child 1 - statements
+// child 1 - constructs
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 void Analyzer::checkWhileStatement(std::shared_ptr<ASTree> node){
     checkRelationalExpression(node->getChild(0));
-    checkStatement(node->getChild(1));
+    checkConstruct(node->getChild(1));
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -214,16 +217,16 @@ void Analyzer::checkForStatement(std::shared_ptr<ASTree> node){
             node->getToken()->line, node->getToken()->column, lname, rname));
     }
 
-    checkStatement(node->getChild(3));
+    checkConstruct(node->getChild(3));
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-// DO WHILE STATEMENT CHECK - statement check, relational expression check
-// child 0 - statements
+// DO WHILE STATEMENT CHECK - construct check, relational expression check
+// child 0 - constructs
 // child 1 - relexp
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 void Analyzer::checkDoWhileStatement(std::shared_ptr<ASTree> node){
-    checkStatement(node->getChild(0));
+    checkConstruct(node->getChild(0));
     checkRelationalExpression(node->getChild(1));
 }
 
@@ -249,9 +252,9 @@ void Analyzer::checkSwitchStatement(std::shared_ptr<ASTree> node){
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // SWITCH STATEMENT CASE/DEFAULT CHECK - duplicate check / type check
 // cases child 0 - literal
-// cases child 1 - statements
+// cases child 1 - constructs
 // cases child 2 - break (optional)
-// default child 0 - statements (break can exist, but it will be ignored)
+// default child 0 - constructs (break can exist, but it will be ignored)
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 template<typename T>
 void Analyzer::checkSwitchStatementCases(std::shared_ptr<ASTree> node){
@@ -276,21 +279,29 @@ void Analyzer::checkSwitchStatementCases(std::shared_ptr<ASTree> node){
                     child->getToken()->line, child->getToken()->column, child->getChild(0)->getToken()->value));
             }
             else{
-                checkStatements(child->getChild(1));
+                for(const auto& _child : child->getChild(1)->getChildren()){
+                    checkConstruct(_child);
+                }
                 set.insert(val);
             }
         }
         else{
-            checkStatements(child->getChild(0));
+            for(const auto& _child : child->getChild(0)->getChildren()){
+                checkConstruct(_child);
+            }
         }
     }
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-// COMPOUND STATEMENT CHECK - check statements
+// COMPOUND STATEMENT CHECK - check constructs
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 void Analyzer::checkCompoundStatement(std::shared_ptr<ASTree> node){
-    checkStatements(node->getChild(0));
+    scopeManager.pushScope();
+    for(const auto& child : node->getChildren()){
+        checkConstruct(child);
+    }
+    scopeManager.popScope();
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------

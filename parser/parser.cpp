@@ -85,26 +85,28 @@ std::shared_ptr<ASTree> Parser::parameter(){
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-// BODY : LBRACKET VARIABLE_LIST(0+) STATEMENT_LIST RBRACKET
+// BODY : LBRACKET CONSTRUCTS RBRACKET
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::shared_ptr<ASTree> Parser::body(){
     std::shared_ptr<ASTree> currentNode = std::make_shared<ASTree>(ASTNodeType::BODY, Token("body", currentToken.line, currentToken.column));
     eat(TokenType::_LBRACKET);
-    currentNode->pushChild(variableList());
-    currentNode->pushChild(statementList());
+    while(currentToken.type != TokenType::_RBRACKET){
+        currentNode->pushChild(construct());
+    }
     eat(TokenType::_RBRACKET);
     return currentNode;
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-// VARIABLE_LIST : EMPTY | VARIABLE | VARIABLE_LIST VARIABLE
+// CONSTRUCT : VARIABLE | STATEMENT
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-std::shared_ptr<ASTree> Parser::variableList(){
-    std::shared_ptr<ASTree> currentNode = std::make_shared<ASTree>(ASTNodeType::VARIABLE_LIST, Token("var_list", currentToken.line, currentToken.column));
-    while(currentToken.type == TokenType::_TYPE){
-        currentNode->pushChild(variable());
+std::shared_ptr<ASTree> Parser::construct(){
+    if(currentToken.type == TokenType::_TYPE){
+        return variable();
     }
-    return currentNode;
+    else{
+        return statement();
+    }
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -120,17 +122,6 @@ std::shared_ptr<ASTree> Parser::variable(){
     eat(TokenType::_SEMICOLON);
 
     return variable;
-}
-
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// STATEMENT_LIST : EMPTY | STATEMENT | STATEMENT_LIST STATEMENT
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-std::shared_ptr<ASTree> Parser::statementList(){
-    std::shared_ptr<ASTree> currentNode = std::make_shared<ASTree>(ASTNodeType::STATEMENT_LIST, Token("statement_list", currentToken.line, currentToken.column));
-    while(currentToken.type != TokenType::_RBRACKET){
-        currentNode->pushChild(statement());
-    }
-    return currentNode;
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -162,13 +153,15 @@ std::shared_ptr<ASTree> Parser::statement(){
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-// COMPOUND_STATEMENT : LBRACKET STATEMENT_LIST RBRACKET
+// COMPOUND_STATEMENT : LBRACKET CONSTRUCTS RBRACKET
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::shared_ptr<ASTree> Parser::compoundStatement(){
     std::shared_ptr<ASTree> currentNode = std::make_shared<ASTree>(ASTNodeType::COMPOUND_STATEMENT, Token("cpnd_statement", currentToken.line, currentToken.column));
 
     eat(TokenType::_LBRACKET);
-    currentNode->pushChild(statementList());
+    while(currentToken.type != TokenType::_RBRACKET){
+        currentNode->pushChild(construct());
+    }
     eat(TokenType::_RBRACKET);
     
     return currentNode;
@@ -215,7 +208,7 @@ std::shared_ptr<ASTree> Parser::returnStatement(){
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-// IF_STATEMENT : IF LPAREN RELATIONAL_EXPRESSION RPAREN STATEMENT | IF_STATEMENT ELSE STATEMENT | IF_STATEMENT ELSE IF_STATEMENT
+// IF_STATEMENT : IF LPAREN RELATIONAL_EXPRESSION RPAREN CONSTRUCTS | IF_STATEMENT ELSE CONSTRUCTS | IF_STATEMENT ELSE IF CONSTRUCTS
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::shared_ptr<ASTree> Parser::ifStatement(){
     std::shared_ptr<ASTree> currentNode = std::make_shared<ASTree>(ASTNodeType::IF_STATEMENT, Token("if_stat", currentToken.line, currentToken.column));
@@ -224,7 +217,7 @@ std::shared_ptr<ASTree> Parser::ifStatement(){
     currentNode->pushChild(relationalExpression());
     eat(TokenType::_RPAREN);
     
-    currentNode->pushChild(statement());
+    currentNode->pushChild(construct());
 
     while(currentToken.type == TokenType::_ELSE && lexer.peekAtNext().type == TokenType::_IF){
         eat(TokenType::_ELSE);
@@ -234,19 +227,19 @@ std::shared_ptr<ASTree> Parser::ifStatement(){
         currentNode->pushChild(relationalExpression());
         eat(TokenType::_RPAREN);
         
-        currentNode->pushChild(statement());
+        currentNode->pushChild(construct());
     }
 
     if(currentToken.type == TokenType::_ELSE){
         eat(TokenType::_ELSE);
-        currentNode->pushChild(statement());
+        currentNode->pushChild(construct());
     }
     
     return currentNode;
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-// WHILE_STATEMENT : WHILE LPAREN RELATIONAL_EXPRESSION RPAREN STATEMENT
+// WHILE_STATEMENT : WHILE LPAREN RELATIONAL_EXPRESSION RPAREN CONSTRUCTS
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::shared_ptr<ASTree> Parser::whileStatement(){
     std::shared_ptr<ASTree> currentNode = std::make_shared<ASTree>(ASTNodeType::WHILE_STATEMENT, Token("while_stat", currentToken.line, currentToken.column));
@@ -256,13 +249,13 @@ std::shared_ptr<ASTree> Parser::whileStatement(){
     currentNode->pushChild(relationalExpression());
     eat(TokenType::_RPAREN);
     
-    currentNode->pushChild(statement());
+    currentNode->pushChild(construct());
 
     return currentNode;
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-// FOR_STATEMENT : FOR LPAREN ASSIGN_STATEMENT SEMICOLON RELATIONAL_EXPRESSION SEMICOLON ASSIGNMENT_STATEMENT RPAREN STATEMENT
+// FOR_STATEMENT : FOR LPAREN ASSIGN_STATEMENT SEMICOLON RELATIONAL_EXPRESSION SEMICOLON ASSIGNMENT_STATEMENT RPAREN CONSTRUCTS
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::shared_ptr<ASTree> Parser::forStatement(){
     std::shared_ptr<ASTree> currentNode = std::make_shared<ASTree>(ASTNodeType::FOR_STATEMENT, Token("for_stat", currentToken.line, currentToken.column));
@@ -276,18 +269,18 @@ std::shared_ptr<ASTree> Parser::forStatement(){
     currentNode->pushChild(assignmentStatement());
     eat(TokenType::_RPAREN);
 
-    currentNode->pushChild(statement());
+    currentNode->pushChild(construct());
     
     return currentNode;
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-// DO_WHILE_STATEMENT : DO STATEMENT WHILE LPAREN RELATIONAL_EXPRESSION RPAREN SEMICOLON
+// DO_WHILE_STATEMENT : DO CONSTRUCTS WHILE LPAREN RELATIONAL_EXPRESSION RPAREN SEMICOLON
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::shared_ptr<ASTree> Parser::doWhileStatement(){
     std::shared_ptr<ASTree> currentNode = std::make_shared<ASTree>(ASTNodeType::DO_WHILE_STATEMENT, Token("dowhile_stat", currentToken.line, currentToken.column));
     eat(TokenType::_DO);
-    currentNode->pushChild(statement());
+    currentNode->pushChild(construct());
     eat(TokenType::_WHILE);
 
     eat(TokenType::_LPAREN);
@@ -325,21 +318,21 @@ std::shared_ptr<ASTree> Parser::switchStatement(){
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-// SWITCH_CASE_STATEMENT_LIST : STATEMENT | SWITCH_CASE_STATEMENT_LIST STATEMENT
+// SWITCH_CASE_CONSTRUCT : CONSTRUCT | SWITCH_CASE_CONSTRUCT CONSTRUCT
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-std::shared_ptr<ASTree> Parser::switchCaseStatementList(){
+std::shared_ptr<ASTree> Parser::switchCaseConstruct(){
     std::shared_ptr<ASTree> currentNode = std::make_shared<ASTree>(ASTNodeType::STATEMENT_LIST, Token("statement_list", currentToken.line, currentToken.column));
     while(currentToken.type != TokenType::_CASE && currentToken.type != TokenType::_DEFAULT && 
             currentToken.type != TokenType::_RBRACKET && currentToken.type != TokenType::_BREAK){
         
-        currentNode->pushChild(statement());
+        currentNode->pushChild(construct());
     }
 
     return currentNode;
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-// _CASE_ : CASE LITERAL COLON SWITCH_CASE_STATEMENT_LIST BREAK(0-1) 
+// _CASE_ : CASE LITERAL COLON SWITCH_CASE_CONSTRUCT BREAK(0-1) 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::shared_ptr<ASTree> Parser::_case(){
     std::shared_ptr<ASTree> currentNode = std::make_shared<ASTree>(ASTNodeType::CASE, Token("case", currentToken.line, currentToken.column));
@@ -348,7 +341,7 @@ std::shared_ptr<ASTree> Parser::_case(){
     eat(TokenType::_LITERAL);
     eat(TokenType::_COLON);
     
-    currentNode->pushChild(switchCaseStatementList());
+    currentNode->pushChild(switchCaseConstruct());
     if(currentToken.type == TokenType::_BREAK){
         currentNode->pushChild(_break());
     }
@@ -357,14 +350,14 @@ std::shared_ptr<ASTree> Parser::_case(){
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-// _DEFAULT_ : DEFAULT COLON SWITCH_CASE_STATEMENT_LIST BREAK(0-1)
+// _DEFAULT_ : DEFAULT COLON SWITCH_CASE_CONSTRUCTS BREAK(0-1)
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::shared_ptr<ASTree> Parser::_default(){
     std::shared_ptr<ASTree> currentNode = std::make_shared<ASTree>(ASTNodeType::DEFAULT, Token("default", currentToken.line, currentToken.column));
     eat(TokenType::_DEFAULT);
     eat(TokenType::_COLON);
     
-    currentNode->pushChild(switchCaseStatementList());
+    currentNode->pushChild(switchCaseConstruct());
     if(currentToken.type == TokenType::_BREAK){
         eat(TokenType::_BREAK);
         eat(TokenType::_SEMICOLON);

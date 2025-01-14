@@ -28,18 +28,23 @@ class Analyzer{
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         // function
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
-        void functionCheck(std::shared_ptr<ASTree> node);
+        void checkFunction(std::shared_ptr<ASTree> node);
 
-        void parameterCheck(std::shared_ptr<ASTree> node);
+        void checkParameter(std::shared_ptr<ASTree> node);
 
-        void bodyCheck(std::shared_ptr<ASTree> node);
+        void checkBody(std::shared_ptr<ASTree> node);
 
-        void checkVariables(std::shared_ptr<ASTree> node);
+        void checkConstruct(std::shared_ptr<ASTree> node);
+
+        //-----------------------------------------------------------------------------------------------------------------------------------------------------
+        // variables
+        //-----------------------------------------------------------------------------------------------------------------------------------------------------
+
+        void checkVariable(std::shared_ptr<ASTree> node);
 
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         // statements
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
-        void checkStatements(std::shared_ptr<ASTree> node);
 
         void checkStatement(std::shared_ptr<ASTree> node);
 
