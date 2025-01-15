@@ -17,23 +17,6 @@ void Analyzer::semanticCheck(std::shared_ptr<ASTree> root){
     scopeManager.pushScope();
 
     for(const auto& child : flist->getChildren()){
-        Types type = child->getType().value();
-
-        // function type check
-        if(type == Types::NO_TYPE){
-            throw std::runtime_error(std::format("Line {}, Column {}: SEMANTIC ERROR -> invalid type '{} {}'", 
-                child->getToken()->line, child->getToken()->column, typeToString.at(type), child->getToken()->value));
-        }
-        else if(type == Types::AUTO){
-            throw std::runtime_error(std::format("Line {}, Column {}: SEMANTIC ERROR -> type deduction cannot be performed on function '{} {}'", 
-                child->getToken()->line, child->getToken()->column, typeToString.at(type), child->getToken()->value));
-        }
-
-        // function redefinition check
-        if(!scopeManager.pushSymbol(std::make_shared<Symbol>(child->getToken()->value, Kinds::FUN, type))){
-            throw std::runtime_error(std::format("Line {}, Column {}: SEMANTIC ERROR -> function redefined '{} {}'", 
-                child->getToken()->line, child->getToken()->column, typeToString.at(type), child->getToken()->value));
-        }
         checkFunction(child);
     }
 
@@ -49,6 +32,24 @@ void Analyzer::semanticCheck(std::shared_ptr<ASTree> root){
 // FUNCTION: type validation, parameter validation, body validation, return validation
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 void Analyzer::checkFunction(std::shared_ptr<ASTree> node){
+    Types returnType = node->getType().value();
+
+    // function type check
+    if(returnType == Types::NO_TYPE){
+        throw std::runtime_error(std::format("Line {}, Column {}: SEMANTIC ERROR -> invalid type '{} {}'", 
+            node->getToken()->line, node->getToken()->column, typeToString.at(returnType), node->getToken()->value));
+    }
+    else if(returnType == Types::AUTO){
+        throw std::runtime_error(std::format("Line {}, Column {}: SEMANTIC ERROR -> type deduction cannot be performed on function '{} {}'", 
+            node->getToken()->line, node->getToken()->column, typeToString.at(returnType), node->getToken()->value));
+    }
+
+    // function redefinition check
+    if(!scopeManager.pushSymbol(std::make_shared<Symbol>(node->getToken()->value, Kinds::FUN, returnType))){
+        throw std::runtime_error(std::format("Line {}, Column {}: SEMANTIC ERROR -> function redefined '{} {}'", 
+            node->getToken()->line, node->getToken()->column, typeToString.at(returnType), node->getToken()->value));
+    }
+
     activeFunction = node->getToken()->value;
     returned = false;
     
@@ -59,7 +60,6 @@ void Analyzer::checkFunction(std::shared_ptr<ASTree> node){
     scopeManager.popScope();
     
     // function return type check
-    Types returnType = scopeManager.getSymbolTable().getSymbol(activeFunction)->getType();
     if(returnType != Types::VOID && !returned){
         throw std::runtime_error(std::format("Line {}, Column {}: SEMANTIC ERROR -> function '{} {}' returns '{}'", 
             node->getToken()->line, node->getToken()->column, typeToString.at(returnType), node->getToken()->value, typeToString.at(Types::VOID)));
