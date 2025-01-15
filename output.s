@@ -246,7 +246,7 @@ do_while6:
 	movq %r8, -56(%rbp)
 
 	movq $1, %r8
-	movq %r8, -56(%rbp)
+	movq %r8, -64(%rbp)
 
 	movq -16(%rbp), %r8
 	movq $1, %r9

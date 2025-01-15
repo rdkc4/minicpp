@@ -13,6 +13,8 @@ Parser::Parser(Lexer& lexer) : lexer(lexer), currentToken(lexer.nextToken()) {}
 std::shared_ptr<ASTree> Parser::parseProgram(){
     std::shared_ptr<ASTree> root = std::make_shared<ASTree>(ASTNodeType::PROGRAM, Token("program", 0, 0));
     root->pushChild(functionList());
+
+    // check if input ends correctly
     if(currentToken.type != TokenType::_EOF){
         throw std::runtime_error(std::format("Line {}, Column {}: SYNTAX ERROR -> near '{}'",
             currentToken.line, currentToken.column, currentToken.value));

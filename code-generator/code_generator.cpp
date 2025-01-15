@@ -44,6 +44,8 @@ void CodeGenerator::generateCode(std::shared_ptr<IRTree> root){
     if(!generatedCode.is_open()){
         throw std::runtime_error("File failed to generate");
     }
+
+    // start of asm code
     generatedCode << ".global _start\n";
     generatedCode << ".text\n\n";
     generatedCode << "_start:\n";
@@ -61,9 +63,15 @@ void CodeGenerator::generateCode(std::shared_ptr<IRTree> root){
 void CodeGenerator::generateFunction(std::shared_ptr<IRTree> node){
     activeFunction = node->getName();
     generatedCode << std::format("\n{}:\n", activeFunction);
+
+    // function prologue
     generatedCode << "\tpush %rbp\n";
     generatedCode << "\tmov %rsp, %rbp\n";
-    generatedCode << std::format("\tsub ${}, %rsp\n\n", node->getValue());
+    
+    // allocation of local variables
+    if(node->getValue() != "0"){
+        generatedCode << std::format("\tsub ${}, %rsp\n\n", node->getValue());
+    }
 
     generateParameter(node->getChild(0));
 
@@ -73,7 +81,10 @@ void CodeGenerator::generateFunction(std::shared_ptr<IRTree> node){
 
     generatedCode << std::format("{}_end:\n", activeFunction);
     
+    // free local variables 
     generatedCode << std::format("\tadd ${}, %rsp\n", node->getValue());
+
+    // function epilogue
     generatedCode << "\tmov %rbp, %rsp\n";
     generatedCode << "\tpop %rbp\n";
 
@@ -81,7 +92,8 @@ void CodeGenerator::generateFunction(std::shared_ptr<IRTree> node){
         generatedCode << "\tret\n";
     }
     else{
-        generatedCode << "\tmov %rax, %rdi\n";
+        // system call for exit
+        generatedCode << "\tmov %rax, %rdi\n"; // return value to rdi
         generatedCode << "\tmovq $60, %rax\n";
         generatedCode << "\tsyscall\n";
     }
@@ -97,6 +109,7 @@ void CodeGenerator::generateFunction(std::shared_ptr<IRTree> node){
 void CodeGenerator::generateParameter(std::shared_ptr<IRTree> node){
     size_t i = 2;
     for(const auto& parameter : node->getChildren()){
+        // mapping parameter to address relative to %rbp (+n(%rbp))
         variableMap.insert({parameter->getName(), std::format("{}(%rbp)", i*8)});
         ++i;
     }
@@ -118,8 +131,15 @@ void CodeGenerator::generateConstruct(std::shared_ptr<IRTree> node){
 // INSERTING LOCAL VARIABLES - assigning default values (0) or given values (n)
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 void CodeGenerator::generateVariable(std::shared_ptr<IRTree> node){
-    variableMap.insert({node->getName(), std::format("-{}(%rbp)", variableNum*8)});
+    // mapping local variable to address relative to %rbp (-n(%rbp))
+    // if not successful it means that variable with the given name existed but went out of scope, so it overwrites it with new memory location
+    auto [varPtr, success] = variableMap.insert({node->getName(), std::format("-{}(%rbp)", variableNum*8)});
+    if(!success){
+        varPtr->second = std::format("-{}(%rbp)", variableNum*8);
+    }
     ++variableNum;
+
+    // direct initialization / default value assignation
     if(node->getChildren().size() != 0){
         generateAssignmentStatement(node->getChild(0));
     }
@@ -356,7 +376,7 @@ void CodeGenerator::generateSwitchStatement(std::shared_ptr<IRTree> node){
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // NUMERICAL EXPRESSION - evaluating equations using general-purpose registers r(8-15)
 // -> maybe use queue instead of a tree for numexp, easier generation, better reg usage (TODO?)
-// -> needs rework, possible invalid allocation -> fix (TODO) 
+// -> needs rework
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 void CodeGenerator::generateNumericalExpression(std::shared_ptr<IRTree> node){
     if(node->getNodeType() == IRNodeType::ID){
@@ -487,6 +507,7 @@ void CodeGenerator::generateFunctionCall(std::shared_ptr<IRTree> node){
 // ARGUMENT GENERATE - pushing arguments (numexp) 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 void CodeGenerator::generateArgument(std::shared_ptr<IRTree> node){
+    // pushing arguments onto stack
     for(int i = (int)node->getChildren().size()-1; i >= 0; i--){
         generateNumericalExpression(node->getChild(i));
         freeGpReg();
@@ -498,6 +519,7 @@ void CodeGenerator::generateArgument(std::shared_ptr<IRTree> node){
 // ARGUMENT CLEAR - popping arguments
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 void CodeGenerator::clearArguments(std::shared_ptr<IRTree> node){
+    // popping arguments of the stack
     for(size_t i = 0; i < node->getChildren().size(); i++){
         generatedCode << std::format("\tpop {}\n", gpRegisters.at(gpFreeRegPos));
     }

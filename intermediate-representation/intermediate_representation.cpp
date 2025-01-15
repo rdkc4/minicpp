@@ -30,6 +30,7 @@ std::shared_ptr<IRTree> IntermediateRepresentation::function(std::shared_ptr<AST
         iChild->pushChild(construct(child));
     }
 
+    // bytes allocated for local variables
     std::string varCountStr = std::to_string(variableCount * 8);
     iChild->setValue(varCountStr);
 
@@ -187,8 +188,7 @@ std::shared_ptr<IRTree> IntermediateRepresentation::doWhileStatement(std::shared
 std::shared_ptr<IRTree> IntermediateRepresentation::switchStatement(std::shared_ptr<ASTree> node){
     std::shared_ptr<IRTree> iChild = std::make_shared<IRTree>(IRNodeType::SWITCH);
     iChild->pushChild(id(node->getChild(0)));
-    size_t i = 1;
-    for(; i < node->getChildren().size(); i++){
+    for(size_t i = 1; i < node->getChildren().size(); i++){
         std::shared_ptr<ASTree> child = node->getChild(i);
         if(child->getNodeType() == ASTNodeType::CASE){
             iChild->pushChild(_case(child));
