@@ -167,7 +167,7 @@ main:
 	movq -8(%rbp), %r8
 	push %r8
 	call fib
-	pop %r8
+	pop %rbx
 	movq %rax, %r8
 	movq %r8, -16(%rbp)
 
@@ -237,8 +237,8 @@ do_while6:
 	movq -24(%rbp), %r8
 	push %r8
 	call fun
-	pop %r8
-	pop %r8
+	pop %rbx
+	pop %rbx
 	movq %rax, %r8
 	movq %r8, -16(%rbp)
 

@@ -19,6 +19,7 @@ SRCS = main.cpp \
 	analyzer/analyzer.cpp \
 	intermediate-representation/intermediate_representation.cpp \
 	code-generator/defs/code_generator_defs.cpp \
+	code-generator/asm_generator.cpp \
 	code-generator/code_generator.cpp
 
 # Object files (derived from the source files)

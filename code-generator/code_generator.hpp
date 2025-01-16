@@ -3,6 +3,7 @@
 
 #include <fstream>
 #include <memory>
+#include <string>
 #include <unordered_map>
 
 #include "../common/intermediate-representation-tree/IRTree.hpp"
@@ -42,6 +43,34 @@ class CodeGenerator{
         void takeGpReg();
 
         void freeGpReg();
+
+        //-----------------------------------------------------------------------------------------------------------------------------------------------------
+        // generate asm code
+        //-----------------------------------------------------------------------------------------------------------------------------------------------------
+
+        void genStart();
+
+        void genMov(std::string l, std::string r, std::string ext = "");
+
+        void genCmp(std::string l, std::string r);
+
+        void genPush(std::string r);
+
+        void genPop(std::string r);
+
+        void genOperation(std::string op, std::string l, std::string r = "");
+
+        void genLabel(std::string label);
+
+        void genRet();
+
+        void genExit();
+
+        void genJmp(std::string jmp, std::string label);
+
+        void genCall(std::string func);
+
+        void genNewLine();
 
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         // ensuring label number is unique for every non-related
