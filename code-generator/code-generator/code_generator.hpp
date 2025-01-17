@@ -1,19 +1,18 @@
 #ifndef CODE_GENERATOR_HPP
 #define CODE_GENERATOR_HPP
 
-#include <fstream>
 #include <memory>
 #include <string>
 #include <unordered_map>
 
-#include "../common/intermediate-representation-tree/IRTree.hpp"
+#include "../../common/intermediate-representation-tree/IRTree.hpp"
+#include "../asm-generator/asm_generator.hpp"
 
 class CodeGenerator{
 
     public:
 
         CodeGenerator(std::string& output);
-        ~CodeGenerator();
 
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         // public entry point to code generation
@@ -23,14 +22,14 @@ class CodeGenerator{
     private:
 
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
-        // generatedCode - output file that contains asm (.s) code
+        // _asm - component for asm code generation
         // active function - function being generated at the moment
         // variable mapping - mapping variable name to its address relative to rbp
         // label number - number for next label
         // gp free register position - position of the first free register
         // variable number - number for next variable -> -variableNum*8(%rbp)
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
-        std::ofstream generatedCode;
+        AsmGenerator _asm;
         std::string activeFunction;
         std::unordered_map<std::string, std::string> variableMap;
         size_t labelNum;
@@ -43,34 +42,6 @@ class CodeGenerator{
         void takeGpReg();
 
         void freeGpReg();
-
-        //-----------------------------------------------------------------------------------------------------------------------------------------------------
-        // generate asm code
-        //-----------------------------------------------------------------------------------------------------------------------------------------------------
-
-        void genStart();
-
-        void genMov(std::string l, std::string r, std::string ext = "");
-
-        void genCmp(std::string l, std::string r);
-
-        void genPush(std::string r);
-
-        void genPop(std::string r);
-
-        void genOperation(std::string op, std::string l, std::string r = "");
-
-        void genLabel(std::string label);
-
-        void genRet();
-
-        void genExit();
-
-        void genJmp(std::string jmp, std::string label);
-
-        void genCall(std::string func);
-
-        void genNewLine();
 
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         // ensuring label number is unique for every non-related
