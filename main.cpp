@@ -1,13 +1,16 @@
 #include <exception>
 #include <iostream>
 #include <format>
+#include <memory>
 
+#include "common/abstract-syntax-tree/ASTree.hpp"
+#include "common/intermediate-representation-tree/IRTree.hpp"
 #include "parser/parser.hpp"
 #include "analyzer/analyzer.hpp"
 #include "symbol-handling/symbol-table/symbol_table.hpp"
 #include "symbol-handling/scope-manager/scope_manager.hpp"
 #include "intermediate-representation/intermediate_representation.hpp"
-#include "code-generator/code_generator.hpp"
+#include "code-generator/code-generator/code_generator.hpp"
 
 bool compile(std::string input){
 
@@ -21,22 +24,17 @@ bool compile(std::string input){
         return false;
     }
 
-    Parser parser(lexer);
-
-    SymbolTable symbolTable;
-    ScopeManager scopeManager(symbolTable);
-    Analyzer analyzer(scopeManager);
-
-    std::string output = "output.s";
-    IntermediateRepresentation intermediateRepresentation;
-    CodeGenerator codeGenerator(output);
-
     try {
-        auto astRoot = parser.parseProgram();
+        Parser parser(lexer);
+        std::shared_ptr<ASTree> astRoot = parser.parseProgram();
         std::cout << "\nSyntax check: successful!\n";
         astRoot->traverse(1); //display AST
 
         try{
+            SymbolTable symbolTable;
+            ScopeManager scopeManager(symbolTable);
+            Analyzer analyzer(scopeManager);
+
             analyzer.semanticCheck(astRoot);
             std::cout << "\nSemantic check: successful!\n";
 
@@ -46,11 +44,14 @@ bool compile(std::string input){
         }
 
         try{
-            auto irRoot = intermediateRepresentation.formIR(astRoot);
+            IntermediateRepresentation intermediateRepresentation;
+            std::shared_ptr<IRTree> irRoot = intermediateRepresentation.formIR(astRoot);
             std::cout << "\nForming Intermediate Representation: successful!\n";
             irRoot->traverse(1); //display IRT
 
             try{
+                std::string output = "output.s";
+                CodeGenerator codeGenerator(output);
                 codeGenerator.generateCode(irRoot);
                 std::cout << "\nCode Generation: successful!\n";
 

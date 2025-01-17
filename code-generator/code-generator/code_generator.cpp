@@ -3,13 +3,9 @@
 #include <string>
 #include <format>
 
-#include "defs/code_generator_defs.hpp"
+#include "../defs/code_generator_defs.hpp"
 
-CodeGenerator::CodeGenerator(std::string& output) : generatedCode(output), labelNum(0), gpFreeRegPos(0){}
-
-CodeGenerator::~CodeGenerator(){
-    generatedCode.close();
-}
+CodeGenerator::CodeGenerator(std::string& output) : _asm(output), labelNum(0), gpFreeRegPos(0){}
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // allocating general-purpose register r(8-15)
@@ -41,12 +37,12 @@ size_t CodeGenerator::getNextLabelNum(){
 // > echo $? <- check return value
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 void CodeGenerator::generateCode(std::shared_ptr<IRTree> root){
-    if(!generatedCode.is_open()){
+    if(!_asm.isOpen()){
         throw std::runtime_error("File failed to generate");
     }
 
     // start of asm code
-    genStart();
+    _asm.genStart();
 
     for(const auto& child : root->getChildren()){
         variableNum = 1;
@@ -59,19 +55,17 @@ void CodeGenerator::generateCode(std::shared_ptr<IRTree> root){
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 void CodeGenerator::generateFunction(std::shared_ptr<IRTree> node){
     activeFunction = node->getName();
-    genNewLine();
-    genLabel(activeFunction);
+    _asm.genNewLine();
+    _asm.genLabel(activeFunction);
 
-    // function prologue
-    genPush("%rbp");
-    genMov("%rsp", "%rbp");
+    _asm.genFuncPrologue();
     
     // allocation of local variables
     if(node->getValue() != "0"){
-        genOperation("sub", std::format("${}",node->getValue()), "%rsp");
+        _asm.genOperation("sub", std::format("${}",node->getValue()), "%rsp");
     }
 
-    genNewLine();
+    _asm.genNewLine();
 
     generateParameter(node->getChild(0));
 
@@ -80,21 +74,20 @@ void CodeGenerator::generateFunction(std::shared_ptr<IRTree> node){
     }
 
     //function label
-    genLabel(std::format("{}_end", activeFunction));
+    _asm.genLabel(std::format("{}_end", activeFunction));
     
     // free local variables 
-    genOperation("add", std::format("${}", node->getValue()), "%rsp");
+    if(node->getValue() != "0"){
+        _asm.genOperation("add", std::format("${}", node->getValue()), "%rsp");
+    }
 
-    // function epilogue
-    genMov("%rbp", "%rsp");
-    genPop("%rbp");
+    _asm.genFuncEpilogue();
 
     if(node->getName() != "main"){
-        genRet();
+        _asm.genRet();
     }
     else{
-        // system call for exit
-        genExit();
+        _asm.genExit();
     }
 
     variableMap.clear();
@@ -143,9 +136,9 @@ void CodeGenerator::generateVariable(std::shared_ptr<IRTree> node){
         generateAssignmentStatement(node->getChild(0));
     }
     else{
-        genMov("$0", generateID(node), "q");
+        _asm.genMov("$0", generateID(node), "q");
     }
-    genNewLine();
+    _asm.genNewLine();
 
 }
 
@@ -181,7 +174,7 @@ void CodeGenerator::generateStatement(std::shared_ptr<IRTree> node){
         default:
             throw std::runtime_error(std::format("Invalid statement {}", irNodeToString.at(node->getNodeType())));
     }
-    genNewLine();
+    _asm.genNewLine();
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -191,7 +184,7 @@ void CodeGenerator::generateIfStatement(std::shared_ptr<IRTree> node){
     size_t labNum = getNextLabelNum();
     size_t size = node->getChildren().size();
 
-    genLabel(std::format("if{}", labNum));
+    _asm.genLabel(std::format("if{}", labNum));
     generateRelationalExpression(node->getChild(0));
 
     int type = node->getChild(0)->getChild(0)->getType() == Types::INT ? 0 : 1;
@@ -207,16 +200,16 @@ void CodeGenerator::generateIfStatement(std::shared_ptr<IRTree> node){
         jmpLabel = std::format("if_end{}\n", labNum);
     }
 
-    genJmp(stringToOppJMP.at(node->getChild(0)->getValue())[type], jmpLabel);
+    _asm.genJmp(stringToOppJMP.at(node->getChild(0)->getValue())[type], jmpLabel);
 
     generateStatement(node->getChild(1));
-    genJmp("jmp", std::format("if{}_end", labNum));
-    if(node->getChildren().size() == 3) genNewLine();
+    _asm.genJmp("jmp", std::format("if{}_end", labNum));
+    if(node->getChildren().size() == 3) _asm.genNewLine();
 
     for(size_t i = 2; i < size; i+=2){
         if(node->getChild(i)->getNodeType() == IRNodeType::CMP){
-            genNewLine();
-            genLabel(std::format("elif{}_{}", labNum, i/2-1));
+            _asm.genNewLine();
+            _asm.genLabel(std::format("elif{}_{}", labNum, i/2-1));
             generateRelationalExpression(node->getChild(i));
 
             type = node->getChild(i)->getChild(0)->getType() == Types::INT ? 0 : 1;
@@ -231,18 +224,18 @@ void CodeGenerator::generateIfStatement(std::shared_ptr<IRTree> node){
                 jmpLabel = std::format("elif{}_{}", labNum, i/2); 
             }
 
-            genJmp(stringToOppJMP.at(node->getChild(i)->getValue())[type], jmpLabel);
+            _asm.genJmp(stringToOppJMP.at(node->getChild(i)->getValue())[type], jmpLabel);
 
             generateConstruct(node->getChild(i+1));
-            genJmp("jmp", std::format("if{}_end", labNum));
+            _asm.genJmp("jmp", std::format("if{}_end", labNum));
         }
     }
 
     if(size % 2 == 1){
-        genLabel(std::format("else{}", labNum));
+        _asm.genLabel(std::format("else{}", labNum));
         generateConstruct(node->getChildren().back());
     }
-    genLabel(std::format("if{}_end", labNum));
+    _asm.genLabel(std::format("if{}_end", labNum));
 
 }
 
@@ -252,17 +245,17 @@ void CodeGenerator::generateIfStatement(std::shared_ptr<IRTree> node){
 void CodeGenerator::generateWhileStatement(std::shared_ptr<IRTree> node){
     size_t labNum = getNextLabelNum();
 
-    genLabel(std::format("while{}", labNum));
+    _asm.genLabel(std::format("while{}", labNum));
     generateRelationalExpression(node->getChild(0));
 
     int type = node->getChild(0)->getChild(0)->getType() == Types::INT ? 0 : 1;
-    genJmp(stringToOppJMP.at(node->getChild(0)->getValue())[type], std::format("while{}_end", labNum));
-    genNewLine();
+    _asm.genJmp(stringToOppJMP.at(node->getChild(0)->getValue())[type], std::format("while{}_end", labNum));
+    _asm.genNewLine();
 
     generateConstruct(node->getChild(1));
-    genJmp("jmp", std::format("while{}", labNum));
-    genNewLine();
-    genLabel(std::format("while{}_end", labNum));
+    _asm.genJmp("jmp", std::format("while{}", labNum));
+    _asm.genNewLine();
+    _asm.genLabel(std::format("while{}_end", labNum));
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -272,20 +265,20 @@ void CodeGenerator::generateForStatement(std::shared_ptr<IRTree> node){
     size_t labNum = getNextLabelNum();
 
     generateAssignmentStatement(node->getChild(0));
-    genNewLine();
-    genLabel(std::format("for{}", labNum));
+    _asm.genNewLine();
+    _asm.genLabel(std::format("for{}", labNum));
     generateRelationalExpression(node->getChild(1));
 
     int type = node->getChild(0)->getChild(0)->getType() == Types::INT ? 0 : 1;
-    genJmp(stringToOppJMP.at(node->getChild(1)->getValue())[type], std::format("for{}_end", labNum));
-    genNewLine();
+    _asm.genJmp(stringToOppJMP.at(node->getChild(1)->getValue())[type], std::format("for{}_end", labNum));
+    _asm.genNewLine();
 
     generateConstruct(node->getChild(3));
     generateAssignmentStatement(node->getChild(2));
-    genJmp("jmp", std::format("for{}", labNum));
+    _asm.genJmp("jmp", std::format("for{}", labNum));
 
-    genNewLine();
-    genLabel(std::format("for{}_end", labNum));
+    _asm.genNewLine();
+    _asm.genLabel(std::format("for{}_end", labNum));
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -294,12 +287,12 @@ void CodeGenerator::generateForStatement(std::shared_ptr<IRTree> node){
 void CodeGenerator::generateDoWhileStatement(std::shared_ptr<IRTree> node){
     size_t labNum = getNextLabelNum();
 
-    genLabel(std::format("do_while{}", labNum));
+    _asm.genLabel(std::format("do_while{}", labNum));
     generateConstruct(node->getChild(0));
     
     generateRelationalExpression(node->getChild(1));
     int type = node->getChild(1)->getChild(0)->getType() == Types::INT ? 0 : 1;
-    genJmp(stringToJMP.at(node->getChild(1)->getValue())[type], std::format("do_while{}", labNum));
+    _asm.genJmp(stringToJMP.at(node->getChild(1)->getValue())[type], std::format("do_while{}", labNum));
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -317,7 +310,7 @@ void CodeGenerator::generateCompoundStatement(std::shared_ptr<IRTree> node){
 void CodeGenerator::generateAssignmentStatement(std::shared_ptr<IRTree> node){
     generateNumericalExpression(node->getChild(1));
     freeGpReg();
-    genMov(gpRegisters.at(gpFreeRegPos), generateID(node->getChild(0)), "q");
+    _asm.genMov(gpRegisters.at(gpFreeRegPos), generateID(node->getChild(0)), "q");
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -327,11 +320,11 @@ void CodeGenerator::generateReturnStatement(std::shared_ptr<IRTree> node){
     if(node->getChildren().size() != 0){
         generateNumericalExpression(node->getChild(0));
         freeGpReg();
-        genMov(gpRegisters.at(gpFreeRegPos), "%rax", "q");
+        _asm.genMov(gpRegisters.at(gpFreeRegPos), "%rax", "q");
     }else{
-        genOperation("xor", "%rax", "%rax");
+        _asm.genOperation("xor", "%rax", "%rax");
     }
-    genJmp("jmp", std::format("{}_end", activeFunction));
+    _asm.genJmp("jmp", std::format("{}_end", activeFunction));
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -340,7 +333,7 @@ void CodeGenerator::generateReturnStatement(std::shared_ptr<IRTree> node){
 void CodeGenerator::generateSwitchStatement(std::shared_ptr<IRTree> node){
     size_t labNum = getNextLabelNum();
 
-    genLabel(std::format("switch{}", labNum));
+    _asm.genLabel(std::format("switch{}", labNum));
 
     size_t i = 1;
     size_t size = node->getChildren().size();
@@ -350,10 +343,10 @@ void CodeGenerator::generateSwitchStatement(std::shared_ptr<IRTree> node){
     for(; i < size; i++){
         std::shared_ptr<IRTree> child = node->getChild(i);
         if(child->getNodeType() == IRNodeType::CASE){
-            genLabel(std::format("switch{}_case{}", labNum, i-1));
-            genMov(variableMap.at(var), "%rcx", "q");
-            genMov(generateLiteral(child->getChild(0)), "%rdx", "q");
-            genCmp("%rcx", "%rdx");
+            _asm.genLabel(std::format("switch{}_case{}", labNum, i-1));
+            _asm.genMov(variableMap.at(var), "%rcx", "q");
+            _asm.genMov(generateLiteral(child->getChild(0)), "%rdx", "q");
+            _asm.genCmp("%rcx", "%rdx");
             
             std::string jmpLabel = "";
             if(hasDefault){
@@ -362,24 +355,24 @@ void CodeGenerator::generateSwitchStatement(std::shared_ptr<IRTree> node){
             else{
                 jmpLabel = std::format("switch{}_{}", labNum, (i < size-1 ?  "case" + std::to_string(i) : "end"));
             }
-            genJmp("jne", jmpLabel);
+            _asm.genJmp("jne", jmpLabel);
 
             for(size_t j = 1; j < child->getChildren().size(); ++j){
                 generateConstruct(child->getChild(j));
             }
 
             if(child->getChildren().size()==3){
-                genJmp("jmp", std::format("switch{}_end", labNum));
+                _asm.genJmp("jmp", std::format("switch{}_end", labNum));
             }
 
         }else{
-            genLabel(std::format("switch{}_default", labNum));
+            _asm.genLabel(std::format("switch{}_default", labNum));
             for(size_t j = 0; j < child->getChildren().size(); ++j){
                 generateConstruct(child->getChild(j));
             }
         }
     }
-    genLabel(std::format("switch{}_end", labNum));
+    _asm.genLabel(std::format("switch{}_end", labNum));
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -390,28 +383,28 @@ void CodeGenerator::generateSwitchStatement(std::shared_ptr<IRTree> node){
 void CodeGenerator::generateNumericalExpression(std::shared_ptr<IRTree> node){
     if(node->getNodeType() == IRNodeType::ID){
         if(gpFreeRegPos < gpRegisters.size()){
-            genMov(generateID(node), gpRegisters.at(gpFreeRegPos), "q");
+            _asm.genMov(generateID(node), gpRegisters.at(gpFreeRegPos), "q");
         }
         else{
-            genPush(generateID(node));
+            _asm.genPush(generateID(node));
         }
         takeGpReg();
     }
     else if(node->getNodeType() == IRNodeType::LITERAL){
         if(gpFreeRegPos < gpRegisters.size()){
-            genMov(generateLiteral(node), gpRegisters.at(gpFreeRegPos), "q");
+            _asm.genMov(generateLiteral(node), gpRegisters.at(gpFreeRegPos), "q");
         }
         else{
-            genPush(generateLiteral(node));
+            _asm.genPush(generateLiteral(node));
         }
         takeGpReg();
     }else if (node->getNodeType() == IRNodeType::CALL){
         generateFunctionCall(node);
         if(gpFreeRegPos < gpRegisters.size()){
-            genMov("%rax", gpRegisters.at(gpFreeRegPos), "q");
+            _asm.genMov("%rax", gpRegisters.at(gpFreeRegPos), "q");
         }
         else{
-            genPush("%rax");
+            _asm.genPush("%rax");
         }
         takeGpReg();
     }
@@ -425,7 +418,7 @@ void CodeGenerator::generateNumericalExpression(std::shared_ptr<IRTree> node){
         freeGpReg();
         if(gpFreeRegPos >= gpRegisters.size()){
             lreg = "%rdi";
-            genPop(lreg);
+            _asm.genPop(lreg);
         }
         else{
             lreg = gpRegisters.at(gpFreeRegPos);
@@ -433,7 +426,7 @@ void CodeGenerator::generateNumericalExpression(std::shared_ptr<IRTree> node){
         freeGpReg();
         if(gpFreeRegPos >= gpRegisters.size()){
             rreg = "%rsi";
-            genPop(rreg);
+            _asm.genPop(rreg);
         }
         else{
             rreg = gpRegisters.at(gpFreeRegPos);
@@ -441,29 +434,29 @@ void CodeGenerator::generateNumericalExpression(std::shared_ptr<IRTree> node){
         
         IRNodeType nodeType = node->getNodeType();
         if(nodeType == IRNodeType::MUL || nodeType == IRNodeType::DIV){ // result of MUL || DIV is in RDX:RAX
-            genOperation("xor", "%rdx", "%rdx"); //add overflow check (TODO)
-            genMov(rreg, "%rax", "q");
+            _asm.genOperation("xor", "%rdx", "%rdx"); //add overflow check (TODO)
+            _asm.genMov(rreg, "%rax", "q");
             if(node->getType().value() == Types::INT){
-                genOperation(std::format("i{}", irNodeToString.at(nodeType)), lreg);
+                _asm.genOperation(std::format("i{}", irNodeToString.at(nodeType)), lreg);
             }
             else{
-                genOperation(irNodeToString.at(nodeType), lreg);
+                _asm.genOperation(irNodeToString.at(nodeType), lreg);
             }
-            genMov("%rax", rreg, "q");
-            genNewLine();
+            _asm.genMov("%rax", rreg, "q");
+            _asm.genNewLine();
         }
         else if(nodeType == IRNodeType::AND || nodeType == IRNodeType::OR || nodeType == IRNodeType::XOR){
-            genOperation(irNodeToString.at(nodeType), lreg, rreg);
+            _asm.genOperation(irNodeToString.at(nodeType), lreg, rreg);
         }
         else if(nodeType == IRNodeType::SHL || nodeType == IRNodeType::SAL || nodeType == IRNodeType::SHR || nodeType == IRNodeType::SAR){
-            genMov(lreg, "%rcx", "q");
-            genOperation(irNodeToString.at(nodeType), "%rcx", rreg);
+            _asm.genMov(lreg, "%rcx", "q");
+            _asm.genOperation(irNodeToString.at(nodeType), "%rcx", rreg);
         }
         else{
-            genOperation(irNodeToString.at(nodeType), lreg, rreg);
+            _asm.genOperation(irNodeToString.at(nodeType), lreg, rreg);
         }
         if(gpFreeRegPos >= gpRegisters.size()){
-            genPush(rreg);
+            _asm.genPush(rreg);
         }
         takeGpReg();
     }
@@ -480,7 +473,7 @@ void CodeGenerator::generateRelationalExpression(std::shared_ptr<IRTree> node){
     std::string lreg = gpRegisters.at(gpFreeRegPos);
     freeGpReg();
     std::string rreg = gpRegisters.at(gpFreeRegPos);
-    genCmp(lreg, rreg);
+    _asm.genCmp(lreg, rreg);
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -508,7 +501,7 @@ void CodeGenerator::generateFunctionCall(std::shared_ptr<IRTree> node){
     
     generateArgument(node->getChild(0));
 
-    genCall(node->getName());
+    _asm.genCall(node->getName());
 
     clearArguments(node->getChild(0));
 }
@@ -522,7 +515,7 @@ void CodeGenerator::generateArgument(std::shared_ptr<IRTree> node){
         generateNumericalExpression(node->getChild(i));
         freeGpReg();
         if(gpFreeRegPos < gpRegisters.size()){ // if >= gpRegisters.size() argument is already pushed
-            genPush(gpRegisters.at(gpFreeRegPos));
+            _asm.genPush(gpRegisters.at(gpFreeRegPos));
         }
     }
 }
@@ -533,6 +526,6 @@ void CodeGenerator::generateArgument(std::shared_ptr<IRTree> node){
 void CodeGenerator::clearArguments(std::shared_ptr<IRTree> node){
     // popping arguments of the stack
     for(size_t i = 0; i < node->getChildren().size(); i++){
-        genPop("%rbx");
+        _asm.genPop("%rbx");
     }
 }
