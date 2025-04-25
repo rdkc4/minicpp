@@ -3,6 +3,7 @@
 #include <memory>
 #include <stdexcept>
 #include <string>
+#include <format>
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // INTERMEDIATE REPRESENTATION TREE BUILDING
