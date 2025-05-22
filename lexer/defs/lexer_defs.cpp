@@ -3,7 +3,7 @@
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // keywords reserved of the programming language
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-const std::unordered_map<std::string, TokenType> keywords = {
+const std::unordered_map<std::string, TokenType> keywords {
     {"return", TokenType::_RETURN},
     {"if", TokenType::_IF},
     {"else", TokenType::_ELSE},

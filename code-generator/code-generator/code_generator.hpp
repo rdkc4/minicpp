@@ -1,7 +1,6 @@
 #ifndef CODE_GENERATOR_HPP
 #define CODE_GENERATOR_HPP
 
-#include <memory>
 #include <string>
 #include <unordered_map>
 
@@ -17,7 +16,7 @@ class CodeGenerator{
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         // public entry point to code generation
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
-        void generateCode(std::shared_ptr<IRTree> root);
+        void generateCode(IRTree* root);
 
     private:
 
@@ -51,54 +50,54 @@ class CodeGenerator{
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         // function
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
-        void generateFunction(std::shared_ptr<IRTree> node);
+        void generateFunction(IRTree* node);
 
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         // variables
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
-        void generateParameter(std::shared_ptr<IRTree> node);
+        void generateParameter(IRTree* node);
 
-        void generateConstruct(std::shared_ptr<IRTree> node);
+        void generateConstruct(IRTree* node);
 
-        void generateVariable(std::shared_ptr<IRTree> node);
+        void generateVariable(IRTree* node);
 
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         // statements
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
-        void generateStatement(std::shared_ptr<IRTree> node);
+        void generateStatement(IRTree* node);
 
-        void generateIfStatement(std::shared_ptr<IRTree> node);
+        void generateIfStatement(IRTree* node);
 
-        void generateWhileStatement(std::shared_ptr<IRTree> node);
+        void generateWhileStatement(IRTree* node);
 
-        void generateForStatement(std::shared_ptr<IRTree> node);
+        void generateForStatement(IRTree* node);
 
-        void generateDoWhileStatement(std::shared_ptr<IRTree> node);
+        void generateDoWhileStatement(IRTree* node);
 
-        void generateCompoundStatement(std::shared_ptr<IRTree> node);
+        void generateCompoundStatement(IRTree* node);
 
-        void generateAssignmentStatement(std::shared_ptr<IRTree> node);
+        void generateAssignmentStatement(IRTree* node);
 
-        void generateReturnStatement(std::shared_ptr<IRTree> node);
+        void generateReturnStatement(IRTree* node);
 
-        void generateSwitchStatement(std::shared_ptr<IRTree> node);
+        void generateSwitchStatement(IRTree* node);
 
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         // expressions
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
-        void generateNumericalExpression(std::shared_ptr<IRTree> node);
+        void generateNumericalExpression(IRTree* node);
 
-        void generateRelationalExpression(std::shared_ptr<IRTree> node);
+        void generateRelationalExpression(IRTree* node);
 
-        std::string generateID(std::shared_ptr<IRTree> node);
+        std::string generateID(IRTree* node);
 
-        std::string generateLiteral(std::shared_ptr<IRTree> node);
+        std::string generateLiteral(IRTree* node);
 
-        void generateFunctionCall(std::shared_ptr<IRTree> node);
+        void generateFunctionCall(IRTree* node);
 
-        void generateArgument(std::shared_ptr<IRTree> node);
+        void generateArgument(IRTree* node);
 
-        void clearArguments(std::shared_ptr<IRTree> node);
+        void clearArguments(IRTree* node);
 
 };
 

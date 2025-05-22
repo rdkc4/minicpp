@@ -3,18 +3,17 @@
 #include <iostream>
 #include <format>
 
-IRTree::IRTree(IRNodeType nodeType) : nodeType(nodeType){}
+IRTree::IRTree(IRNodeType nodeType) : nodeType{nodeType} {}
 
-IRTree::IRTree(IRNodeType nodeType, std::string name, std::string value, Types type)
-    : nodeType(nodeType), name(name), value(value), type(type){}
+IRTree::IRTree(IRNodeType nodeType, std::string name, std::string value, Types type) : nodeType{nodeType}, name{name}, value{value}, type{type} {}
 
 IRTree::~IRTree() = default;
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // ADD CHILD TO IR TREE 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-void IRTree::pushChild(std::shared_ptr<IRTree> child){
-    children.push_back(child);
+void IRTree::pushChild(std::unique_ptr<IRTree>&& child){
+    children.push_back(std::move(child));
 }
 
 void IRTree::clearChildren(){
@@ -24,9 +23,9 @@ void IRTree::clearChildren(){
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // RETURN CHILD AT GIVEN INDEX
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-std::shared_ptr<IRTree> IRTree::getChild(size_t index){
+IRTree* IRTree::getChild(size_t index){
     if(index < children.size()){
-        return children.at(index);
+        return children.at(index).get();
     }
     return nullptr;
 }
@@ -34,7 +33,7 @@ std::shared_ptr<IRTree> IRTree::getChild(size_t index){
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // RETURN ALL CHILDREN
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-const std::vector<std::shared_ptr<IRTree>>& IRTree::getChildren() const{
+const std::vector<std::unique_ptr<IRTree>>& IRTree::getChildren() const{
     return children;
 }
 
@@ -42,19 +41,19 @@ const std::vector<std::shared_ptr<IRTree>>& IRTree::getChildren() const{
 // SETTERS
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 
-void IRTree::setNodeType(IRNodeType type){
+void IRTree::setNodeType(const IRNodeType type){
     nodeType = type;
 }
 
-void IRTree::setName(std::string& _name){
+void IRTree::setName(const std::string& _name){
     name = _name;
 }
 
-void IRTree::setValue(std::string& val){
+void IRTree::setValue(const std::string& val){
     value = val;
 }
 
-void IRTree::setType(Types _type){
+void IRTree::setType(const Types _type){
     type = _type;
 }
 

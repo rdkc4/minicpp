@@ -18,24 +18,24 @@ class IRTree{
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         // operations related to nodes
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
-        void pushChild(std::shared_ptr<IRTree> child);
+        void pushChild(std::unique_ptr<IRTree>&& child);
 
         void clearChildren();
 
-        std::shared_ptr<IRTree> getChild(size_t index);
+        IRTree* getChild(size_t index);
 
-        const std::vector<std::shared_ptr<IRTree>>& getChildren() const;
+        const std::vector<std::unique_ptr<IRTree>>& getChildren() const;
 
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         // setters
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
-        void setNodeType(IRNodeType type);
+        void setNodeType(const IRNodeType type);
 
-        void setName(std::string& _name);
+        void setName(const std::string& _name);
 
-        void setValue(std::string& val);
+        void setValue(const std::string& val);
 
-        void setType(Types _type);
+        void setType(const Types _type);
 
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         // getters
@@ -68,7 +68,7 @@ class IRTree{
         std::string name;
         std::string value;
         std::optional<Types> type;
-        std::vector<std::shared_ptr<IRTree>> children;
+        std::vector<std::unique_ptr<IRTree>> children;
 
 };
 

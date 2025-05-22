@@ -3,25 +3,25 @@
 #include <iostream>
 #include <format>
 
-ASTree::ASTree(ASTNodeType nodeType, const Token& token) : nodeType(nodeType), token(std::make_shared<Token>(token)){}
+ASTree::ASTree(ASTNodeType nodeType, const Token& token) : nodeType(nodeType), token(token){}
 
-ASTree::ASTree(ASTNodeType nodeType, const Token& token, Types type) : nodeType(nodeType), token(std::make_shared<Token>(token)), type(type){}
+ASTree::ASTree(ASTNodeType nodeType, const Token& token, Types type) : nodeType(nodeType), token(token), type(type){}
 
 ASTree::~ASTree() = default;
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // ADD CHILD TO AST TREE
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-void ASTree::pushChild(std::shared_ptr<ASTree> child){
-    children.push_back(child);
+void ASTree::pushChild(std::unique_ptr<ASTree>&& child){
+    children.push_back(std::move(child));
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // RETURN CHILD AT GIVEN INDEX
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-std::shared_ptr<ASTree> ASTree::getChild(size_t index){
+ASTree* ASTree::getChild(size_t index){
     if(index < children.size()){
-        return children.at(index);
+        return children.at(index).get();
     }
     return nullptr;
 }
@@ -29,7 +29,7 @@ std::shared_ptr<ASTree> ASTree::getChild(size_t index){
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // RETURN ALL CHILDREN
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-const std::vector<std::shared_ptr<ASTree>>& ASTree::getChildren() const{
+const std::vector<std::unique_ptr<ASTree>>& ASTree::getChildren() const{
     return children;
 }
 
@@ -51,7 +51,7 @@ ASTNodeType ASTree::getNodeType() const{
     return nodeType;
 }
 
-const std::shared_ptr<Token> ASTree::getToken() const {
+const Token ASTree::getToken() const {
     return token;
 }
 
@@ -59,7 +59,7 @@ const std::shared_ptr<Token> ASTree::getToken() const {
 // PRINT AST NODE
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::string ASTree::toString(){
-    return std::format("{} | '{}'\n", astNodeTypeToString.at(nodeType), token->value);
+    return std::format("{} | '{}'\n", astNodeTypeToString.at(nodeType), token.value);
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------

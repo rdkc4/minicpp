@@ -20,11 +20,11 @@ class ASTree{
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         // node operations
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
-        void pushChild(std::shared_ptr<ASTree> child);
+        void pushChild(std::unique_ptr<ASTree>&& child);
 
-        std::shared_ptr<ASTree> getChild(size_t index);
+        ASTree* getChild(size_t index);
 
-        const std::vector<std::shared_ptr<ASTree>>& getChildren() const;
+        const std::vector<std::unique_ptr<ASTree>>& getChildren() const;
 
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         // setters
@@ -38,7 +38,7 @@ class ASTree{
 
         ASTNodeType getNodeType() const;
 
-        const std::shared_ptr<Token> getToken() const;
+        const Token getToken() const;
 
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         // display
@@ -56,9 +56,9 @@ class ASTree{
         // children - AST subnodes of a node
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         ASTNodeType nodeType;
-        std::shared_ptr<Token> token;
+        Token token;
         std::optional<Types> type;
-        std::vector<std::shared_ptr<ASTree>> children;
+        std::vector<std::unique_ptr<ASTree>> children;
 
 };
 

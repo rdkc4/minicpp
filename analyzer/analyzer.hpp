@@ -12,7 +12,7 @@ class Analyzer{
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         // public entry point for semantic analysis
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
-        void semanticCheck(std::shared_ptr<ASTree> root);
+        void semanticCheck(ASTree* root);
 
     private:
         
@@ -28,61 +28,61 @@ class Analyzer{
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         // function
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
-        void checkFunction(std::shared_ptr<ASTree> node);
+        void checkFunction(ASTree* node);
 
-        void checkParameter(std::shared_ptr<ASTree> node);
+        void checkParameter(ASTree* node);
 
-        void checkBody(std::shared_ptr<ASTree> node);
+        void checkBody(ASTree* node);
 
-        void checkConstruct(std::shared_ptr<ASTree> node);
+        void checkConstruct(ASTree* node);
 
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         // variables
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
 
-        void checkVariable(std::shared_ptr<ASTree> node);
+        void checkVariable(ASTree* node);
 
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         // statements
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
 
-        void checkStatement(std::shared_ptr<ASTree> node);
+        void checkStatement(ASTree* node);
 
-        void checkIfStatement(std::shared_ptr<ASTree> node);
+        void checkIfStatement(ASTree* node);
 
-        void checkWhileStatement(std::shared_ptr<ASTree> node);
+        void checkWhileStatement(ASTree* node);
 
-        void checkForStatement(std::shared_ptr<ASTree> node);
+        void checkForStatement(ASTree* node);
 
-        void checkDoWhileStatement(std::shared_ptr<ASTree> node);
+        void checkDoWhileStatement(ASTree* node);
 
-        void checkSwitchStatement(std::shared_ptr<ASTree> node);
+        void checkSwitchStatement(ASTree* node);
 
         template<typename T>
-        void checkSwitchStatementCases(std::shared_ptr<ASTree> node);
+        void checkSwitchStatementCases(ASTree* node);
 
-        void checkCompoundStatement(std::shared_ptr<ASTree> node);
+        void checkCompoundStatement(ASTree* node);
 
-        void checkAssignmentStatement(std::shared_ptr<ASTree> node);
+        void checkAssignmentStatement(ASTree* node);
 
-        void checkReturnStatement(std::shared_ptr<ASTree> node);
+        void checkReturnStatement(ASTree* node);
 
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         // expressions
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
-        void checkNumericalExpression(std::shared_ptr<ASTree> node);
+        void checkNumericalExpression(ASTree* node);
 
-        Types getNumericalExpressionType(std::shared_ptr<ASTree> node);
+        Types getNumericalExpressionType(ASTree* node);
 
-        void checkRelationalExpression(std::shared_ptr<ASTree> node);
+        void checkRelationalExpression(ASTree* node);
 
-        void checkID(std::shared_ptr<ASTree> node);
+        void checkID(ASTree* node);
 
-        void checkLiteral(std::shared_ptr<ASTree> node);
+        void checkLiteral(ASTree* node);
 
-        void checkFunctionCall(std::shared_ptr<ASTree> node);
+        void checkFunctionCall(ASTree* node);
     
-        void checkArgument(std::shared_ptr<ASTree> node);
+        void checkArgument(ASTree* node);
 
 };
 
