@@ -9,7 +9,7 @@
 class Symbol{
     public:
 
-        Symbol(std::string& name, Kinds kind = Kinds::NO_KIND, Types type = Types::NO_TYPE);
+        Symbol(const std::string& name, Kinds kind = Kinds::NO_KIND, Types type = Types::NO_TYPE);
 
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         // getters
@@ -17,7 +17,7 @@ class Symbol{
         std::string getName() const;
         Kinds getKind() const;
         Types getType() const;
-        std::shared_ptr<ASTree> getParameters() const;
+        ASTree* getParameters() const;
 
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         // setters
@@ -25,7 +25,7 @@ class Symbol{
         void setName(const std::string& _name);
         void setKind(const Kinds& _kind);
         void setType(const Types& _type);
-        void setParameters(std::shared_ptr<ASTree> par);
+        void setParameters(ASTree* par);
 
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         // display
@@ -43,7 +43,7 @@ class Symbol{
         std::string name;
         Kinds kind;
         Types type;
-        std::shared_ptr<ASTree> parameters;
+        ASTree* parameters;
 
 };
 

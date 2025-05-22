@@ -7,7 +7,7 @@
 #include "../common/defs/defs.hpp"
 #include "defs/lexer_defs.hpp"
 
-Lexer::Lexer(const std::string& input) : input(input), position(0), lineNumber(1), prevLineLen(0), nextTokenIdx(0){}
+Lexer::Lexer(const std::string& input) : input{input}, position{0}, lineNumber{1}, prevLineLen{0}, nextTokenIdx{0}{}
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // LEXICAL CHECK

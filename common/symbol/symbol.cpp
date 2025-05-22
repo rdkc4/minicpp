@@ -2,8 +2,7 @@
 
 #include <format>
 
-Symbol::Symbol(std::string& name, Kinds kind, Types type)
-    : name(name), kind(kind), type(type), parameters(nullptr){}
+Symbol::Symbol(const std::string& name, Kinds kind, Types type) : name{name}, kind{kind}, type{type}, parameters{nullptr} {}
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // GETTERS
@@ -21,7 +20,7 @@ Types Symbol::getType() const{
     return type;
 }
 
-std::shared_ptr<ASTree> Symbol::getParameters() const{
+ASTree* Symbol::getParameters() const{
     return parameters;
 }
 
@@ -41,7 +40,7 @@ void Symbol::setType(const Types& _type){
     type = _type;
 }
 
-void Symbol::setParameters(std::shared_ptr<ASTree> par){
+void Symbol::setParameters(ASTree* par){
     parameters = par;
 }
 

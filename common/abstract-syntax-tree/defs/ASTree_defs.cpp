@@ -1,6 +1,6 @@
 #include "ASTree_defs.hpp"
 
-const std::unordered_map<ASTNodeType, std::string> astNodeTypeToString = {
+const std::unordered_map<ASTNodeType, std::string> astNodeTypeToString {
     {ASTNodeType::PROGRAM, "PROGRAM"},
     {ASTNodeType::FUNCTION_LIST, "FUNCTION_LIST"},
     {ASTNodeType::FUNCTION, "FUNCTION"},

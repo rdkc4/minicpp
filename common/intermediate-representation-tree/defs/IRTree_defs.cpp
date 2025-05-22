@@ -3,11 +3,11 @@
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // operator IR Nodes
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-const std::unordered_set<IRNodeType> irOperators = {IRNodeType::ADD, IRNodeType::SUB, IRNodeType::DIV, IRNodeType::MUL, 
+const std::unordered_set<IRNodeType> irOperators {IRNodeType::ADD, IRNodeType::SUB, IRNodeType::DIV, IRNodeType::MUL, 
     IRNodeType::AND, IRNodeType::OR, IRNodeType::XOR, IRNodeType::SHL, IRNodeType::SAL, IRNodeType::SHR, IRNodeType::SAR
 };
 
-const std::unordered_map<IRNodeType, std::string> irNodeToString = {
+const std::unordered_map<IRNodeType, std::string> irNodeToString {
     {IRNodeType::PROGRAM, "PROGRAM"}, {IRNodeType::FUNCTION, "FUNCTION"},
     {IRNodeType::PARAMETER, "PARAMETER"},
     {IRNodeType::VARIABLE, "VARIABLE"},
@@ -44,7 +44,7 @@ const std::unordered_map<IRNodeType, std::string> irNodeToString = {
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // string to IR Arithmetic operator node type
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-const std::unordered_map<std::string, IRNodeType> stringToArop = {
+const std::unordered_map<std::string, IRNodeType> stringToArop {
     {"+", IRNodeType::ADD},
     {"-", IRNodeType::SUB},
     {"*", IRNodeType::MUL},
@@ -54,7 +54,7 @@ const std::unordered_map<std::string, IRNodeType> stringToArop = {
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // string to IR Bitwise operator node type
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-const std::unordered_map<std::string, std::vector<IRNodeType>> stringToBitop = {
+const std::unordered_map<std::string, std::vector<IRNodeType>> stringToBitop {
     {"&", {IRNodeType::AND, IRNodeType::AND}},
     {"|", {IRNodeType::OR, IRNodeType::OR}},
     {"^", {IRNodeType::XOR, IRNodeType::XOR}},

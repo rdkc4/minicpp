@@ -11,7 +11,7 @@ class IntermediateRepresentation{
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         // public entry point for forming intermediate representation
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
-        std::shared_ptr<IRTree> formIR(std::shared_ptr<ASTree> astRoot);
+        std::unique_ptr<IRTree> formIR(ASTree* astRoot);
 
     private:
 
@@ -23,64 +23,64 @@ class IntermediateRepresentation{
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         // function
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
-        std::shared_ptr<IRTree> function(std::shared_ptr<ASTree> node);
+        std::unique_ptr<IRTree> function(ASTree* node);
 
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         // variables
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
-        std::shared_ptr<IRTree> parameter(std::shared_ptr<ASTree> node);
+        std::unique_ptr<IRTree> parameter(ASTree* node);
 
-        std::shared_ptr<IRTree> construct(std::shared_ptr<ASTree> node);
+        std::unique_ptr<IRTree> construct(ASTree* node);
 
-        std::shared_ptr<IRTree> variable(std::shared_ptr<ASTree> node);
+        std::unique_ptr<IRTree> variable(ASTree* node);
 
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         // statements
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
-        std::shared_ptr<IRTree> statement(std::shared_ptr<ASTree> node);
+        std::unique_ptr<IRTree> statement(ASTree* node);
 
-        std::shared_ptr<IRTree> ifStatement(std::shared_ptr<ASTree> node);
+        std::unique_ptr<IRTree> ifStatement(ASTree* node);
 
-        std::shared_ptr<IRTree> compoundStatement(std::shared_ptr<ASTree> node);
+        std::unique_ptr<IRTree> compoundStatement(ASTree* node);
 
-        std::shared_ptr<IRTree> assignmentStatement(std::shared_ptr<ASTree> node);
+        std::unique_ptr<IRTree> assignmentStatement(ASTree* node);
 
-        std::shared_ptr<IRTree> returnStatement(std::shared_ptr<ASTree> node);
+        std::unique_ptr<IRTree> returnStatement(ASTree* node);
         
-        std::shared_ptr<IRTree> whileStatement(std::shared_ptr<ASTree> node);
+        std::unique_ptr<IRTree> whileStatement(ASTree* node);
 
-        std::shared_ptr<IRTree> forStatement(std::shared_ptr<ASTree> node);
+        std::unique_ptr<IRTree> forStatement(ASTree* node);
 
-        std::shared_ptr<IRTree> doWhileStatement(std::shared_ptr<ASTree> node);
+        std::unique_ptr<IRTree> doWhileStatement(ASTree* node);
 
-        std::shared_ptr<IRTree> switchStatement(std::shared_ptr<ASTree> node);
+        std::unique_ptr<IRTree> switchStatement(ASTree* node);
 
-        std::shared_ptr<IRTree> _case(std::shared_ptr<ASTree> node);
+        std::unique_ptr<IRTree> _case(ASTree* node);
 
-        std::shared_ptr<IRTree> _default(std::shared_ptr<ASTree> node);
+        std::unique_ptr<IRTree> _default(ASTree* node);
 
-        std::shared_ptr<IRTree> _break();
+        std::unique_ptr<IRTree> _break();
 
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         // expressions
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
-        std::shared_ptr<IRTree> numericalExpression(std::shared_ptr<ASTree> node);
+        std::unique_ptr<IRTree> numericalExpression(ASTree* node);
 
         template<typename T>
-        std::shared_ptr<IRTree> mergeLiterals(std::shared_ptr<IRTree> lchild, std::shared_ptr<IRTree> rchild, std::shared_ptr<ASTree> node);
+        std::unique_ptr<IRTree> mergeLiterals(std::unique_ptr<IRTree>&& lchild, std::unique_ptr<IRTree>&& rchild, ASTree* node);
 
         template<typename T>
-        T mergeValues(T l, T r, std::shared_ptr<ASTree> node);
+        T mergeValues(T l, T r, ASTree* node);
 
-        std::shared_ptr<IRTree> relationalExpression(std::shared_ptr<ASTree> node);
+        std::unique_ptr<IRTree> relationalExpression(ASTree* node);
 
-        std::shared_ptr<IRTree> id(std::shared_ptr<ASTree> node);
+        std::unique_ptr<IRTree> id(ASTree* node);
 
-        std::shared_ptr<IRTree> literal(std::shared_ptr<ASTree> node);
+        std::unique_ptr<IRTree> literal(ASTree* node);
 
-        std::shared_ptr<IRTree> functionCall(std::shared_ptr<ASTree> node);
+        std::unique_ptr<IRTree> functionCall(ASTree* node);
     
-        std::shared_ptr<IRTree> argument(std::shared_ptr<ASTree> node);
+        std::unique_ptr<IRTree> argument(ASTree* node);
 
 };
 

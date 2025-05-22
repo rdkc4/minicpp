@@ -1,7 +1,7 @@
 #include "asm_generator.hpp"
 #include <format>
 
-AsmGenerator::AsmGenerator(std::string& output) : output(output){}
+AsmGenerator::AsmGenerator(std::string& output) : output{output} {}
 
 AsmGenerator::~AsmGenerator(){
     if(output.is_open()){

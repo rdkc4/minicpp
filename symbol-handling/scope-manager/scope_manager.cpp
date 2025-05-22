@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-ScopeManager::ScopeManager(SymbolTable& symTab) : symbolTable(symTab){}
+ScopeManager::ScopeManager(SymbolTable& symTab) : symbolTable{symTab} {}
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // ENTERED NEW SCOPE
@@ -27,9 +27,9 @@ void ScopeManager::popScope(){
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // INSERT SYMBOL FOR CURRENT SCOPE
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-bool ScopeManager::pushSymbol(std::shared_ptr<Symbol> symbol){
-    if(symbolTable.insertSymbol(symbol->getName(), symbol)){
-        scope.top().push(symbol->getName());
+bool ScopeManager::pushSymbol(const Symbol symbol){
+    if(symbolTable.insertSymbol(symbol.getName(), symbol)){
+        scope.top().push(symbol.getName());
         return true;
     }
     return false;
@@ -38,7 +38,7 @@ bool ScopeManager::pushSymbol(std::shared_ptr<Symbol> symbol){
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // ACCESS SYMBOL TABLE
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-SymbolTable ScopeManager::getSymbolTable(){
+SymbolTable& ScopeManager::getSymbolTable(){
     return symbolTable;
 }
 

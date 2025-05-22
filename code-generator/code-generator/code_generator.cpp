@@ -5,7 +5,7 @@
 
 #include "../defs/code_generator_defs.hpp"
 
-CodeGenerator::CodeGenerator(std::string& output) : _asm(output), labelNum(0), gpFreeRegPos(0){}
+CodeGenerator::CodeGenerator(std::string& output) : _asm{output}, labelNum{0}, gpFreeRegPos{0} {}
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // allocating general-purpose register r(8-15)
@@ -36,7 +36,7 @@ size_t CodeGenerator::getNextLabelNum(){
 // > ./something
 // > echo $? <- check return value
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-void CodeGenerator::generateCode(std::shared_ptr<IRTree> root){
+void CodeGenerator::generateCode(IRTree* root){
     if(!_asm.isOpen()){
         throw std::runtime_error("File failed to generate");
     }
@@ -46,14 +46,14 @@ void CodeGenerator::generateCode(std::shared_ptr<IRTree> root){
 
     for(const auto& child : root->getChildren()){
         variableNum = 1;
-        generateFunction(child);
+        generateFunction(child.get());
     }
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // HANDLING STACK - obtaining variables, parameters, generating statements
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-void CodeGenerator::generateFunction(std::shared_ptr<IRTree> node){
+void CodeGenerator::generateFunction(IRTree* node){
     activeFunction = node->getName();
     _asm.genNewLine();
     _asm.genLabel(activeFunction);
@@ -98,7 +98,7 @@ void CodeGenerator::generateFunction(std::shared_ptr<IRTree> node){
 // INSERTING PARAMETERS
 // -> maybe switch to 32bit registers instead of 64 (TODO?)
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-void CodeGenerator::generateParameter(std::shared_ptr<IRTree> node){
+void CodeGenerator::generateParameter(IRTree* node){
     size_t i = 2;
     for(const auto& parameter : node->getChildren()){
         // mapping parameter to address relative to %rbp (+n(%rbp))
@@ -110,7 +110,7 @@ void CodeGenerator::generateParameter(std::shared_ptr<IRTree> node){
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // generating variable / statement
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-void CodeGenerator::generateConstruct(std::shared_ptr<IRTree> node){
+void CodeGenerator::generateConstruct(IRTree* node){
     if(node->getNodeType() == IRNodeType::VARIABLE){
         generateVariable(node);
     }
@@ -122,7 +122,7 @@ void CodeGenerator::generateConstruct(std::shared_ptr<IRTree> node){
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // INSERTING LOCAL VARIABLES - assigning default values (0) or given values (n)
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-void CodeGenerator::generateVariable(std::shared_ptr<IRTree> node){
+void CodeGenerator::generateVariable(IRTree* node){
     // mapping local variable to address relative to %rbp (-n(%rbp))
     // if not successful it means that variable with the given name existed but went out of scope, so it overwrites it with new memory location
     auto [varPtr, success] = variableMap.insert({node->getName(), std::format("-{}(%rbp)", variableNum*8)});
@@ -145,7 +145,7 @@ void CodeGenerator::generateVariable(std::shared_ptr<IRTree> node){
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // STATEMENT TYPES 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-void CodeGenerator::generateStatement(std::shared_ptr<IRTree> node){
+void CodeGenerator::generateStatement(IRTree* node){
     switch(node->getNodeType()){
         case IRNodeType::IF:
             generateIfStatement(node);
@@ -180,7 +180,7 @@ void CodeGenerator::generateStatement(std::shared_ptr<IRTree> node){
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // IF STATEMENT - cmp relexp, opposite jmp to else/end, if constructs, else construct
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-void CodeGenerator::generateIfStatement(std::shared_ptr<IRTree> node){
+void CodeGenerator::generateIfStatement(IRTree* node){
     size_t labNum = getNextLabelNum();
     size_t size = node->getChildren().size();
 
@@ -233,7 +233,7 @@ void CodeGenerator::generateIfStatement(std::shared_ptr<IRTree> node){
 
     if(size % 2 == 1){
         _asm.genLabel(std::format("else{}", labNum));
-        generateConstruct(node->getChildren().back());
+        generateConstruct(node->getChildren().back().get());
     }
     _asm.genLabel(std::format("if{}_end", labNum));
 
@@ -242,7 +242,7 @@ void CodeGenerator::generateIfStatement(std::shared_ptr<IRTree> node){
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // WHILE STATEMENT - cmp relexp, opposite jump to end, while constructs
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-void CodeGenerator::generateWhileStatement(std::shared_ptr<IRTree> node){
+void CodeGenerator::generateWhileStatement(IRTree* node){
     size_t labNum = getNextLabelNum();
 
     _asm.genLabel(std::format("while{}", labNum));
@@ -261,7 +261,7 @@ void CodeGenerator::generateWhileStatement(std::shared_ptr<IRTree> node){
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // FOR STATEMENT - assign(init) statement (before loop), cmp relexp, opposite jmp, constructs, assign(inc) statement
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-void CodeGenerator::generateForStatement(std::shared_ptr<IRTree> node){
+void CodeGenerator::generateForStatement(IRTree* node){
     size_t labNum = getNextLabelNum();
 
     generateAssignmentStatement(node->getChild(0));
@@ -284,7 +284,7 @@ void CodeGenerator::generateForStatement(std::shared_ptr<IRTree> node){
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // DO_WHILE STATEMENT - constructs, relexp regular jmp
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-void CodeGenerator::generateDoWhileStatement(std::shared_ptr<IRTree> node){
+void CodeGenerator::generateDoWhileStatement(IRTree* node){
     size_t labNum = getNextLabelNum();
 
     _asm.genLabel(std::format("do_while{}", labNum));
@@ -298,16 +298,16 @@ void CodeGenerator::generateDoWhileStatement(std::shared_ptr<IRTree> node){
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // COMPOUND STATEMENT - constructs
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-void CodeGenerator::generateCompoundStatement(std::shared_ptr<IRTree> node){
+void CodeGenerator::generateCompoundStatement(IRTree* node){
     for(const auto& child : node->getChildren()){
-        generateConstruct(child);
+        generateConstruct(child.get());
     }
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // ASSIGNMENT STATEMENT - numexp (calculate rvalue first), assign to destination variable
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-void CodeGenerator::generateAssignmentStatement(std::shared_ptr<IRTree> node){
+void CodeGenerator::generateAssignmentStatement(IRTree* node){
     generateNumericalExpression(node->getChild(1));
     freeGpReg();
     _asm.genMov(gpRegisters.at(gpFreeRegPos), generateID(node->getChild(0)), "q");
@@ -316,7 +316,7 @@ void CodeGenerator::generateAssignmentStatement(std::shared_ptr<IRTree> node){
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // RETURN STATEMENT - store numexp result at register %rax
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-void CodeGenerator::generateReturnStatement(std::shared_ptr<IRTree> node){
+void CodeGenerator::generateReturnStatement(IRTree* node){
     if(node->getChildren().size() != 0){
         generateNumericalExpression(node->getChild(0));
         freeGpReg();
@@ -330,7 +330,7 @@ void CodeGenerator::generateReturnStatement(std::shared_ptr<IRTree> node){
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // SWITCH STATEMENT - generate cases, cmp each case, opposite jmp to next case/default/end
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-void CodeGenerator::generateSwitchStatement(std::shared_ptr<IRTree> node){
+void CodeGenerator::generateSwitchStatement(IRTree* node){
     size_t labNum = getNextLabelNum();
 
     _asm.genLabel(std::format("switch{}", labNum));
@@ -341,7 +341,7 @@ void CodeGenerator::generateSwitchStatement(std::shared_ptr<IRTree> node){
     bool hasDefault = node->getChildren().back()->getNodeType() == IRNodeType::DEFAULT;
     
     for(; i < size; i++){
-        std::shared_ptr<IRTree> child = node->getChild(i);
+        IRTree* child = node->getChild(i);
         if(child->getNodeType() == IRNodeType::CASE){
             _asm.genLabel(std::format("switch{}_case{}", labNum, i-1));
             _asm.genMov(variableMap.at(var), "%rcx", "q");
@@ -380,7 +380,7 @@ void CodeGenerator::generateSwitchStatement(std::shared_ptr<IRTree> node){
 // -> maybe use queue instead of a tree for numexp, easier generation, better reg usage (TODO?)
 // -> needs rework
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-void CodeGenerator::generateNumericalExpression(std::shared_ptr<IRTree> node){
+void CodeGenerator::generateNumericalExpression(IRTree* node){
     if(node->getNodeType() == IRNodeType::ID){
         if(gpFreeRegPos < gpRegisters.size()){
             _asm.genMov(generateID(node), gpRegisters.at(gpFreeRegPos), "q");
@@ -465,7 +465,7 @@ void CodeGenerator::generateNumericalExpression(std::shared_ptr<IRTree> node){
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // RELATIONAL EXPRESSION - generate cmp
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-void CodeGenerator::generateRelationalExpression(std::shared_ptr<IRTree> node){
+void CodeGenerator::generateRelationalExpression(IRTree* node){
     generateNumericalExpression(node->getChild(0));
     generateNumericalExpression(node->getChild(1));
     
@@ -479,14 +479,14 @@ void CodeGenerator::generateRelationalExpression(std::shared_ptr<IRTree> node){
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // ID - retrieve address from variableMap
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-std::string CodeGenerator::generateID(std::shared_ptr<IRTree> node){
+std::string CodeGenerator::generateID(IRTree* node){
     return variableMap.at(node->getName());
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // LITERAL - generate $literal
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-std::string CodeGenerator::generateLiteral(std::shared_ptr<IRTree> node){
+std::string CodeGenerator::generateLiteral(IRTree* node){
     std::string val = node->getValue();
     if(node->getType() == Types::UNSIGNED){
         val.pop_back();
@@ -497,7 +497,7 @@ std::string CodeGenerator::generateLiteral(std::shared_ptr<IRTree> node){
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // FUNCTION CALL - push arguments to stack, call function, pop arguments
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-void CodeGenerator::generateFunctionCall(std::shared_ptr<IRTree> node){
+void CodeGenerator::generateFunctionCall(IRTree* node){
     
     generateArgument(node->getChild(0));
 
@@ -509,7 +509,7 @@ void CodeGenerator::generateFunctionCall(std::shared_ptr<IRTree> node){
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // ARGUMENT GENERATE - pushing arguments (numexp) 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-void CodeGenerator::generateArgument(std::shared_ptr<IRTree> node){
+void CodeGenerator::generateArgument(IRTree* node){
     // pushing arguments onto stack
     for(int i = (int)node->getChildren().size()-1; i >= 0; i--){
         generateNumericalExpression(node->getChild(i));
@@ -523,7 +523,7 @@ void CodeGenerator::generateArgument(std::shared_ptr<IRTree> node){
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // ARGUMENT CLEAR - popping arguments
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-void CodeGenerator::clearArguments(std::shared_ptr<IRTree> node){
+void CodeGenerator::clearArguments(IRTree* node){
     // popping arguments of the stack
     for(size_t i = 0; i < node->getChildren().size(); i++){
         _asm.genPop("%rbx");

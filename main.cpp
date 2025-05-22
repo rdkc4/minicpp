@@ -14,7 +14,7 @@
 
 bool compile(std::string input){
 
-    Lexer lexer(input);
+    Lexer lexer{ input };
     try{
         lexer.tokenize();
         std::cout << "\nLexical check: successful!\n";
@@ -25,17 +25,17 @@ bool compile(std::string input){
     }
 
     try {
-        Parser parser(lexer);
-        std::shared_ptr<ASTree> astRoot = parser.parseProgram();
+        Parser parser{ lexer };
+        std::unique_ptr<ASTree> astRoot = parser.parseProgram();
         std::cout << "\nSyntax check: successful!\n";
         astRoot->traverse(1); //display AST
 
         try{
-            SymbolTable symbolTable;
-            ScopeManager scopeManager(symbolTable);
-            Analyzer analyzer(scopeManager);
+            SymbolTable symbolTable {};
+            ScopeManager scopeManager{ symbolTable };
+            Analyzer analyzer{ scopeManager };
 
-            analyzer.semanticCheck(astRoot);
+            analyzer.semanticCheck(astRoot.get());
             std::cout << "\nSemantic check: successful!\n";
 
         } catch(const std::exception& e){
@@ -44,15 +44,15 @@ bool compile(std::string input){
         }
 
         try{
-            IntermediateRepresentation intermediateRepresentation;
-            std::shared_ptr<IRTree> irRoot = intermediateRepresentation.formIR(astRoot);
+            IntermediateRepresentation intermediateRepresentation {};
+            std::unique_ptr<IRTree> irRoot = intermediateRepresentation.formIR(astRoot.get());
             std::cout << "\nForming Intermediate Representation: successful!\n";
             irRoot->traverse(1); //display IRT
 
             try{
-                std::string output = "output.s";
-                CodeGenerator codeGenerator(output);
-                codeGenerator.generateCode(irRoot);
+                std::string output { "output.s" };
+                CodeGenerator codeGenerator{ output };
+                codeGenerator.generateCode(irRoot.get());
                 std::cout << "\nCode Generation: successful!\n";
 
             } catch(const std::exception& e){
@@ -74,14 +74,14 @@ bool compile(std::string input){
 
 int main(){
 
-    std::string input = "";
-    std::string line;
+    std::string input { "" };
+    std::string line {};
 
     while (std::getline(std::cin, line)) {
         input += line + "\n";
     }
 
-    bool ret = compile(input);
+    bool ret { compile(input) };
     
     if(ret){
         std::cout << "\nProgram successfully compiled!\n";
