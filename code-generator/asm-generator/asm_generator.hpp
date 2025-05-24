@@ -25,27 +25,27 @@ class AsmGenerator{
         // asm instructions
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
 
-        void genMov(std::string l, std::string r, std::string ext = "");
+        void genMov(std::string_view l, std::string_view r, std::string_view ext = "");
 
-        void genCmp(std::string l, std::string r);
+        void genCmp(std::string_view l, std::string_view r);
 
-        void genOperation(std::string op, std::string l, std::string r = "");
+        void genOperation(std::string_view op, std::string_view l, std::string_view r = "");
 
-        void genLabel(std::string label);
+        void genLabel(std::string_view label);
 
         void genRet();
 
-        void genJmp(std::string jmp, std::string label);
+        void genJmp(std::string_view jmp, std::string_view label);
 
-        void genCall(std::string func);
+        void genCall(std::string_view func);
 
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         // stack instructions
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
 
-        void genPush(std::string r);
+        void genPush(std::string_view r);
 
-        void genPop(std::string r);
+        void genPop(std::string_view r);
 
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         // generate function prologue

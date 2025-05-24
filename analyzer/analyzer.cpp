@@ -20,7 +20,7 @@ void Analyzer::semanticCheck(ASTree* root){
     }
 
     // main function existence check
-    if(!scopeManager.getSymbolTable().lookupSymbol("main", {Kinds::FUN})){
+    if(!scopeManager.lookupSymbol("main", {Kinds::FUN})){
         throw std::runtime_error("'main' function not found");
     }
 
@@ -31,7 +31,7 @@ void Analyzer::semanticCheck(ASTree* root){
 // FUNCTION: type validation, parameter validation, body validation, return validation
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 void Analyzer::checkFunction(ASTree* node){
-    Types returnType = node->getType().value();
+    Types returnType = node->getType();
 
     // function type check
     if(returnType == Types::NO_TYPE){
@@ -73,7 +73,7 @@ void Analyzer::checkFunction(ASTree* node){
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 void Analyzer::checkParameter(ASTree* node){
     // pointer to parameters for easier function call type checking
-    scopeManager.getSymbolTable().getSymbol(activeFunction).setParameters(node);
+    scopeManager.getSymbol(activeFunction).setParameters(node);
     
     // parameter check for main
     if(activeFunction == "main" && node->getChildren().size() > 0){
@@ -83,7 +83,7 @@ void Analyzer::checkParameter(ASTree* node){
 
     for(const auto& child : node->getChildren()){
         // parameter type check
-        Types type = child->getType().value();
+        Types type = child->getType();
         if(type == Types::VOID || type == Types::NO_TYPE){
             throw std::runtime_error(std::format("Line {}, Column {}: SEMANTIC ERROR -> invalid type '{} {}'", 
                 child->getToken().line, child->getToken().column, typeToString.at(type), child->getToken().value));
@@ -94,7 +94,7 @@ void Analyzer::checkParameter(ASTree* node){
         }
 
         // parameter redefinition check
-        if(!scopeManager.pushSymbol(Symbol{child->getToken().value, Kinds::PAR, child->getType().value()})){
+        if(!scopeManager.pushSymbol(Symbol{child->getToken().value, Kinds::PAR, child->getType()})){
             throw std::runtime_error(std::format("Line {}, Column {}: SEMANTIC ERROR -> variable redefined '{}'", 
                 child->getToken().line, child->getToken().column, child->getToken().value));
         }
@@ -127,7 +127,7 @@ void Analyzer::checkConstruct(ASTree* node){
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 void Analyzer::checkVariable(ASTree* node){
     // variable type check
-    Types type = node->getType().value();
+    Types type = node->getType();
     if(type == Types::VOID || type == Types::NO_TYPE){
         throw std::runtime_error(std::format("Line {}, Column {}: SEMANTIC ERROR -> invalid type '{} {}'", 
             node->getToken().line, node->getToken().column, typeToString.at(type), node->getToken().value));
@@ -254,10 +254,10 @@ void Analyzer::checkSwitchStatement(ASTree* node){
     checkID(node->getChild(0));
 
     // case check
-    if(node->getChild(0)->getType().value() == Types::INT){
+    if(node->getChild(0)->getType() == Types::INT){
         checkSwitchStatementCases<int>(node);
     }
-    else if(node->getChild(0)->getType().value() == Types::UNSIGNED){
+    else if(node->getChild(0)->getType() == Types::UNSIGNED){
         checkSwitchStatementCases<unsigned>(node);
     }
     else{
@@ -285,8 +285,8 @@ void Analyzer::checkSwitchStatementCases(ASTree* node){
 
             T val;
             // case type check
-            Types type = child->getChild(0)->getType().value();
-            if(child->getChild(0)->getType().value() != expectedType){
+            Types type = child->getChild(0)->getType();
+            if(child->getChild(0)->getType() != expectedType){
                 throw std::runtime_error(std::format("Line {}, Column {}: SEMANTIC ERROR -> invalid case - type mismatch: expected '{}', got '{}'", 
                     child->getToken().line, child->getToken().column, typeToString.at(expectedType), typeToString.at(type)));
             }
@@ -334,10 +334,10 @@ void Analyzer::checkAssignmentStatement(ASTree* node){
     ASTree* rchild = node->getChild(1);
     
     checkNumericalExpression(rchild);
-    Types rtype = rchild->getType().value();
+    Types rtype = rchild->getType();
     
     checkID(lchild);
-    Types ltype = scopeManager.getSymbolTable().getSymbol(lchild->getToken().value).getType();
+    Types ltype = scopeManager.getSymbol(lchild->getToken().value).getType();
     
     // assignment type check
     if(rtype != ltype && ltype != Types::AUTO){
@@ -346,7 +346,7 @@ void Analyzer::checkAssignmentStatement(ASTree* node){
     }
 
     if(ltype == Types::AUTO){
-        scopeManager.getSymbolTable().getSymbol(lchild->getToken().value).setType(rtype);
+        scopeManager.getSymbol(lchild->getToken().value).setType(rtype);
     }
 }
 
@@ -363,7 +363,7 @@ void Analyzer::checkReturnStatement(ASTree* node){
     }
 
     // return type check
-    Types returnType = scopeManager.getSymbolTable().getSymbol(activeFunction).getType();
+    Types returnType = scopeManager.getSymbol(activeFunction).getType();
     if(returnType != type){
         throw std::runtime_error(std::format("Line {}, Column {}: SEMANTIC ERROR -> invalid return statement - type mismatch: '{} {}' returns '{}'", 
             node->getToken().line, node->getToken().column, typeToString.at(returnType), activeFunction, typeToString.at(type)));
@@ -384,15 +384,15 @@ void Analyzer::checkNumericalExpression(ASTree* node){
 Types Analyzer::getNumericalExpressionType(ASTree* node){
     if(node->getNodeType() == ASTNodeType::ID){
         checkID(node);
-        return node->getType().value();
+        return node->getType();
     }
     else if(node->getNodeType() == ASTNodeType::LITERAL){
         checkLiteral(node);
-        return node->getType().value();
+        return node->getType();
     }
     else if(node->getNodeType() == ASTNodeType::FUNCTION_CALL){
         checkFunctionCall(node);
-        return node->getType().value();
+        return node->getType();
     }
     if(node->getChildren().size() == 1){
         return getNumericalExpressionType(node->getChild(0));
@@ -420,9 +420,9 @@ void Analyzer::checkRelationalExpression(ASTree* node){
     ASTree* rchild = node->getChild(1);
 
     checkNumericalExpression(lchild);
-    Types ltype = lchild->getType().value();
+    Types ltype = lchild->getType();
     checkNumericalExpression(rchild);
-    Types rtype = rchild->getType().value();
+    Types rtype = rchild->getType();
     
     // relational expression type check
     if(ltype != rtype){
@@ -436,11 +436,11 @@ void Analyzer::checkRelationalExpression(ASTree* node){
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 void Analyzer::checkID(ASTree* node){
     std::string name = node->getToken().value;
-    if(!scopeManager.getSymbolTable().lookupSymbol(name, {Kinds::VAR, Kinds::PAR})){
+    if(!scopeManager.lookupSymbol(name, {Kinds::VAR, Kinds::PAR})){
         throw std::runtime_error(std::format("Line {}, Column {}: SEMANTIC ERROR -> undefined variable '{}'", 
             node->getToken().line, node->getToken().column, name));
     }
-    node->setType(scopeManager.getSymbolTable().getSymbol(name).getType());
+    node->setType(scopeManager.getSymbol(name).getType());
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -449,7 +449,7 @@ void Analyzer::checkID(ASTree* node){
 void Analyzer::checkLiteral(ASTree* node){
     std::string name = node->getToken().value;
     // invalid literal check
-    if((node->getType().value() == Types::UNSIGNED && (name.back() != 'u' || name.front() == '-')) || (node->getType().value() == Types::INT && name.back() == 'u')){
+    if((node->getType() == Types::UNSIGNED && (name.back() != 'u' || name.front() == '-')) || (node->getType() == Types::INT && name.back() == 'u')){
         throw std::runtime_error(std::format("Line {}, Column {}: SEMANTIC ERROR -> invalid literal '{}'", 
             node->getToken().line, node->getToken().column, name));
     }
@@ -461,7 +461,7 @@ void Analyzer::checkLiteral(ASTree* node){
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 void Analyzer::checkFunctionCall(ASTree* node){
     // function existence
-    if(!scopeManager.getSymbolTable().lookupSymbol(node->getToken().value, {Kinds::FUN})){
+    if(!scopeManager.lookupSymbol(node->getToken().value, {Kinds::FUN})){
         throw std::runtime_error(std::format("Line {}, Column {}: SEMANTIC ERROR -> undefined function '{}'", 
             node->getToken().line, node->getToken().column, node->getToken().value));
     }
@@ -473,12 +473,12 @@ void Analyzer::checkFunctionCall(ASTree* node){
     }
 
     // comparation of given parameter count with expected parameter count
-    size_t expectedParams = scopeManager.getSymbolTable().getSymbol(node->getToken().value).getParameters()->getChildren().size();
+    size_t expectedParams = scopeManager.getSymbol(node->getToken().value).getParameters()->getChildren().size();
     if(node->getChild(0)->getChildren().size() != expectedParams){
         throw std::runtime_error(std::format("Line {}, Column {}: SEMANTIC ERROR -> invalid function call '{}': provided parameters '{}', expected '{}'", 
             node->getToken().line, node->getToken().column, node->getToken().value, node->getChild(0)->getChildren().size(), expectedParams));
     }
-    node->setType(scopeManager.getSymbolTable().getSymbol(node->getToken().value).getType());
+    node->setType(scopeManager.getSymbol(node->getToken().value).getType());
     checkArgument(node);
 }
 
@@ -486,7 +486,7 @@ void Analyzer::checkFunctionCall(ASTree* node){
 // ARGUMENT CHECK - type comparison between called function and function call
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 void Analyzer::checkArgument(ASTree* node){
-    ASTree* functionParameters = scopeManager.getSymbolTable().getSymbol(node->getToken().value).getParameters();
+    ASTree* functionParameters = scopeManager.getSymbol(node->getToken().value).getParameters();
     ASTree* arguments = node->getChild(0);
 
     size_t i = 0;
@@ -494,8 +494,8 @@ void Analyzer::checkArgument(ASTree* node){
         checkNumericalExpression(child.get());
 
         // type check of corresponding parameters in function and function call
-        Types ltype = child->getType().value();
-        Types rtype = functionParameters->getChild(i)->getType().value();
+        Types ltype = child->getType();
+        Types rtype = functionParameters->getChild(i)->getType();
         if(ltype != rtype){
             throw std::runtime_error(std::format("Line {}, Column {}: SEMANTIC ERROR -> invalid argument - type mismatch: expected '{}', got '{} {}'",
                 child->getToken().line, child->getToken().column, typeToString.at(rtype), typeToString.at(ltype), child->getToken().value));

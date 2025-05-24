@@ -21,7 +21,7 @@ std::unique_ptr<IRTree> IntermediateRepresentation::formIR(ASTree* astRoot){
 // FUNCTION NODE - parameters, constructs  
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::unique_ptr<IRTree> IntermediateRepresentation::function(ASTree* node){
-    std::unique_ptr<IRTree> iChild = std::make_unique<IRTree>(IRNodeType::FUNCTION, node->getToken().value, "", node->getType().value());
+    std::unique_ptr<IRTree> iChild = std::make_unique<IRTree>(IRNodeType::FUNCTION, node->getToken().value, "", node->getType());
     
     variableCount = 0;
 
@@ -44,7 +44,7 @@ std::unique_ptr<IRTree> IntermediateRepresentation::function(ASTree* node){
 std::unique_ptr<IRTree> IntermediateRepresentation::parameter(ASTree* node){
     std::unique_ptr<IRTree> iChild = std::make_unique<IRTree>(IRNodeType::PARAMETER);
     for(const auto& child : node->getChildren()){
-        iChild->pushChild(std::make_unique<IRTree>(IRNodeType::ID, std::string(child->getToken().value), "0", child->getType().value()));
+        iChild->pushChild(std::make_unique<IRTree>(IRNodeType::ID, std::string(child->getToken().value), "0", child->getType()));
     }
     return iChild;
 }
@@ -65,7 +65,7 @@ std::unique_ptr<IRTree> IntermediateRepresentation::construct(ASTree* node){
 // VARIABLE NODES - default values 0
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::unique_ptr<IRTree> IntermediateRepresentation::variable(ASTree* node){
-    std::unique_ptr<IRTree> variable = std::make_unique<IRTree>(IRNodeType::VARIABLE, std::string(node->getToken().value), "0", node->getType().value());
+    std::unique_ptr<IRTree> variable = std::make_unique<IRTree>(IRNodeType::VARIABLE, std::string(node->getToken().value), "0", node->getType());
     if(node->getChildren().size() != 0){
         variable->pushChild(assignmentStatement(node->getChild(0)));
     }
@@ -255,16 +255,16 @@ std::unique_ptr<IRTree> IntermediateRepresentation::numericalExpression(ASTree* 
         std::unique_ptr<IRTree> rchild = numericalExpression(node->getChild(1));
 
         if(lchild->getNodeType() == rchild->getNodeType() && lchild->getNodeType() == IRNodeType::LITERAL){
-            if(lchild->getType().value() == Types::INT){
+            if(lchild->getType() == Types::INT){
                 return mergeLiterals<int>(std::move(lchild), std::move(rchild), node);
             }
-            else if(lchild->getType().value() == Types::UNSIGNED){
+            else if(lchild->getType() == Types::UNSIGNED){
                 return mergeLiterals<unsigned>(std::move(lchild), std::move(rchild), node);
             }
         }
         
         std::string val = node->getToken().value;
-        Types type = lchild->getType().value();
+        Types type = lchild->getType();
         IRNodeType iNodeType = arithmeticOperators.find(val) != arithmeticOperators.end() ? stringToArop.at(val) : stringToBitop.at(val)[type == Types::UNSIGNED];
         std::unique_ptr<IRTree> iChild = std::make_unique<IRTree>(iNodeType);
         
@@ -339,21 +339,21 @@ std::unique_ptr<IRTree> IntermediateRepresentation::relationalExpression(ASTree*
 // ID NODE - default val 0
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::unique_ptr<IRTree> IntermediateRepresentation::id(ASTree* node){
-    return std::make_unique<IRTree>(IRNodeType::ID, node->getToken().value, "0", node->getType().value());
+    return std::make_unique<IRTree>(IRNodeType::ID, node->getToken().value, "0", node->getType());
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // LITERAL NODE - already has value
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::unique_ptr<IRTree> IntermediateRepresentation::literal(ASTree* node){
-    return std::make_unique<IRTree>(IRNodeType::LITERAL, "", node->getToken().value, node->getType().value());
+    return std::make_unique<IRTree>(IRNodeType::LITERAL, "", node->getToken().value, node->getType());
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // FUNCTION CALL - argument node
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::unique_ptr<IRTree> IntermediateRepresentation::functionCall(ASTree* node){
-    std::unique_ptr<IRTree> iChild = std::make_unique<IRTree>(IRNodeType::CALL, node->getToken().value, "", node->getType().value());
+    std::unique_ptr<IRTree> iChild = std::make_unique<IRTree>(IRNodeType::CALL, node->getToken().value, "", node->getType());
     iChild->pushChild(argument(node));
     return iChild;
 }

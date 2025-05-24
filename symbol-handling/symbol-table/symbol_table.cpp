@@ -5,7 +5,7 @@
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // CHECK IF SYMBOL EXISTS
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-bool SymbolTable::lookupSymbol(const std::string& name, std::vector<Kinds> kind){
+bool SymbolTable::lookupSymbol(const std::string& name, std::vector<Kinds> kind) const {
     auto it = symbolTable.find(name);
     if(it != symbolTable.end()){
         for(const auto& _kind : kind){
@@ -49,7 +49,7 @@ void SymbolTable::clearSymbols(){
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // PRINT SYMBOL TABLE (debbuging purposes)
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-void SymbolTable::printSymbolTable(){
+void SymbolTable::printSymbolTable() const {
     for(auto it = symbolTable.begin(); it != symbolTable.end(); it++){
         std::cout << it->second.symbolToString();
     }

@@ -428,34 +428,6 @@ std::unique_ptr<ASTree> Parser::numericalExpression(){
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-// determining the importance of the operator
-// -> expand for more operators (todo)
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-int Parser::getPrecedence(const std::string& op){
-    if(op == "|"){
-        return 1;
-    }
-    else if(op == "^"){
-        return 2;
-    }
-    else if(op == "&"){
-        return 3;
-    }
-    else if(op == "<<" || op == ">>"){
-        return 4;
-    }
-    else if(op == "-" || op == "+"){
-        return 5;
-    }
-    else if (op == "*" || op == "/"){
-        return 6;
-    }
-    else{
-        return 0;
-    }
-}
-
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 // recursive top-down tree building from rpn based stack
 // if child is not numerical expression - leaf
 // if parent has two children - subtree is handled

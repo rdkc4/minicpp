@@ -3,11 +3,12 @@
 #include <iostream>
 #include <stdexcept>
 #include <format>
+#include <string_view>
 
 #include "../common/defs/defs.hpp"
 #include "defs/lexer_defs.hpp"
 
-Lexer::Lexer(const std::string& input) : input{input}, position{0}, lineNumber{1}, prevLineLen{0}, nextTokenIdx{0}{}
+Lexer::Lexer(std::string_view input) : input{input}, position{0}, lineNumber{1}, prevLineLen{0}, nextTokenIdx{0}{}
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // LEXICAL CHECK
@@ -18,7 +19,7 @@ void Lexer::tokenize(){
         char curr = input[position];
         
         if(std::isspace(curr)){
-            updatePosition(curr);
+            updatePosition();
         }
         else if(std::isalpha(curr)){
             getID();
@@ -82,16 +83,16 @@ void Lexer::tokenize(){
         }
     }
     tokens.push_back(Token(TokenType::_EOF, "", lineNumber, position - prevLineLen));
-    //printTokens(tokens);
+    //printTokens();
 }
 
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // MOVING ON TO THE NEXT TOKEN
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-Token Lexer::nextToken(){
+const Token& Lexer::nextToken() {
     if(nextTokenIdx >= tokens.size()){
-        return Token(TokenType::_EOF, "", lineNumber, position - prevLineLen);
+        return tokens.back();
     }
     return tokens[nextTokenIdx++];
 }
@@ -99,9 +100,9 @@ Token Lexer::nextToken(){
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // RETRIEVAL OF NEXT TOKEN
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-Token Lexer::peekAtNext(){
+const Token& Lexer::peekAtNext() const {
     if(nextTokenIdx >= tokens.size()){
-        return Token(TokenType::_EOF, "", lineNumber, position - prevLineLen);
+        return tokens.back();
     }
     return tokens[nextTokenIdx];
 }
@@ -109,25 +110,17 @@ Token Lexer::peekAtNext(){
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // DISPLAYING ALL TOKENS (debbuging purpose)
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-void Lexer::printTokens(const std::vector<Token>& tokens) const{
+void Lexer::printTokens() const {
     for(const auto& token: tokens){
-        std::cout << std::format("Token: type - {}", tokenTypeToString.at(token.type));
-        if(token.type != TokenType::_EOF && token.type != TokenType::_INVALID){
-            std::cout << std::format("\t| value - {}", token.value);
-        }
-        std::cout << "\n";
+        std::cout << std::format("Token: type - {}\t value - {}\n", tokenTypeToString.at(token.type), token.value);
     }
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // line/column update
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-void Lexer::updatePosition(char curr){
+void Lexer::updatePosition(){
     ++position;
-    if(curr == '\n'){
-        ++lineNumber;
-        prevLineLen = position;
-    }
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------

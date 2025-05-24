@@ -29,8 +29,8 @@ struct Token{
     size_t column;
 
     Token();
-    Token(std::string value, size_t line, size_t column);
-    Token(TokenType type, const std::string& value, size_t line, size_t column);
+    Token(std::string_view value, size_t line, size_t column);
+    Token(TokenType type, std::string_view value, size_t line, size_t column);
 };
 
 #endif

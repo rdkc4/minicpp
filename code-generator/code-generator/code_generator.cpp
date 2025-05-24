@@ -102,7 +102,7 @@ void CodeGenerator::generateParameter(IRTree* node){
     size_t i = 2;
     for(const auto& parameter : node->getChildren()){
         // mapping parameter to address relative to %rbp (+n(%rbp))
-        variableMap.insert({parameter->getName(), std::format("{}(%rbp)", i*8)});
+        variableMap.insert({parameter->getName(), std::format("{}(%rbp)", i * regSize)});
         ++i;
     }
 }
@@ -125,9 +125,9 @@ void CodeGenerator::generateConstruct(IRTree* node){
 void CodeGenerator::generateVariable(IRTree* node){
     // mapping local variable to address relative to %rbp (-n(%rbp))
     // if not successful it means that variable with the given name existed but went out of scope, so it overwrites it with new memory location
-    auto [varPtr, success] = variableMap.insert({node->getName(), std::format("-{}(%rbp)", variableNum*8)});
+    auto [varPtr, success] = variableMap.insert({node->getName(), std::format("-{}(%rbp)", variableNum * regSize)});
     if(!success){
-        varPtr->second = std::format("-{}(%rbp)", variableNum*8);
+        varPtr->second = std::format("-{}(%rbp)", variableNum * regSize);
     }
     ++variableNum;
 
@@ -436,7 +436,7 @@ void CodeGenerator::generateNumericalExpression(IRTree* node){
         if(nodeType == IRNodeType::MUL || nodeType == IRNodeType::DIV){ // result of MUL || DIV is in RDX:RAX
             _asm.genOperation("xor", "%rdx", "%rdx"); //add overflow check (TODO)
             _asm.genMov(rreg, "%rax", "q");
-            if(node->getType().value() == Types::INT){
+            if(node->getType() == Types::INT){
                 _asm.genOperation(std::format("i{}", irNodeToString.at(nodeType)), lreg);
             }
             else{
@@ -479,14 +479,14 @@ void CodeGenerator::generateRelationalExpression(IRTree* node){
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // ID - retrieve address from variableMap
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-std::string CodeGenerator::generateID(IRTree* node){
+const std::string CodeGenerator::generateID(IRTree* node){
     return variableMap.at(node->getName());
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // LITERAL - generate $literal
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-std::string CodeGenerator::generateLiteral(IRTree* node){
+const std::string CodeGenerator::generateLiteral(IRTree* node){
     std::string val = node->getValue();
     if(node->getType() == Types::UNSIGNED){
         val.pop_back();

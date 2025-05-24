@@ -2,21 +2,21 @@
 
 #include <format>
 
-Symbol::Symbol(const std::string& name, Kinds kind, Types type) : name{name}, kind{kind}, type{type}, parameters{nullptr} {}
+Symbol::Symbol(std::string_view name, Kinds kind, Types type) : name{name}, kind{kind}, type{type}, parameters{nullptr} {}
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // GETTERS
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 
-std::string Symbol::getName() const{
+const std::string& Symbol::getName() const{
     return name;
 }
 
-Kinds Symbol::getKind() const{
+const Kinds& Symbol::getKind() const{
     return kind;
 }
 
-Types Symbol::getType() const{
+const Types& Symbol::getType() const{
     return type;
 }
 
@@ -28,15 +28,15 @@ ASTree* Symbol::getParameters() const{
 // SETTERS
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 
-void Symbol::setName(const std::string& _name){
+void Symbol::setName(std::string_view _name){
     name = _name;
 }
 
-void Symbol::setKind(const Kinds& _kind){
+void Symbol::setKind(Kinds _kind){
     kind = _kind;
 }
 
-void Symbol::setType(const Types& _type){
+void Symbol::setType(Types _type){
     type = _type;
 }
 
@@ -47,7 +47,7 @@ void Symbol::setParameters(ASTree* par){
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // PRINT SYMBOL
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-std::string Symbol::symbolToString(){
+const std::string Symbol::symbolToString() const {
     return std::format("| {:11} | {:3} | {:8} | {:1} |\n", 
         name, kindToString.at(kind), typeToString.at(type), (parameters != nullptr ? parameters->getChildren().size() : 0));
 }

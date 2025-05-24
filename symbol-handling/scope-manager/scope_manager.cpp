@@ -38,14 +38,22 @@ bool ScopeManager::pushSymbol(const Symbol symbol){
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // ACCESS SYMBOL TABLE
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-SymbolTable& ScopeManager::getSymbolTable(){
+SymbolTable& ScopeManager::getSymbolTable() const {
     return symbolTable;
+}
+
+Symbol& ScopeManager::getSymbol(const std::string& name) const{
+    return symbolTable.getSymbol(name);
+}
+
+bool ScopeManager::lookupSymbol(const std::string& name, std::vector<Kinds> kind) const{
+    return symbolTable.lookupSymbol(name, kind);
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // PRINT SYMBOL TABLE (debbuging purposes)
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-void ScopeManager::printSymbolTable(){
+void ScopeManager::printSymbolTable() const {
     symbolTable.printSymbolTable();
     std::cout << std::string(36,'-') << "\n";
 }

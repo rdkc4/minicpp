@@ -9,28 +9,28 @@
 class Symbol{
     public:
 
-        Symbol(const std::string& name, Kinds kind = Kinds::NO_KIND, Types type = Types::NO_TYPE);
+        Symbol(std::string_view name, Kinds kind = Kinds::NO_KIND, Types type = Types::NO_TYPE);
 
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         // getters
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
-        std::string getName() const;
-        Kinds getKind() const;
-        Types getType() const;
+        const std::string& getName() const;
+        const Kinds& getKind() const;
+        const Types& getType() const;
         ASTree* getParameters() const;
 
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         // setters
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
-        void setName(const std::string& _name);
-        void setKind(const Kinds& _kind);
-        void setType(const Types& _type);
+        void setName(std::string_view _name);
+        void setKind(Kinds _kind);
+        void setType(Types _type);
         void setParameters(ASTree* par);
 
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         // display
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
-        std::string symbolToString();
+        const std::string symbolToString() const;
 
     private:
 

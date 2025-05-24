@@ -12,7 +12,7 @@ class IRTree{
     
     public:
         IRTree(IRNodeType nodeType);
-        IRTree(IRNodeType nodeType, std::string name, std::string value, Types type);
+        IRTree(IRNodeType nodeType, std::string_view name, std::string_view value, Types type);
         ~IRTree();
 
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -29,31 +29,31 @@ class IRTree{
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         // setters
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
-        void setNodeType(const IRNodeType type);
+        void setNodeType(IRNodeType type);
 
         void setName(const std::string& _name);
 
         void setValue(const std::string& val);
 
-        void setType(const Types _type);
+        void setType(Types _type);
 
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         // getters
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         IRNodeType getNodeType() const;
 
-        std::string getName() const;
+        const std::string& getName() const;
 
-        std::string getValue() const;
+        const std::string& getValue() const;
 
-        std::optional<Types> getType() const;
+        Types getType() const;
 
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         // display
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
-        std::string toString();
+        const std::string toString() const;
 
-        void traverse(size_t offset);
+        void traverse(size_t offset) const;
 
     private:
 

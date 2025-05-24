@@ -5,7 +5,7 @@
 
 IRTree::IRTree(IRNodeType nodeType) : nodeType{nodeType} {}
 
-IRTree::IRTree(IRNodeType nodeType, std::string name, std::string value, Types type) : nodeType{nodeType}, name{name}, value{value}, type{type} {}
+IRTree::IRTree(IRNodeType nodeType, std::string_view name, std::string_view value, Types type) : nodeType{nodeType}, name{name}, value{value}, type{type} {}
 
 IRTree::~IRTree() = default;
 
@@ -65,22 +65,22 @@ IRNodeType IRTree::getNodeType() const{
     return nodeType;
 }
 
-std::string IRTree::getName() const{
+const std::string& IRTree::getName() const{
     return name;
 }
 
-std::string IRTree::getValue() const{
+const std::string& IRTree::getValue() const{
     return value;
 }
 
-std::optional<Types> IRTree::getType() const{
-    return type;
+Types IRTree::getType() const{
+    return type.has_value() ? type.value() : Types::NO_TYPE;
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // PRINT IRT NODE
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-std::string IRTree::toString(){
+const std::string IRTree::toString() const {
     std::string _name = !name.empty() ? " | name: " + name : "";
     std::string _value = !value.empty() ? " | value: " + value : "";
     return std::format("{}{}{}\n", irNodeToString.at(nodeType), _name, _value);
@@ -89,7 +89,7 @@ std::string IRTree::toString(){
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // DISPLAY IR TREE (debbuging purposes)
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-void IRTree::traverse(size_t offset){
+void IRTree::traverse(size_t offset) const {
     std::cout << std::format("{}|-> {}", std::string(offset*2, ' '), toString());
     for(const auto& child:children){
         child->traverse(offset+1);

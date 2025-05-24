@@ -11,7 +11,7 @@ class IntermediateRepresentation{
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         // public entry point for forming intermediate representation
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
-        std::unique_ptr<IRTree> formIR(ASTree* astRoot);
+        [[nodiscard]] std::unique_ptr<IRTree> formIR(ASTree* astRoot);
 
     private:
 

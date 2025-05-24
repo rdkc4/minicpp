@@ -34,6 +34,7 @@ class CodeGenerator{
         size_t labelNum;
         size_t gpFreeRegPos;
         size_t variableNum;
+        static constexpr size_t regSize{8};
 
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         // register usage handlers
@@ -89,9 +90,9 @@ class CodeGenerator{
 
         void generateRelationalExpression(IRTree* node);
 
-        std::string generateID(IRTree* node);
+        const std::string generateID(IRTree* node);
 
-        std::string generateLiteral(IRTree* node);
+        const std::string generateLiteral(IRTree* node);
 
         void generateFunctionCall(IRTree* node);
 

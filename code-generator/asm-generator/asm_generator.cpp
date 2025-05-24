@@ -20,15 +20,15 @@ void AsmGenerator::genStart(){
     output << "\tjmp main\n";
 }
 
-void AsmGenerator::genMov(std::string l, std::string r, std::string ext){
+void AsmGenerator::genMov(std::string_view l, std::string_view r, std::string_view ext){
     output << std::format("\tmov{} {}, {}\n", ext, l ,r);
 }
 
-void AsmGenerator::genCmp(std::string l, std::string r){
+void AsmGenerator::genCmp(std::string_view l, std::string_view r){
     output << std::format("\tcmp {}, {}\n", l, r);
 }
 
-void AsmGenerator::genOperation(std::string op, std::string l, std::string r){
+void AsmGenerator::genOperation(std::string_view op, std::string_view l, std::string_view r){
     if(r != ""){
         output << std::format("\t{} {}, {}\n", op, l, r);
     }
@@ -37,7 +37,7 @@ void AsmGenerator::genOperation(std::string op, std::string l, std::string r){
     }
 }
 
-void AsmGenerator::genLabel(std::string label){
+void AsmGenerator::genLabel(std::string_view label){
     output << std::format("{}:\n", label);
 }
 
@@ -45,19 +45,19 @@ void AsmGenerator::genRet(){
     output << "\tret\n";
 }
 
-void AsmGenerator::genJmp(std::string jmp, std::string label){
+void AsmGenerator::genJmp(std::string_view jmp, std::string_view label){
     output << std::format("\t{} {}\n", jmp, label);
 }
 
-void AsmGenerator::genCall(std::string func){
+void AsmGenerator::genCall(std::string_view func){
     output << std::format("\tcall {}\n", func);
 }
 
-void AsmGenerator::genPush(std::string r){
+void AsmGenerator::genPush(std::string_view r){
     output << std::format("\tpush {}\n", r);
 }
 
-void AsmGenerator::genPop(std::string r){
+void AsmGenerator::genPop(std::string_view r){
     output << std::format("\tpop {}\n", r);
 }
 

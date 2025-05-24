@@ -14,7 +14,7 @@ class Parser{
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         // public entry point for parsing
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
-        std::unique_ptr<ASTree> parseProgram();
+        [[nodiscard]] std::unique_ptr<ASTree> parseProgram();
 
     private:
 
@@ -84,8 +84,6 @@ class Parser{
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         std::unique_ptr<ASTree> numericalExpression();
 
-        int getPrecedence(const std::string& op);
-
         std::unique_ptr<ASTree> rpnToTree(std::stack<std::unique_ptr<ASTree>>& st, std::unique_ptr<ASTree>& parent);
 
         std::unique_ptr<ASTree> expression();
@@ -99,6 +97,31 @@ class Parser{
         std::unique_ptr<ASTree> id();
 
         std::unique_ptr<ASTree> literal();
+
+        //-----------------------------------------------------------------------------------------------------------------------------------------------------
+        // determining the importance of the operator
+        //-----------------------------------------------------------------------------------------------------------------------------------------------------
+        constexpr int getPrecedence(std::string_view op){
+            if(op == "|"){
+                return 1;
+            }
+            else if(op == "^"){
+                return 2;
+            }
+            else if(op == "&"){
+                return 3;
+            }
+            else if(op == "<<" || op == ">>"){
+                return 4;
+            }
+            else if(op == "-" || op == "+"){
+                return 5;
+            }
+            else if (op == "*" || op == "/"){
+                return 6;
+            }
+            return 0;
+        }
 
 };
 

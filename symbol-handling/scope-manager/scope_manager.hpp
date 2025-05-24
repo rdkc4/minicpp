@@ -22,12 +22,16 @@ class ScopeManager{
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         bool pushSymbol(const Symbol symbol);
 
-        SymbolTable& getSymbolTable();
+        SymbolTable& getSymbolTable() const;
+
+        Symbol& getSymbol(const std::string& name) const;
+
+        bool lookupSymbol(const std::string& name, std::vector<Kinds> kind) const;
 
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         // display
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
-        void printSymbolTable();
+        void printSymbolTable() const;
 
     private:
 
