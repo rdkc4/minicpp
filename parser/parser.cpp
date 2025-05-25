@@ -4,14 +4,14 @@
 #include <stdexcept>
 #include <format>
 
-Parser::Parser(Lexer& lexer) : lexer{lexer}, currentToken{lexer.nextToken()} {}
+Parser::Parser(Lexer& lexer) : lexer{ lexer }, currentToken{ lexer.nextToken() } {}
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // SYNTAX CHECK
 // ABSTRACT SYNTAX TREE BUILDING
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::unique_ptr<ASTree> Parser::parseProgram(){
-    std::unique_ptr<ASTree> root = std::make_unique<ASTree>(ASTNodeType::PROGRAM, Token("program", 0, 0));
+    std::unique_ptr<ASTree> root = std::make_unique<ASTree>(Token{"program", 0, 0}, ASTNodeType::PROGRAM);
     root->pushChild(functionList());
 
     // check if input ends correctly
@@ -39,7 +39,7 @@ void Parser::eat(TokenType type){
 // FUNCTION_LIST : FUNCTION | FUNCTION_LIST FUNCTION
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::unique_ptr<ASTree> Parser::functionList(){
-    std::unique_ptr<ASTree> currentNode = std::make_unique<ASTree>(ASTNodeType::FUNCTION_LIST, Token("function_list", 0, 0)); 
+    std::unique_ptr<ASTree> currentNode = std::make_unique<ASTree>(Token{"function_list", 0, 0}, ASTNodeType::FUNCTION_LIST); 
     do{
         currentNode->pushChild(function());
     } while(currentToken.type == TokenType::_TYPE);
@@ -51,12 +51,12 @@ std::unique_ptr<ASTree> Parser::functionList(){
 // FUNCTION : TYPE ID LPAREN PARAMETER(0+) RPAREN BODY
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::unique_ptr<ASTree> Parser::function(){
-    Types returnType = stringToType.find(currentToken.value) != stringToType.end() ? stringToType.at(currentToken.value) : Types::NO_TYPE;
+    Types returnType{ stringToType.find(currentToken.value) != stringToType.end() ? stringToType.at(currentToken.value) : Types::NO_TYPE };
     eat(TokenType::_TYPE);
-    Token token = currentToken;
+    Token token{ currentToken };
     eat(TokenType::_ID);
     
-    std::unique_ptr<ASTree> currentNode = std::make_unique<ASTree>(ASTNodeType::FUNCTION, token, returnType);
+    std::unique_ptr<ASTree> currentNode = std::make_unique<ASTree>(token, returnType, ASTNodeType::FUNCTION);
 
     eat(TokenType::_LPAREN);
     currentNode->pushChild(parameter());
@@ -70,14 +70,14 @@ std::unique_ptr<ASTree> Parser::function(){
 // PARAMETERS : EMPTY | PARAMETER | PARAMETERS COMMA PARAMETER
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::unique_ptr<ASTree> Parser::parameter(){
-    std::unique_ptr<ASTree> currentNode = std::make_unique<ASTree>(ASTNodeType::PARAMETER, Token("params", currentToken.line, currentToken.column));
+    std::unique_ptr<ASTree> currentNode = std::make_unique<ASTree>(Token{"params", currentToken.line, currentToken.column}, ASTNodeType::PARAMETER);
     while(currentToken.type == TokenType::_TYPE){
-        Types type = stringToType.at(currentToken.value);
+        Types type{ stringToType.at(currentToken.value) };
         eat(TokenType::_TYPE);
-        auto token = currentToken;
+        auto token{ currentToken };
         eat(TokenType::_ID);
         
-        currentNode->pushChild(std::make_unique<ASTree>(ASTNodeType::PARAMETER, token, type));
+        currentNode->pushChild(std::make_unique<ASTree>(token, type, ASTNodeType::PARAMETER));
 
         if(currentToken.type == TokenType::_COMMA && lexer.peekAtNext().type == TokenType::_TYPE){
             eat(TokenType::_COMMA);
@@ -90,7 +90,7 @@ std::unique_ptr<ASTree> Parser::parameter(){
 // BODY : LBRACKET CONSTRUCTS RBRACKET
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::unique_ptr<ASTree> Parser::body(){
-    std::unique_ptr<ASTree> currentNode = std::make_unique<ASTree>(ASTNodeType::BODY, Token("body", currentToken.line, currentToken.column));
+    std::unique_ptr<ASTree> currentNode = std::make_unique<ASTree>(Token{"body", currentToken.line, currentToken.column}, ASTNodeType::BODY);
     eat(TokenType::_LBRACKET);
     while(currentToken.type != TokenType::_RBRACKET){
         currentNode->pushChild(construct());
@@ -115,10 +115,10 @@ std::unique_ptr<ASTree> Parser::construct(){
 // VARIABLE : TYPE ID SEMICOLON
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::unique_ptr<ASTree> Parser::variable(){
-    Types type = stringToType.find(currentToken.value) != stringToType.end() ? stringToType.at(currentToken.value) : Types::NO_TYPE;;
+    Types type{ stringToType.find(currentToken.value) != stringToType.end() ? stringToType.at(currentToken.value) : Types::NO_TYPE };
     eat(TokenType::_TYPE);
-    Token token = currentToken;
-    std::unique_ptr<ASTree> variable = std::make_unique<ASTree>(ASTNodeType::VARIABLE, token, type);
+    Token token{ currentToken };
+    std::unique_ptr<ASTree> variable = std::make_unique<ASTree>(token, type, ASTNodeType::VARIABLE);
     
     lexer.peekAtNext().type == TokenType::_ASSIGN ? variable->pushChild(assignmentStatement()) : eat(TokenType::_ID);
     eat(TokenType::_SEMICOLON);
@@ -158,7 +158,7 @@ std::unique_ptr<ASTree> Parser::statement(){
 // COMPOUND_STATEMENT : LBRACKET CONSTRUCTS RBRACKET
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::unique_ptr<ASTree> Parser::compoundStatement(){
-    std::unique_ptr<ASTree> currentNode = std::make_unique<ASTree>(ASTNodeType::COMPOUND_STATEMENT, Token("cpnd_statement", currentToken.line, currentToken.column));
+    std::unique_ptr<ASTree> currentNode = std::make_unique<ASTree>(Token{"cpnd_statement", currentToken.line, currentToken.column}, ASTNodeType::COMPOUND_STATEMENT);
 
     eat(TokenType::_LBRACKET);
     while(currentToken.type != TokenType::_RBRACKET){
@@ -174,9 +174,9 @@ std::unique_ptr<ASTree> Parser::compoundStatement(){
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::unique_ptr<ASTree> Parser::assignmentStatement(){
     if(currentToken.type == TokenType::_ID){
-        std::unique_ptr<ASTree> lchild = std::make_unique<ASTree>(ASTNodeType::VARIABLE, Token(currentToken));
+        std::unique_ptr<ASTree> lchild = std::make_unique<ASTree>(Token{currentToken}, ASTNodeType::VARIABLE);
         eat(TokenType::_ID);
-        std::unique_ptr<ASTree> currentNode = std::make_unique<ASTree>(ASTNodeType::ASSIGNMENT_STATEMENT, Token("=", currentToken.line, currentToken.column));
+        std::unique_ptr<ASTree> currentNode = std::make_unique<ASTree>(Token{"=", currentToken.line, currentToken.column}, ASTNodeType::ASSIGNMENT_STATEMENT);
         eat(TokenType::_ASSIGN);
         std::unique_ptr<ASTree> rchild = numericalExpression();
         
@@ -194,7 +194,7 @@ std::unique_ptr<ASTree> Parser::assignmentStatement(){
 // RETURN_STATEMENT : RETURN SEMICOLON | RETURN NUMERICAL_EXPRESSION SEMICOLON
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::unique_ptr<ASTree> Parser::returnStatement(){
-    std::unique_ptr<ASTree> currentNode = std::make_unique<ASTree>(ASTNodeType::RETURN_STATEMENT, Token("return_statement", currentToken.line, currentToken.column));
+    std::unique_ptr<ASTree> currentNode = std::make_unique<ASTree>(Token{"return_statement", currentToken.line, currentToken.column}, ASTNodeType::RETURN_STATEMENT);
     eat(TokenType::_RETURN);
 
     if(currentToken.type == TokenType::_SEMICOLON){
@@ -213,7 +213,7 @@ std::unique_ptr<ASTree> Parser::returnStatement(){
 // IF_STATEMENT : IF LPAREN RELATIONAL_EXPRESSION RPAREN CONSTRUCTS | IF_STATEMENT ELSE CONSTRUCTS | IF_STATEMENT ELSE IF CONSTRUCTS
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::unique_ptr<ASTree> Parser::ifStatement(){
-    std::unique_ptr<ASTree> currentNode = std::make_unique<ASTree>(ASTNodeType::IF_STATEMENT, Token("if_stat", currentToken.line, currentToken.column));
+    std::unique_ptr<ASTree> currentNode = std::make_unique<ASTree>(Token{"if_stat", currentToken.line, currentToken.column}, ASTNodeType::IF_STATEMENT);
     eat(TokenType::_IF);
     eat(TokenType::_LPAREN);
     currentNode->pushChild(relationalExpression());
@@ -244,7 +244,7 @@ std::unique_ptr<ASTree> Parser::ifStatement(){
 // WHILE_STATEMENT : WHILE LPAREN RELATIONAL_EXPRESSION RPAREN CONSTRUCTS
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::unique_ptr<ASTree> Parser::whileStatement(){
-    std::unique_ptr<ASTree> currentNode = std::make_unique<ASTree>(ASTNodeType::WHILE_STATEMENT, Token("while_stat", currentToken.line, currentToken.column));
+    std::unique_ptr<ASTree> currentNode = std::make_unique<ASTree>(Token{"while_stat", currentToken.line, currentToken.column}, ASTNodeType::WHILE_STATEMENT);
     eat(TokenType::_WHILE);
     
     eat(TokenType::_LPAREN);
@@ -260,7 +260,7 @@ std::unique_ptr<ASTree> Parser::whileStatement(){
 // FOR_STATEMENT : FOR LPAREN ASSIGN_STATEMENT SEMICOLON RELATIONAL_EXPRESSION SEMICOLON ASSIGNMENT_STATEMENT RPAREN CONSTRUCTS
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::unique_ptr<ASTree> Parser::forStatement(){
-    std::unique_ptr<ASTree> currentNode = std::make_unique<ASTree>(ASTNodeType::FOR_STATEMENT, Token("for_stat", currentToken.line, currentToken.column));
+    std::unique_ptr<ASTree> currentNode = std::make_unique<ASTree>(Token{"for_stat", currentToken.line, currentToken.column}, ASTNodeType::FOR_STATEMENT);
     eat(TokenType::_FOR);
 
     eat(TokenType::_LPAREN);
@@ -280,7 +280,7 @@ std::unique_ptr<ASTree> Parser::forStatement(){
 // DO_WHILE_STATEMENT : DO CONSTRUCTS WHILE LPAREN RELATIONAL_EXPRESSION RPAREN SEMICOLON
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::unique_ptr<ASTree> Parser::doWhileStatement(){
-    std::unique_ptr<ASTree> currentNode = std::make_unique<ASTree>(ASTNodeType::DO_WHILE_STATEMENT, Token("dowhile_stat", currentToken.line, currentToken.column));
+    std::unique_ptr<ASTree> currentNode = std::make_unique<ASTree>(Token{"dowhile_stat", currentToken.line, currentToken.column}, ASTNodeType::DO_WHILE_STATEMENT);
     eat(TokenType::_DO);
     currentNode->pushChild(construct());
     eat(TokenType::_WHILE);
@@ -297,7 +297,7 @@ std::unique_ptr<ASTree> Parser::doWhileStatement(){
 // SWITCH_STATEMENT : SWITCH LPAREN ID RPAREN LBRACKET CASE(1+) DEFAULT(0-1) RBRACKET
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::unique_ptr<ASTree> Parser::switchStatement(){
-    std::unique_ptr<ASTree> currentNode = std::make_unique<ASTree>(ASTNodeType::SWITCH_STATEMENT, Token("switch_stat", currentToken.line, currentToken.column));
+    std::unique_ptr<ASTree> currentNode = std::make_unique<ASTree>(Token{"switch_stat", currentToken.line, currentToken.column}, ASTNodeType::SWITCH_STATEMENT);
     eat(TokenType::_SWITCH);
 
     eat(TokenType::_LPAREN);
@@ -323,7 +323,7 @@ std::unique_ptr<ASTree> Parser::switchStatement(){
 // SWITCH_CASE_CONSTRUCT : CONSTRUCT | SWITCH_CASE_CONSTRUCT CONSTRUCT
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::unique_ptr<ASTree> Parser::switchCaseConstruct(){
-    std::unique_ptr<ASTree> currentNode = std::make_unique<ASTree>(ASTNodeType::STATEMENT_LIST, Token("statement_list", currentToken.line, currentToken.column));
+    std::unique_ptr<ASTree> currentNode = std::make_unique<ASTree>(Token{"statement_list", currentToken.line, currentToken.column}, ASTNodeType::STATEMENT_LIST);
     while(currentToken.type != TokenType::_CASE && currentToken.type != TokenType::_DEFAULT && 
             currentToken.type != TokenType::_RBRACKET && currentToken.type != TokenType::_BREAK){
         
@@ -337,7 +337,7 @@ std::unique_ptr<ASTree> Parser::switchCaseConstruct(){
 // _CASE_ : CASE LITERAL COLON SWITCH_CASE_CONSTRUCT BREAK(0-1) 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::unique_ptr<ASTree> Parser::_case(){
-    std::unique_ptr<ASTree> currentNode = std::make_unique<ASTree>(ASTNodeType::CASE, Token("case", currentToken.line, currentToken.column));
+    std::unique_ptr<ASTree> currentNode = std::make_unique<ASTree>(Token{"case", currentToken.line, currentToken.column}, ASTNodeType::CASE);
     eat(TokenType::_CASE);
     currentNode->pushChild(literal());
     eat(TokenType::_LITERAL);
@@ -355,7 +355,7 @@ std::unique_ptr<ASTree> Parser::_case(){
 // _DEFAULT_ : DEFAULT COLON SWITCH_CASE_CONSTRUCTS BREAK(0-1)
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::unique_ptr<ASTree> Parser::_default(){
-    std::unique_ptr<ASTree> currentNode = std::make_unique<ASTree>(ASTNodeType::DEFAULT, Token("default", currentToken.line, currentToken.column));
+    std::unique_ptr<ASTree> currentNode = std::make_unique<ASTree>(Token{"default", currentToken.line, currentToken.column}, ASTNodeType::DEFAULT);
     eat(TokenType::_DEFAULT);
     eat(TokenType::_COLON);
     
@@ -372,7 +372,7 @@ std::unique_ptr<ASTree> Parser::_default(){
 // _BREAK_ : BREAK SEMICOLON
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::unique_ptr<ASTree> Parser::_break(){
-    std::unique_ptr<ASTree> currentNode = std::make_unique<ASTree>(ASTNodeType::BREAK, Token("break", currentToken.line, currentToken.column));
+    std::unique_ptr<ASTree> currentNode = std::make_unique<ASTree>(Token{"break", currentToken.line, currentToken.column}, ASTNodeType::BREAK);
     eat(TokenType::_BREAK);
     eat(TokenType::_SEMICOLON);
     return currentNode;
@@ -391,7 +391,7 @@ std::unique_ptr<ASTree> Parser::numericalExpression(){
     
     rpn.push(std::move(child));
     while(currentToken.type == TokenType::_AROP || currentToken.type == TokenType::_BITWISE){
-        std::unique_ptr<ASTree> arOperator = std::make_unique<ASTree>(ASTNodeType::NUMERICAL_EXPRESSION, Token(currentToken));
+        std::unique_ptr<ASTree> arOperator = std::make_unique<ASTree>(Token{currentToken}, ASTNodeType::NUMERICAL_EXPRESSION);
         if(currentToken.type == TokenType::_BITWISE){
             eat(TokenType::_BITWISE);
         }else{
@@ -402,7 +402,7 @@ std::unique_ptr<ASTree> Parser::numericalExpression(){
 
         weakOperators.push(std::move(arOperator));
         while(getPrecedence(weakOperators.top()->getToken().value) < getPrecedence(currentToken.value)){
-            std::unique_ptr<ASTree> strongArOp = std::make_unique<ASTree>(ASTNodeType::NUMERICAL_EXPRESSION, Token(currentToken));
+            std::unique_ptr<ASTree> strongArOp = std::make_unique<ASTree>(Token{currentToken}, ASTNodeType::NUMERICAL_EXPRESSION);
             if(currentToken.type == TokenType::_BITWISE){
                 eat(TokenType::_BITWISE);
             }else{
@@ -432,7 +432,7 @@ std::unique_ptr<ASTree> Parser::numericalExpression(){
 // if child is not numerical expression - leaf
 // if parent has two children - subtree is handled
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-std::unique_ptr<ASTree> Parser::rpnToTree(std::stack<std::unique_ptr<ASTree>>& rpn, std::unique_ptr<ASTree>& parent){
+std::unique_ptr<ASTree> Parser::rpnToTree(std::stack<std::unique_ptr<ASTree>>& rpn, std::unique_ptr<ASTree>& parent) const {
     if(parent->getNodeType() != ASTNodeType::NUMERICAL_EXPRESSION || !parent->getChildren().empty()){
         return std::move(parent);
     }
@@ -481,7 +481,7 @@ std::unique_ptr<ASTree> Parser::expression(){
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::unique_ptr<ASTree> Parser::relationalExpression(){
     std::unique_ptr<ASTree> lchild = numericalExpression();
-    std::unique_ptr<ASTree> currentNode = std::make_unique<ASTree>(ASTNodeType::RELATIONAL_EXPRESSION, currentToken);
+    std::unique_ptr<ASTree> currentNode = std::make_unique<ASTree>(currentToken, ASTNodeType::RELATIONAL_EXPRESSION);
     eat(TokenType::_RELOP);
     currentNode->pushChild(std::move(lchild));
     currentNode->pushChild(numericalExpression());
@@ -493,7 +493,7 @@ std::unique_ptr<ASTree> Parser::relationalExpression(){
 // -> anonymous functions (TODO)
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::unique_ptr<ASTree> Parser::functionCall(){
-    std::unique_ptr<ASTree> currentNode = std::make_unique<ASTree>(ASTNodeType::FUNCTION_CALL, currentToken);
+    std::unique_ptr<ASTree> currentNode = std::make_unique<ASTree>(currentToken, ASTNodeType::FUNCTION_CALL);
     eat(TokenType::_ID);
     eat(TokenType::_LPAREN);
     currentNode->pushChild(argument());
@@ -505,7 +505,7 @@ std::unique_ptr<ASTree> Parser::functionCall(){
 // ARGUMENTS : EMPTY | NUMERICAL_EXPRESSION | ARGUMENTS COMMA NUMERICAL_EXPRESSION
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::unique_ptr<ASTree> Parser::argument(){
-    std::unique_ptr<ASTree> currentNode = std::make_unique<ASTree>(ASTNodeType::ARGUMENT, Token("arg", currentToken.line, currentToken.column));
+    std::unique_ptr<ASTree> currentNode = std::make_unique<ASTree>(Token{"arg", currentToken.line, currentToken.column}, ASTNodeType::ARGUMENT);
     while(currentToken.type != TokenType::_RPAREN){
         currentNode->pushChild(numericalExpression());
         if(currentToken.type == TokenType::_COMMA && lexer.peekAtNext().type != TokenType::_RPAREN){
@@ -519,21 +519,21 @@ std::unique_ptr<ASTree> Parser::argument(){
 // ID : ID
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::unique_ptr<ASTree> Parser::id(){
-    Token token = currentToken;
+    Token token{ currentToken };
     eat(TokenType::_ID);
 
-    return std::make_unique<ASTree>(ASTNodeType::ID, token);
+    return std::make_unique<ASTree>(token, ASTNodeType::ID);
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // LITERAL : LITERAL(unsigned) | LITERAL(int)
 // -> more types (TODO)
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-std::unique_ptr<ASTree> Parser::literal(){
+std::unique_ptr<ASTree> Parser::literal() const {
     if(currentToken.value.back() == 'u'){
-        return std::make_unique<ASTree>(ASTNodeType::LITERAL, Token(currentToken), Types::UNSIGNED);
+        return std::make_unique<ASTree>(Token{currentToken}, Types::UNSIGNED, ASTNodeType::LITERAL);
     }
-    return std::make_unique<ASTree>(ASTNodeType::LITERAL, Token(currentToken), Types::INT);
+    return std::make_unique<ASTree>(Token{currentToken}, Types::INT, ASTNodeType::LITERAL);
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------

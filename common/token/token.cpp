@@ -1,10 +1,10 @@
 #include "token.hpp"
 
-Token::Token() : type{TokenType::_NODE}, value{""}, line{0}, column{0} {}
+Token::Token() : value{ "" }, line{ 0 }, column{ 0 }, type{ TokenType::_NODE } {}
 
-Token::Token(std::string_view value, size_t line, size_t column) : type{TokenType::_NODE}, value{value}, line{line}, column{column} {}
+Token::Token(std::string_view value, size_t line, size_t column) : value{ value }, line{ line }, column{ column }, type{ TokenType::_NODE } {}
 
-Token::Token(TokenType type, std::string_view value, size_t line, size_t column): type{type}, value{value}, line{line}, column{column} {}
+Token::Token(std::string_view value, size_t line, size_t column, TokenType type) : value{ value }, line{ line }, column{ column }, type{ type } {}
 
 const std::unordered_map<TokenType, std::string> tokenTypeToString {
     {TokenType::_ID, "ID"},

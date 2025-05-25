@@ -1,8 +1,9 @@
 #include "scope_manager.hpp"
 
 #include <iostream>
+#include <initializer_list>
 
-ScopeManager::ScopeManager(SymbolTable& symTab) : symbolTable{symTab} {}
+ScopeManager::ScopeManager(SymbolTable& symTab) : symbolTable{ symTab } {}
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // ENTERED NEW SCOPE
@@ -16,7 +17,7 @@ void ScopeManager::pushScope(){
 // -> allow variable declaration anywhere (TODO)  
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 void ScopeManager::popScope(){
-    auto out = scope.top();
+    auto& out{ scope.top() };
     while(!out.empty()){
         symbolTable.deleteSymbol(out.top());
         out.pop();
@@ -27,7 +28,7 @@ void ScopeManager::popScope(){
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // INSERT SYMBOL FOR CURRENT SCOPE
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-bool ScopeManager::pushSymbol(const Symbol symbol){
+bool ScopeManager::pushSymbol(const Symbol& symbol){
     if(symbolTable.insertSymbol(symbol.getName(), symbol)){
         scope.top().push(symbol.getName());
         return true;
@@ -38,15 +39,15 @@ bool ScopeManager::pushSymbol(const Symbol symbol){
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // ACCESS SYMBOL TABLE
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-SymbolTable& ScopeManager::getSymbolTable() const {
+const SymbolTable& ScopeManager::getSymbolTable() const noexcept {
     return symbolTable;
 }
 
-Symbol& ScopeManager::getSymbol(const std::string& name) const{
+Symbol& ScopeManager::getSymbol(const std::string& name) const {
     return symbolTable.getSymbol(name);
 }
 
-bool ScopeManager::lookupSymbol(const std::string& name, std::vector<Kinds> kind) const{
+bool ScopeManager::lookupSymbol(const std::string& name, std::initializer_list<Kinds> kind) const {
     return symbolTable.lookupSymbol(name, kind);
 }
 

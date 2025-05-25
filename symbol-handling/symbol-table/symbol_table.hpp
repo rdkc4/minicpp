@@ -2,7 +2,7 @@
 #define SYMBOL_TABLE_HPP
 
 #include <unordered_map>
-#include <vector>
+#include <initializer_list>
 
 #include "../../common/symbol/symbol.hpp"
 
@@ -12,15 +12,15 @@ class SymbolTable{
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         // symbol table operations
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
-        bool lookupSymbol(const std::string& name, std::vector<Kinds> kind) const;
+        bool lookupSymbol(const std::string& name, std::initializer_list<Kinds> kind) const;
 
-        bool insertSymbol(const std::string& name, const Symbol symbol);
+        bool insertSymbol(const std::string& name, const Symbol& symbol);
 
         Symbol& getSymbol(const std::string& name);
 
         void deleteSymbol(const std::string& name);
 
-        void clearSymbols();
+        void clearSymbols() noexcept;
 
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         // display

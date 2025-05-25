@@ -1,15 +1,15 @@
 #include "asm_generator.hpp"
 #include <format>
 
-AsmGenerator::AsmGenerator(std::string& output) : output{output} {}
+AsmGenerator::AsmGenerator(std::string& file) : output{ file } {}
 
-AsmGenerator::~AsmGenerator(){
+AsmGenerator::~AsmGenerator() noexcept {
     if(output.is_open()){
         output.close();
     }
 }
 
-bool AsmGenerator::isOpen(){
+bool AsmGenerator::isOpen() const {
     return output.is_open();
 }
 

@@ -14,36 +14,36 @@ class Symbol{
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         // getters
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
-        const std::string& getName() const;
-        const Kinds& getKind() const;
-        const Types& getType() const;
-        ASTree* getParameters() const;
+        const std::string& getName() const noexcept;
+        Kinds getKind() const noexcept;
+        Types getType() const noexcept;
+        ASTree* getParameters() const noexcept;
 
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         // setters
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         void setName(std::string_view _name);
-        void setKind(Kinds _kind);
-        void setType(Types _type);
-        void setParameters(ASTree* par);
+        void setKind(Kinds _kind) noexcept;
+        void setType(Types _type) noexcept;
+        void setParameters(ASTree* par) noexcept;
 
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         // display
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
-        const std::string symbolToString() const;
+        std::string symbolToString() const;
 
     private:
 
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         // name - name of a symbol (variable name etc.)
+        // parameters - pointer to parameter node (only for functions)
         // kind - kind of a symbol (function, variable, parameter etc.)
         // type - type of a symbol
-        // parameters - pointer to parameter node (only for functions)
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         std::string name;
+        ASTree* parameters;
         Kinds kind;
         Types type;
-        ASTree* parameters;
 
 };
 
