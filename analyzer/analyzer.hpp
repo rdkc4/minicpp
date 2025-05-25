@@ -12,7 +12,7 @@ class Analyzer{
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         // public entry point for semantic analysis
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
-        void semanticCheck(ASTree* root);
+        void semanticCheck(const ASTree* root);
 
     private:
         
@@ -28,61 +28,61 @@ class Analyzer{
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         // function
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
-        void checkFunction(ASTree* node);
+        void checkFunction(const ASTree* node);
 
         void checkParameter(ASTree* node);
 
-        void checkBody(ASTree* node);
+        void checkBody(const ASTree* node);
 
-        void checkConstruct(ASTree* node);
+        void checkConstruct(const ASTree* node);
 
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         // variables
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
 
-        void checkVariable(ASTree* node);
+        void checkVariable(const ASTree* node);
 
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         // statements
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
 
-        void checkStatement(ASTree* node);
+        void checkStatement(const ASTree* node);
 
-        void checkIfStatement(ASTree* node);
+        void checkIfStatement(const ASTree* node);
 
-        void checkWhileStatement(ASTree* node);
+        void checkWhileStatement(const ASTree* node);
 
-        void checkForStatement(ASTree* node);
+        void checkForStatement(const ASTree* node);
 
-        void checkDoWhileStatement(ASTree* node);
+        void checkDoWhileStatement(const ASTree* node);
 
-        void checkSwitchStatement(ASTree* node);
+        void checkSwitchStatement(const ASTree* node);
 
         template<typename T>
-        void checkSwitchStatementCases(ASTree* node);
+        void checkSwitchStatementCases(const ASTree* node);
 
-        void checkCompoundStatement(ASTree* node);
+        void checkCompoundStatement(const ASTree* node);
 
-        void checkAssignmentStatement(ASTree* node);
+        void checkAssignmentStatement(const ASTree* node) const;
 
-        void checkReturnStatement(ASTree* node);
+        void checkReturnStatement(const ASTree* node);
 
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         // expressions
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
-        void checkNumericalExpression(ASTree* node);
+        void checkNumericalExpression(ASTree* node) const;
 
-        Types getNumericalExpressionType(ASTree* node);
+        Types getNumericalExpressionType(ASTree* node) const;
 
-        void checkRelationalExpression(ASTree* node);
+        void checkRelationalExpression(const ASTree* node) const;
 
-        void checkID(ASTree* node);
+        void checkID(ASTree* node) const;
 
-        void checkLiteral(ASTree* node);
+        void checkLiteral(const ASTree* node) const;
 
-        void checkFunctionCall(ASTree* node);
+        void checkFunctionCall(ASTree* node) const;
     
-        void checkArgument(ASTree* node);
+        void checkArgument(const ASTree* node) const;
 
 };
 

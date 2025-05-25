@@ -3,9 +3,9 @@
 #include <iostream>
 #include <format>
 
-ASTree::ASTree(ASTNodeType nodeType, const Token& token) : nodeType(nodeType), token(token){}
+ASTree::ASTree(const Token& token, ASTNodeType nodeType) : token{ token }, nodeType{ nodeType } {}
 
-ASTree::ASTree(ASTNodeType nodeType, const Token& token, Types type) : nodeType(nodeType), token(token), type(type){}
+ASTree::ASTree(const Token& token, Types type, ASTNodeType nodeType) : token{ token }, type{ type}, nodeType{ nodeType } {}
 
 ASTree::~ASTree() = default;
 
@@ -19,9 +19,9 @@ void ASTree::pushChild(std::unique_ptr<ASTree>&& child){
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // RETURN CHILD AT GIVEN INDEX
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-ASTree* ASTree::getChild(size_t index){
+ASTree* ASTree::getChild(size_t index) const noexcept {
     if(index < children.size()){
-        return children.at(index).get();
+        return children[index].get();
     }
     return nullptr;
 }
@@ -29,36 +29,36 @@ ASTree* ASTree::getChild(size_t index){
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // RETURN ALL CHILDREN
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-const std::vector<std::unique_ptr<ASTree>>& ASTree::getChildren() const{
+const std::vector<std::unique_ptr<ASTree>>& ASTree::getChildren() const noexcept {
     return children;
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // SETTERS
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-void ASTree::setType(const Types t){
+void ASTree::setType(const Types t) noexcept {
     type = t;
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // GETTERS
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-Types ASTree::getType() const{
+Types ASTree::getType() const noexcept {
     return type.has_value() ? type.value() : Types::NO_TYPE;
 }
 
-ASTNodeType ASTree::getNodeType() const{
+ASTNodeType ASTree::getNodeType() const noexcept {
     return nodeType;
 }
 
-const Token ASTree::getToken() const {
+const Token& ASTree::getToken() const noexcept {
     return token;
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // PRINT AST NODE
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-const std::string ASTree::toString() const{
+std::string ASTree::toString() const {
     return std::format("{} | '{}'\n", astNodeTypeToString.at(nodeType), token.value);
 }
 

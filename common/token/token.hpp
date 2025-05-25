@@ -18,19 +18,19 @@ extern const std::unordered_map<TokenType, std::string> tokenTypeToString;
 struct Token{
 
     //-----------------------------------------------------------------------------------------------------------------------------------------------------
-    // type - type of a token
     // value - more specific description
     // line - line where token was found
     // column - column where token begins
+    // type - type of a token
     //-----------------------------------------------------------------------------------------------------------------------------------------------------
-    TokenType type;
     std::string value;
     size_t line;
     size_t column;
+    TokenType type;
 
     Token();
     Token(std::string_view value, size_t line, size_t column);
-    Token(TokenType type, std::string_view value, size_t line, size_t column);
+    Token(std::string_view value, size_t line, size_t column, TokenType type);
 };
 
 #endif

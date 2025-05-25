@@ -2,6 +2,7 @@
 #define SCOPE_MANAGER_HPP
 
 #include <stack>
+#include <initializer_list>
 
 #include "../symbol-table/symbol_table.hpp"
 
@@ -20,13 +21,13 @@ class ScopeManager{
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         // symbol table operations
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
-        bool pushSymbol(const Symbol symbol);
+        bool pushSymbol(const Symbol& symbol);
 
-        SymbolTable& getSymbolTable() const;
+        const SymbolTable& getSymbolTable() const noexcept;
 
         Symbol& getSymbol(const std::string& name) const;
 
-        bool lookupSymbol(const std::string& name, std::vector<Kinds> kind) const;
+        bool lookupSymbol(const std::string& name, std::initializer_list<Kinds> kind) const;
 
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         // display

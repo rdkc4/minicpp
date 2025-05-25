@@ -11,7 +11,7 @@ class IntermediateRepresentation{
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         // public entry point for forming intermediate representation
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
-        [[nodiscard]] std::unique_ptr<IRTree> formIR(ASTree* astRoot);
+        [[nodiscard]] std::unique_ptr<IRTree> formIR(const ASTree* astRoot);
 
     private:
 
@@ -23,64 +23,64 @@ class IntermediateRepresentation{
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         // function
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
-        std::unique_ptr<IRTree> function(ASTree* node);
+        std::unique_ptr<IRTree> function(const ASTree* node);
 
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         // variables
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
-        std::unique_ptr<IRTree> parameter(ASTree* node);
+        std::unique_ptr<IRTree> parameter(const ASTree* node) const;
 
-        std::unique_ptr<IRTree> construct(ASTree* node);
+        std::unique_ptr<IRTree> construct(const ASTree* node);
 
-        std::unique_ptr<IRTree> variable(ASTree* node);
+        std::unique_ptr<IRTree> variable(const ASTree* node);
 
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         // statements
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
-        std::unique_ptr<IRTree> statement(ASTree* node);
+        std::unique_ptr<IRTree> statement(const ASTree* node);
 
-        std::unique_ptr<IRTree> ifStatement(ASTree* node);
+        std::unique_ptr<IRTree> ifStatement(const ASTree* node);
 
-        std::unique_ptr<IRTree> compoundStatement(ASTree* node);
+        std::unique_ptr<IRTree> compoundStatement(const ASTree* node);
 
-        std::unique_ptr<IRTree> assignmentStatement(ASTree* node);
+        std::unique_ptr<IRTree> assignmentStatement(const ASTree* node) const;
 
-        std::unique_ptr<IRTree> returnStatement(ASTree* node);
+        std::unique_ptr<IRTree> returnStatement(const ASTree* node) const;
         
-        std::unique_ptr<IRTree> whileStatement(ASTree* node);
+        std::unique_ptr<IRTree> whileStatement(const ASTree* node);
 
-        std::unique_ptr<IRTree> forStatement(ASTree* node);
+        std::unique_ptr<IRTree> forStatement(const ASTree* node);
 
-        std::unique_ptr<IRTree> doWhileStatement(ASTree* node);
+        std::unique_ptr<IRTree> doWhileStatement(const ASTree* node);
 
-        std::unique_ptr<IRTree> switchStatement(ASTree* node);
+        std::unique_ptr<IRTree> switchStatement(const ASTree* node);
 
-        std::unique_ptr<IRTree> _case(ASTree* node);
+        std::unique_ptr<IRTree> _case(const ASTree* node);
 
-        std::unique_ptr<IRTree> _default(ASTree* node);
+        std::unique_ptr<IRTree> _default(const ASTree* node);
 
-        std::unique_ptr<IRTree> _break();
+        std::unique_ptr<IRTree> _break() const;
 
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         // expressions
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
-        std::unique_ptr<IRTree> numericalExpression(ASTree* node);
+        std::unique_ptr<IRTree> numericalExpression(const ASTree* node) const;
 
         template<typename T>
-        std::unique_ptr<IRTree> mergeLiterals(std::unique_ptr<IRTree>&& lchild, std::unique_ptr<IRTree>&& rchild, ASTree* node);
+        std::unique_ptr<IRTree> mergeLiterals(std::unique_ptr<IRTree>&& lchild, std::unique_ptr<IRTree>&& rchild, const ASTree* node) const;
 
         template<typename T>
-        T mergeValues(T l, T r, ASTree* node);
+        T mergeValues(T l, T r, const ASTree* node) const;
 
-        std::unique_ptr<IRTree> relationalExpression(ASTree* node);
+        std::unique_ptr<IRTree> relationalExpression(const ASTree* node) const;
 
-        std::unique_ptr<IRTree> id(ASTree* node);
+        std::unique_ptr<IRTree> id(const ASTree* node) const;
 
-        std::unique_ptr<IRTree> literal(ASTree* node);
+        std::unique_ptr<IRTree> literal(const ASTree* node) const;
 
-        std::unique_ptr<IRTree> functionCall(ASTree* node);
+        std::unique_ptr<IRTree> functionCall(const ASTree* node) const;
     
-        std::unique_ptr<IRTree> argument(ASTree* node);
+        std::unique_ptr<IRTree> argument(const ASTree* node) const;
 
 };
 

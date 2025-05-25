@@ -5,7 +5,8 @@
 
 IRTree::IRTree(IRNodeType nodeType) : nodeType{nodeType} {}
 
-IRTree::IRTree(IRNodeType nodeType, std::string_view name, std::string_view value, Types type) : nodeType{nodeType}, name{name}, value{value}, type{type} {}
+IRTree::IRTree(std::string_view name, std::string_view value, Types type, IRNodeType nodeType) 
+    : name{ name }, value{ value }, type{ type }, nodeType{ nodeType } {}
 
 IRTree::~IRTree() = default;
 
@@ -16,16 +17,16 @@ void IRTree::pushChild(std::unique_ptr<IRTree>&& child){
     children.push_back(std::move(child));
 }
 
-void IRTree::clearChildren(){
+void IRTree::clearChildren() noexcept {
     children.clear();
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // RETURN CHILD AT GIVEN INDEX
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-IRTree* IRTree::getChild(size_t index){
+IRTree* IRTree::getChild(size_t index) const noexcept {
     if(index < children.size()){
-        return children.at(index).get();
+        return children[index].get();
     }
     return nullptr;
 }
@@ -33,7 +34,7 @@ IRTree* IRTree::getChild(size_t index){
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // RETURN ALL CHILDREN
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-const std::vector<std::unique_ptr<IRTree>>& IRTree::getChildren() const{
+const std::vector<std::unique_ptr<IRTree>>& IRTree::getChildren() const noexcept {
     return children;
 }
 
@@ -41,7 +42,7 @@ const std::vector<std::unique_ptr<IRTree>>& IRTree::getChildren() const{
 // SETTERS
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 
-void IRTree::setNodeType(const IRNodeType type){
+void IRTree::setNodeType(const IRNodeType type) noexcept {
     nodeType = type;
 }
 
@@ -53,7 +54,7 @@ void IRTree::setValue(const std::string& val){
     value = val;
 }
 
-void IRTree::setType(const Types _type){
+void IRTree::setType(const Types _type) noexcept {
     type = _type;
 }
 
@@ -61,26 +62,26 @@ void IRTree::setType(const Types _type){
 // GETTERS
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 
-IRNodeType IRTree::getNodeType() const{
+IRNodeType IRTree::getNodeType() const noexcept {
     return nodeType;
 }
 
-const std::string& IRTree::getName() const{
+const std::string& IRTree::getName() const noexcept {
     return name;
 }
 
-const std::string& IRTree::getValue() const{
+const std::string& IRTree::getValue() const noexcept {
     return value;
 }
 
-Types IRTree::getType() const{
+Types IRTree::getType() const noexcept {
     return type.has_value() ? type.value() : Types::NO_TYPE;
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // PRINT IRT NODE
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-const std::string IRTree::toString() const {
+std::string IRTree::toString() const {
     std::string _name = !name.empty() ? " | name: " + name : "";
     std::string _value = !value.empty() ? " | value: " + value : "";
     return std::format("{}{}{}\n", irNodeToString.at(nodeType), _name, _value);

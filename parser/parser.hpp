@@ -84,7 +84,7 @@ class Parser{
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         std::unique_ptr<ASTree> numericalExpression();
 
-        std::unique_ptr<ASTree> rpnToTree(std::stack<std::unique_ptr<ASTree>>& st, std::unique_ptr<ASTree>& parent);
+        std::unique_ptr<ASTree> rpnToTree(std::stack<std::unique_ptr<ASTree>>& st, std::unique_ptr<ASTree>& parent) const;
 
         std::unique_ptr<ASTree> expression();
 
@@ -96,12 +96,12 @@ class Parser{
 
         std::unique_ptr<ASTree> id();
 
-        std::unique_ptr<ASTree> literal();
+        std::unique_ptr<ASTree> literal() const;
 
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         // determining the importance of the operator
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
-        constexpr int getPrecedence(std::string_view op){
+        constexpr int getPrecedence(std::string_view op) const noexcept {
             if(op == "|"){
                 return 1;
             }

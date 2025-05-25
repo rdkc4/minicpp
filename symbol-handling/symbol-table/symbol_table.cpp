@@ -1,12 +1,13 @@
 #include "symbol_table.hpp"
 
+#include <initializer_list>
 #include <iostream>
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // CHECK IF SYMBOL EXISTS
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-bool SymbolTable::lookupSymbol(const std::string& name, std::vector<Kinds> kind) const {
-    auto it = symbolTable.find(name);
+bool SymbolTable::lookupSymbol(const std::string& name, std::initializer_list<Kinds> kind) const {
+    auto it{ symbolTable.find(name) };
     if(it != symbolTable.end()){
         for(const auto& _kind : kind){
             if(it->second.getKind() == _kind){
@@ -20,12 +21,9 @@ bool SymbolTable::lookupSymbol(const std::string& name, std::vector<Kinds> kind)
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // INSERT SYMBOL IF NOT DEFINED
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-bool SymbolTable::insertSymbol(const std::string& name, const Symbol symbol){
-    auto result = symbolTable.insert({name, symbol});
-    if(!result.second){
-        return false;
-    }
-    return true;
+bool SymbolTable::insertSymbol(const std::string& name, const Symbol& symbol){
+    auto result{ symbolTable.insert({name, symbol}) };
+    return result.second;
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -42,7 +40,7 @@ void SymbolTable::deleteSymbol(const std::string& name){
     symbolTable.erase(name);
 }
 
-void SymbolTable::clearSymbols(){
+void SymbolTable::clearSymbols() noexcept {
     symbolTable.clear();
 }
 
@@ -50,7 +48,7 @@ void SymbolTable::clearSymbols(){
 // PRINT SYMBOL TABLE (debbuging purposes)
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 void SymbolTable::printSymbolTable() const {
-    for(auto it = symbolTable.begin(); it != symbolTable.end(); it++){
-        std::cout << it->second.symbolToString();
+    for(const auto& symbol : symbolTable){
+        std::cout << symbol.second.symbolToString();
     }
 }

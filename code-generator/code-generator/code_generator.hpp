@@ -11,12 +11,12 @@ class CodeGenerator{
 
     public:
 
-        CodeGenerator(std::string& output);
+        CodeGenerator(std::string& file);
 
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         // public entry point to code generation
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
-        void generateCode(IRTree* root);
+        void generateCode(const IRTree* root);
 
     private:
 
@@ -39,66 +39,66 @@ class CodeGenerator{
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         // register usage handlers
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
-        void takeGpReg();
+        void takeGpReg() noexcept;
 
-        void freeGpReg();
+        void freeGpReg() noexcept;
 
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         // ensuring label number is unique for every non-related
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
-        size_t getNextLabelNum();
+        [[nodiscard]] size_t getNextLabelNum() noexcept;
 
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         // function
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
-        void generateFunction(IRTree* node);
+        void generateFunction(const IRTree* node);
 
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         // variables
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
-        void generateParameter(IRTree* node);
+        void generateParameter(const IRTree* node);
 
-        void generateConstruct(IRTree* node);
+        void generateConstruct(const IRTree* node);
 
-        void generateVariable(IRTree* node);
+        void generateVariable(const IRTree* node);
 
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         // statements
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
-        void generateStatement(IRTree* node);
+        void generateStatement(const IRTree* node);
 
-        void generateIfStatement(IRTree* node);
+        void generateIfStatement(const IRTree* node);
 
-        void generateWhileStatement(IRTree* node);
+        void generateWhileStatement(const IRTree* node);
 
-        void generateForStatement(IRTree* node);
+        void generateForStatement(const IRTree* node);
 
-        void generateDoWhileStatement(IRTree* node);
+        void generateDoWhileStatement(const IRTree* node);
 
-        void generateCompoundStatement(IRTree* node);
+        void generateCompoundStatement(const IRTree* node);
 
-        void generateAssignmentStatement(IRTree* node);
+        void generateAssignmentStatement(const IRTree* node);
 
-        void generateReturnStatement(IRTree* node);
+        void generateReturnStatement(const IRTree* node);
 
-        void generateSwitchStatement(IRTree* node);
+        void generateSwitchStatement(const IRTree* node);
 
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         // expressions
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
-        void generateNumericalExpression(IRTree* node);
+        void generateNumericalExpression(const IRTree* node);
 
-        void generateRelationalExpression(IRTree* node);
+        void generateRelationalExpression(const IRTree* node);
 
-        const std::string generateID(IRTree* node);
+        const std::string& generateID(const IRTree* node) const;
 
-        const std::string generateLiteral(IRTree* node);
+        std::string generateLiteral(const IRTree* node) const;
 
-        void generateFunctionCall(IRTree* node);
+        void generateFunctionCall(const IRTree* node);
 
-        void generateArgument(IRTree* node);
+        void generateArgument(const IRTree* node);
 
-        void clearArguments(IRTree* node);
+        void clearArguments(const IRTree* node);
 
 };
 

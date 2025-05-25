@@ -12,8 +12,8 @@
 class ASTree{
     public:
     
-        ASTree(ASTNodeType nodeType, const Token& token);
-        ASTree(ASTNodeType nodeType, const Token& token, Types type);
+        ASTree(const Token& token, ASTNodeType nodeType);
+        ASTree(const Token& token, Types type, ASTNodeType nodeType);
 
         ~ASTree();
 
@@ -22,42 +22,42 @@ class ASTree{
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         void pushChild(std::unique_ptr<ASTree>&& child);
 
-        ASTree* getChild(size_t index);
+        ASTree* getChild(size_t index) const noexcept;
 
-        const std::vector<std::unique_ptr<ASTree>>& getChildren() const;
+        const std::vector<std::unique_ptr<ASTree>>& getChildren() const noexcept;
 
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         // setters
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
-        void setType(const Types t);
+        void setType(const Types t) noexcept;
 
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         // getters
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
-        Types getType() const;
+        Types getType() const noexcept;
 
-        ASTNodeType getNodeType() const;
+        ASTNodeType getNodeType() const noexcept;
 
-        const Token getToken() const;
+        const Token& getToken() const noexcept;
 
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         // display
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
-        const std::string toString() const;
+        std::string toString() const;
 
         void traverse(size_t offset) const;
 
     private:
 
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
-        // node type - type of a AST node
         // token - token related to AST node
         // type - type of a node (optional, storing types of variables etc.)
+        // node type - type of a AST node
         // children - AST subnodes of a node
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
-        ASTNodeType nodeType;
         Token token;
         std::optional<Types> type;
+        ASTNodeType nodeType;
         std::vector<std::unique_ptr<ASTree>> children;
 
 };
