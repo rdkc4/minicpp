@@ -1,7 +1,7 @@
 #include "lexer.hpp"
 
+#include <cctype>
 #include <iostream>
-#include <regex>
 #include <stdexcept>
 #include <format>
 #include <string_view>
@@ -42,7 +42,7 @@ void Lexer::tokenize(){
             multiLineComment();
         }
         else if(isBitwiseOperator(curr)){
-            getBitwiseOperator();
+            getBitwiseOperator(curr);
         }
         else if(isAritOperator(curr)){
             getAritOperator(curr);
@@ -54,31 +54,31 @@ void Lexer::tokenize(){
             getRelOperator();
         }
         else if(curr == '('){
-            tokens.push_back(Token{std::string(1,curr), lineNumber, position - prevLineLen, TokenType::_LPAREN});
+            tokens.push_back(Token{std::string_view{&curr,1}, lineNumber, position - prevLineLen, TokenType::_LPAREN});
             updatePosition();
         }
         else if(curr == ')'){
-            tokens.push_back(Token{std::string(1,curr), lineNumber, position - prevLineLen, TokenType::_RPAREN});
+            tokens.push_back(Token{std::string_view{&curr,1}, lineNumber, position - prevLineLen, TokenType::_RPAREN});
             updatePosition();
         }
         else if(curr == '{'){
-            tokens.push_back(Token{std::string(1,curr), lineNumber, position - prevLineLen, TokenType::_LBRACKET});
+            tokens.push_back(Token{std::string_view{&curr,1}, lineNumber, position - prevLineLen, TokenType::_LBRACKET});
             updatePosition();
         }
         else if(curr == '}'){
-            tokens.push_back(Token{std::string(1,curr), lineNumber, position - prevLineLen, TokenType::_RBRACKET});
+            tokens.push_back(Token{std::string_view{&curr,1}, lineNumber, position - prevLineLen, TokenType::_RBRACKET});
             updatePosition();
         }
         else if(curr == ','){
-            tokens.push_back(Token{std::string(1,curr), lineNumber, position - prevLineLen, TokenType::_COMMA});
+            tokens.push_back(Token{std::string_view{&curr,1}, lineNumber, position - prevLineLen, TokenType::_COMMA});
             updatePosition();
         }
         else if(curr == ';'){
-            tokens.push_back(Token{std::string(1,curr), lineNumber, position - prevLineLen, TokenType::_SEMICOLON});
+            tokens.push_back(Token{std::string_view{&curr,1}, lineNumber, position - prevLineLen, TokenType::_SEMICOLON});
             updatePosition();
         }
         else if(curr == ':'){
-            tokens.push_back(Token{std::string(1, curr), lineNumber, position - prevLineLen, TokenType::_COLON});
+            tokens.push_back(Token{std::string_view{&curr,1}, lineNumber, position - prevLineLen, TokenType::_COLON});
             updatePosition();
         }
         else{
@@ -141,53 +141,56 @@ void Lexer::updateLine() noexcept {
 // retrieval of ID token ([A-Za-z][A-Za-z0-9_]*)
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 void Lexer::getID(){
-    const static std::regex id_pattern{ "[a-zA-Z][a-zA-Z0-9_]*" };
-    static std::match_results<std::string::iterator> match;
-    std::regex_search(input.begin() + position, input.end(), match, id_pattern);
-    
-    updatePosition(match.length());
-    tokens.push_back(Token{ match[0].str(), lineNumber, position - prevLineLen, 
-        isKeyword(match[0]) ? keywords.at(match[0]) : TokenType::_ID});
+    const size_t start{ position };
+    while(position < input.size() && (std::isalnum(input[position]) || input[position] == '_')){
+        updatePosition(); 
+    }
+    std::string id{ input.substr(start, position - start) };
+    tokens.push_back(Token{ id, lineNumber, position - prevLineLen, isKeyword(id) ? keywords.at(id) : TokenType::_ID});
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // retrieval of Literal token ([+-]?[0-9][0-9]*[u]?)
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 void Lexer::getLiteral(bool sign){
-    const static std::regex literal_pattern{ "[+-]?(0|[1-9][0-9]*)[u]?" };
-    static std::match_results<std::string::iterator> match;
-    std::regex_search(input.begin() + position, input.end(), match, literal_pattern);
-
-    std::string_view literal{ sign && match[0].str()[0] == '+' ? match[0].str().substr(1, match[0].length() - 1) : match[0] };
-    updatePosition(match[0].length());
-    tokens.push_back(Token{literal, lineNumber, position - prevLineLen, TokenType::_LITERAL});
+    size_t start{ sign ? ++position : position };
+    while(position < input.size() && std::isdigit(input[position])){
+        updatePosition();
+    }
+    if(position < input.size() && input[position] == 'u'){
+        updatePosition();
+    }
+    if(sign && input[start-1] == '-'){
+        --start;
+    }
+    tokens.push_back(Token{std::string_view{&input[start], position - start}, lineNumber, position - prevLineLen, TokenType::_LITERAL});
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // retrieval of assign token 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 void Lexer::getAssignOperator(char curr){
-    tokens.push_back(Token{std::string(1, curr), lineNumber, position - prevLineLen, TokenType::_ASSIGN});
+    tokens.push_back(Token{std::string_view{&curr, 1}, lineNumber, position - prevLineLen, TokenType::_ASSIGN});
     updatePosition();
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // retrieval of bitwise operator
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-void Lexer::getBitwiseOperator(){
-    const static std::regex bitwise_pattern{ "^(>>|<<|&|\\||\\^)" };
-    static std::match_results<std::string::iterator> match;
-    std::regex_search(input.begin() + position, input.end(), match, bitwise_pattern);
-
-    updatePosition(match[0].length());
-    tokens.push_back(Token(match[0].str(), lineNumber, position - prevLineLen, TokenType::_BITWISE));
+void Lexer::getBitwiseOperator(char curr){
+    const size_t start{ position };
+    if(curr == '<' || curr == '>'){
+        updatePosition();
+    }
+    updatePosition();
+    tokens.push_back(Token(std::string_view{&input[start], position - start}, lineNumber, position - prevLineLen, TokenType::_BITWISE));
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // retrieval of arithmetic operator
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 void Lexer::getAritOperator(char curr){
-    tokens.push_back(Token{std::string(1, curr), lineNumber, position - prevLineLen, TokenType::_AROP});
+    tokens.push_back(Token{std::string_view{&curr, 1}, lineNumber, position - prevLineLen, TokenType::_AROP});
     updatePosition();
 }
 
@@ -195,12 +198,14 @@ void Lexer::getAritOperator(char curr){
 // retrieval of relational operator
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 void Lexer::getRelOperator(){
-    const static std::regex relop_pattern{ "<=|>=|==|!=|>|<" };
-    static std::match_results<std::string::iterator> match;
-    std::regex_search(input.begin() + position, input.end(), match, relop_pattern);
-
-    updatePosition(match[0].length());
-    tokens.push_back(Token{match[0].str(), lineNumber, position - prevLineLen, TokenType::_RELOP});
+    const size_t start{ position };
+    if(position < input.size() - 1 && (input[position + 1] == '=' || input[position + 1] == '!' || input[position + 1] == '<' || input[position + 1] == '>')){
+        updatePosition(2);
+    }
+    else{
+        updatePosition();
+    }
+    tokens.push_back(Token{std::string_view{&input[start], position - start}, lineNumber, position - prevLineLen, TokenType::_RELOP});
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -253,20 +258,18 @@ bool Lexer::isRelOperator(char curr) const {
 // COMMENTS - // single-line
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 void Lexer::singleLineComment(){
-    const static std::regex comment_pattern{ "//(.*?)(\n|$)" };
-    static std::match_results<std::string::iterator> match;
-    std::regex_search(input.begin() + position, input.end(), match, comment_pattern);
-    
-    updatePosition(match[0].length());
-    updateLine();
+    updatePosition(2);
+    while(position < input.size() && input[position] != '\n'){
+        updatePosition();
+    }
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 // COMMENTS - /* multi-line */
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
 void Lexer::multiLineComment(){
-    size_t startLine{ lineNumber };
-    size_t startPosition{ position - prevLineLen };
+    const size_t startLine{ lineNumber };
+    const size_t startColumn{ position - prevLineLen };
 
     updatePosition(2);
     while(position < input.size() - 1 && input[position] != '*' && input[position+1] != '/'){
@@ -280,6 +283,6 @@ void Lexer::multiLineComment(){
     }
     else{
         throw std::runtime_error(std::format("Line {}, Column {}: SYNTAX ERROR -> multi-line comment starting at line {}, column {}: not closed\n",
-            lineNumber, position - prevLineLen, startLine, startPosition));
+            lineNumber, position - prevLineLen, startLine, startColumn));
     }
 }

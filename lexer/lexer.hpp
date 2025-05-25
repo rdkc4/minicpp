@@ -64,7 +64,7 @@ class Lexer{
 
         void getAssignOperator(char curr);
 
-        void getBitwiseOperator();
+        void getBitwiseOperator(char curr);
 
         void getAritOperator(char curr);
 
