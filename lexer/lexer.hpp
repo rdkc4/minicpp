@@ -43,15 +43,17 @@ class Lexer{
         size_t position;
         size_t lineNumber;
         size_t prevLineLen;
-        std::vector<Token> tokens;
         size_t nextTokenIdx;
+        std::vector<Token> tokens;
 
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         // maintaining position, line number and previous line length values
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
-        void updatePosition();
+        void updatePosition() noexcept;
 
-        void updatePosition(size_t n);
+        void updatePosition(size_t n) noexcept;
+
+        void updateLine() noexcept;
 
         //-----------------------------------------------------------------------------------------------------------------------------------------------------
         // token readers
@@ -62,7 +64,7 @@ class Lexer{
 
         void getAssignOperator(char curr);
 
-        void getBitwiseOperator(char curr);
+        void getBitwiseOperator();
 
         void getAritOperator(char curr);
 
