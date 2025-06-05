@@ -3,11 +3,7 @@
 
 AsmGenerator::AsmGenerator(std::string& file) : output{ file } {}
 
-AsmGenerator::~AsmGenerator() noexcept {
-    if(output.is_open()){
-        output.close();
-    }
-}
+AsmGenerator::~AsmGenerator() noexcept = default;
 
 bool AsmGenerator::isOpen() const {
     return output.is_open();
