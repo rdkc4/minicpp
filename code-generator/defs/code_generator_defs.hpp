@@ -5,9 +5,9 @@
 #include <vector>
 #include <string>
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// definitions related to code generation
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
+/*
+    code generation related definitions
+*/
 
 extern const std::unordered_map<std::string, std::vector<std::string>> stringToJMP;
 

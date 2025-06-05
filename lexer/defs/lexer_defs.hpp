@@ -6,10 +6,11 @@
 
 #include "../../common/token/token.hpp"
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// definitions related to lexer
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
+/*
+    lexer related definitions
+*/
 
+// keywords reserved for the language
 extern const std::unordered_map<std::string, TokenType> keywords;
 
 #endif

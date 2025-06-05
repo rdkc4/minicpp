@@ -5,19 +5,13 @@
 
 ScopeManager::ScopeManager(SymbolTable& symTab) : symbolTable{ symTab } {}
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// ENTERED NEW SCOPE
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 void ScopeManager::pushScope(){
     scope.push({});
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// SCOPE EXPIRED - DELETE EXPIRED SYMBOLS FROM SYMBOL TABLE
-// -> allow variable declaration anywhere (TODO)  
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 void ScopeManager::popScope(){
     auto& out{ scope.top() };
+    // deleting symbols that went out of scope from symbol table
     while(!out.empty()){
         symbolTable.deleteSymbol(out.top());
         out.pop();
@@ -25,9 +19,6 @@ void ScopeManager::popScope(){
     scope.pop();
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// INSERT SYMBOL FOR CURRENT SCOPE
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 bool ScopeManager::pushSymbol(const Symbol& symbol){
     if(symbolTable.insertSymbol(symbol.getName(), symbol)){
         scope.top().push(symbol.getName());
@@ -36,9 +27,6 @@ bool ScopeManager::pushSymbol(const Symbol& symbol){
     return false;
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// ACCESS SYMBOL TABLE
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 const SymbolTable& ScopeManager::getSymbolTable() const noexcept {
     return symbolTable;
 }
@@ -51,9 +39,6 @@ bool ScopeManager::lookupSymbol(const std::string& name, std::initializer_list<K
     return symbolTable.lookupSymbol(name, kind);
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// PRINT SYMBOL TABLE (debbuging purposes)
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 void ScopeManager::printSymbolTable() const {
     symbolTable.printSymbolTable();
     std::cout << std::string(36,'-') << "\n";

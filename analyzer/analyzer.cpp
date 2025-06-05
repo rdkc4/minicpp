@@ -6,9 +6,6 @@
 
 Analyzer::Analyzer(ScopeManager& scopeManager) : scopeManager{ scopeManager }, activeFunction{ "" }, returned{ false } {}
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// SEMANTIC CHECK
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 void Analyzer::semanticCheck(const ASTree* root){
     ASTree* flist{ root->getChildren().back().get() };
 
@@ -19,7 +16,7 @@ void Analyzer::semanticCheck(const ASTree* root){
         checkFunction(child.get());
     }
 
-    // main function existence check
+    // check if main exists
     if(!scopeManager.lookupSymbol("main", {Kinds::FUN})){
         throw std::runtime_error("'main' function not found");
     }
@@ -27,9 +24,6 @@ void Analyzer::semanticCheck(const ASTree* root){
     scopeManager.popScope();
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// FUNCTION: type validation, parameter validation, body validation, return validation
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 void Analyzer::checkFunction(const ASTree* node){
     Types returnType{ node->getType() };
 
@@ -68,9 +62,6 @@ void Analyzer::checkFunction(const ASTree* node){
     returned = false;
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// PARAMETER CHECK - type check, variable redefinition
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 void Analyzer::checkParameter(ASTree* node){
     // pointer to parameters for easier function call type checking
     scopeManager.getSymbol(activeFunction).setParameters(node);
@@ -101,18 +92,12 @@ void Analyzer::checkParameter(ASTree* node){
     }
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// BODY CHECK - variable check, construct check
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 void Analyzer::checkBody(const ASTree* node){
     for(const auto& child : node->getChildren()){
         checkConstruct(child.get());
     }
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// CONSTRUCT CHECK - variable / statement check
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 void Analyzer::checkConstruct(const ASTree* node){
     if(node->getNodeType() == ASTNodeType::VARIABLE){
         checkVariable(node);
@@ -122,9 +107,6 @@ void Analyzer::checkConstruct(const ASTree* node){
     }
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// VARIABLE CHECK - type check, variable redefinition
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 void Analyzer::checkVariable(const ASTree* node){
     // variable type check
     Types type{ node->getType() };
@@ -149,9 +131,6 @@ void Analyzer::checkVariable(const ASTree* node){
     }
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// STATEMENT CHECK - based on statement type
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 void Analyzer::checkStatement(const ASTree* node){
     switch(node->getNodeType()){
         case ASTNodeType::IF_STATEMENT:
@@ -184,12 +163,11 @@ void Analyzer::checkStatement(const ASTree* node){
     }
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// IF STATEMENT CHECK - relational expression check
-// child 0 - if relexp, child 1 - if statement
-// for child > 1 -> child % 2 == 0 ? relexp : statement
+// child(0) - if relational expression 
+// child 1 - if statement constructs
+// child(i), i > 1 && i % 2 == 0 relational expression
+// child(i), i > 1 && i % 2 == 1 constructs
 // if there is odd number of children, else statement is at the back
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 void Analyzer::checkIfStatement(const ASTree* node){
     for(const auto& child : node->getChildren()){
         if(child->getNodeType() == ASTNodeType::RELATIONAL_EXPRESSION){
@@ -201,23 +179,17 @@ void Analyzer::checkIfStatement(const ASTree* node){
     }
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// WHILE STATEMENT CHECK - relational expression check
-// child 0 - relexp
-// child 1 - constructs
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
+// child(0) - relational expression
+// child(1) - constructs
 void Analyzer::checkWhileStatement(const ASTree* node){
     checkRelationalExpression(node->getChild(0));
     checkConstruct(node->getChild(1));
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// FOR STATEMENT CHECK - type check, relational expression check, assignment check; id assign_st(1) == id assign_st(2)
-// child 0 - assignment statement (init)
-// child 1 - relexp
-// child 2 - assignment statement (inc)
-// child 3 - for statements
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
+// child(0) - assignment statement (initializer)
+// child(1) - relational expression (condition)
+// child(2) - assignment statement (increment)
+// child(3) - constructs
 void Analyzer::checkForStatement(const ASTree* node){
     checkAssignmentStatement(node->getChild(0));
     checkRelationalExpression(node->getChild(1));
@@ -226,7 +198,7 @@ void Analyzer::checkForStatement(const ASTree* node){
     std::string lname{ node->getChild(0)->getChild(0)->getToken().value };
     std::string rname{ node->getChild(2)->getChild(0)->getToken().value };
 
-    // for statement variable check (init & inc)   
+    // check if variables initializer variable and increment variable match
     if(lname != rname){
         throw std::runtime_error(std::format("Line {}, Column {}: SEMANTIC ERROR -> invalid for statement - variable mismatch '{}' != '{}'", 
             node->getToken().line, node->getToken().column, lname, rname));
@@ -235,21 +207,15 @@ void Analyzer::checkForStatement(const ASTree* node){
     checkConstruct(node->getChild(3));
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// DO WHILE STATEMENT CHECK - construct check, relational expression check
-// child 0 - constructs
-// child 1 - relexp
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
+// child(0) - constructs
+// child(1) - relational expression
 void Analyzer::checkDoWhileStatement(const ASTree* node){
     checkConstruct(node->getChild(0));
     checkRelationalExpression(node->getChild(1));
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// SWITCH STATEMENT CHECK - id check, cases check (duplicate check, type check)
-// child 0 - id
-// child 1 - cases / default
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
+// child(0) - id
+// child(1) - cases and default
 void Analyzer::checkSwitchStatement(const ASTree* node){
     checkID(node->getChild(0));
 
@@ -266,13 +232,10 @@ void Analyzer::checkSwitchStatement(const ASTree* node){
     }
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// SWITCH STATEMENT CASE/DEFAULT CHECK - duplicate check / type check
-// cases child 0 - literal
-// cases child 1 - constructs
-// cases child 2 - break (optional)
-// default child 0 - constructs (break can exist, but it will be ignored)
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
+// cases child(0) - literal
+// cases child(1) - constructs
+// cases child(2) - break (optional)
+// default child(0) - constructs (break can exist, but it will be ignored)
 template<typename T>
 void Analyzer::checkSwitchStatementCases(const ASTree* node){
     std::unordered_set<T> set;
@@ -312,9 +275,6 @@ void Analyzer::checkSwitchStatementCases(const ASTree* node){
     }
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// COMPOUND STATEMENT CHECK - check constructs
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 void Analyzer::checkCompoundStatement(const ASTree* node){
     // compound scope
     scopeManager.pushScope();
@@ -324,11 +284,8 @@ void Analyzer::checkCompoundStatement(const ASTree* node){
     scopeManager.popScope();
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// ASSIGNMENT STATEMENT CHECK - type checking
-// child 0 - destination variable
-// child 1 - numexp
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
+// child(0) - destination variable
+// child 1 - numerical expression
 void Analyzer::checkAssignmentStatement(const ASTree* node) const {
     ASTree* lchild{ node->getChild(0) };
     ASTree* rchild{ node->getChild(1) };
@@ -350,9 +307,6 @@ void Analyzer::checkAssignmentStatement(const ASTree* node) const {
     }
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// RETURN STATEMENT CHECK - type check (ret val, expected val)
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 void Analyzer::checkReturnStatement(const ASTree* node){
     Types type{ node->getChildren().empty() ? Types::VOID : getNumericalExpressionType(node->getChild(0)) };
 
@@ -365,16 +319,10 @@ void Analyzer::checkReturnStatement(const ASTree* node){
     returned = true;
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// NUMERICAL EXPRESSION CHECK - set type to numexp node for easier type check
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 void Analyzer::checkNumericalExpression(ASTree* node) const {
-    node->setType(getNumericalExpressionType(node));
+    node->setType(getNumericalExpressionType(node)); // setting type to numexp node for easier type checking
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// NUMEXP TYPE CHECKING - each id/literal of same type, each id must exist in symbol table
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 Types Analyzer::getNumericalExpressionType(ASTree* node) const {
     if(node->getNodeType() == ASTNodeType::ID){
         checkID(node);
@@ -403,12 +351,9 @@ Types Analyzer::getNumericalExpressionType(ASTree* node) const {
     }
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// RELATIONAL EXPRESSION CHECK - type check
-// node - contains rel operator
-// child 0 - left operand
-// child 1 - right operand
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
+// node - contains relational operator
+// child(0) - left operand
+// child(1) - right operand
 void Analyzer::checkRelationalExpression(const ASTree* node) const {
     ASTree* lchild{ node->getChild(0) };
     ASTree* rchild{ node->getChild(1) };
@@ -425,11 +370,9 @@ void Analyzer::checkRelationalExpression(const ASTree* node) const {
     }
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// ID CHECK - variable redefinition check
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 void Analyzer::checkID(ASTree* node) const {
     std::string name{ node->getToken().value };
+    // check if id exists
     if(!scopeManager.lookupSymbol(name, {Kinds::VAR, Kinds::PAR})){
         throw std::runtime_error(std::format("Line {}, Column {}: SEMANTIC ERROR -> undefined variable '{}'", 
             node->getToken().line, node->getToken().column, name));
@@ -437,9 +380,6 @@ void Analyzer::checkID(ASTree* node) const {
     node->setType(scopeManager.getSymbol(name).getType());
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// LITERAL CHECK - literal validation
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 void Analyzer::checkLiteral(const ASTree* node) const {
     std::string name{ node->getToken().value };
     // invalid literal check
@@ -449,10 +389,7 @@ void Analyzer::checkLiteral(const ASTree* node) const {
     }
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// FUNCTION CALL CHECK - argument check
-// child 0 - arguments
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
+// child(0) - arguments
 void Analyzer::checkFunctionCall(ASTree* node) const {
     // function existence
     if(!scopeManager.lookupSymbol(node->getToken().value, {Kinds::FUN})){
@@ -476,9 +413,6 @@ void Analyzer::checkFunctionCall(ASTree* node) const {
     checkArgument(node);
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// ARGUMENT CHECK - type comparison between called function and function call
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 void Analyzer::checkArgument(const ASTree* node) const {
     ASTree* functionParameters{ scopeManager.getSymbol(node->getToken().value).getParameters() };
     ASTree* arguments{ node->getChild(0) };

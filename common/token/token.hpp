@@ -4,9 +4,9 @@
 #include <string>
 #include <unordered_map>
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// definitions related to tokens
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
+/*
+    token related definitions
+*/
 
 enum class TokenType{
     _ID, _LITERAL, _AROP, _BITWISE, _RELOP, _LPAREN, _RPAREN, _LBRACKET, _RBRACKET, _SEMICOLON, _COLON, _ASSIGN, _TYPE,
@@ -16,16 +16,13 @@ enum class TokenType{
 extern const std::unordered_map<TokenType, std::string> tokenTypeToString;
 
 struct Token{
-
-    //-----------------------------------------------------------------------------------------------------------------------------------------------------
-    // value - more specific description
-    // line - line where token was found
-    // column - column where token begins
-    // type - type of a token
-    //-----------------------------------------------------------------------------------------------------------------------------------------------------
+    // more specific description
     std::string value;
+    // line where token was found
     size_t line;
+    // column where token was found
     size_t column;
+    // type of a token
     TokenType type;
 
     Token();

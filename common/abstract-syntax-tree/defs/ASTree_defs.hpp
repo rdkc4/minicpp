@@ -4,9 +4,9 @@
 #include <unordered_map>
 #include <string>
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// definitions related to abstract syntax tree
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
+/*
+    abstract syntax tree related definitions
+*/
 
 enum class ASTNodeType{
     PROGRAM, FUNCTION_LIST, FUNCTION, PARAMETER, BODY, VARIABLE_LIST, VARIABLE, STATEMENT_LIST, STATEMENT, COMPOUND_STATEMENT, 

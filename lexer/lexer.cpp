@@ -11,10 +11,6 @@
 
 Lexer::Lexer(std::string_view input) : input{ input }, position{ 0 }, lineNumber{ 1 }, prevLineLen{ 0 }, nextTokenIdx{ 0 } {}
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// LEXICAL CHECK
-// tokenization of entire file
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 void Lexer::tokenize(){
     while(position < input.size()){
         char curr{ input[position] };
@@ -91,10 +87,7 @@ void Lexer::tokenize(){
     //printTokens();
 }
 
-
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// MOVING ON TO THE NEXT TOKEN
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
+// returns current token and moves onto the next
 const Token& Lexer::nextToken() noexcept {
     if(nextTokenIdx >= tokens.size()){
         return tokens.back();
@@ -102,9 +95,7 @@ const Token& Lexer::nextToken() noexcept {
     return tokens[nextTokenIdx++];
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// RETRIEVAL OF NEXT TOKEN
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
+// returns next token
 const Token& Lexer::peekAtNext() const noexcept {
     if(nextTokenIdx >= tokens.size()){
         return tokens.back();
@@ -112,18 +103,12 @@ const Token& Lexer::peekAtNext() const noexcept {
     return tokens[nextTokenIdx];
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// DISPLAYING ALL TOKENS (debbuging purpose)
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 void Lexer::printTokens() const {
     for(const auto& token: tokens){
         std::cout << std::format("Token: type - {}\t value - {}\n", tokenTypeToString.at(token.type), token.value);
     }
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// line/column update
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 void Lexer::updatePosition() noexcept {
     ++position;
 }
@@ -137,9 +122,7 @@ void Lexer::updateLine() noexcept {
     prevLineLen = position;
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// retrieval of ID token ([A-Za-z][A-Za-z0-9_]*)
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
+// ID ([A-Za-z][A-Za-z0-9_]*)
 void Lexer::getID(){
     const size_t start{ position };
     while(position < input.size() && (std::isalnum(input[position]) || input[position] == '_')){
@@ -149,9 +132,7 @@ void Lexer::getID(){
     tokens.push_back(Token{ id, lineNumber, position - prevLineLen, isKeyword(id) ? keywords.at(id) : TokenType::_ID});
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// retrieval of Literal token ([+-]?[0-9][0-9]*[u]?)
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
+// literal ([+-]?[0-9][0-9]*[u]?)
 void Lexer::getLiteral(bool sign){
     size_t start{ sign ? ++position : position };
     while(position < input.size() && std::isdigit(input[position])){
@@ -166,17 +147,13 @@ void Lexer::getLiteral(bool sign){
     tokens.push_back(Token{std::string_view{&input[start], position - start}, lineNumber, position - prevLineLen, TokenType::_LITERAL});
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// retrieval of assign token 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
+// assign [=]
 void Lexer::getAssignOperator(char curr){
     tokens.push_back(Token{std::string_view{&curr, 1}, lineNumber, position - prevLineLen, TokenType::_ASSIGN});
     updatePosition();
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// retrieval of bitwise operator
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
+// bitwise operators (&, |, ^, <<, >>)
 void Lexer::getBitwiseOperator(char curr){
     const size_t start{ position };
     if(curr == '<' || curr == '>'){
@@ -186,17 +163,13 @@ void Lexer::getBitwiseOperator(char curr){
     tokens.push_back(Token(std::string_view{&input[start], position - start}, lineNumber, position - prevLineLen, TokenType::_BITWISE));
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// retrieval of arithmetic operator
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
+// arithmetic operators (+, -, *, /)
 void Lexer::getAritOperator(char curr){
     tokens.push_back(Token{std::string_view{&curr, 1}, lineNumber, position - prevLineLen, TokenType::_AROP});
     updatePosition();
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// retrieval of relational operator
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
+// relational operators (<, >, <=, >=, ==, !=)
 void Lexer::getRelOperator(){
     const size_t start{ position };
     if(position < input.size() - 1 && (input[position + 1] == '=' || input[position + 1] == '!' || input[position + 1] == '<' || input[position + 1] == '>')){
@@ -208,55 +181,34 @@ void Lexer::getRelOperator(){
     tokens.push_back(Token{std::string_view{&input[start], position - start}, lineNumber, position - prevLineLen, TokenType::_RELOP});
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// check for predefined keywords
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 bool Lexer::isKeyword(const std::string& value) const noexcept {
     return keywords.find(value) != keywords.end();
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// check for sign in ahead of literal
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 bool Lexer::isSignedLiteral(char curr) const noexcept {
     return ((curr == '-' || curr == '+') && position < input.size()-1 && std::isdigit(input[position+1]) 
             && (!tokens.empty() && tokens[tokens.size()-1].type != TokenType::_LITERAL 
             && tokens[tokens.size()-1].type != TokenType::_ID && tokens[tokens.size()-1].type != TokenType::_RPAREN));
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// check for assign operator
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 bool Lexer::isAssignOperator(char curr) const noexcept {
     return curr == '=' && (position + 1 >= input.size() || input[position+1] != '=');
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// arithmetic operator checking (+, -, *, /)
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 bool Lexer::isAritOperator(char curr) const {
     return arithmeticOperators.find(std::string(1, curr)) != arithmeticOperators.end();
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// bitwise operator checking (&, |, ^, <<, >>)
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 bool Lexer::isBitwiseOperator(char curr) const {
     return bitwiseOperators.find(std::string(1, curr)) != bitwiseOperators.end()
         || (position + 1 < input.size() && bitwiseOperators.find(std::string(1, curr) + input[position + 1]) != bitwiseOperators.end());
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// relational operator checking (<, >, <=, >=, ==, !=)
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 bool Lexer::isRelOperator(char curr) const {
     return relationalOperators.find(std::string(1,curr)) != relationalOperators.end() 
         || (position + 1 < input.size() && relationalOperators.find(std::string(1, curr) + input[position + 1]) != relationalOperators.end());
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// COMMENTS - // single-line
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 void Lexer::singleLineComment(){
     updatePosition(2);
     while(position < input.size() && input[position] != '\n'){
@@ -264,9 +216,6 @@ void Lexer::singleLineComment(){
     }
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// COMMENTS - /* multi-line */
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 void Lexer::multiLineComment(){
     const size_t startLine{ lineNumber };
     const size_t startColumn{ position - prevLineLen };

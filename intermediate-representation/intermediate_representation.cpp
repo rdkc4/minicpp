@@ -5,10 +5,6 @@
 #include <string>
 #include <format>
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// INTERMEDIATE REPRESENTATION TREE BUILDING
-// simplifying AST for easier code generation
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::unique_ptr<IRTree> IntermediateRepresentation::formIR(const ASTree* astRoot){
     std::unique_ptr<IRTree> root = std::make_unique<IRTree>(IRNodeType::PROGRAM);
     for(const auto& child: astRoot->getChild(0)->getChildren()){
@@ -17,9 +13,6 @@ std::unique_ptr<IRTree> IntermediateRepresentation::formIR(const ASTree* astRoot
     return root;
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// FUNCTION NODE - parameters, constructs  
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::unique_ptr<IRTree> IntermediateRepresentation::function(const ASTree* node){
     std::unique_ptr<IRTree> iChild = std::make_unique<IRTree>(node->getToken().value, "", node->getType(), IRNodeType::FUNCTION);
     
@@ -38,9 +31,6 @@ std::unique_ptr<IRTree> IntermediateRepresentation::function(const ASTree* node)
     return iChild;
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// PARAMETER NODES - default values 0
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::unique_ptr<IRTree> IntermediateRepresentation::parameter(const ASTree* node) const {
     std::unique_ptr<IRTree> iChild = std::make_unique<IRTree>(IRNodeType::PARAMETER);
     for(const auto& child : node->getChildren()){
@@ -49,9 +39,6 @@ std::unique_ptr<IRTree> IntermediateRepresentation::parameter(const ASTree* node
     return iChild;
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// CONSTRUCT - variable / statement
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::unique_ptr<IRTree> IntermediateRepresentation::construct(const ASTree* node){
     if(node->getNodeType() == ASTNodeType::VARIABLE){
         return variable(node);
@@ -61,9 +48,6 @@ std::unique_ptr<IRTree> IntermediateRepresentation::construct(const ASTree* node
     }
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// VARIABLE NODES - default values 0
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::unique_ptr<IRTree> IntermediateRepresentation::variable(const ASTree* node){
     std::unique_ptr<IRTree> variable = std::make_unique<IRTree>(std::string{node->getToken().value}, "0", node->getType(), IRNodeType::VARIABLE);
     if(node->getChildren().size() != 0){
@@ -74,9 +58,6 @@ std::unique_ptr<IRTree> IntermediateRepresentation::variable(const ASTree* node)
     return variable;
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// STATEMENT NODE TYPES
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::unique_ptr<IRTree> IntermediateRepresentation::statement(const ASTree* node){
     switch(node->getNodeType()){
         case ASTNodeType::IF_STATEMENT:
@@ -101,9 +82,6 @@ std::unique_ptr<IRTree> IntermediateRepresentation::statement(const ASTree* node
     }
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// IF NODE - relexp, if constructs, relexp else if constructs (optional),  else constructs (optional)
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::unique_ptr<IRTree> IntermediateRepresentation::ifStatement(const ASTree* node){
     std::unique_ptr<IRTree> iChild = std::make_unique<IRTree>(IRNodeType::IF);
     for(const auto& child : node->getChildren()){
@@ -117,9 +95,6 @@ std::unique_ptr<IRTree> IntermediateRepresentation::ifStatement(const ASTree* no
     return iChild;
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// COMPOUND NODE - constructs
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::unique_ptr<IRTree> IntermediateRepresentation::compoundStatement(const ASTree* node){
     std::unique_ptr<IRTree> iChild = std::make_unique<IRTree>(IRNodeType::COMPOUND);
     for(const auto& child : node->getChildren()){
@@ -128,9 +103,6 @@ std::unique_ptr<IRTree> IntermediateRepresentation::compoundStatement(const ASTr
     return iChild;
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// ASSIGN NODE - destination variable, numexp
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::unique_ptr<IRTree> IntermediateRepresentation::assignmentStatement(const ASTree* node) const {
     std::unique_ptr<IRTree> iChild = std::make_unique<IRTree>(IRNodeType::ASSIGN);
     iChild->pushChild(id(node->getChild(0)));
@@ -138,9 +110,6 @@ std::unique_ptr<IRTree> IntermediateRepresentation::assignmentStatement(const AS
     return iChild;
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// RETURN NODE - numexp
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::unique_ptr<IRTree> IntermediateRepresentation::returnStatement(const ASTree* node) const {
     std::unique_ptr<IRTree> iChild = std::make_unique<IRTree>(IRNodeType::RETURN);
     if(node->getChildren().size() != 0){
@@ -149,9 +118,6 @@ std::unique_ptr<IRTree> IntermediateRepresentation::returnStatement(const ASTree
     return iChild;
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// WHILE NODE - relexp, constructs
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::unique_ptr<IRTree> IntermediateRepresentation::whileStatement(const ASTree* node){
     std::unique_ptr<IRTree> iChild = std::make_unique<IRTree>(IRNodeType::WHILE);
     iChild->pushChild(relationalExpression(node->getChild(0)));
@@ -159,9 +125,6 @@ std::unique_ptr<IRTree> IntermediateRepresentation::whileStatement(const ASTree*
     return iChild;
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// FOR NODE - assign, relexp, assign, constructs
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::unique_ptr<IRTree> IntermediateRepresentation::forStatement(const ASTree* node){
     std::unique_ptr<IRTree> iChild = std::make_unique<IRTree>(IRNodeType::FOR);
     iChild->pushChild(assignmentStatement(node->getChild(0)));
@@ -172,9 +135,6 @@ std::unique_ptr<IRTree> IntermediateRepresentation::forStatement(const ASTree* n
     return iChild;
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// DO_WHILE NODE - constructs, relexp
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::unique_ptr<IRTree> IntermediateRepresentation::doWhileStatement(const ASTree* node){
     std::unique_ptr<IRTree> iChild = std::make_unique<IRTree>(IRNodeType::DO_WHILE);
     iChild->pushChild(construct(node->getChild(0)));
@@ -183,9 +143,6 @@ std::unique_ptr<IRTree> IntermediateRepresentation::doWhileStatement(const ASTre
     return iChild;
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// SWITCH NODE - cases
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::unique_ptr<IRTree> IntermediateRepresentation::switchStatement(const ASTree* node){
     std::unique_ptr<IRTree> iChild = std::make_unique<IRTree>(IRNodeType::SWITCH);
     iChild->pushChild(id(node->getChild(0)));
@@ -201,9 +158,6 @@ std::unique_ptr<IRTree> IntermediateRepresentation::switchStatement(const ASTree
     return iChild;
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// CASE NODE - literal, constructs, break(optional)
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::unique_ptr<IRTree> IntermediateRepresentation::_case(const ASTree* node){
     std::unique_ptr<IRTree> iChild = std::make_unique<IRTree>(IRNodeType::CASE);
     iChild->pushChild(literal(node->getChild(0)));
@@ -216,9 +170,6 @@ std::unique_ptr<IRTree> IntermediateRepresentation::_case(const ASTree* node){
     return iChild;
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// DEFAULT NODE - constructs
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::unique_ptr<IRTree> IntermediateRepresentation::_default(const ASTree* node){
     std::unique_ptr<IRTree> iChild = std::make_unique<IRTree>(IRNodeType::DEFAULT);
     for(const auto& child : node->getChild(0)->getChildren()){
@@ -227,16 +178,11 @@ std::unique_ptr<IRTree> IntermediateRepresentation::_default(const ASTree* node)
     return iChild;
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// BREAK NODE
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::unique_ptr<IRTree> IntermediateRepresentation::_break() const {
     return std::make_unique<IRTree>(IRNodeType::BREAK);
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 // NUMEXP - reduced to (id, literal, function call) or arithmetic operation (add, sub, mul, div)
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::unique_ptr<IRTree> IntermediateRepresentation::numericalExpression(const ASTree* node) const {
     if(node->getNodeType() == ASTNodeType::ID){
         return id(node);
@@ -275,10 +221,7 @@ std::unique_ptr<IRTree> IntermediateRepresentation::numericalExpression(const AS
     }
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// MERGE LITERALS - simplify arithmetic operations if both nodes are literals
-// helper function mergeValues
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
+// reducing the depth of the tree if both children are literals
 template<typename T>
 std::unique_ptr<IRTree> IntermediateRepresentation::mergeLiterals(std::unique_ptr<IRTree>&& lchild, std::unique_ptr<IRTree>&& rchild, const ASTree* node) const {
     T lval = (std::is_same<T, int>::value ? std::stoi(lchild->getValue()) : std::stoul(lchild->getValue()));
@@ -322,45 +265,29 @@ T IntermediateRepresentation::mergeValues(T l, T r, const ASTree* node) const {
             node->getToken().line, node->getToken().column, op));
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// CMP NODE - numexp, numexp 
-// stores rel operator as value 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::unique_ptr<IRTree> IntermediateRepresentation::relationalExpression(const ASTree* node) const {
     std::unique_ptr<IRTree> iChild = std::make_unique<IRTree>(IRNodeType::CMP);
-    iChild->setValue(node->getToken().value);
+    iChild->setValue(node->getToken().value); // stores relational operator as value
     iChild->pushChild(numericalExpression(node->getChild(0)));
     iChild->pushChild(numericalExpression(node->getChild(1)));
 
     return iChild;
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// ID NODE - default val 0
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::unique_ptr<IRTree> IntermediateRepresentation::id(const ASTree* node) const {
     return std::make_unique<IRTree>(node->getToken().value, "0", node->getType(), IRNodeType::ID);
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// LITERAL NODE - already has value
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::unique_ptr<IRTree> IntermediateRepresentation::literal(const ASTree* node) const {
     return std::make_unique<IRTree>("", node->getToken().value, node->getType(), IRNodeType::LITERAL);
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// FUNCTION CALL - argument node
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::unique_ptr<IRTree> IntermediateRepresentation::functionCall(const ASTree* node) const {
     std::unique_ptr<IRTree> iChild = std::make_unique<IRTree>(node->getToken().value, "", node->getType(), IRNodeType::CALL);
     iChild->pushChild(argument(node));
     return iChild;
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// ARGUMENT NODE - arguments
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::unique_ptr<IRTree> IntermediateRepresentation::argument(const ASTree* node) const {
     std::unique_ptr<IRTree> iChild = std::make_unique<IRTree>(IRNodeType::ARGUMENT);
     for(const auto& child : node->getChild(0)->getChildren()){

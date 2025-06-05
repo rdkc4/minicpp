@@ -1,8 +1,5 @@
 #include "IRTree_defs.hpp"
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// operator IR Nodes
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 const std::unordered_set<IRNodeType> irOperators {IRNodeType::ADD, IRNodeType::SUB, IRNodeType::DIV, IRNodeType::MUL, 
     IRNodeType::AND, IRNodeType::OR, IRNodeType::XOR, IRNodeType::SHL, IRNodeType::SAL, IRNodeType::SHR, IRNodeType::SAR
 };
@@ -41,9 +38,6 @@ const std::unordered_map<IRNodeType, std::string> irNodeToString {
     {IRNodeType::SAR, "sar"}
 };
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// string to IR Arithmetic operator node type
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 const std::unordered_map<std::string, IRNodeType> stringToArop {
     {"+", IRNodeType::ADD},
     {"-", IRNodeType::SUB},
@@ -51,9 +45,6 @@ const std::unordered_map<std::string, IRNodeType> stringToArop {
     {"/", IRNodeType::DIV}
 };
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// string to IR Bitwise operator node type
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 const std::unordered_map<std::string, std::vector<IRNodeType>> stringToBitop {
     {"&", {IRNodeType::AND, IRNodeType::AND}},
     {"|", {IRNodeType::OR, IRNodeType::OR}},

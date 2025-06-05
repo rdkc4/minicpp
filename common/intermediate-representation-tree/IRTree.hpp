@@ -15,59 +15,40 @@ class IRTree{
         IRTree(std::string_view name, std::string_view value, Types type, IRNodeType nodeType);
         ~IRTree();
 
-        //-----------------------------------------------------------------------------------------------------------------------------------------------------
-        // operations related to nodes
-        //-----------------------------------------------------------------------------------------------------------------------------------------------------
+        // children modifiers
         void pushChild(std::unique_ptr<IRTree>&& child);
-
         void clearChildren() noexcept;
-
+        
+        // children getters
         IRTree* getChild(size_t index) const noexcept;
-
         const std::vector<std::unique_ptr<IRTree>>& getChildren() const noexcept;
 
-        //-----------------------------------------------------------------------------------------------------------------------------------------------------
         // setters
-        //-----------------------------------------------------------------------------------------------------------------------------------------------------
         void setNodeType(IRNodeType type) noexcept;
-
         void setName(const std::string& _name);
-
         void setValue(const std::string& val);
-
         void setType(Types _type) noexcept;
 
-        //-----------------------------------------------------------------------------------------------------------------------------------------------------
         // getters
-        //-----------------------------------------------------------------------------------------------------------------------------------------------------
         IRNodeType getNodeType() const noexcept;
-
         const std::string& getName() const noexcept;
-
         const std::string& getValue() const noexcept;
-
         Types getType() const noexcept;
 
-        //-----------------------------------------------------------------------------------------------------------------------------------------------------
-        // display
-        //-----------------------------------------------------------------------------------------------------------------------------------------------------
+        // display ir tree
         std::string toString() const;
-
         void traverse(size_t offset) const;
 
     private:
-
-        //-----------------------------------------------------------------------------------------------------------------------------------------------------
-        // name - name of a node element (variable name etc.)
-        // value - value of a node (literal etc.)
-        // type - type of an element (variable, literal etc.)
-        // node type - type of IRT node
-        // children - subnodes of IRT node
-        //-----------------------------------------------------------------------------------------------------------------------------------------------------
+        // name of a node (variable name etc.)
         std::string name;
+        // value of a node
         std::string value;
+        // type of an element (optional, types of a variables etc.)
         std::optional<Types> type;
+        // type of a IRT node
         IRNodeType nodeType;
+        // children of the node
         std::vector<std::unique_ptr<IRTree>> children;
 
 };

@@ -4,10 +4,6 @@
 
 Symbol::Symbol(std::string_view name, Kinds kind, Types type) : name{ name }, parameters{ nullptr }, kind{ kind }, type{ type } {}
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// GETTERS
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-
 const std::string& Symbol::getName() const noexcept {
     return name;
 }
@@ -23,10 +19,6 @@ Types Symbol::getType() const noexcept {
 ASTree* Symbol::getParameters() const noexcept {
     return parameters;
 }
-
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// SETTERS
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 
 void Symbol::setName(std::string_view _name){
     name = _name;
@@ -44,9 +36,6 @@ void Symbol::setParameters(ASTree* par) noexcept {
     parameters = par;
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// PRINT SYMBOL
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::string Symbol::symbolToString() const {
     return std::format("| {:11} | {:3} | {:8} | {:1} |\n", 
         name, kindToString.at(kind), typeToString.at(type), (parameters != nullptr ? parameters->getChildren().size() : 0));

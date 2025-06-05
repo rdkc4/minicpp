@@ -7,35 +7,20 @@
 
 CodeGenerator::CodeGenerator(std::string& file) : _asm{ file }, labelNum{ 0 }, gpFreeRegPos{ 0 } {}
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 // allocating general-purpose register r(8-15)
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 void CodeGenerator::takeGpReg() noexcept {
     ++gpFreeRegPos;    
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 // releasing general-purpose register r(8-15)
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 void CodeGenerator::freeGpReg() noexcept {
     --gpFreeRegPos;
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// label name distinction 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 size_t CodeGenerator::getNextLabelNum() noexcept {
     return labelNum++;
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// ASM CODE GENERATION - x86_64 (linux)
-// -> optimize generation so it relies more on registers, rather than stack (TODO)
-// > as -o something.o something.s
-// > ld -o something something.o
-// > ./something
-// > echo $? <- check return value
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 void CodeGenerator::generateCode(const IRTree* root){
     if(!_asm.isOpen()){
         throw std::runtime_error("File failed to generate");
@@ -50,12 +35,11 @@ void CodeGenerator::generateCode(const IRTree* root){
     }
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// HANDLING STACK - obtaining variables, parameters, generating statements
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 void CodeGenerator::generateFunction(const IRTree* node){
     activeFunction = node->getName();
     _asm.genNewLine();
+
+    // function label
     _asm.genLabel(activeFunction);
 
     _asm.genFuncPrologue();
@@ -73,7 +57,7 @@ void CodeGenerator::generateFunction(const IRTree* node){
         generateConstruct(node->getChild(i));
     }
 
-    //function label
+    // function end label
     _asm.genLabel(std::format("{}_end", activeFunction));
     
     // free local variables 
@@ -91,13 +75,8 @@ void CodeGenerator::generateFunction(const IRTree* node){
     }
 
     variableMap.clear();
-
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// INSERTING PARAMETERS
-// -> maybe switch to 32bit registers instead of 64 (TODO?)
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 void CodeGenerator::generateParameter(const IRTree* node){
     size_t i{ 2 };
     for(const auto& parameter : node->getChildren()){
@@ -107,9 +86,6 @@ void CodeGenerator::generateParameter(const IRTree* node){
     }
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// generating variable / statement
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 void CodeGenerator::generateConstruct(const IRTree* node){
     if(node->getNodeType() == IRNodeType::VARIABLE){
         generateVariable(node);
@@ -119,9 +95,6 @@ void CodeGenerator::generateConstruct(const IRTree* node){
     }
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// INSERTING LOCAL VARIABLES - assigning default values (0) or given values (n)
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 void CodeGenerator::generateVariable(const IRTree* node){
     // mapping local variable to address relative to %rbp (-n(%rbp))
     // if not successful it means that variable with the given name existed but went out of scope, so it overwrites it with new memory location
@@ -136,15 +109,13 @@ void CodeGenerator::generateVariable(const IRTree* node){
         generateAssignmentStatement(node->getChild(0));
     }
     else{
+        // default value 
         _asm.genMov("$0", generateID(node), "q");
     }
     _asm.genNewLine();
 
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// STATEMENT TYPES 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 void CodeGenerator::generateStatement(const IRTree* node){
     switch(node->getNodeType()){
         case IRNodeType::IF:
@@ -177,9 +148,6 @@ void CodeGenerator::generateStatement(const IRTree* node){
     _asm.genNewLine();
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// IF STATEMENT - cmp relexp, opposite jmp to else/end, if constructs, else construct
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 void CodeGenerator::generateIfStatement(const IRTree* node){
     size_t labNum{ getNextLabelNum() };
     size_t size{ node->getChildren().size() };
@@ -239,9 +207,6 @@ void CodeGenerator::generateIfStatement(const IRTree* node){
 
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// WHILE STATEMENT - cmp relexp, opposite jump to end, while constructs
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 void CodeGenerator::generateWhileStatement(const IRTree* node){
     size_t labNum{ getNextLabelNum() };
 
@@ -258,22 +223,23 @@ void CodeGenerator::generateWhileStatement(const IRTree* node){
     _asm.genLabel(std::format("while{}_end", labNum));
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// FOR STATEMENT - assign(init) statement (before loop), cmp relexp, opposite jmp, constructs, assign(inc) statement
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 void CodeGenerator::generateForStatement(const IRTree* node){
     size_t labNum{ getNextLabelNum() };
 
+    // initializer
     generateAssignmentStatement(node->getChild(0));
     _asm.genNewLine();
     _asm.genLabel(std::format("for{}", labNum));
     generateRelationalExpression(node->getChild(1));
 
+    // condition
     int type = node->getChild(0)->getChild(0)->getType() == Types::INT ? 0 : 1;
     _asm.genJmp(stringToOppJMP.at(node->getChild(1)->getValue())[type], std::format("for{}_end", labNum));
     _asm.genNewLine();
 
     generateConstruct(node->getChild(3));
+
+    // increment
     generateAssignmentStatement(node->getChild(2));
     _asm.genJmp("jmp", std::format("for{}", labNum));
 
@@ -281,9 +247,6 @@ void CodeGenerator::generateForStatement(const IRTree* node){
     _asm.genLabel(std::format("for{}_end", labNum));
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// DO_WHILE STATEMENT - constructs, relexp regular jmp
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 void CodeGenerator::generateDoWhileStatement(const IRTree* node){
     size_t labNum{ getNextLabelNum() };
 
@@ -295,28 +258,21 @@ void CodeGenerator::generateDoWhileStatement(const IRTree* node){
     _asm.genJmp(stringToJMP.at(node->getChild(1)->getValue())[type], std::format("do_while{}", labNum));
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// COMPOUND STATEMENT - constructs
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 void CodeGenerator::generateCompoundStatement(const IRTree* node){
     for(const auto& child : node->getChildren()){
         generateConstruct(child.get());
     }
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// ASSIGNMENT STATEMENT - numexp (calculate rvalue first), assign to destination variable
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 void CodeGenerator::generateAssignmentStatement(const IRTree* node){
+    // evaluating rvalue
     generateNumericalExpression(node->getChild(1));
     freeGpReg();
     _asm.genMov(gpRegisters.at(gpFreeRegPos), generateID(node->getChild(0)), "q");
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// RETURN STATEMENT - store numexp result at register %rax
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 void CodeGenerator::generateReturnStatement(const IRTree* node){
+    // assign return value to %rax
     if(node->getChildren().size() != 0){
         generateNumericalExpression(node->getChild(0));
         freeGpReg();
@@ -327,9 +283,6 @@ void CodeGenerator::generateReturnStatement(const IRTree* node){
     _asm.genJmp("jmp", std::format("{}_end", activeFunction));
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// SWITCH STATEMENT - generate cases, cmp each case, opposite jmp to next case/default/end
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 void CodeGenerator::generateSwitchStatement(const IRTree* node){
     size_t labNum{ getNextLabelNum() };
 
@@ -340,6 +293,7 @@ void CodeGenerator::generateSwitchStatement(const IRTree* node){
     std::string var{ node->getChild(0)->getName() };
     bool hasDefault{ node->getChildren().back()->getNodeType() == IRNodeType::DEFAULT };
     
+    // cases
     for(; i < size; i++){
         IRTree* child = node->getChild(i);
         if(child->getNodeType() == IRNodeType::CASE){
@@ -375,11 +329,7 @@ void CodeGenerator::generateSwitchStatement(const IRTree* node){
     _asm.genLabel(std::format("switch{}_end", labNum));
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// NUMERICAL EXPRESSION - evaluating equations using general-purpose registers r(8-15)
-// -> maybe use queue instead of a tree for numexp, easier generation, better reg usage (TODO?)
-// -> needs rework
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
+// evaluating equations using general-purpose registers r(8-15) and stack (if necessary)
 void CodeGenerator::generateNumericalExpression(const IRTree* node){
     if(node->getNodeType() == IRNodeType::ID){
         if(gpFreeRegPos < gpRegisters.size()){
@@ -462,9 +412,6 @@ void CodeGenerator::generateNumericalExpression(const IRTree* node){
     }
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// RELATIONAL EXPRESSION - generate cmp
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 void CodeGenerator::generateRelationalExpression(const IRTree* node){
     generateNumericalExpression(node->getChild(0));
     generateNumericalExpression(node->getChild(1));
@@ -476,16 +423,10 @@ void CodeGenerator::generateRelationalExpression(const IRTree* node){
     _asm.genCmp(lreg, rreg);
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// ID - retrieve address from variableMap
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 const std::string& CodeGenerator::generateID(const IRTree* node) const {
-    return variableMap.at(node->getName());
+    return variableMap.at(node->getName()); // returns address from variable map
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// LITERAL - generate $literal
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 std::string CodeGenerator::generateLiteral(const IRTree* node) const {
     std::string val{ node->getValue() };
     if(node->getType() == Types::UNSIGNED){
@@ -494,21 +435,16 @@ std::string CodeGenerator::generateLiteral(const IRTree* node) const {
     return std::format("${}", val);
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// FUNCTION CALL - push arguments to stack, call function, pop arguments
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 void CodeGenerator::generateFunctionCall(const IRTree* node){
-    
+    // push arguments to stack
     generateArgument(node->getChild(0));
 
     _asm.genCall(node->getName());
 
+    // pop arguments from stack
     clearArguments(node->getChild(0));
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// ARGUMENT GENERATE - pushing arguments (numexp) 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 void CodeGenerator::generateArgument(const IRTree* node){
     // pushing arguments onto stack
     for(size_t i = node->getChildren().size(); i-- > 0;){
@@ -520,9 +456,6 @@ void CodeGenerator::generateArgument(const IRTree* node){
     }
 }
 
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
-// ARGUMENT CLEAR - popping arguments
-//-----------------------------------------------------------------------------------------------------------------------------------------------------
 void CodeGenerator::clearArguments(const IRTree* node){
     // popping arguments of the stack
     for(size_t i = 0; i < node->getChildren().size(); ++i){
