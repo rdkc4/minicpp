@@ -476,6 +476,9 @@ std::unique_ptr<ASTree> Parser::argument(){
         if(currentToken.type == TokenType::_COMMA && lexer.peekAtNext().type != TokenType::_RPAREN){
             eat(TokenType::_COMMA);
         }
+        else{
+            break;
+        }
     }
     return currentNode;
 }
