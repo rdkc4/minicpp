@@ -12,78 +12,84 @@
 Lexer::Lexer(std::string_view input) : input{ input }, position{ 0 }, lineNumber{ 1 }, prevLineLen{ 0 }, nextTokenIdx{ 0 } {}
 
 void Lexer::tokenize(){
-    while(position < input.size()){
-        char curr{ input[position] };
-        
-        if(curr == '\n'){
+    const size_t inputSize = input.size();
+    unsigned int errs = 0;
+
+    while(position < inputSize){
+        if(input[position] == '\n'){
             updateLine();
             updatePosition();
         }
-        else if(std::isspace(curr)){
+        else if(std::isspace(input[position])){
             updatePosition();
         }
-        else if(std::isalpha(curr)){
+        else if(std::isalpha(input[position])){
             getID();
         }
-        else if(std::isdigit(curr)){
+        else if(std::isdigit(input[position])){
             getLiteral();
         }
-        else if(isSignedLiteral(curr)){
+        else if(isSignedLiteral(input[position])){
             getLiteral(true);
         }
-        else if(curr == '/' && position < input.size() - 1 && input[position + 1] == '/'){
+        else if(input[position] == '/' && position < inputSize - 1 && input[position + 1] == '/'){
             singleLineComment();
         }
-        else if(curr == '/' && position < input.size() - 1 && input[position + 1] == '*'){
+        else if(input[position] == '/' && position < inputSize - 1 && input[position + 1] == '*'){
             multiLineComment();
         }
-        else if(isBitwiseOperator(curr)){
-            getBitwiseOperator(curr);
+        else if(isBitwiseOperator(input[position])){
+            getBitwiseOperator(input[position]);
         }
-        else if(isAritOperator(curr)){
-            getAritOperator(curr);
+        else if(isAritOperator(input[position])){
+            getAritOperator(input[position]);
         }
-        else if(isAssignOperator(curr)){
-            getAssignOperator(curr);
+        else if(isAssignOperator(input[position])){
+            getAssignOperator(input[position]);
         }
-        else if(isRelOperator(curr)){
+        else if(isRelOperator(input[position])){
             getRelOperator();
         }
-        else if(curr == '('){
-            tokens.push_back(Token{std::string_view{&curr,1}, lineNumber, position - prevLineLen, TokenType::_LPAREN});
+        else if(input[position] == '('){
+            tokens.push_back(Token{std::string_view{&input[position],1}, lineNumber, position - prevLineLen, TokenType::_LPAREN});
             updatePosition();
         }
-        else if(curr == ')'){
-            tokens.push_back(Token{std::string_view{&curr,1}, lineNumber, position - prevLineLen, TokenType::_RPAREN});
+        else if(input[position] == ')'){
+            tokens.push_back(Token{std::string_view{&input[position],1}, lineNumber, position - prevLineLen, TokenType::_RPAREN});
             updatePosition();
         }
-        else if(curr == '{'){
-            tokens.push_back(Token{std::string_view{&curr,1}, lineNumber, position - prevLineLen, TokenType::_LBRACKET});
+        else if(input[position] == '{'){
+            tokens.push_back(Token{std::string_view{&input[position], 1}, lineNumber, position - prevLineLen, TokenType::_LBRACKET});
             updatePosition();
         }
-        else if(curr == '}'){
-            tokens.push_back(Token{std::string_view{&curr,1}, lineNumber, position - prevLineLen, TokenType::_RBRACKET});
+        else if(input[position] == '}'){
+            tokens.push_back(Token{std::string_view{&input[position],1}, lineNumber, position - prevLineLen, TokenType::_RBRACKET});
             updatePosition();
         }
-        else if(curr == ','){
-            tokens.push_back(Token{std::string_view{&curr,1}, lineNumber, position - prevLineLen, TokenType::_COMMA});
+        else if(input[position] == ','){
+            tokens.push_back(Token{std::string_view{&input[position],1}, lineNumber, position - prevLineLen, TokenType::_COMMA});
             updatePosition();
         }
-        else if(curr == ';'){
-            tokens.push_back(Token{std::string_view{&curr,1}, lineNumber, position - prevLineLen, TokenType::_SEMICOLON});
+        else if(input[position] == ';'){
+            tokens.push_back(Token{std::string_view{&input[position],1}, lineNumber, position - prevLineLen, TokenType::_SEMICOLON});
             updatePosition();
         }
-        else if(curr == ':'){
-            tokens.push_back(Token{std::string_view{&curr,1}, lineNumber, position - prevLineLen, TokenType::_COLON});
+        else if(input[position] == ':'){
+            tokens.push_back(Token{std::string_view{&input[position], 1}, lineNumber, position - prevLineLen, TokenType::_COLON});
             updatePosition();
         }
         else{
-            tokens.push_back(Token{std::string(1,curr), lineNumber, position - prevLineLen, TokenType::_INVALID});
-            throw std::runtime_error(std::format("Line {}, Column {}: LEXICAL ERROR -> unknown symbol '{}'", 
-                lineNumber, position - prevLineLen, std::string(1, curr)));
+            tokens.push_back(Token{std::string_view{&input[position], 1}, lineNumber, position - prevLineLen, TokenType::_INVALID});
+            std::cerr << std::format("Line {}, Column {}: LEXICAL ERROR -> unknown symbol '{}'\n", 
+                lineNumber, position - prevLineLen, std::string_view{&input[position], 1});
+            updatePosition();
+            ++errs;
         }
     }
     tokens.push_back(Token{"", lineNumber, position - prevLineLen, TokenType::_EOF});
+    if(errs > 0) {
+        throw std::runtime_error(std::format("Invalid token count: {}\n", errs));
+    }
     //printTokens();
 }
 

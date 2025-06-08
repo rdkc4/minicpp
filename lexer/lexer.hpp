@@ -17,7 +17,7 @@ class Lexer{
         Lexer(std::string_view input);
 
         // tokenization of the input string
-        // throws on invalid token
+        // throws at the end if the number of invalid tokens is greater than 0
         void tokenize();
 
         const Token& nextToken() noexcept;
