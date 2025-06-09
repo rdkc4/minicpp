@@ -109,9 +109,9 @@ const Token& Lexer::peekAtNext() const noexcept {
     return tokens[nextTokenIdx];
 }
 
-void Lexer::printTokens() const {
+void Lexer::printTokens() const noexcept {
     for(const auto& token: tokens){
-        std::cout << std::format("Token: type - {}\t value - {}\n", tokenTypeToString.at(token.type), token.value);
+        std::cout << std::format("Token: type - {}\tgtype - {}\t value - {}\n", tokenTypeToString.at(token.type),generalTokenTypeToString.at(token.gtype), token.value);
     }
 }
 
@@ -135,7 +135,7 @@ void Lexer::getID(){
         updatePosition(); 
     }
     std::string id{ input.substr(start, position - start) };
-    tokens.push_back(Token{ id, lineNumber, position - prevLineLen, isKeyword(id) ? keywords.at(id) : TokenType::_ID});
+    tokens.push_back(Token{ id, lineNumber, position - prevLineLen, isKeyword(id) ? keywords.at(id) : TokenType::_ID, GeneralTokenType::VALUE});
 }
 
 // literal ([+-]?[0-9][0-9]*[u]?)
@@ -150,7 +150,7 @@ void Lexer::getLiteral(bool sign){
     if(sign && input[start-1] == '-'){
         --start;
     }
-    tokens.push_back(Token{std::string_view{&input[start], position - start}, lineNumber, position - prevLineLen, TokenType::_LITERAL});
+    tokens.push_back(Token{std::string_view{&input[start], position - start}, lineNumber, position - prevLineLen, TokenType::_LITERAL, GeneralTokenType::VALUE});
 }
 
 // assign [=]
@@ -166,12 +166,12 @@ void Lexer::getBitwiseOperator(char curr){
         updatePosition();
     }
     updatePosition();
-    tokens.push_back(Token(std::string_view{&input[start], position - start}, lineNumber, position - prevLineLen, TokenType::_BITWISE));
+    tokens.push_back(Token{std::string_view{&input[start], position - start}, lineNumber, position - prevLineLen, TokenType::_BITWISE, GeneralTokenType::OPERATOR});
 }
 
 // arithmetic operators (+, -, *, /)
 void Lexer::getAritOperator(char curr){
-    tokens.push_back(Token{std::string_view{&curr, 1}, lineNumber, position - prevLineLen, TokenType::_AROP});
+    tokens.push_back(Token{std::string_view{&curr, 1}, lineNumber, position - prevLineLen, TokenType::_AROP, GeneralTokenType::OPERATOR});
     updatePosition();
 }
 
@@ -184,6 +184,7 @@ void Lexer::getRelOperator(){
     else{
         updatePosition();
     }
+    // general token type is OTHER, not yet included in numerical expressions 
     tokens.push_back(Token{std::string_view{&input[start], position - start}, lineNumber, position - prevLineLen, TokenType::_RELOP});
 }
 

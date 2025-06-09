@@ -13,7 +13,11 @@ enum class TokenType{
     _IF, _ELSE, _WHILE, _DO, _FOR, _SWITCH, _CASE, _DEFAULT, _BREAK, _RETURN, _COMMA, _EOF, _INVALID, _NODE
 };
 
+enum class GeneralTokenType { VALUE, OPERATOR, OTHER };
+
 extern const std::unordered_map<TokenType, std::string> tokenTypeToString;
+
+extern const std::unordered_map<GeneralTokenType, std::string> generalTokenTypeToString;
 
 struct Token{
     // more specific description
@@ -24,10 +28,13 @@ struct Token{
     size_t column;
     // type of a token
     TokenType type;
+    // general type of a token
+    GeneralTokenType gtype;
 
     Token();
     Token(std::string_view value, size_t line, size_t column);
     Token(std::string_view value, size_t line, size_t column, TokenType type);
+    Token(std::string_view value, size_t line, size_t column, TokenType type, GeneralTokenType gtype);
 };
 
 #endif

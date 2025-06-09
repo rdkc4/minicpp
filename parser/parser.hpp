@@ -28,7 +28,8 @@ class Parser{
 
         // token checking
         // throws if current token's type differs from expected type
-        void eat(TokenType type);
+        void consume(TokenType type);
+        void consume(GeneralTokenType gtype);
 
         // functions
         std::unique_ptr<ASTree> functionList();

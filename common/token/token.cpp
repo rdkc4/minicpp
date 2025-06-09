@@ -1,10 +1,16 @@
 #include "token.hpp"
+#include <unordered_map>
 
-Token::Token() : value{ "" }, line{ 0 }, column{ 0 }, type{ TokenType::_NODE } {}
+Token::Token() : value{ "" }, line{ 0 }, column{ 0 }, type{ TokenType::_NODE }, gtype{ GeneralTokenType::OTHER } {}
 
-Token::Token(std::string_view value, size_t line, size_t column) : value{ value }, line{ line }, column{ column }, type{ TokenType::_NODE } {}
+Token::Token(std::string_view value, size_t line, size_t column) : 
+    value{ value }, line{ line }, column{ column }, type{ TokenType::_NODE }, gtype{ GeneralTokenType::OTHER } {}
 
-Token::Token(std::string_view value, size_t line, size_t column, TokenType type) : value{ value }, line{ line }, column{ column }, type{ type } {}
+Token::Token(std::string_view value, size_t line, size_t column, TokenType type) : 
+    value{ value }, line{ line }, column{ column }, type{ type }, gtype{ GeneralTokenType::OTHER } {}
+
+Token::Token(std::string_view value, size_t line, size_t column, TokenType type, GeneralTokenType gtype) : 
+    value{ value }, line{ line }, column{ column }, type{ type }, gtype{ gtype } {}
 
 const std::unordered_map<TokenType, std::string> tokenTypeToString {
     {TokenType::_ID, "ID"},
@@ -33,4 +39,10 @@ const std::unordered_map<TokenType, std::string> tokenTypeToString {
     {TokenType::_COMMA, "COMMA"},
     {TokenType::_EOF, "EOF"},
     {TokenType::_INVALID, "INVALID"}
+};
+
+const std::unordered_map<GeneralTokenType, std::string> generalTokenTypeToString {
+    {GeneralTokenType::VALUE, "VALUE"},
+    {GeneralTokenType::OPERATOR, "OPERATOR"},
+    {GeneralTokenType::OTHER, "OTHER"}
 };

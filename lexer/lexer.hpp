@@ -23,7 +23,7 @@ class Lexer{
         const Token& nextToken() noexcept;
         const Token& peekAtNext() const noexcept;
         
-        void printTokens() const;
+        void printTokens() const noexcept;
 
     private:
     

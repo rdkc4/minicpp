@@ -8,7 +8,7 @@ const std::unordered_map<ASTNodeType, std::string> astNodeTypeToString {
     {ASTNodeType::BODY, "BODY"},
     {ASTNodeType::VARIABLE_LIST, "VARIABLE_LIST"},
     {ASTNodeType::VARIABLE, "VARIABLE"},
-    {ASTNodeType::STATEMENT_LIST, "STATEMENT_LIST"},
+    {ASTNodeType::CONSTRUCT_LIST, "CONSTRUCT_LIST"},
     {ASTNodeType::STATEMENT, "STATEMENT"},
     {ASTNodeType::COMPOUND_STATEMENT, "COMPOUND_STATEMENT"},
     {ASTNodeType::ASSIGNMENT_STATEMENT, "ASSIGNMENT_STATEMENT"},
