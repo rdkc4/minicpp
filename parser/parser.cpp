@@ -362,31 +362,38 @@ std::unique_ptr<ASTree> Parser::_break(){
 // NUMERICAL_EXPRESSION : EXPRESSION 
 //                      | NUMERICAL_EXPRESSION AROP EXPRESSION
 // organized in a tree as reverse polish notation (RPN)
+// ast is built on the run (per subexpression)
 std::unique_ptr<ASTree> Parser::numericalExpression(){
     std::unique_ptr<ASTree> child = expression();
+
+    // holding the expression
     std::stack<std::unique_ptr<ASTree>> rpn;
+    // handling the order of the operators
     std::stack<std::unique_ptr<ASTree>> weakOperators;
     
     rpn.push(std::move(child));
     while(currentToken.gtype == GeneralTokenType::OPERATOR){
-        std::unique_ptr<ASTree> arOperator = std::make_unique<ASTree>(Token{currentToken}, ASTNodeType::NUMERICAL_EXPRESSION);
+        std::unique_ptr<ASTree> _operator = std::make_unique<ASTree>(Token{currentToken}, ASTNodeType::NUMERICAL_EXPRESSION);
         consume(GeneralTokenType::OPERATOR);
 
         child = expression();
         rpn.push(std::move(child));
 
-        weakOperators.push(std::move(arOperator));
+        weakOperators.push(std::move(_operator));
         while(getPrecedence(weakOperators.top()->getToken().value) < getPrecedence(currentToken.value)){
-            std::unique_ptr<ASTree> strongArOp = std::make_unique<ASTree>(Token{currentToken}, ASTNodeType::NUMERICAL_EXPRESSION);
+            std::unique_ptr<ASTree> strongOperator = std::make_unique<ASTree>(Token{currentToken}, ASTNodeType::NUMERICAL_EXPRESSION);
             consume(GeneralTokenType::OPERATOR);
 
             std::unique_ptr<ASTree> strongChild = expression();
             rpn.push(std::move(strongChild));
             
-            if(getPrecedence(strongArOp->getToken().value) < getPrecedence(currentToken.value))
-                weakOperators.push(std::move(strongArOp));
-            else
-                rpn.push(std::move(strongArOp));
+            if(getPrecedence(strongOperator->getToken().value) < getPrecedence(currentToken.value)){
+                weakOperators.push(std::move(strongOperator));
+            }
+            else{
+                rpn.push(std::move(strongOperator));
+            }
+
         }
         while(!weakOperators.empty() && getPrecedence(weakOperators.top()->getToken().value) >= getPrecedence(currentToken.value)){
             rpn.push(std::move(weakOperators.top()));
@@ -402,7 +409,7 @@ std::unique_ptr<ASTree> Parser::numericalExpression(){
 
 // recursive top-down tree building from rpn based stack
 // child is not numerical expression - leaf
-// parent has two children - subtree is handled
+// if parent has children - subtree handled
 std::unique_ptr<ASTree> Parser::rpnToTree(std::stack<std::unique_ptr<ASTree>>& rpn, std::unique_ptr<ASTree>& parent) const {
     if(parent->getNodeType() != ASTNodeType::NUMERICAL_EXPRESSION || !parent->getChildren().empty()){
         return std::move(parent);

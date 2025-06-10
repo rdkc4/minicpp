@@ -1,3 +1,4 @@
+#include <chrono>
 #include <exception>
 #include <iostream>
 #include <format>
@@ -28,7 +29,7 @@ bool compile(std::string input){
         Parser parser{ lexer };
         std::unique_ptr<ASTree> astRoot = parser.parseProgram();
         std::cout << "\nSyntax check: successful!\n";
-        astRoot->traverse(1); //display AST
+        //astRoot->traverse(1); //display AST
 
         try{
             SymbolTable symbolTable {};
@@ -47,7 +48,7 @@ bool compile(std::string input){
             IntermediateRepresentation intermediateRepresentation {};
             std::unique_ptr<IRTree> irRoot = intermediateRepresentation.formIR(astRoot.get());
             std::cout << "\nForming Intermediate Representation: successful!\n";
-            irRoot->traverse(1); //display IRT
+            //irRoot->traverse(1); //display IRT
 
             try{
                 std::string output { "output.s" };
@@ -81,7 +82,13 @@ int main(){
         input += line + "\n";
     }
 
+    auto start{ std::chrono::high_resolution_clock::now() };
+
     bool ret { compile(input) };
+
+    auto end{ std::chrono::high_resolution_clock::now() };
+    auto duration{ std::chrono::duration_cast<std::chrono::milliseconds>(end - start) };
+    std::cout << std::format("\nCompilation time: {}ms\n", duration.count());
     
     if(ret){
         std::cout << "\nProgram successfully compiled!\n";
