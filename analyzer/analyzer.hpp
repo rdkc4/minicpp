@@ -3,6 +3,7 @@
 
 #include "../common/abstract-syntax-tree/ASTree.hpp"
 #include "../symbol-handling/scope-manager/scope_manager.hpp"
+#include "defs/analyzer_defs.hpp"
 
 /*
     Semantic analysis of abstract syntax tree
@@ -16,15 +17,15 @@ class Analyzer{
 
     private:
         // detection of undefined/redefined variables/functions, type checking
-        ScopeManager scopeManager;
-        // function analyzed at the moment
-        std::string activeFunction;
-        // check if function returns anything
-        bool returned;
+        ScopeManager globalScopeManager;
+        // function analyzed by the thread, bool whether it returns, local scope managers for functions
+        static thread_local AnalyzerThreadContext analyzerContext;
 
         // function
+        void checkFunctionSignatures(const ASTree* node);
         void checkFunction(const ASTree* node);
-        void checkParameter(ASTree* node);
+        void checkParameter(ASTree* node, const std::string& activeFunction);
+        void defineParameters(ASTree* node) const;
         void checkBody(const ASTree* node);
 
         // constructs
