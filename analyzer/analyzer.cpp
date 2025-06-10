@@ -6,6 +6,7 @@
 #include <stdexcept>
 #include <format>
 #include <thread>
+#include <mutex>
 #include <vector>
 
 Analyzer::Analyzer(ScopeManager& scopeManager) : globalScopeManager{ scopeManager } {}
