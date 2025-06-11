@@ -27,13 +27,13 @@ void Analyzer::semanticCheck(const ASTree* root){
         checkFunctionSignatures(child.get());
     }
 
-    // concurrent analysis of functions
-    startFunctionCheck(flist);
-
     // check if main exists
     if(!globalScopeManager.lookupSymbol("main", {Kinds::FUN})){
         throw std::runtime_error("'main' function not found");
     }
+
+    // concurrent analysis of functions
+    startFunctionCheck(flist);
 
     globalScopeManager.popScope();
 }
@@ -108,11 +108,11 @@ void Analyzer::startFunctionCheck(const ASTree* flist){
 }
 
 void Analyzer::checkFunction(const ASTree* node){
-    const Types returnType{ node->getType() };
-
+    // initializing thread context
     SymbolTable symTable;
     ScopeManager functionScopeManager{symTable};
     analyzerContext.functionName = node->getToken().value;
+    analyzerContext.returned = false;
     analyzerContext.scopeManager = &functionScopeManager;
 
     // function scope
@@ -124,9 +124,9 @@ void Analyzer::checkFunction(const ASTree* node){
     analyzerContext.scopeManager = nullptr;
 
     // function return type check
-    if(returnType != Types::VOID && !analyzerContext.returned){
+    if(node->getType() != Types::VOID && !analyzerContext.returned){
         throw std::runtime_error(std::format("Line {}, Column {}: SEMANTIC ERROR -> function '{} {}' returns '{}'", 
-            node->getToken().line, node->getToken().column, typeToString.at(returnType), node->getToken().value, typeToString.at(Types::VOID)));
+            node->getToken().line, node->getToken().column, typeToString.at(node->getType()), node->getToken().value, typeToString.at(Types::VOID)));
     }
 }
 
