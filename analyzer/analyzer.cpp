@@ -1,6 +1,8 @@
 #include "analyzer.hpp"
 #include "defs/analyzer_defs.hpp"
 
+#include <atomic>
+#include <condition_variable>
 #include <exception>
 #include <memory>
 #include <stdexcept>
@@ -8,6 +10,7 @@
 #include <thread>
 #include <mutex>
 #include <vector>
+#include "../thread-pool/thread_pool.hpp"
 
 Analyzer::Analyzer(ScopeManager& scopeManager) : globalScopeManager{ scopeManager } {}
 
@@ -19,41 +22,17 @@ void Analyzer::semanticCheck(const ASTree* root){
     // global scope
     globalScopeManager.pushScope();
 
+    // define all functions
     for(const auto& child : flist->getChildren()){
         checkFunctionSignatures(child.get());
     }
 
+    // concurrent analysis of functions
+    startFunctionCheck(flist);
+
     // check if main exists
     if(!globalScopeManager.lookupSymbol("main", {Kinds::FUN})){
         throw std::runtime_error("'main' function not found");
-    }
-
-    std::vector<std::string> exceptions;
-    std::mutex exception_mutex;
-
-    // functions are concurrently analyzed
-    std::vector<std::thread> functions;
-    for(const auto& child : flist->getChildren()){
-        functions.emplace_back([&, child=child.get()] {
-            try {
-                checkFunction(child);
-            } catch (std::exception& ex) {
-                std::lock_guard<std::mutex> lock(exception_mutex);
-                exceptions.push_back(ex.what());
-            }
-        });
-    }
-
-    for (auto& function : functions) {
-        function.join();
-    }
-
-    if (!exceptions.empty()) {
-        std::string errorMessage = "Semantic errors:\n";
-        for(const auto& ex : exceptions){
-            errorMessage += ex + "\n";
-        }
-        throw std::runtime_error(errorMessage);
     }
 
     globalScopeManager.popScope();
@@ -80,6 +59,52 @@ void Analyzer::checkFunctionSignatures(const ASTree* node){
     globalScopeManager.pushScope();
     checkParameter(node->getChild(0), node->getToken().value);
     globalScopeManager.popScope();
+}
+
+void Analyzer::startFunctionCheck(const ASTree* flist){
+    std::vector<std::string> exceptions;
+    std::mutex exceptionMtx;
+
+    // handling threads for concurrent function analysis
+    ThreadPool threadPool{ std::thread::hardware_concurrency() };
+    
+    // counter of analyzed functions
+    std::atomic<size_t> done{0};
+    std::condition_variable doneCv;
+    std::mutex doneMtx;
+
+    size_t total = flist->getChildren().size();
+
+    for(const auto& child : flist->getChildren()){
+        threadPool.enqueue([&, child=child.get()] {
+            try {
+                checkFunction(child);
+            } catch (std::exception& ex) {
+                std::lock_guard<std::mutex> lock(exceptionMtx);
+                exceptions.push_back(ex.what());
+            }
+
+            // semantic analysis of a function ended
+            done.fetch_add(1);
+            if(done == total){
+                doneCv.notify_all();
+            }
+        });
+    }
+
+    {
+        // wait until each function is analyzed
+        std::unique_lock<std::mutex> lock(doneMtx);
+        doneCv.wait(lock, [&] { return done == total; });
+    }
+
+    if (!exceptions.empty()) {
+        std::string errorMessage{ "Semantic errors:\n" };
+        for(const auto& ex : exceptions){
+            errorMessage += ex + "\n";
+        }
+        throw std::runtime_error(errorMessage);
+    }
 }
 
 void Analyzer::checkFunction(const ASTree* node){

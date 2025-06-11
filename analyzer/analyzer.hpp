@@ -23,6 +23,7 @@ class Analyzer{
 
         // function
         void checkFunctionSignatures(const ASTree* node);
+        void startFunctionCheck(const ASTree* flist);
         void checkFunction(const ASTree* node);
         void checkParameter(ASTree* node, const std::string& activeFunction);
         void defineParameters(ASTree* node) const;

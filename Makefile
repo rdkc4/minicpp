@@ -16,6 +16,7 @@ SRCS = main.cpp \
 	parser/parser.cpp \
 	symbol-handling/symbol-table/symbol_table.cpp \
 	symbol-handling/scope-manager/scope_manager.cpp \
+	thread-pool/thread_pool.cpp \
 	analyzer/analyzer.cpp \
 	intermediate-representation/intermediate_representation.cpp \
 	code-generator/defs/code_generator_defs.cpp \
