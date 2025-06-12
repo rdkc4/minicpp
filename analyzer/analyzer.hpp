@@ -1,10 +1,12 @@
 #ifndef ANALYZER_HPP
 #define ANALYZER_HPP
 
+#include <unordered_map>
+#include <mutex>
+
 #include "../common/abstract-syntax-tree/ASTree.hpp"
 #include "../symbol-handling/scope-manager/scope_manager.hpp"
 #include "defs/analyzer_defs.hpp"
-#include <unordered_map>
 
 /*
     Semantic analysis of abstract syntax tree
