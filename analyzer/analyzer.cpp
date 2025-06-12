@@ -3,13 +3,14 @@
 
 #include <atomic>
 #include <condition_variable>
-#include <exception>
 #include <memory>
 #include <stdexcept>
 #include <format>
 #include <thread>
 #include <mutex>
 #include <vector>
+#include <cassert>
+
 #include "../thread-pool/thread_pool.hpp"
 
 Analyzer::Analyzer(ScopeManager& scopeManager) : globalScopeManager{ scopeManager } {}
@@ -35,36 +36,60 @@ void Analyzer::semanticCheck(const ASTree* root){
     // concurrent analysis of functions
     startFunctionCheck(flist);
 
+    // throw all errors in order
+    checkSemanticErrors(flist);
+
     globalScopeManager.popScope();
+}
+
+void Analyzer::checkSemanticErrors(const ASTree* node) const {
+    std::string errors = "";
+    for(const auto& child : node->getChildren()){
+        const std::string& funcName = child->getToken().value;
+        if(!semanticErrors[funcName].empty()){
+            for(const auto& err : semanticErrors[funcName]){
+                errors += err + "\n";
+            }
+        }
+    }
+    if(errors.size() > 0){
+        throw std::runtime_error(errors);
+    }
 }
 
 void Analyzer::checkFunctionSignatures(const ASTree* node){
     Types returnType{ node->getType() };
+    const std::string& funcName = node->getToken().value; 
+    semanticErrors[funcName] = {};
 
     // function type check
     if(returnType == Types::NO_TYPE){
-        throw std::runtime_error(std::format("Line {}, Column {}: SEMANTIC ERROR -> invalid type '{} {}'", 
-            node->getToken().line, node->getToken().column, typeToString.at(returnType), node->getToken().value));
+        throw std::runtime_error(
+            std::format("Line {}, Column {}: SEMANTIC ERROR -> invalid type '{} {}'", 
+                node->getToken().line, node->getToken().column, typeToString.at(returnType), node->getToken().value)
+        );
     }
     else if(returnType == Types::AUTO){
-        throw std::runtime_error(std::format("Line {}, Column {}: SEMANTIC ERROR -> type deduction cannot be performed on function '{} {}'", 
-            node->getToken().line, node->getToken().column, typeToString.at(returnType), node->getToken().value));
+        throw std::runtime_error(
+            std::format("Line {}, Column {}: SEMANTIC ERROR -> type deduction cannot be performed on function '{} {}'", 
+                node->getToken().line, node->getToken().column, typeToString.at(returnType), node->getToken().value)
+        );
     }
 
     // function redefinition check
-    if(!globalScopeManager.pushSymbol(Symbol{node->getToken().value, Kinds::FUN, returnType})){
-        throw std::runtime_error(std::format("Line {}, Column {}: SEMANTIC ERROR -> function redefined '{} {}'", 
-            node->getToken().line, node->getToken().column, typeToString.at(returnType), node->getToken().value));
+    if(!globalScopeManager.pushSymbol(Symbol{funcName, Kinds::FUN, returnType})){
+        throw std::runtime_error(
+            std::format("Line {}, Column {}: SEMANTIC ERROR -> function redefined '{} {}'", 
+                node->getToken().line, node->getToken().column, typeToString.at(returnType), node->getToken().value)
+        );
     }
+
     globalScopeManager.pushScope();
-    checkParameter(node->getChild(0), node->getToken().value);
+    checkParameter(node->getChild(0), funcName);
     globalScopeManager.popScope();
 }
 
 void Analyzer::startFunctionCheck(const ASTree* flist){
-    std::vector<std::string> exceptions;
-    std::mutex exceptionMtx;
-
     // handling threads for concurrent function analysis
     ThreadPool threadPool{ std::thread::hardware_concurrency() };
     
@@ -77,12 +102,7 @@ void Analyzer::startFunctionCheck(const ASTree* flist){
 
     for(const auto& child : flist->getChildren()){
         threadPool.enqueue([&, child=child.get()] {
-            try {
-                checkFunction(child);
-            } catch (std::exception& ex) {
-                std::lock_guard<std::mutex> lock(exceptionMtx);
-                exceptions.push_back(ex.what());
-            }
+            checkFunction(child);
 
             // semantic analysis of a function ended
             done.fetch_add(1);
@@ -98,22 +118,13 @@ void Analyzer::startFunctionCheck(const ASTree* flist){
         doneCv.wait(lock, [&] { return done == total; });
     }
 
-    if (!exceptions.empty()) {
-        std::string errorMessage{ "Semantic errors:\n" };
-        for(const auto& ex : exceptions){
-            errorMessage += ex + "\n";
-        }
-        throw std::runtime_error(errorMessage);
-    }
 }
 
 void Analyzer::checkFunction(const ASTree* node){
     // initializing thread context
     SymbolTable symTable;
     ScopeManager functionScopeManager{symTable};
-    analyzerContext.functionName = node->getToken().value;
-    analyzerContext.returned = false;
-    analyzerContext.scopeManager = &functionScopeManager;
+    analyzerContext.init(node->getToken().value, &functionScopeManager);
 
     // function scope
     analyzerContext.scopeManager->pushScope();
@@ -121,13 +132,20 @@ void Analyzer::checkFunction(const ASTree* node){
     checkBody(node->getChild(1));
     analyzerContext.scopeManager->popScope();
     
-    analyzerContext.scopeManager = nullptr;
-
     // function return type check
     if(node->getType() != Types::VOID && !analyzerContext.returned){
-        throw std::runtime_error(std::format("Line {}, Column {}: SEMANTIC ERROR -> function '{} {}' returns '{}'", 
-            node->getToken().line, node->getToken().column, typeToString.at(node->getType()), node->getToken().value, typeToString.at(Types::VOID)));
+        analyzerContext.semanticErrors.push_back(
+            std::format("Line {}, Column {}: SEMANTIC ERROR -> function '{} {}' returns '{}'", 
+                node->getToken().line, node->getToken().column, typeToString.at(node->getType()), node->getToken().value, typeToString.at(Types::VOID))
+        );
     }
+
+    {
+        std::lock_guard<std::mutex> lock(exceptionMtx);
+        assert(semanticErrors[analyzerContext.functionName].empty());
+        semanticErrors[analyzerContext.functionName] = std::move(analyzerContext.semanticErrors);
+    }
+    analyzerContext.reset();
 }
 
 void Analyzer::checkParameter(ASTree* node, const std::string& functionName){
@@ -136,26 +154,34 @@ void Analyzer::checkParameter(ASTree* node, const std::string& functionName){
     
     // parameter check for main
     if(functionName == "main" && node->getChildren().size() > 0){
-        throw std::runtime_error(std::format("Line {}, Column {}: SEMANTIC ERROR -> function 'main' cannot take parameters", 
-            node->getToken().line, node->getToken().column));
+        throw std::runtime_error(
+            std::format("Line {}, Column {}: SEMANTIC ERROR -> function 'main' cannot take parameters", 
+                node->getToken().line, node->getToken().column)
+        );
     }
 
     for(const auto& child : node->getChildren()){
         // parameter type check
         Types type{ child->getType() };
         if(type == Types::VOID || type == Types::NO_TYPE){
-            throw std::runtime_error(std::format("Line {}, Column {}: SEMANTIC ERROR -> invalid type '{} {}'", 
-                child->getToken().line, child->getToken().column, typeToString.at(type), child->getToken().value));
+            throw std::runtime_error(
+                std::format("Line {}, Column {}: SEMANTIC ERROR -> invalid type '{} {}'", 
+                    child->getToken().line, child->getToken().column, typeToString.at(type), child->getToken().value)
+            );
         }
         else if(type == Types::AUTO){
-            throw std::runtime_error(std::format("Line {}, Column {}: SEMANTIC ERROR -> type deduction cannot be performed on parameters '{} {}'", 
-                child->getToken().line, child->getToken().column, typeToString.at(type), child->getToken().value));
+            throw std::runtime_error(
+                std::format("Line {}, Column {}: SEMANTIC ERROR -> type deduction cannot be performed on parameters '{} {}'", 
+                    child->getToken().line, child->getToken().column, typeToString.at(type), child->getToken().value)
+            );
         }
 
         // parameter redefinition check
         if(!globalScopeManager.pushSymbol(Symbol{child->getToken().value, Kinds::PAR, child->getType()})){
-            throw std::runtime_error(std::format("Line {}, Column {}: SEMANTIC ERROR -> variable redefined '{}'", 
-                child->getToken().line, child->getToken().column, child->getToken().value));
+            throw std::runtime_error(
+                std::format("Line {}, Column {}: SEMANTIC ERROR -> variable redefined '{}'", 
+                    child->getToken().line, child->getToken().column, child->getToken().value)
+            );
         }
     }
 }
@@ -185,18 +211,24 @@ void Analyzer::checkVariable(const ASTree* node){
     // variable type check
     Types type{ node->getType() };
     if(type == Types::VOID || type == Types::NO_TYPE){
-        throw std::runtime_error(std::format("Line {}, Column {}: SEMANTIC ERROR -> invalid type '{} {}'", 
-            node->getToken().line, node->getToken().column, typeToString.at(type), node->getToken().value));
+        analyzerContext.semanticErrors.push_back(
+            std::format("Line {}, Column {}: SEMANTIC ERROR -> invalid type '{} {}'", 
+                node->getToken().line, node->getToken().column, typeToString.at(type), node->getToken().value)
+        );
     }
     else if(type == Types::AUTO && node->getChildren().empty()){
-        throw std::runtime_error(std::format("Line {}, Column {}: SEMANTIC ERROR -> type deduction failed '{} {}'", 
-            node->getToken().line, node->getToken().column, typeToString.at(type), node->getToken().value));
+        analyzerContext.semanticErrors.push_back(
+            std::format("Line {}, Column {}: SEMANTIC ERROR -> type deduction failed '{} {}'", 
+                node->getToken().line, node->getToken().column, typeToString.at(type), node->getToken().value)
+        );
     }
 
     // variable redefinition check
     if(!analyzerContext.scopeManager->pushSymbol(Symbol{node->getToken().value, Kinds::VAR, type})){
-        throw std::runtime_error(std::format("Line {}, Column {}: SEMANTIC ERROR -> variable redefined '{}'", 
-            node->getToken().line, node->getToken().column, node->getToken().value));
+        analyzerContext.semanticErrors.push_back(
+            std::format("Line {}, Column {}: SEMANTIC ERROR -> variable redefined '{}'", 
+                node->getToken().line, node->getToken().column, node->getToken().value)
+        );
     }
 
     // direct initialization
@@ -232,8 +264,10 @@ void Analyzer::checkStatement(const ASTree* node){
             checkSwitchStatement(node);
             break;
         default:
-            throw std::runtime_error(std::format("Line {}, Column {}: SYNTAX ERROR -> expected 'STATEMENT' got '{}'",
-                node->getToken().line, node->getToken().column, astNodeTypeToString.at(node->getNodeType())));
+            analyzerContext.semanticErrors.push_back(
+                std::format("Line {}, Column {}: SYNTAX ERROR -> expected 'STATEMENT' got '{}'",
+                    node->getToken().line, node->getToken().column, astNodeTypeToString.at(node->getNodeType()))
+            );
     }
 }
 
@@ -274,8 +308,10 @@ void Analyzer::checkForStatement(const ASTree* node){
 
     // check if variables initializer variable and increment variable match
     if(lname != rname){
-        throw std::runtime_error(std::format("Line {}, Column {}: SEMANTIC ERROR -> invalid for statement - variable mismatch '{}' != '{}'", 
-            node->getToken().line, node->getToken().column, lname, rname));
+        analyzerContext.semanticErrors.push_back(
+            std::format("Line {}, Column {}: SEMANTIC ERROR -> invalid for statement - variable mismatch '{}' != '{}'", 
+                node->getToken().line, node->getToken().column, lname, rname)
+        );
     }
 
     checkConstruct(node->getChild(3));
@@ -291,8 +327,9 @@ void Analyzer::checkDoWhileStatement(const ASTree* node){
 // child(0) - id
 // child(1) - cases and default
 void Analyzer::checkSwitchStatement(const ASTree* node){
-    checkID(node->getChild(0));
-
+    // if id is not defined, switch is ignored, all cases will be ignored, including their constructs 
+    if(!checkID(node->getChild(0))) return;
+    
     // case check
     if(node->getChild(0)->getType() == Types::INT){
         checkSwitchStatementCases<int>(node);
@@ -301,8 +338,10 @@ void Analyzer::checkSwitchStatement(const ASTree* node){
         checkSwitchStatementCases<unsigned>(node);
     }
     else{
-        throw std::runtime_error(std::format("Line {}, Column {}: SEMANTIC ERROR -> invalid type '{}'", 
-            node->getToken().line, node->getToken().column, node->getChild(0)->getToken().value));
+        analyzerContext.semanticErrors.push_back(
+            std::format("Line {}, Column {}: SEMANTIC ERROR -> invalid type '{}'", 
+                node->getToken().line, node->getToken().column, node->getChild(0)->getToken().value)
+        );
     }
 }
 
@@ -324,15 +363,18 @@ void Analyzer::checkSwitchStatementCases(const ASTree* node){
             // case type check
             Types type{ child->getChild(0)->getType() };
             if(child->getChild(0)->getType() != expectedType){
-                throw std::runtime_error(std::format("Line {}, Column {}: SEMANTIC ERROR -> invalid case - type mismatch: expected '{}', got '{}'", 
-                    child->getToken().line, child->getToken().column, typeToString.at(expectedType), typeToString.at(type)));
+                analyzerContext.semanticErrors.push_back(
+                    std::format("Line {}, Column {}: SEMANTIC ERROR -> invalid case - type mismatch: expected '{}', got '{}'", 
+                        child->getToken().line, child->getToken().column, typeToString.at(expectedType), typeToString.at(type))
+                );
             }
             // case duplicate check
             else if(set.find(val = (std::is_same<T, int>::value ? std::stoi(child->getChild(0)->getToken().value) 
                                                                 : std::stoul(child->getChild(0)->getToken().value))) != set.end()){
-
-                throw std::runtime_error(std::format("Line {}, Column {}: SEMANTIC ERROR -> duplicate case '{}'", 
-                    child->getToken().line, child->getToken().column, child->getChild(0)->getToken().value));
+                analyzerContext.semanticErrors.push_back(
+                    std::format("Line {}, Column {}: SEMANTIC ERROR -> duplicate case '{}'", 
+                        child->getToken().line, child->getToken().column, child->getChild(0)->getToken().value)
+                );
             }
             else{
                 for(const auto& _child : child->getChild(1)->getChildren()){
@@ -363,17 +405,23 @@ void Analyzer::checkCompoundStatement(const ASTree* node){
 void Analyzer::checkAssignmentStatement(const ASTree* node) const {
     ASTree* lchild{ node->getChild(0) };
     ASTree* rchild{ node->getChild(1) };
-    
+
+    // if variable is not defined, rvalue won't be analyzed
+    if(!checkID(lchild)) return;
+
     checkNumericalExpression(rchild);
     Types rtype{ rchild->getType() };
-    
-    checkID(lchild);
-    Types ltype{ analyzerContext.scopeManager->getSymbol(lchild->getToken().value).getType() };
-    
+    Types ltype{ lchild->getType() };
+
+    // if numexp contains undefined element it will report the undefined variable, no point checking for type mismatch
+    if(rtype == Types::NO_TYPE) return;
+
     // assignment type check
     if(rtype != ltype && ltype != Types::AUTO){
-        throw std::runtime_error(std::format("Line {}, Column {}: SEMANTIC ERROR -> invalid assignment statement - type mismatch: expected '{}', got '{}'", 
-            node->getToken().line, node->getToken().column, typeToString.at(ltype), typeToString.at(rtype)));
+        analyzerContext.semanticErrors.push_back(
+            std::format("Line {}, Column {}: SEMANTIC ERROR -> invalid assignment statement - type mismatch: expected '{}', got '{}'", 
+                node->getToken().line, node->getToken().column, typeToString.at(ltype), typeToString.at(rtype))
+        );
     }
 
     if(ltype == Types::AUTO){
@@ -383,12 +431,17 @@ void Analyzer::checkAssignmentStatement(const ASTree* node) const {
 
 void Analyzer::checkReturnStatement(const ASTree* node){
     Types type{ node->getChildren().empty() ? Types::VOID : getNumericalExpressionType(node->getChild(0)) };
-
+    
+    // if numexp inside of a return statement contains undef var, it will report it, no point checking for type mismatch
+    if(type == Types::NO_TYPE) return;
+    
     // return type check
     Types returnType{ globalScopeManager.getSymbol(analyzerContext.functionName).getType() };
     if(returnType != type){
-        throw std::runtime_error(std::format("Line {}, Column {}: SEMANTIC ERROR -> invalid return statement - type mismatch: '{} {}' returns '{}'", 
-            node->getToken().line, node->getToken().column, typeToString.at(returnType), analyzerContext.functionName, typeToString.at(type)));
+        analyzerContext.semanticErrors.push_back(
+            std::format("Line {}, Column {}: SEMANTIC ERROR -> invalid return statement - type mismatch: '{} {}' returns '{}'", 
+                node->getToken().line, node->getToken().column, typeToString.at(returnType), analyzerContext.functionName, typeToString.at(type))
+        );
     }
     analyzerContext.returned = true;
 }
@@ -417,9 +470,15 @@ Types Analyzer::getNumericalExpressionType(ASTree* node) const {
         // numerical expression type check
         Types ltype{ getNumericalExpressionType(node->getChild(0)) };
         Types rtype{ getNumericalExpressionType(node->getChild(1)) };
+
+        // if either subexpression is invalid, root expression shall be invalid too, no point checking for type mismatch
+        if(ltype == Types::NO_TYPE || rtype == Types::NO_TYPE) return Types::NO_TYPE;
+
         if(ltype != rtype){
-            throw std::runtime_error(std::format("Line {}, Column {}: SEMANTIC ERROR -> invalid expression - type mismatch: expected '{}', got '{}'", 
-                node->getToken().line, node->getToken().column, typeToString.at(ltype), typeToString.at(rtype)));
+            analyzerContext.semanticErrors.push_back(
+                std::format("Line {}, Column {}: SEMANTIC ERROR -> invalid expression - type mismatch: expected '{}', got '{}'", 
+                    node->getToken().line, node->getToken().column, typeToString.at(ltype), typeToString.at(rtype))
+            );
         }
         
         return ltype;
@@ -438,29 +497,41 @@ void Analyzer::checkRelationalExpression(const ASTree* node) const {
     checkNumericalExpression(rchild);
     Types rtype{ rchild->getType() };
     
+    // undefined element, no point checking for type mismatch
+    if(ltype == Types::NO_TYPE || rtype == Types::NO_TYPE) return;
+
     // relational expression type check
     if(ltype != rtype){
-        throw std::runtime_error(std::format("Line {}, Column {}: SEMANTIC ERROR -> type mismatch: expected '{}', got '{}'", 
-            node->getToken().line, node->getToken().column, typeToString.at(ltype), typeToString.at(rtype)));
+        analyzerContext.semanticErrors.push_back(
+            std::format("Line {}, Column {}: SEMANTIC ERROR -> type mismatch: expected '{}', got '{}'", 
+                node->getToken().line, node->getToken().column, typeToString.at(ltype), typeToString.at(rtype))
+        );
     }
 }
 
-void Analyzer::checkID(ASTree* node) const {
+bool Analyzer::checkID(ASTree* node) const {
     std::string name{ node->getToken().value };
     // check if id exists
     if(!analyzerContext.scopeManager->lookupSymbol(name, {Kinds::VAR, Kinds::PAR})){
-        throw std::runtime_error(std::format("Line {}, Column {}: SEMANTIC ERROR -> undefined variable '{}'", 
-            node->getToken().line, node->getToken().column, name));
+        analyzerContext.semanticErrors.push_back(
+            std::format("Line {}, Column {}: SEMANTIC ERROR -> undefined variable '{}'", 
+                node->getToken().line, node->getToken().column, name)
+        );
+        node->setType(Types::NO_TYPE);
+        return false;
     }
     node->setType(analyzerContext.scopeManager->getSymbol(name).getType());
+    return true;
 }
 
 void Analyzer::checkLiteral(const ASTree* node) const {
     std::string name{ node->getToken().value };
     // invalid literal check
     if((node->getType() == Types::UNSIGNED && (name.back() != 'u' || name.front() == '-')) || (node->getType() == Types::INT && name.back() == 'u')){
-        throw std::runtime_error(std::format("Line {}, Column {}: SEMANTIC ERROR -> invalid literal '{}'", 
-            node->getToken().line, node->getToken().column, name));
+        analyzerContext.semanticErrors.push_back(
+            std::format("Line {}, Column {}: SEMANTIC ERROR -> invalid literal '{}'", 
+                node->getToken().line, node->getToken().column, name)
+        );
     }
 }
 
@@ -468,21 +539,33 @@ void Analyzer::checkLiteral(const ASTree* node) const {
 void Analyzer::checkFunctionCall(ASTree* node) const {
     // function existence
     if(!globalScopeManager.lookupSymbol(node->getToken().value, {Kinds::FUN})){
-        throw std::runtime_error(std::format("Line {}, Column {}: SEMANTIC ERROR -> undefined function '{}'", 
-            node->getToken().line, node->getToken().column, node->getToken().value));
+        analyzerContext.semanticErrors.push_back(
+            std::format("Line {}, Column {}: SEMANTIC ERROR -> undefined function '{}'", 
+                node->getToken().line, node->getToken().column, node->getToken().value)
+        );
+        // function doesn't exist, no point checking arguments
+        return;
     }
     
-    // check if main is called
+    // main function can't be called
     if(node->getToken().value == "main"){
-        throw std::runtime_error(std::format("Line {}, Column {}: SEMANTIC ERROR -> 'main' is not callable function", 
-            node->getToken().line, node->getToken().column));
+        analyzerContext.semanticErrors.push_back(
+            std::format("Line {}, Column {}: SEMANTIC ERROR -> 'main' is not callable function", 
+                node->getToken().line, node->getToken().column)
+        );
+        return;
     }
 
     // comparation of given parameter count with expected parameter count
     size_t expectedParams{ globalScopeManager.getSymbol(node->getToken().value).getParameters()->getChildren().size() };
     if(node->getChild(0)->getChildren().size() != expectedParams){
-        throw std::runtime_error(std::format("Line {}, Column {}: SEMANTIC ERROR -> invalid function call '{}': provided parameters '{}', expected '{}'", 
-            node->getToken().line, node->getToken().column, node->getToken().value, node->getChild(0)->getChildren().size(), expectedParams));
+        analyzerContext.semanticErrors.push_back(
+            std::format("Line {}, Column {}: SEMANTIC ERROR -> invalid function call '{}': provided arguments '{}', expected '{}'", 
+                node->getToken().line, node->getToken().column, node->getToken().value, node->getChild(0)->getChildren().size(), expectedParams)
+        );
+        node->setType(globalScopeManager.getSymbol(node->getToken().value).getType());
+        // number of provided arguments differs from expected, no type checking
+        return;
     }
     node->setType(globalScopeManager.getSymbol(node->getToken().value).getType());
     checkArgument(node);
@@ -499,9 +582,15 @@ void Analyzer::checkArgument(const ASTree* node) const {
         // type check of corresponding parameters in function and function call
         Types ltype{ child->getType() };
         Types rtype{ functionParameters->getChild(i)->getType() };
+
+        // no point checking for types if argument is invalid
+        if(ltype == Types::NO_TYPE) return;
+
         if(ltype != rtype){
-            throw std::runtime_error(std::format("Line {}, Column {}: SEMANTIC ERROR -> invalid argument - type mismatch: expected '{}', got '{} {}'",
-                child->getToken().line, child->getToken().column, typeToString.at(rtype), typeToString.at(ltype), child->getToken().value));
+            analyzerContext.semanticErrors.push_back(
+                std::format("Line {}, Column {}: SEMANTIC ERROR -> invalid argument - type mismatch: expected '{}', got '{} {}'",
+                    child->getToken().line, child->getToken().column, typeToString.at(rtype), typeToString.at(ltype), child->getToken().value)
+            );
         }
         ++i;
     }
