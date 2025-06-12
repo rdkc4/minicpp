@@ -34,7 +34,7 @@ class Analyzer{
         void startFunctionCheck(const ASTree* flist);
         void checkFunction(const ASTree* node);
         void checkParameter(ASTree* node, const std::string& functionName);
-        void defineParameters(ASTree* node) const;
+        void defineParameters(ASTree* node);
         void checkBody(const ASTree* node);
 
         // constructs
@@ -54,17 +54,17 @@ class Analyzer{
         template<typename T>
         void checkSwitchStatementCases(const ASTree* node);
         void checkCompoundStatement(const ASTree* node);
-        void checkAssignmentStatement(const ASTree* node) const;
+        void checkAssignmentStatement(const ASTree* node);
         void checkReturnStatement(const ASTree* node);
 
         // expressions
-        void checkNumericalExpression(ASTree* node) const;
-        Types getNumericalExpressionType(ASTree* node) const;
-        void checkRelationalExpression(const ASTree* node) const;
-        bool checkID(ASTree* node) const;
+        void checkNumericalExpression(ASTree* node);
+        Types getNumericalExpressionType(ASTree* node);
+        void checkRelationalExpression(const ASTree* node);
+        bool checkID(ASTree* node);
         void checkLiteral(const ASTree* node) const;
-        void checkFunctionCall(ASTree* node) const;
-        void checkArgument(const ASTree* node) const;
+        void checkFunctionCall(ASTree* node);
+        void checkArgument(const ASTree* node);
 
 };
 

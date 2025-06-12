@@ -186,7 +186,7 @@ void Analyzer::checkParameter(ASTree* node, const std::string& functionName){
     }
 }
 
-void Analyzer::defineParameters(ASTree* node) const {
+void Analyzer::defineParameters(ASTree* node){
     for(const auto& child : node->getChildren()){
         analyzerContext.scopeManager->pushSymbol(Symbol{child->getToken().value, Kinds::PAR, child->getType()});
     }
@@ -402,7 +402,7 @@ void Analyzer::checkCompoundStatement(const ASTree* node){
 
 // child(0) - destination variable
 // child 1 - numerical expression
-void Analyzer::checkAssignmentStatement(const ASTree* node) const {
+void Analyzer::checkAssignmentStatement(const ASTree* node){
     ASTree* lchild{ node->getChild(0) };
     ASTree* rchild{ node->getChild(1) };
 
@@ -446,12 +446,12 @@ void Analyzer::checkReturnStatement(const ASTree* node){
     analyzerContext.returned = true;
 }
 
-void Analyzer::checkNumericalExpression(ASTree* node) const {
+void Analyzer::checkNumericalExpression(ASTree* node){
     // setting type to numexp node for easier type checking
     node->setType(getNumericalExpressionType(node));
 }
 
-Types Analyzer::getNumericalExpressionType(ASTree* node) const {
+Types Analyzer::getNumericalExpressionType(ASTree* node){
     if(node->getNodeType() == ASTNodeType::ID){
         checkID(node);
         return node->getType();
@@ -488,7 +488,7 @@ Types Analyzer::getNumericalExpressionType(ASTree* node) const {
 // node - contains relational operator
 // child(0) - left operand
 // child(1) - right operand
-void Analyzer::checkRelationalExpression(const ASTree* node) const {
+void Analyzer::checkRelationalExpression(const ASTree* node){
     ASTree* lchild{ node->getChild(0) };
     ASTree* rchild{ node->getChild(1) };
 
@@ -509,7 +509,7 @@ void Analyzer::checkRelationalExpression(const ASTree* node) const {
     }
 }
 
-bool Analyzer::checkID(ASTree* node) const {
+bool Analyzer::checkID(ASTree* node){
     std::string name{ node->getToken().value };
     // check if id exists
     if(!analyzerContext.scopeManager->lookupSymbol(name, {Kinds::VAR, Kinds::PAR})){
@@ -536,7 +536,7 @@ void Analyzer::checkLiteral(const ASTree* node) const {
 }
 
 // child(0) - arguments
-void Analyzer::checkFunctionCall(ASTree* node) const {
+void Analyzer::checkFunctionCall(ASTree* node){
     // function existence
     if(!globalScopeManager.lookupSymbol(node->getToken().value, {Kinds::FUN})){
         analyzerContext.semanticErrors.push_back(
@@ -571,7 +571,7 @@ void Analyzer::checkFunctionCall(ASTree* node) const {
     checkArgument(node);
 }
 
-void Analyzer::checkArgument(const ASTree* node) const {
+void Analyzer::checkArgument(const ASTree* node){
     ASTree* functionParameters{ globalScopeManager.getSymbol(node->getToken().value).getParameters() };
     ASTree* arguments{ node->getChild(0) };
 
