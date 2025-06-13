@@ -1,78 +1,67 @@
 #include "asm_generator.hpp"
 #include <format>
 
-AsmGenerator::AsmGenerator(std::string& file) : output{ file } {}
+AsmGenerator::AsmGenerator() = default;
 
-AsmGenerator::~AsmGenerator() noexcept = default;
-
-bool AsmGenerator::isOpen() const {
-    return output.is_open();
+const std::string AsmGenerator::genStart(){
+    return std::format("{}{}{}{}", ".global _start\n", ".text\n\n", "_start:\n", "\tjmp main\n");
 }
 
-void AsmGenerator::genStart(){
-    output << ".global _start\n";
-    output << ".text\n\n";
-    output << "_start:\n";
-    output << "\tjmp main\n";
+void AsmGenerator::genMov(std::vector<std::string>& asmCode, std::string_view l, std::string_view r, std::string_view ext){
+    asmCode.push_back(std::format("\tmov{} {}, {}\n", ext, l ,r));
 }
 
-void AsmGenerator::genMov(std::string_view l, std::string_view r, std::string_view ext){
-    output << std::format("\tmov{} {}, {}\n", ext, l ,r);
+void AsmGenerator::genCmp(std::vector<std::string>& asmCode, std::string_view l, std::string_view r){
+    asmCode.push_back(std::format("\tcmp {}, {}\n", l, r));
 }
 
-void AsmGenerator::genCmp(std::string_view l, std::string_view r){
-    output << std::format("\tcmp {}, {}\n", l, r);
-}
-
-void AsmGenerator::genOperation(std::string_view op, std::string_view l, std::string_view r){
+void AsmGenerator::genOperation(std::vector<std::string>& asmCode, std::string_view op, std::string_view l, std::string_view r){
     if(r != ""){
-        output << std::format("\t{} {}, {}\n", op, l, r);
+        asmCode.push_back(std::format("\t{} {}, {}\n", op, l, r));
     }
     else{
-        output << std::format("\t{} {}\n", op, l);
+        asmCode.push_back(std::format("\t{} {}\n", op, l));
     }
 }
 
-void AsmGenerator::genLabel(std::string_view label){
-    output << std::format("{}:\n", label);
+void AsmGenerator::genLabel(std::vector<std::string>& asmCode, std::string_view label){
+    asmCode.push_back(std::format("{}:\n", label));
 }
 
-void AsmGenerator::genRet(){
-    output << "\tret\n";
+void AsmGenerator::genRet(std::vector<std::string>& asmCode){
+    asmCode.push_back("\tret\n");
 }
 
-void AsmGenerator::genJmp(std::string_view jmp, std::string_view label){
-    output << std::format("\t{} {}\n", jmp, label);
+void AsmGenerator::genJmp(std::vector<std::string>& asmCode, std::string_view jmp, std::string_view label){
+    asmCode.push_back(std::format("\t{} {}\n", jmp, label));
 }
 
-void AsmGenerator::genCall(std::string_view func){
-    output << std::format("\tcall {}\n", func);
+void AsmGenerator::genCall(std::vector<std::string>& asmCode, std::string_view func){
+    asmCode.push_back(std::format("\tcall {}\n", func));
 }
 
-void AsmGenerator::genPush(std::string_view r){
-    output << std::format("\tpush {}\n", r);
+void AsmGenerator::genPush(std::vector<std::string>& asmCode, std::string_view r){
+    asmCode.push_back(std::format("\tpush {}\n", r));
 }
 
-void AsmGenerator::genPop(std::string_view r){
-    output << std::format("\tpop {}\n", r);
+void AsmGenerator::genPop(std::vector<std::string>& asmCode, std::string_view r){
+    asmCode.push_back(std::format("\tpop {}\n", r));
 }
 
-void AsmGenerator::genFuncPrologue(){
-    genPush("%rbp");
-    genMov("%rsp", "%rbp");
+void AsmGenerator::genFuncPrologue(std::vector<std::string>& asmCode){
+    genPush(asmCode, "%rbp");
+    genMov(asmCode, "%rsp", "%rbp");
 }
 
-void AsmGenerator::genFuncEpilogue(){
-    genMov("%rbp", "%rsp");
-    genPop("%rbp");
+void AsmGenerator::genFuncEpilogue(std::vector<std::string>& asmCode){
+    genMov(asmCode, "%rbp", "%rsp");
+    genPop(asmCode, "%rbp");
 }
 
-void AsmGenerator::genExit(){
-    output << "\tmov %rax, %rdi\n"; // return value to rdi
-    output << "\tmovq $60, %rax\n";
-    output << "\tsyscall\n";
+void AsmGenerator::genExit(std::vector<std::string>& asmCode){
+    asmCode.push_back(std::format("{}{}{}", "\tmov %rax, %rdi\n", "\tmovq $60, %rax\n", "\tsyscall\n")); // return value in %rdi
 }
 
-void AsmGenerator::genNewLine(){
-    output << "\n";
+void AsmGenerator::genNewLine(std::vector<std::string>& asmCode){
+    asmCode.push_back("\n");
 }
