@@ -317,17 +317,31 @@ void CodeGenerator::generateCompoundStatement(const IRTree* node){
     }
 }
 
+// evaluating rvalue
 void CodeGenerator::generateAssignmentStatement(const IRTree* node){
-    // evaluating rvalue
-    generateNumericalExpression(node->getChild(1));
+    size_t temporaryCount{}; // preventing register corruption when function call occurs
+    if(node->getChild(0)->getNodeType() == IRNodeType::TEMPORARY){
+        for(const auto& child : node->getChild(0)->getChildren()){
+            generateVariable(child.get());
+        }
+        ++temporaryCount;
+    }
+    generateNumericalExpression(node->getChild(1 + temporaryCount));
     freeGpReg(codeGenContext.gpFreeRegPos);
-    _asm.genMov(codeGenContext.asmCode, gpRegisters.at(codeGenContext.gpFreeRegPos), generateID(node->getChild(0)), "q");
+    _asm.genMov(codeGenContext.asmCode, gpRegisters.at(codeGenContext.gpFreeRegPos), generateID(node->getChild(temporaryCount)), "q");
 }
 
+// return value ends up in %rax
 void CodeGenerator::generateReturnStatement(const IRTree* node){
-    // assign return value to %rax
     if(node->getChildren().size() != 0){
-        generateNumericalExpression(node->getChild(0));
+        size_t temporaryCount{}; // preventing register corruption when function call occurs
+        if(node->getChild(0)->getNodeType() == IRNodeType::TEMPORARY){
+            for(const auto& child : node->getChild(0)->getChildren()){
+                generateVariable(child.get());
+            }
+            ++temporaryCount;
+        }
+        generateNumericalExpression(node->getChild(temporaryCount));
         freeGpReg(codeGenContext.gpFreeRegPos);
         _asm.genMov(codeGenContext.asmCode, gpRegisters.at(codeGenContext.gpFreeRegPos), "%rax", "q");
     }else{
@@ -466,8 +480,17 @@ void CodeGenerator::generateNumericalExpression(const IRTree* node){
 }
 
 void CodeGenerator::generateRelationalExpression(const IRTree* node){
-    generateNumericalExpression(node->getChild(0));
-    generateNumericalExpression(node->getChild(1));
+    size_t temporaryCount{}; // preventing register corruption when function call occurs
+    for(size_t i = 0; i < 2; ++i){
+        if(node->getChild(i)->getNodeType() == IRNodeType::TEMPORARY){
+            for(const auto& child : node->getChild(i)->getChildren()){
+                generateVariable(child.get());
+            }
+            ++temporaryCount;
+        }
+    }
+    generateNumericalExpression(node->getChild(0 + temporaryCount));
+    generateNumericalExpression(node->getChild(1 + temporaryCount));
     
     freeGpReg(codeGenContext.gpFreeRegPos);
     std::string lreg{ gpRegisters.at(codeGenContext.gpFreeRegPos) };

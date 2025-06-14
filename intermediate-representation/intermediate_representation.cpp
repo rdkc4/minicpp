@@ -5,6 +5,8 @@
 #include <string>
 #include <format>
 
+IntermediateRepresentation::IntermediateRepresentation() : temporaries{ 0 }, lastUsedTemporary{ 0 } {}
+
 std::unique_ptr<IRTree> IntermediateRepresentation::formIR(const ASTree* astRoot){
     std::unique_ptr<IRTree> root = std::make_unique<IRTree>(IRNodeType::PROGRAM);
     for(const auto& child: astRoot->getChild(0)->getChildren()){
@@ -103,16 +105,29 @@ std::unique_ptr<IRTree> IntermediateRepresentation::compoundStatement(const ASTr
     return iChild;
 }
 
-std::unique_ptr<IRTree> IntermediateRepresentation::assignmentStatement(const ASTree* node) const {
+std::unique_ptr<IRTree> IntermediateRepresentation::assignmentStatement(const ASTree* node){
     std::unique_ptr<IRTree> iChild = std::make_unique<IRTree>(IRNodeType::ASSIGN);
+
+    // extracting function calls to temporary variables
+    auto temps{ initiateTemporaries(node->getChild(1)) };
+    if(temps){
+        iChild->pushChild(std::move(temps));
+    }
+    
     iChild->pushChild(id(node->getChild(0)));
     iChild->pushChild(numericalExpression(node->getChild(1)));
     return iChild;
 }
 
-std::unique_ptr<IRTree> IntermediateRepresentation::returnStatement(const ASTree* node) const {
+std::unique_ptr<IRTree> IntermediateRepresentation::returnStatement(const ASTree* node){
     std::unique_ptr<IRTree> iChild = std::make_unique<IRTree>(IRNodeType::RETURN);
     if(node->getChildren().size() != 0){
+        // extracting function calls to temporary variables
+        auto temps{ initiateTemporaries(node->getChild(0)) };
+        if(temps){
+            iChild->pushChild(std::move(temps));
+        }
+
         iChild->pushChild(numericalExpression(node->getChild(0)));
     }
     return iChild;
@@ -183,7 +198,7 @@ std::unique_ptr<IRTree> IntermediateRepresentation::_break() const {
 }
 
 // NUMEXP - reduced to (id, literal, function call) or arithmetic operation (add, sub, mul, div)
-std::unique_ptr<IRTree> IntermediateRepresentation::numericalExpression(const ASTree* node) const {
+std::unique_ptr<IRTree> IntermediateRepresentation::numericalExpression(const ASTree* node){
     if(node->getNodeType() == ASTNodeType::ID){
         return id(node);
     }
@@ -191,7 +206,7 @@ std::unique_ptr<IRTree> IntermediateRepresentation::numericalExpression(const AS
         return literal(node);
     }
     else if(node->getNodeType() == ASTNodeType::FUNCTION_CALL){
-        return functionCall(node);
+        return replaceFunctionCall(node);
     }
     if(node->getChildren().size() == 1){
         return numericalExpression(node->getChild(0));
@@ -265,9 +280,20 @@ T IntermediateRepresentation::mergeValues(T l, T r, const ASTree* node) const {
             node->getToken().line, node->getToken().column, op));
 }
 
-std::unique_ptr<IRTree> IntermediateRepresentation::relationalExpression(const ASTree* node) const {
+std::unique_ptr<IRTree> IntermediateRepresentation::relationalExpression(const ASTree* node){
     std::unique_ptr<IRTree> iChild = std::make_unique<IRTree>(IRNodeType::CMP);
     iChild->setValue(node->getToken().value); // stores relational operator as value
+
+    // extracting function calls to temporary variables
+    auto temps{ initiateTemporaries(node->getChild(0)) };
+    if(temps){
+        iChild->pushChild(std::move(temps));
+    }
+    temps = initiateTemporaries(node->getChild(1));
+    if(temps){
+        iChild->pushChild(std::move(temps));
+    }
+
     iChild->pushChild(numericalExpression(node->getChild(0)));
     iChild->pushChild(numericalExpression(node->getChild(1)));
 
@@ -282,16 +308,86 @@ std::unique_ptr<IRTree> IntermediateRepresentation::literal(const ASTree* node) 
     return std::make_unique<IRTree>("", node->getToken().value, node->getType(), IRNodeType::LITERAL);
 }
 
-std::unique_ptr<IRTree> IntermediateRepresentation::functionCall(const ASTree* node) const {
+std::unique_ptr<IRTree> IntermediateRepresentation::functionCall(const ASTree* node){
     std::unique_ptr<IRTree> iChild = std::make_unique<IRTree>(node->getToken().value, "", node->getType(), IRNodeType::CALL);
     iChild->pushChild(argument(node));
     return iChild;
 }
 
-std::unique_ptr<IRTree> IntermediateRepresentation::argument(const ASTree* node) const {
+std::unique_ptr<IRTree> IntermediateRepresentation::argument(const ASTree* node){
     std::unique_ptr<IRTree> iChild = std::make_unique<IRTree>(IRNodeType::ARGUMENT);
+    for(const auto& child : node->getChild(0)->getChildren()){
+        auto tmps = initiateTemporaries(child.get());
+        if(tmps){
+            iChild->pushChild(std::move(tmps));
+        }
+    }
     for(const auto& child : node->getChild(0)->getChildren()){
         iChild->pushChild(numericalExpression(child.get()));
     }
     return iChild;
+}
+
+// counting the number of function calls that should be replaced by temporary variables
+size_t IntermediateRepresentation::countTemporaries(const ASTree* node) const {
+    if(node->getNodeType() == ASTNodeType::FUNCTION_CALL){
+        return 1;
+    }
+    else if(node->getNodeType() == ASTNodeType::LITERAL || node->getNodeType() == ASTNodeType::ID){
+        return 0;
+    }
+    else if(node->getChildren().size() == 1){
+        return countTemporaries(node->getChild(0));
+    }
+    else{
+        return countTemporaries(node->getChild(0)) + countTemporaries(node->getChild(1));
+    }
+}
+
+// generating temporary variables
+std::unique_ptr<IRTree> IntermediateRepresentation::generateTemporaries(){
+    std::string name = std::format("_t{}", ++temporaries);
+    return std::make_unique<IRTree>(name, "0", Types::NO_TYPE, IRNodeType::VARIABLE);
+}
+
+// assigning a returned value to temporary variables
+void IntermediateRepresentation::assignFunctionCalls(IRTree* irNode, const ASTree* node, size_t& idx){
+    if(node->getNodeType() == ASTNodeType::FUNCTION_CALL){
+        auto temporary = irNode->getChild(idx);
+        temporary->pushChild(std::make_unique<IRTree>(IRNodeType::ASSIGN));
+        temporary->getChild(0)->pushChild(std::make_unique<IRTree>(temporary->getName(), "0", node->getType(), IRNodeType::ID));
+        temporary->getChild(0)->pushChild(functionCall(node));
+        irNode->setType(node->getType());
+        ++idx;
+    }
+    else if(node->getNodeType() == ASTNodeType::LITERAL || node->getNodeType() == ASTNodeType::VARIABLE){
+        return;
+    }
+    else if(node->getChildren().size() == 1){
+        assignFunctionCalls(irNode, node->getChild(0), idx);
+    }
+    else{
+        assignFunctionCalls(irNode, node->getChild(0), idx);
+        assignFunctionCalls(irNode, node->getChild(1), idx);
+    }
+}
+
+// replacing function calls with temporary variables in numerical expression
+std::unique_ptr<IRTree> IntermediateRepresentation::replaceFunctionCall(const ASTree* node){
+    return std::make_unique<IRTree>(std::format("_t{}", ++lastUsedTemporary), "0", node->getType(), IRNodeType::ID);
+}
+
+std::unique_ptr<IRTree> IntermediateRepresentation::initiateTemporaries(const ASTree* node){
+    size_t tmpCount = countTemporaries(node);
+    if(tmpCount > 0){
+        std::unique_ptr<IRTree> temporaryRoot = std::make_unique<IRTree>(IRNodeType::TEMPORARY);
+        size_t firstTemporaryIndex = 0;
+        for(size_t i = 0; i < tmpCount; ++i){
+            temporaryRoot->pushChild(generateTemporaries());
+        }
+        variableCount += tmpCount;
+        assignFunctionCalls(temporaryRoot.get(), node, firstTemporaryIndex);
+        return temporaryRoot;
+    }
+    return nullptr;
 }
