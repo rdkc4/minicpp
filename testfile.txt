@@ -21,10 +21,12 @@ int fun(int y, int z){
 int main(){
     int y = 10;
     auto x = fib(y);
+    printf(x);
     int i;
     int j;
     unsigned z = 5u;
     unsigned k = 3u & 5u + (z * 2u) / 3u | 2u ^ 11u;
+    printf(k);
 
     for(i = 0; i < 10; i = i + 1){
         j = j + 2;
@@ -35,6 +37,7 @@ int main(){
     }while(j >= 10);
 
     x = fun(i, j); //this is single-line comment
+    printf(x);
 
     {
         int abc = 3;
@@ -43,11 +46,13 @@ int main(){
     int abc = 1;
 
     x = (x << 1) - j/2;
+    printf(x);
     /*
         this is
         multi-line
         comment
     */
-
-    return fib(y + abc);
+    int tmp = fib(y + abc);
+    printf(tmp);
+    return tmp;
 }

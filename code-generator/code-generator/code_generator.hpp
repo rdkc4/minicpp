@@ -32,8 +32,10 @@ class CodeGenerator{
         // component for asm code generation
         AsmGenerator _asm;
         // number for next label
-        // since functions are generated parallely, order of the labelNum will be erratic
+        // since functions are generated parallely, labelNums won't be in any particular order
         std::atomic<size_t> labelNum;
+        // if printf is called generate a function for printing
+        std::atomic<bool> prints;
         // output file path (.s)
         const std::string outputPath;
         
@@ -64,6 +66,7 @@ class CodeGenerator{
 
         // statement
         void generateStatement(const IRTree* node);
+        void generatePrintfStatement(const IRTree* node);
         void generateIfStatement(const IRTree* node);
         void generateWhileStatement(const IRTree* node);
         void generateForStatement(const IRTree* node);

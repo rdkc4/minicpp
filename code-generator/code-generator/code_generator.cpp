@@ -11,7 +11,7 @@
 #include "../../thread-pool/thread_pool.hpp"
 #include "../defs/code_generator_defs.hpp"
 
-CodeGenerator::CodeGenerator(const std::string& file) : labelNum{ 0 }, outputPath{ file } {}
+CodeGenerator::CodeGenerator(const std::string& file) : labelNum{ 0 }, prints{ false }, outputPath{ file } {}
 
 thread_local CodeGeneratorThreadContext CodeGenerator::codeGenContext;
 
@@ -68,6 +68,13 @@ void CodeGenerator::generateCode(const IRTree* root){
 
     for(const auto& function : root->getChildren()){
         for(const auto& instruction : asmCode[function->getName()]){
+            file << instruction;
+        }
+    }
+    
+    if(prints){
+        auto printfFunc = _asm.printfFunction();
+        for(const auto& instruction : printfFunc){
             file << instruction;
         }
     }
@@ -168,6 +175,9 @@ void CodeGenerator::generateVariable(const IRTree* node){
 
 void CodeGenerator::generateStatement(const IRTree* node){
     switch(node->getNodeType()){
+        case IRNodeType::PRINTF:
+            generatePrintfStatement(node);
+            break;
         case IRNodeType::IF:
             generateIfStatement(node);
             break;
@@ -196,6 +206,22 @@ void CodeGenerator::generateStatement(const IRTree* node){
             return;
     }
     _asm.genNewLine(codeGenContext.asmCode);
+}
+
+void CodeGenerator::generatePrintfStatement(const IRTree* node){
+    prints.store(true);
+
+    size_t temporaryCount{}; // preventing register corruption when function call occurs
+    if(node->getChild(0)->getNodeType() == IRNodeType::TEMPORARY){
+        for(const auto& child : node->getChild(0)->getChildren()){
+            generateVariable(child.get());
+        }
+        ++temporaryCount;
+    }
+    generateNumericalExpression(node->getChild(temporaryCount));
+    freeGpReg(codeGenContext.gpFreeRegPos);
+    _asm.genMov(codeGenContext.asmCode, gpRegisters.at(codeGenContext.gpFreeRegPos), "%rax", "q");
+    _asm.genCall(codeGenContext.asmCode, "_printf");
 }
 
 void CodeGenerator::generateIfStatement(const IRTree* node){

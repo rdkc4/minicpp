@@ -62,6 +62,8 @@ std::unique_ptr<IRTree> IntermediateRepresentation::variable(const ASTree* node)
 
 std::unique_ptr<IRTree> IntermediateRepresentation::statement(const ASTree* node){
     switch(node->getNodeType()){
+        case ASTNodeType::PRINTF:
+            return printfStatement(node);
         case ASTNodeType::IF_STATEMENT:
             return ifStatement(node);
         case ASTNodeType::COMPOUND_STATEMENT:
@@ -82,6 +84,19 @@ std::unique_ptr<IRTree> IntermediateRepresentation::statement(const ASTree* node
             throw std::runtime_error(std::format("Line {}, Column {}: SYNTAX ERROR -> Invalid statement '{}'\n", 
                 node->getToken().line, node->getToken().column, astNodeTypeToString.at(node->getNodeType())));
     }
+}
+
+std::unique_ptr<IRTree> IntermediateRepresentation::printfStatement(const ASTree* node){
+    std::unique_ptr<IRTree> iChild = std::make_unique<IRTree>(IRNodeType::PRINTF);
+
+    // extracting function calls to temporary variables
+    auto temps{ initiateTemporaries(node->getChild(0)) };
+    if(temps){
+        iChild->pushChild(std::move(temps));
+    }
+    iChild->pushChild(numericalExpression(node->getChild(0)));
+
+    return iChild;
 }
 
 std::unique_ptr<IRTree> IntermediateRepresentation::ifStatement(const ASTree* node){
@@ -360,7 +375,7 @@ void IntermediateRepresentation::assignFunctionCalls(IRTree* irNode, const ASTre
         irNode->setType(node->getType());
         ++idx;
     }
-    else if(node->getNodeType() == ASTNodeType::LITERAL || node->getNodeType() == ASTNodeType::VARIABLE){
+    else if(node->getNodeType() == ASTNodeType::LITERAL || node->getNodeType() == ASTNodeType::VARIABLE || node->getNodeType() == ASTNodeType::ID){
         return;
     }
     else if(node->getChildren().size() == 1){

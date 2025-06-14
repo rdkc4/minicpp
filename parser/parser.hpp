@@ -43,6 +43,7 @@ class Parser{
 
         // statements
         std::unique_ptr<ASTree> statement();
+        std::unique_ptr<ASTree> printfStatement();
         std::unique_ptr<ASTree> compoundStatement();
         std::unique_ptr<ASTree> assignmentStatement();
         std::unique_ptr<ASTree> returnStatement();

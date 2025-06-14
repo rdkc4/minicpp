@@ -14,5 +14,6 @@ const std::unordered_map<std::string, TokenType> keywords {
     {"switch", TokenType::_SWITCH},
     {"case", TokenType::_CASE},
     {"default", TokenType::_DEFAULT},
-    {"break", TokenType::_BREAK}
+    {"break", TokenType::_BREAK},
+    {"printf", TokenType::_PRINTF}
 };

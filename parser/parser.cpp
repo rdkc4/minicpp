@@ -134,6 +134,9 @@ std::unique_ptr<ASTree> Parser::statement(){
         consume(TokenType::_SEMICOLON);
         return node;
     }
+    else if(currentToken.type == TokenType::_PRINTF){
+        return printfStatement();
+    }
     else if(currentToken.type == TokenType::_RETURN)
         return returnStatement();
     else if(currentToken.type == TokenType::_IF)
@@ -151,6 +154,18 @@ std::unique_ptr<ASTree> Parser::statement(){
     else
         throw std::runtime_error(std::format("Line {}, Column {}: SYNTAX ERROR -> near '{}'",
             currentToken.line, currentToken.column, currentToken.value));
+}
+
+std::unique_ptr<ASTree> Parser::printfStatement(){
+    std::unique_ptr<ASTree> currentNode = std::make_unique<ASTree>(Token{"printf_statement", currentToken.line, currentToken.column}, ASTNodeType::PRINTF);
+    consume(TokenType::_PRINTF);
+    
+    consume(TokenType::_LPAREN);
+    currentNode->pushChild(numericalExpression());
+    consume(TokenType::_RPAREN);
+    consume(TokenType::_SEMICOLON);
+
+    return currentNode;
 }
 
 // COMPOUND_STATEMENT : LBRACKET CONSTRUCTS RBRACKET

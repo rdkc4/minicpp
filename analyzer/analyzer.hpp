@@ -45,6 +45,7 @@ class Analyzer{
 
         // statements
         void checkStatement(const ASTree* node);
+        void checkPrintfStatement(const ASTree* node);
         void checkIfStatement(const ASTree* node);
         void checkWhileStatement(const ASTree* node);
         void checkForStatement(const ASTree* node);

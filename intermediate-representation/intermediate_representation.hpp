@@ -37,6 +37,7 @@ class IntermediateRepresentation{
 
         // statements
         std::unique_ptr<IRTree> statement(const ASTree* node);
+        std::unique_ptr<IRTree> printfStatement(const ASTree* node);
         std::unique_ptr<IRTree> ifStatement(const ASTree* node);
         std::unique_ptr<IRTree> compoundStatement(const ASTree* node);
         std::unique_ptr<IRTree> assignmentStatement(const ASTree* node);

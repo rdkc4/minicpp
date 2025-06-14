@@ -38,7 +38,8 @@ const std::unordered_map<TokenType, std::string> tokenTypeToString {
     {TokenType::_RETURN, "RETURN"},
     {TokenType::_COMMA, "COMMA"},
     {TokenType::_EOF, "EOF"},
-    {TokenType::_INVALID, "INVALID"}
+    {TokenType::_INVALID, "INVALID"},
+    {TokenType::_PRINTF, "PRINTF"}
 };
 
 const std::unordered_map<GeneralTokenType, std::string> generalTokenTypeToString {

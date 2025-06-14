@@ -239,6 +239,9 @@ void Analyzer::checkVariable(const ASTree* node){
 
 void Analyzer::checkStatement(const ASTree* node){
     switch(node->getNodeType()){
+        case ASTNodeType::PRINTF:
+            checkPrintfStatement(node);
+            break;
         case ASTNodeType::IF_STATEMENT:
             checkIfStatement(node);
             break;
@@ -269,6 +272,10 @@ void Analyzer::checkStatement(const ASTree* node){
                     node->getToken().line, node->getToken().column, astNodeTypeToString.at(node->getNodeType()))
             );
     }
+}
+
+void Analyzer::checkPrintfStatement(const ASTree* node){
+    checkNumericalExpression(node->getChild(0));
 }
 
 // child(0) - if relational expression 
