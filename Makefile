@@ -1,6 +1,6 @@
 # Compiler and flags
 CXX = clang++
-CXXFLAGS = -std=c++23 -Wall -Wextra -Werror -g
+CXXFLAGS = -std=c++23 -Wall -Wextra -Werror -g -pthread
 
 # Source files
 SRCS = main.cpp \
