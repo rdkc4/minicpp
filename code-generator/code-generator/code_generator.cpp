@@ -548,19 +548,34 @@ void CodeGenerator::generateFunctionCall(const IRTree* node){
 }
 
 void CodeGenerator::generateArgument(const IRTree* node){
+    // evaluating temporaries
+    for(const auto& child : node->getChildren()){
+        if(child->getNodeType() == IRNodeType::TEMPORARY){
+            for(const auto& _child : child->getChildren()){
+                generateVariable(_child.get());
+            }
+        }
+    }
     // pushing arguments onto stack
     for(size_t i = node->getChildren().size(); i-- > 0;){
-        generateNumericalExpression(node->getChild(i));
-        freeGpReg(codeGenContext.gpFreeRegPos);
-        if(codeGenContext.gpFreeRegPos < gpRegisters.size()){ // if >= gpRegisters.size() argument is already pushed
-            _asm.genPush(codeGenContext.asmCode, gpRegisters.at(codeGenContext.gpFreeRegPos));
+        auto child = node->getChild(i); 
+        if(child->getNodeType() != IRNodeType::TEMPORARY){
+            generateNumericalExpression(child);
+            freeGpReg(codeGenContext.gpFreeRegPos);
+            if(codeGenContext.gpFreeRegPos < gpRegisters.size()){ // if >= gpRegisters.size() argument is already pushed
+                _asm.genPush(codeGenContext.asmCode, gpRegisters.at(codeGenContext.gpFreeRegPos));
+            }
         }
     }
 }
 
 void CodeGenerator::clearArguments(const IRTree* node){
     // popping arguments of the stack
+    size_t argumentCount{};
     for(size_t i = 0; i < node->getChildren().size(); ++i){
-        _asm.genPop(codeGenContext.asmCode, "%rbx");
+        if(node->getChild(i)->getNodeType() != IRNodeType::TEMPORARY){
+            ++argumentCount;
+        }
     }
+    _asm.genOperation(codeGenContext.asmCode, "add", std::format("${}", argumentCount*regSize), "%rsp");
 }

@@ -156,6 +156,7 @@ std::unique_ptr<ASTree> Parser::statement(){
             currentToken.line, currentToken.column, currentToken.value));
 }
 
+// PRINTF_STATEMENT: PRINTF LPAREN NUMERICAL_EXPRESSION RPAREN SEMICOLON;
 std::unique_ptr<ASTree> Parser::printfStatement(){
     std::unique_ptr<ASTree> currentNode = std::make_unique<ASTree>(Token{"printf_statement", currentToken.line, currentToken.column}, ASTNodeType::PRINTF);
     consume(TokenType::_PRINTF);

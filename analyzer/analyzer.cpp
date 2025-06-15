@@ -274,6 +274,7 @@ void Analyzer::checkStatement(const ASTree* node){
     }
 }
 
+// child(0) - numerical expression that should be printed
 void Analyzer::checkPrintfStatement(const ASTree* node){
     checkNumericalExpression(node->getChild(0));
 }

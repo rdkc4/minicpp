@@ -37,7 +37,7 @@ else0:
 	sub %r9, %r8
 	push %r8
 	call fib
-	pop %rbx
+	add $8, %rsp
 	movq %rax, %r8
 	movq %r8, -8(%rbp)
 
@@ -46,12 +46,12 @@ else0:
 	sub %r9, %r8
 	push %r8
 	call fib
-	pop %rbx
+	add $8, %rsp
 	movq %rax, %r8
 	movq %r8, -16(%rbp)
 
-	movq -8(%rbp), %r8
-	movq -16(%rbp), %r9
+	movq -16(%rbp), %r8
+	movq -8(%rbp), %r9
 	add %r9, %r8
 	movq %r8, %rax
 	jmp fib_end
@@ -126,7 +126,7 @@ main:
 	movq -8(%rbp), %r8
 	push %r8
 	call fib
-	pop %rbx
+	add $8, %rsp
 	movq %rax, %r8
 	movq %r8, -24(%rbp)
 
@@ -207,8 +207,7 @@ do_while3:
 	movq -32(%rbp), %r8
 	push %r8
 	call fun
-	pop %rbx
-	pop %rbx
+	add $16, %rsp
 	movq %rax, %r8
 	movq %r8, -64(%rbp)
 
@@ -248,7 +247,7 @@ do_while3:
 	add %r9, %r8
 	push %r8
 	call fib
-	pop %rbx
+	add $8, %rsp
 	movq %rax, %r8
 	movq %r8, -96(%rbp)
 

@@ -4,6 +4,7 @@
 #include "../common/intermediate-representation-tree/IRTree.hpp"
 #include "../common/abstract-syntax-tree/ASTree.hpp"
 #include <memory>
+#include <stack>
 
 /*
     Turning abstract syntax tree into intermediate representation tree
@@ -23,7 +24,8 @@ class IntermediateRepresentation{
         size_t variableCount;
         // count of the temporary variables for function calls
         size_t temporaries;
-        size_t lastUsedTemporary;
+        // making sure nested temporary variables are handled well
+        mutable std::stack<std::string> temporaryNames;
 
         // function
         std::unique_ptr<IRTree> function(const ASTree* node);
