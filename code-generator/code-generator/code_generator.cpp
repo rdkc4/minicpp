@@ -45,8 +45,7 @@ void CodeGenerator::generateCode(const IRTree* root){
         threadPool.enqueue([&, child=child.get()]{
             generateFunction(child);
 
-            done.fetch_add(1);
-            if(done == total){
+            if(done.fetch_add(1) + 1 == total){
                 doneCv.notify_all();
             }
         });
@@ -228,26 +227,26 @@ void CodeGenerator::generateIfStatement(const IRTree* node){
     size_t labNum{ getNextLabelNum() };
     size_t size{ node->getChildren().size() };
 
-    _asm.genLabel(codeGenContext.asmCode, std::format("if{}", labNum));
+    _asm.genLabel(codeGenContext.asmCode, std::format("_if{}", labNum));
     generateRelationalExpression(node->getChild(0));
 
     int type = node->getChild(0)->getChild(0)->getType() == Types::INT ? 0 : 1;
     std::string jmpLabel{ "" };
 
     if(size > 3){
-        jmpLabel = std::format("elif{}_0\n", labNum);
+        jmpLabel = std::format("_elif{}_0\n", labNum);
     }
     else if(size == 3){
-        jmpLabel = std::format("else{}\n", labNum);
+        jmpLabel = std::format("_else{}\n", labNum);
     }
     else{
-        jmpLabel = std::format("if{}_end\n", labNum);
+        jmpLabel = std::format("_if{}_end\n", labNum);
     }
 
     _asm.genJmp(codeGenContext.asmCode, stringToOppJMP.at(node->getChild(0)->getValue())[type], jmpLabel);
 
     generateStatement(node->getChild(1));
-    _asm.genJmp(codeGenContext.asmCode, "jmp", std::format("if{}_end", labNum));
+    _asm.genJmp(codeGenContext.asmCode, "jmp", std::format("_if{}_end", labNum));
     if(node->getChildren().size() == 3){
         _asm.genNewLine(codeGenContext.asmCode);
     }
@@ -255,51 +254,51 @@ void CodeGenerator::generateIfStatement(const IRTree* node){
     for(size_t i = 2; i < size; i+=2){
         if(node->getChild(i)->getNodeType() == IRNodeType::CMP){
             _asm.genNewLine(codeGenContext.asmCode);
-            _asm.genLabel(codeGenContext.asmCode, std::format("elif{}_{}", labNum, i/2-1));
+            _asm.genLabel(codeGenContext.asmCode, std::format("_elif{}_{}", labNum, i/2-1));
             generateRelationalExpression(node->getChild(i));
 
             type = node->getChild(i)->getChild(0)->getType() == Types::INT ? 0 : 1;
             std::string jmpLabel{ "" };
             
             if(i+2 == size - 1){
-                jmpLabel = std::format("else{}", labNum);
+                jmpLabel = std::format("_else{}", labNum);
             }
             else if(i+2 < size){
-                jmpLabel = std::format("elif{}_{}", labNum, i/2);
+                jmpLabel = std::format("_elif{}_{}", labNum, i/2);
             }
             else{
-                jmpLabel = std::format("if{}_end", labNum);
+                jmpLabel = std::format("_if{}_end", labNum);
             }
 
             _asm.genJmp(codeGenContext.asmCode, stringToOppJMP.at(node->getChild(i)->getValue())[type], jmpLabel);
 
             generateConstruct(node->getChild(i+1));
-            _asm.genJmp(codeGenContext.asmCode, "jmp", std::format("if{}_end", labNum));
+            _asm.genJmp(codeGenContext.asmCode, "jmp", std::format("_if{}_end", labNum));
         }
     }
 
     if(size % 2 == 1){
-        _asm.genLabel(codeGenContext.asmCode, std::format("else{}", labNum));
+        _asm.genLabel(codeGenContext.asmCode, std::format("_else{}", labNum));
         generateConstruct(node->getChildren().back().get());
     }
-    _asm.genLabel(codeGenContext.asmCode, std::format("if{}_end", labNum));
+    _asm.genLabel(codeGenContext.asmCode, std::format("_if{}_end", labNum));
 
 }
 
 void CodeGenerator::generateWhileStatement(const IRTree* node){
     size_t labNum{ getNextLabelNum() };
 
-    _asm.genLabel(codeGenContext.asmCode, std::format("while{}", labNum));
+    _asm.genLabel(codeGenContext.asmCode, std::format("_while{}", labNum));
     generateRelationalExpression(node->getChild(0));
 
     int type{ node->getChild(0)->getChild(0)->getType() == Types::INT ? 0 : 1 };
-    _asm.genJmp(codeGenContext.asmCode, stringToOppJMP.at(node->getChild(0)->getValue())[type], std::format("while{}_end", labNum));
+    _asm.genJmp(codeGenContext.asmCode, stringToOppJMP.at(node->getChild(0)->getValue())[type], std::format("_while{}_end", labNum));
     _asm.genNewLine(codeGenContext.asmCode);
 
     generateConstruct(node->getChild(1));
-    _asm.genJmp(codeGenContext.asmCode, "jmp", std::format("while{}", labNum));
+    _asm.genJmp(codeGenContext.asmCode, "jmp", std::format("_while{}", labNum));
     _asm.genNewLine(codeGenContext.asmCode);
-    _asm.genLabel(codeGenContext.asmCode, std::format("while{}_end", labNum));
+    _asm.genLabel(codeGenContext.asmCode, std::format("_while{}_end", labNum));
 }
 
 void CodeGenerator::generateForStatement(const IRTree* node){
@@ -308,33 +307,33 @@ void CodeGenerator::generateForStatement(const IRTree* node){
     // initializer
     generateAssignmentStatement(node->getChild(0));
     _asm.genNewLine(codeGenContext.asmCode);
-    _asm.genLabel(codeGenContext.asmCode, std::format("for{}", labNum));
+    _asm.genLabel(codeGenContext.asmCode, std::format("_for{}", labNum));
     generateRelationalExpression(node->getChild(1));
 
     // condition
     int type = node->getChild(0)->getChild(0)->getType() == Types::INT ? 0 : 1;
-    _asm.genJmp(codeGenContext.asmCode, stringToOppJMP.at(node->getChild(1)->getValue())[type], std::format("for{}_end", labNum));
+    _asm.genJmp(codeGenContext.asmCode, stringToOppJMP.at(node->getChild(1)->getValue())[type], std::format("_for{}_end", labNum));
     _asm.genNewLine(codeGenContext.asmCode);
 
     generateConstruct(node->getChild(3));
 
     // increment
     generateAssignmentStatement(node->getChild(2));
-    _asm.genJmp(codeGenContext.asmCode, "jmp", std::format("for{}", labNum));
+    _asm.genJmp(codeGenContext.asmCode, "jmp", std::format("_for{}", labNum));
 
     _asm.genNewLine(codeGenContext.asmCode);
-    _asm.genLabel(codeGenContext.asmCode, std::format("for{}_end", labNum));
+    _asm.genLabel(codeGenContext.asmCode, std::format("_for{}_end", labNum));
 }
 
 void CodeGenerator::generateDoWhileStatement(const IRTree* node){
     size_t labNum{ getNextLabelNum() };
 
-    _asm.genLabel(codeGenContext.asmCode, std::format("do_while{}", labNum));
+    _asm.genLabel(codeGenContext.asmCode, std::format("_do_while{}", labNum));
     generateConstruct(node->getChild(0));
     
     generateRelationalExpression(node->getChild(1));
     int type{ node->getChild(1)->getChild(0)->getType() == Types::INT ? 0 : 1 };
-    _asm.genJmp(codeGenContext.asmCode, stringToJMP.at(node->getChild(1)->getValue())[type], std::format("do_while{}", labNum));
+    _asm.genJmp(codeGenContext.asmCode, stringToJMP.at(node->getChild(1)->getValue())[type], std::format("_do_while{}", labNum));
 }
 
 void CodeGenerator::generateCompoundStatement(const IRTree* node){
@@ -379,7 +378,7 @@ void CodeGenerator::generateReturnStatement(const IRTree* node){
 void CodeGenerator::generateSwitchStatement(const IRTree* node){
     size_t labNum{ getNextLabelNum() };
 
-    _asm.genLabel(codeGenContext.asmCode, std::format("switch{}", labNum));
+    _asm.genLabel(codeGenContext.asmCode, std::format("_switch{}", labNum));
 
     size_t i{ 1 };
     size_t size{ node->getChildren().size() };
@@ -390,17 +389,17 @@ void CodeGenerator::generateSwitchStatement(const IRTree* node){
     for(; i < size; i++){
         IRTree* child = node->getChild(i);
         if(child->getNodeType() == IRNodeType::CASE){
-            _asm.genLabel(codeGenContext.asmCode, std::format("switch{}_case{}", labNum, i-1));
+            _asm.genLabel(codeGenContext.asmCode, std::format("_switch{}_case{}", labNum, i-1));
             _asm.genMov(codeGenContext.asmCode, codeGenContext.variableMap.at(var), "%rcx", "q");
             _asm.genMov(codeGenContext.asmCode, generateLiteral(child->getChild(0)), "%rdx", "q");
             _asm.genCmp(codeGenContext.asmCode, "%rcx", "%rdx");
             
             std::string jmpLabel = "";
             if(hasDefault){
-                jmpLabel = std::format("switch{}_{}", labNum, (i < size-2 ?  "case" + std::to_string(i) : "default"));
+                jmpLabel = std::format("_switch{}_{}", labNum, (i < size-2 ?  "case" + std::to_string(i) : "default"));
             }
             else{
-                jmpLabel = std::format("switch{}_{}", labNum, (i < size-1 ?  "case" + std::to_string(i) : "end"));
+                jmpLabel = std::format("_switch{}_{}", labNum, (i < size-1 ?  "case" + std::to_string(i) : "end"));
             }
             _asm.genJmp(codeGenContext.asmCode, "jne", jmpLabel);
 
@@ -409,17 +408,17 @@ void CodeGenerator::generateSwitchStatement(const IRTree* node){
             }
 
             if(child->getChildren().size()==3){
-                _asm.genJmp(codeGenContext.asmCode, "jmp", std::format("switch{}_end", labNum));
+                _asm.genJmp(codeGenContext.asmCode, "jmp", std::format("_switch{}_end", labNum));
             }
 
         }else{
-            _asm.genLabel(codeGenContext.asmCode, std::format("switch{}_default", labNum));
+            _asm.genLabel(codeGenContext.asmCode, std::format("_switch{}_default", labNum));
             for(size_t j = 0; j < child->getChildren().size(); ++j){
                 generateConstruct(child->getChild(j));
             }
         }
     }
-    _asm.genLabel(codeGenContext.asmCode, std::format("switch{}_end", labNum));
+    _asm.genLabel(codeGenContext.asmCode, std::format("_switch{}_end", labNum));
 }
 
 // evaluating equations using general-purpose registers r(8-15) and stack (if necessary)

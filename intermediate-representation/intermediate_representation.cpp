@@ -1,25 +1,88 @@
 #include "intermediate_representation.hpp"
 
+#include <atomic>
+#include <cassert>
+#include <condition_variable>
+#include <exception>
 #include <memory>
+#include <mutex>
 #include <stdexcept>
 #include <string>
 #include <format>
+#include <thread>
 
-IntermediateRepresentation::IntermediateRepresentation() {}
+#include "../thread-pool/thread_pool.hpp"
+#include "defs/ir_defs.hpp"
+
+IntermediateRepresentation::IntermediateRepresentation() = default;
+
+thread_local IRThreadContext IntermediateRepresentation::irContext;
 
 std::unique_ptr<IRTree> IntermediateRepresentation::formIR(const ASTree* astRoot){
     std::unique_ptr<IRTree> root = std::make_unique<IRTree>(IRNodeType::PROGRAM);
-    for(const auto& child: astRoot->getChild(0)->getChildren()){
-        root->pushChild(function(child.get()));
+    const ASTree* astFlist = astRoot->getChild(0);
+    
+    size_t total = astFlist->getChildren().size();
+    root->resizeChildren(total);
+
+    std::atomic<size_t> done{};
+    std::condition_variable doneCv;
+    std::mutex doneMtx;
+
+    ThreadPool threadPool{ std::thread::hardware_concurrency() };
+    std::mutex irMtx;
+
+    std::vector<std::string> exceptions;
+    std::mutex exceptionMtx;
+
+    for(size_t i = 0; i < total; ++i){
+        threadPool.enqueue([&, root=root.get(), i, child=astFlist->getChild(i)]{
+            
+            try{
+                // generating ir of a function
+                std::unique_ptr<IRTree> irFunc = function(child);
+
+                {
+                    // setting function on it's position
+                    std::lock_guard<std::mutex> lock(irMtx);
+                    root->setChild(std::move(irFunc), i);
+                }
+            }
+            catch(std::exception& ex){
+                std::lock_guard<std::mutex> lock(exceptionMtx);
+                exceptions.push_back(ex.what());
+            }
+
+            // check if all ir functions are generated
+            if(done.fetch_add(1) + 1 == total){
+                doneCv.notify_all();
+            }
+        });
     }
+
+    {
+        // wait untill all ir functions are generated
+        std::unique_lock<std::mutex> lock(doneMtx);
+        doneCv.wait(lock, [&]{ return done == total; });
+    }
+
+    // check for exceptions, currently not in order and only 1 per function
+    if(!exceptions.empty()){
+        std::string err{ ""};
+        for(const auto& ex : exceptions){
+            err += ex + "\n";
+        }
+        throw std::runtime_error(err);
+    }
+
+    root->traverse(1);
     return root;
 }
 
 std::unique_ptr<IRTree> IntermediateRepresentation::function(const ASTree* node){
     std::unique_ptr<IRTree> iChild = std::make_unique<IRTree>(node->getToken().value, "", node->getType(), IRNodeType::FUNCTION);
     
-    variableCount = 0;
-    temporaries = 0;
+    irContext.init();
 
     iChild->pushChild(parameter(node->getChild(0)));
 
@@ -28,7 +91,7 @@ std::unique_ptr<IRTree> IntermediateRepresentation::function(const ASTree* node)
     }
 
     // bytes allocated for local variables
-    std::string varCountStr{ std::to_string((variableCount + temporaries) * 8) };
+    std::string varCountStr{ std::to_string(irContext.requiredMemory(regSize)) };
     iChild->setValue(varCountStr);
 
     return iChild;
@@ -56,7 +119,7 @@ std::unique_ptr<IRTree> IntermediateRepresentation::variable(const ASTree* node)
     if(node->getChildren().size() != 0){
         variable->pushChild(assignmentStatement(node->getChild(0)));
     }
-    ++variableCount;
+    ++irContext.variableCount;
 
     return variable;
 }
@@ -82,6 +145,7 @@ std::unique_ptr<IRTree> IntermediateRepresentation::statement(const ASTree* node
         case ASTNodeType::SWITCH_STATEMENT:
             return switchStatement(node);
         default:
+            // unreachable, added just to surpress warnings
             throw std::runtime_error(std::format("Line {}, Column {}: SYNTAX ERROR -> Invalid statement '{}'\n", 
                 node->getToken().line, node->getToken().column, astNodeTypeToString.at(node->getNodeType())));
     }
@@ -292,6 +356,7 @@ T IntermediateRepresentation::mergeValues(T l, T r, const ASTree* node) const {
     else if(op == ">>")
         return l >> r;
     else
+        // unreachable
         throw std::runtime_error(std::format("Line {}, Column {}: SYNTAX ERROR -> Invalid arithmetic operator '{}'",
             node->getToken().line, node->getToken().column, op));
 }
@@ -362,8 +427,8 @@ size_t IntermediateRepresentation::countTemporaries(const ASTree* node) const {
 
 // generating temporary variables
 std::unique_ptr<IRTree> IntermediateRepresentation::generateTemporaries(){
-    std::string name = std::format("_t{}", ++temporaries);
-    temporaryNames.push(name);
+    std::string name = std::format("_t{}", ++irContext.temporaries);
+    irContext.temporaryNames.push(name);
     return std::make_unique<IRTree>(name, "0", Types::NO_TYPE, IRNodeType::VARIABLE);
 }
 
@@ -391,11 +456,9 @@ void IntermediateRepresentation::assignFunctionCalls(IRTree* irNode, const ASTre
 
 // replacing function calls with temporary variables in numerical expression
 std::unique_ptr<IRTree> IntermediateRepresentation::replaceFunctionCall(const ASTree* node){
-    if (temporaryNames.empty()) {
-        throw std::runtime_error("No temporary variable available for function call replacement.");
-    }
-    std::string name = temporaryNames.top();
-    temporaryNames.pop();
+    assert(!irContext.temporaryNames.empty());
+    std::string name = irContext.temporaryNames.top();
+    irContext.temporaryNames.pop();
     return std::make_unique<IRTree>(name, "0", node->getType(), IRNodeType::ID);
 }
 

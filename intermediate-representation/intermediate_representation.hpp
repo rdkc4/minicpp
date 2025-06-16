@@ -1,10 +1,11 @@
 #ifndef INTERMEDIATE_REPRESENTATION_HPP
 #define INTERMEDIATE_REPRESENTATION_HPP
 
+#include <memory>
+
 #include "../common/intermediate-representation-tree/IRTree.hpp"
 #include "../common/abstract-syntax-tree/ASTree.hpp"
-#include <memory>
-#include <stack>
+#include "defs/ir_defs.hpp"
 
 /*
     Turning abstract syntax tree into intermediate representation tree
@@ -20,12 +21,10 @@ class IntermediateRepresentation{
         [[nodiscard]] std::unique_ptr<IRTree> formIR(const ASTree* astRoot);
 
     private:
-        // current function's variable count
-        size_t variableCount;
-        // count of the temporary variables for function calls
-        size_t temporaries;
-        // making sure nested temporary variables are handled well
-        mutable std::stack<std::string> temporaryNames;
+        // tracking variable count, temporaries count and names
+        thread_local static IRThreadContext irContext;
+        
+        static constexpr size_t regSize{ 8 };
 
         // function
         std::unique_ptr<IRTree> function(const ASTree* node);

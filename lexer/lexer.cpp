@@ -12,8 +12,8 @@
 Lexer::Lexer(std::string_view input) : input{ input }, position{ 0 }, lineNumber{ 1 }, prevLineLen{ 0 }, nextTokenIdx{ 0 } {}
 
 void Lexer::tokenize(){
+    std::vector<std::string> exceptions;
     const size_t inputSize = input.size();
-    unsigned int errs = 0;
 
     while(position < inputSize){
         if(input[position] == '\n'){
@@ -80,15 +80,20 @@ void Lexer::tokenize(){
         }
         else{
             tokens.push_back(Token{std::string_view{&input[position], 1}, lineNumber, position - prevLineLen, TokenType::_INVALID});
-            std::cerr << std::format("Line {}, Column {}: LEXICAL ERROR -> unknown symbol '{}'\n", 
-                lineNumber, position - prevLineLen, std::string_view{&input[position], 1});
+            exceptions.push_back(
+                std::format("Line {}, Column {}: LEXICAL ERROR -> unknown symbol '{}'\n", 
+                    lineNumber, position - prevLineLen, std::string_view{&input[position], 1})
+            );
             updatePosition();
-            ++errs;
         }
     }
     tokens.push_back(Token{"", lineNumber, position - prevLineLen, TokenType::_EOF});
-    if(errs > 0) {
-        throw std::runtime_error(std::format("Invalid token count: {}\n", errs));
+    if(!exceptions.empty()) {
+        std::string err{ std::format("Invalid token count: {}\n", exceptions.size()) };
+        for(const auto& ex : exceptions){
+            err += ex;
+        }
+        throw std::runtime_error(err);
     }
     //printTokens();
 }

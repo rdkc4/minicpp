@@ -14,6 +14,16 @@ void IRTree::pushChild(std::unique_ptr<IRTree>&& child){
     children.push_back(std::move(child));
 }
 
+void IRTree::setChild(std::unique_ptr<IRTree> child, size_t pos){
+    if(pos < children.size()){
+        children[pos] = std::move(child);
+    }
+}
+
+void IRTree::resizeChildren(size_t n){
+    children.resize(n);
+}
+
 void IRTree::clearChildren() noexcept {
     children.clear();
 }

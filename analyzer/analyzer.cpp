@@ -43,7 +43,7 @@ void Analyzer::semanticCheck(const ASTree* root){
 }
 
 void Analyzer::checkSemanticErrors(const ASTree* node) const {
-    std::string errors = "";
+    std::string errors{""};
     for(const auto& child : node->getChildren()){
         const std::string& funcName = child->getToken().value;
         if(!semanticErrors[funcName].empty()){
@@ -52,7 +52,7 @@ void Analyzer::checkSemanticErrors(const ASTree* node) const {
             }
         }
     }
-    if(errors.size() > 0){
+    if(!errors.empty()){
         throw std::runtime_error(errors);
     }
 }
@@ -105,8 +105,7 @@ void Analyzer::startFunctionCheck(const ASTree* flist){
             checkFunction(child);
 
             // semantic analysis of a function ended
-            done.fetch_add(1);
-            if(done == total){
+            if(done.fetch_add(1) + 1 == total){
                 doneCv.notify_all();
             }
         });
