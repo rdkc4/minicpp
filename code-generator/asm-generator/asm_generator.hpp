@@ -36,8 +36,8 @@ class AsmGenerator{
 
         void genNewLine(std::vector<std::string>& asmCode);
 
-        // printing values
-        std::vector<std::string> printfFunction();
+        // generating function that prints values
+        void printfFunction(std::vector<std::string>& printfFunc);
 
 };
 

@@ -28,8 +28,8 @@ class Parser{
 
         // token checking
         // throws if current token's type differs from expected type
-        void consume(TokenType type);
-        void consume(GeneralTokenType gtype);
+        void consume(TokenType expectedType);
+        void consume(GeneralTokenType expectedGType);
 
         // functions
         std::unique_ptr<ASTree> functionList();
@@ -59,7 +59,7 @@ class Parser{
 
         // expressions
         std::unique_ptr<ASTree> numericalExpression();
-        std::unique_ptr<ASTree> rpnToTree(std::stack<std::unique_ptr<ASTree>>& st, std::unique_ptr<ASTree>& parent) const;
+        std::unique_ptr<ASTree> rpnToTree(std::stack<std::unique_ptr<ASTree>>& rpn, std::unique_ptr<ASTree>& root) const;
         std::unique_ptr<ASTree> expression();
         std::unique_ptr<ASTree> relationalExpression();
         std::unique_ptr<ASTree> functionCall();

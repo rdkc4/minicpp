@@ -27,45 +27,45 @@ class Analyzer{
         mutable std::mutex exceptionMtx;
         mutable std::unordered_map<std::string, std::vector<std::string>> semanticErrors;
 
-        void checkSemanticErrors(const ASTree* node) const;
+        void checkSemanticErrors(const ASTree* _functionList) const;
 
         // function
-        void checkFunctionSignatures(const ASTree* node);
-        void startFunctionCheck(const ASTree* flist);
-        void checkFunction(const ASTree* node);
-        void checkParameter(ASTree* node, const std::string& functionName);
-        void defineParameters(ASTree* node);
-        void checkBody(const ASTree* node);
+        void checkFunctionSignatures(const ASTree* _function);
+        void startFunctionCheck(const ASTree* _functionList);
+        void checkFunction(const ASTree* _function);
+        void checkParameter(ASTree* _parameters, const std::string& functionName);
+        void defineParameters(const ASTree* _parameters);
+        void checkBody(const ASTree* _body);
 
         // constructs
-        void checkConstruct(const ASTree* node);
+        void checkConstruct(const ASTree* _construct);
 
         // variable
-        void checkVariable(const ASTree* node);
+        void checkVariable(const ASTree* _variable);
 
         // statements
-        void checkStatement(const ASTree* node);
-        void checkPrintfStatement(const ASTree* node);
-        void checkIfStatement(const ASTree* node);
-        void checkWhileStatement(const ASTree* node);
-        void checkForStatement(const ASTree* node);
-        void checkDoWhileStatement(const ASTree* node);
-        void checkSwitchStatement(const ASTree* node);
+        void checkStatement(const ASTree* _statement);
+        void checkPrintfStatement(const ASTree* _printf);
+        void checkIfStatement(const ASTree* _if);
+        void checkWhileStatement(const ASTree* _while);
+        void checkForStatement(const ASTree* _for);
+        void checkDoWhileStatement(const ASTree* _dowhile);
+        void checkSwitchStatement(const ASTree* _switch);
         
         template<typename T>
-        void checkSwitchStatementCases(const ASTree* node);
-        void checkCompoundStatement(const ASTree* node);
-        void checkAssignmentStatement(const ASTree* node);
-        void checkReturnStatement(const ASTree* node);
+        void checkSwitchStatementCases(const ASTree* _switch);
+        void checkCompoundStatement(const ASTree* _compound);
+        void checkAssignmentStatement(const ASTree* _assignment);
+        void checkReturnStatement(const ASTree* _return);
 
         // expressions
-        void checkNumericalExpression(ASTree* node);
-        Types getNumericalExpressionType(ASTree* node);
-        void checkRelationalExpression(const ASTree* node);
-        bool checkID(ASTree* node);
-        void checkLiteral(const ASTree* node) const;
-        void checkFunctionCall(ASTree* node);
-        void checkArgument(const ASTree* node);
+        void checkNumericalExpression(ASTree* _numexp);
+        Types getNumericalExpressionType(ASTree* _numexp);
+        void checkRelationalExpression(const ASTree* _relexp);
+        bool checkID(ASTree* _id);
+        void checkLiteral(const ASTree* _literal) const;
+        void checkFunctionCall(ASTree* _functionCall);
+        void checkArgument(const ASTree* _functionCall);
 
 };
 

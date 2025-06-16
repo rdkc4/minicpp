@@ -22,7 +22,7 @@ struct IRThreadContext{
         return (variableCount + temporaries) * regSize;
     }
 
-    // no need for reset method, varCount and tmpCount are reset at init and tmpNames will be empty
+    // no need for reset method, varCount and tmpCount are reseting at init and tmpNames will be empty
 };
 
 #endif

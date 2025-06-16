@@ -11,7 +11,7 @@
 #include "../../thread-pool/thread_pool.hpp"
 #include "../defs/code_generator_defs.hpp"
 
-CodeGenerator::CodeGenerator(const std::string& file) : labelNum{ 0 }, prints{ false }, outputPath{ file } {}
+CodeGenerator::CodeGenerator(const std::string& filePath) : labelNum{ 0 }, prints{ false }, outputPath{ filePath } {}
 
 thread_local CodeGeneratorThreadContext CodeGenerator::codeGenContext;
 
@@ -29,8 +29,8 @@ size_t CodeGenerator::getNextLabelNum() noexcept {
     return labelNum.fetch_add(1);
 }
 
-void CodeGenerator::generateCode(const IRTree* root){
-    initFunctions(root);
+void CodeGenerator::generateCode(const IRTree* _root){
+    initFunctions(_root);
 
     ThreadPool threadPool{ std::thread::hardware_concurrency() };
 
@@ -39,11 +39,11 @@ void CodeGenerator::generateCode(const IRTree* root){
     std::condition_variable doneCv;
     std::mutex doneMtx;
 
-    const size_t total = root->getChildren().size();
+    const size_t total = _root->getChildren().size();
 
-    for(const auto& child : root->getChildren()){
-        threadPool.enqueue([&, child=child.get()]{
-            generateFunction(child);
+    for(const auto& _function : _root->getChildren()){
+        threadPool.enqueue([&, _function=_function.get()]{
+            generateFunction(_function);
 
             if(done.fetch_add(1) + 1 == total){
                 doneCv.notify_all();
@@ -57,6 +57,10 @@ void CodeGenerator::generateCode(const IRTree* root){
         doneCv.wait(lock, [&] { return done == total; });
     }
 
+    writeCode(_root);
+}
+
+void CodeGenerator::writeCode(const IRTree* _root){
     std::ofstream file{ outputPath };
     if(!file.is_open()){
         throw std::runtime_error(std::format("Unable to open '{}'", outputPath));
@@ -65,28 +69,29 @@ void CodeGenerator::generateCode(const IRTree* root){
     // start of asm code
     file << _asm.genStart();
 
-    for(const auto& function : root->getChildren()){
-        for(const auto& instruction : asmCode[function->getName()]){
+    for(const auto& _function : _root->getChildren()){
+        for(const auto& instruction : asmCode[_function->getName()]){
             file << instruction;
         }
     }
     
     if(prints){
-        auto printfFunc = _asm.printfFunction();
+        std::vector<std::string> printfFunc;
+        _asm.printfFunction(printfFunc);
         for(const auto& instruction : printfFunc){
             file << instruction;
         }
     }
 }
 
-void CodeGenerator::initFunctions(const IRTree* node){
-    for(const auto& child : node->getChildren()){
-        asmCode[child->getName()] = {};
+void CodeGenerator::initFunctions(const IRTree* _root){
+    for(const auto& _function : _root->getChildren()){
+        asmCode[_function->getName()] = {};
     }
 }
 
-void CodeGenerator::generateFunction(const IRTree* node){
-    codeGenContext.init(node->getName());
+void CodeGenerator::generateFunction(const IRTree* _function){
+    codeGenContext.init(_function->getName());
 
     _asm.genNewLine(codeGenContext.asmCode);
 
@@ -96,29 +101,29 @@ void CodeGenerator::generateFunction(const IRTree* node){
     _asm.genFuncPrologue(codeGenContext.asmCode);
     
     // allocation of local variables
-    if(node->getValue() != "0"){
-        _asm.genOperation(codeGenContext.asmCode, "sub", std::format("${}",node->getValue()), "%rsp");
+    if(_function->getValue() != "0"){
+        _asm.genOperation(codeGenContext.asmCode, "sub", std::format("${}", _function->getValue()), "%rsp");
     }
 
     _asm.genNewLine(codeGenContext.asmCode);
 
-    generateParameter(node->getChild(0));
+    generateParameter(_function->getChild(0));
 
-    for(size_t i = 1; i < node->getChildren().size(); i++){
-        generateConstruct(node->getChild(i));
+    for(size_t i = 1; i < _function->getChildren().size(); i++){
+        generateConstruct(_function->getChild(i));
     }
 
     // function end label
     _asm.genLabel(codeGenContext.asmCode, std::format("{}_end", codeGenContext.functionName));
     
     // free local variables 
-    if(node->getValue() != "0"){
-        _asm.genOperation(codeGenContext.asmCode, "add", std::format("${}", node->getValue()), "%rsp");
+    if(_function->getValue() != "0"){
+        _asm.genOperation(codeGenContext.asmCode, "add", std::format("${}", _function->getValue()), "%rsp");
     }
 
     _asm.genFuncEpilogue(codeGenContext.asmCode);
 
-    if(node->getName() != "main"){
+    if(_function->getName() != "main"){
         _asm.genRet(codeGenContext.asmCode);
     }
     else{
@@ -133,73 +138,73 @@ void CodeGenerator::generateFunction(const IRTree* node){
     codeGenContext.reset();
 }
 
-void CodeGenerator::generateParameter(const IRTree* node){
+void CodeGenerator::generateParameter(const IRTree* _parameters){
     size_t i{ 2 };
-    for(const auto& parameter : node->getChildren()){
+    for(const auto& _parameter : _parameters->getChildren()){
         // mapping parameter to address relative to %rbp (+n(%rbp))
-        codeGenContext.variableMap.insert({parameter->getName(), std::format("{}(%rbp)", i * regSize)});
+        codeGenContext.variableMap.insert({_parameter->getName(), std::format("{}(%rbp)", i * regSize)});
         ++i;
     }
 }
 
-void CodeGenerator::generateConstruct(const IRTree* node){
-    if(node->getNodeType() == IRNodeType::VARIABLE){
-        generateVariable(node);
+void CodeGenerator::generateConstruct(const IRTree* _construct){
+    if(_construct->getNodeType() == IRNodeType::VARIABLE){
+        generateVariable(_construct);
     }
     else{
-        generateStatement(node);
+        generateStatement(_construct);
     }
 }
 
-void CodeGenerator::generateVariable(const IRTree* node){
+void CodeGenerator::generateVariable(const IRTree* _variable){
     // mapping local variable to address relative to %rbp (-n(%rbp))
     // if not successful it means that variable with the given name existed but went out of scope, so it overwrites it with new memory location
-    auto [varPtr, success]{ codeGenContext.variableMap.insert({node->getName(), std::format("-{}(%rbp)", codeGenContext.variableNum * regSize)}) };
+    auto [varPtr, success]{ codeGenContext.variableMap.insert({_variable->getName(), std::format("-{}(%rbp)", codeGenContext.variableNum * regSize)}) };
     if(!success){
         varPtr->second = std::format("-{}(%rbp)", codeGenContext.variableNum * regSize);
     }
     ++codeGenContext.variableNum;
 
     // direct initialization / default value assignation
-    if(node->getChildren().size() != 0){
-        generateAssignmentStatement(node->getChild(0));
+    if(_variable->getChildren().size() != 0){
+        generateAssignmentStatement(_variable->getChild(0));
     }
     else{
         // default value 
-        _asm.genMov(codeGenContext.asmCode, "$0", generateID(node), "q");
+        _asm.genMov(codeGenContext.asmCode, "$0", generateID(_variable), "q");
     }
     _asm.genNewLine(codeGenContext.asmCode);
 
 }
 
-void CodeGenerator::generateStatement(const IRTree* node){
-    switch(node->getNodeType()){
+void CodeGenerator::generateStatement(const IRTree* _statement){
+    switch(_statement->getNodeType()){
         case IRNodeType::PRINTF:
-            generatePrintfStatement(node);
+            generatePrintfStatement(_statement);
             break;
         case IRNodeType::IF:
-            generateIfStatement(node);
+            generateIfStatement(_statement);
             break;
         case IRNodeType::COMPOUND:
-            generateCompoundStatement(node);
+            generateCompoundStatement(_statement);
             return;
         case IRNodeType::ASSIGN:
-            generateAssignmentStatement(node);
+            generateAssignmentStatement(_statement);
             break;
         case IRNodeType::RETURN:
-            generateReturnStatement(node);
+            generateReturnStatement(_statement);
             break;
         case IRNodeType::WHILE:
-            generateWhileStatement(node);
+            generateWhileStatement(_statement);
             break;
         case IRNodeType::FOR:
-            generateForStatement(node);
+            generateForStatement(_statement);
             break;
         case IRNodeType::DO_WHILE:
-            generateDoWhileStatement(node);
+            generateDoWhileStatement(_statement);
             break;
         case IRNodeType::SWITCH:
-            generateSwitchStatement(node);
+            generateSwitchStatement(_statement);
             break;
         default:
             return;
@@ -207,30 +212,30 @@ void CodeGenerator::generateStatement(const IRTree* node){
     _asm.genNewLine(codeGenContext.asmCode);
 }
 
-void CodeGenerator::generatePrintfStatement(const IRTree* node){
+void CodeGenerator::generatePrintfStatement(const IRTree* _printf){
     prints.store(true);
 
     size_t temporaryCount{}; // preventing register corruption when function call occurs
-    if(node->getChild(0)->getNodeType() == IRNodeType::TEMPORARY){
-        for(const auto& child : node->getChild(0)->getChildren()){
-            generateVariable(child.get());
+    if(_printf->getChild(0)->getNodeType() == IRNodeType::TEMPORARY){
+        for(const auto& _variable : _printf->getChild(0)->getChildren()){
+            generateVariable(_variable.get());
         }
         ++temporaryCount;
     }
-    generateNumericalExpression(node->getChild(temporaryCount));
+    generateNumericalExpression(_printf->getChild(temporaryCount));
     freeGpReg(codeGenContext.gpFreeRegPos);
     _asm.genMov(codeGenContext.asmCode, gpRegisters.at(codeGenContext.gpFreeRegPos), "%rax", "q");
     _asm.genCall(codeGenContext.asmCode, "_printf");
 }
 
-void CodeGenerator::generateIfStatement(const IRTree* node){
+void CodeGenerator::generateIfStatement(const IRTree* _if){
     size_t labNum{ getNextLabelNum() };
-    size_t size{ node->getChildren().size() };
+    size_t size{ _if->getChildren().size() };
 
     _asm.genLabel(codeGenContext.asmCode, std::format("_if{}", labNum));
-    generateRelationalExpression(node->getChild(0));
+    generateRelationalExpression(_if->getChild(0));
 
-    int type = node->getChild(0)->getChild(0)->getType() == Types::INT ? 0 : 1;
+    int type = _if->getChild(0)->getChild(0)->getType() == Types::INT ? 0 : 1;
     std::string jmpLabel{ "" };
 
     if(size > 3){
@@ -243,21 +248,21 @@ void CodeGenerator::generateIfStatement(const IRTree* node){
         jmpLabel = std::format("_if{}_end\n", labNum);
     }
 
-    _asm.genJmp(codeGenContext.asmCode, stringToOppJMP.at(node->getChild(0)->getValue())[type], jmpLabel);
+    _asm.genJmp(codeGenContext.asmCode, stringToOppJMP.at(_if->getChild(0)->getValue())[type], jmpLabel);
 
-    generateStatement(node->getChild(1));
+    generateStatement(_if->getChild(1));
     _asm.genJmp(codeGenContext.asmCode, "jmp", std::format("_if{}_end", labNum));
-    if(node->getChildren().size() == 3){
+    if(_if->getChildren().size() == 3){
         _asm.genNewLine(codeGenContext.asmCode);
     }
 
     for(size_t i = 2; i < size; i+=2){
-        if(node->getChild(i)->getNodeType() == IRNodeType::CMP){
+        if(_if->getChild(i)->getNodeType() == IRNodeType::CMP){
             _asm.genNewLine(codeGenContext.asmCode);
             _asm.genLabel(codeGenContext.asmCode, std::format("_elif{}_{}", labNum, i/2-1));
-            generateRelationalExpression(node->getChild(i));
+            generateRelationalExpression(_if->getChild(i));
 
-            type = node->getChild(i)->getChild(0)->getType() == Types::INT ? 0 : 1;
+            type = _if->getChild(i)->getChild(0)->getType() == Types::INT ? 0 : 1;
             std::string jmpLabel{ "" };
             
             if(i+2 == size - 1){
@@ -270,103 +275,103 @@ void CodeGenerator::generateIfStatement(const IRTree* node){
                 jmpLabel = std::format("_if{}_end", labNum);
             }
 
-            _asm.genJmp(codeGenContext.asmCode, stringToOppJMP.at(node->getChild(i)->getValue())[type], jmpLabel);
+            _asm.genJmp(codeGenContext.asmCode, stringToOppJMP.at(_if->getChild(i)->getValue())[type], jmpLabel);
 
-            generateConstruct(node->getChild(i+1));
+            generateConstruct(_if->getChild(i+1));
             _asm.genJmp(codeGenContext.asmCode, "jmp", std::format("_if{}_end", labNum));
         }
     }
 
     if(size % 2 == 1){
         _asm.genLabel(codeGenContext.asmCode, std::format("_else{}", labNum));
-        generateConstruct(node->getChildren().back().get());
+        generateConstruct(_if->getChildren().back().get());
     }
     _asm.genLabel(codeGenContext.asmCode, std::format("_if{}_end", labNum));
 
 }
 
-void CodeGenerator::generateWhileStatement(const IRTree* node){
+void CodeGenerator::generateWhileStatement(const IRTree* _while){
     size_t labNum{ getNextLabelNum() };
 
     _asm.genLabel(codeGenContext.asmCode, std::format("_while{}", labNum));
-    generateRelationalExpression(node->getChild(0));
+    generateRelationalExpression(_while->getChild(0));
 
-    int type{ node->getChild(0)->getChild(0)->getType() == Types::INT ? 0 : 1 };
-    _asm.genJmp(codeGenContext.asmCode, stringToOppJMP.at(node->getChild(0)->getValue())[type], std::format("_while{}_end", labNum));
+    int type{ _while->getChild(0)->getChild(0)->getType() == Types::INT ? 0 : 1 };
+    _asm.genJmp(codeGenContext.asmCode, stringToOppJMP.at(_while->getChild(0)->getValue())[type], std::format("_while{}_end", labNum));
     _asm.genNewLine(codeGenContext.asmCode);
 
-    generateConstruct(node->getChild(1));
+    generateConstruct(_while->getChild(1));
     _asm.genJmp(codeGenContext.asmCode, "jmp", std::format("_while{}", labNum));
     _asm.genNewLine(codeGenContext.asmCode);
     _asm.genLabel(codeGenContext.asmCode, std::format("_while{}_end", labNum));
 }
 
-void CodeGenerator::generateForStatement(const IRTree* node){
+void CodeGenerator::generateForStatement(const IRTree* _for){
     size_t labNum{ getNextLabelNum() };
 
     // initializer
-    generateAssignmentStatement(node->getChild(0));
+    generateAssignmentStatement(_for->getChild(0));
     _asm.genNewLine(codeGenContext.asmCode);
     _asm.genLabel(codeGenContext.asmCode, std::format("_for{}", labNum));
-    generateRelationalExpression(node->getChild(1));
+    generateRelationalExpression(_for->getChild(1));
 
     // condition
-    int type = node->getChild(0)->getChild(0)->getType() == Types::INT ? 0 : 1;
-    _asm.genJmp(codeGenContext.asmCode, stringToOppJMP.at(node->getChild(1)->getValue())[type], std::format("_for{}_end", labNum));
+    int type = _for->getChild(0)->getChild(0)->getType() == Types::INT ? 0 : 1;
+    _asm.genJmp(codeGenContext.asmCode, stringToOppJMP.at(_for->getChild(1)->getValue())[type], std::format("_for{}_end", labNum));
     _asm.genNewLine(codeGenContext.asmCode);
 
-    generateConstruct(node->getChild(3));
+    generateConstruct(_for->getChild(3));
 
     // increment
-    generateAssignmentStatement(node->getChild(2));
+    generateAssignmentStatement(_for->getChild(2));
     _asm.genJmp(codeGenContext.asmCode, "jmp", std::format("_for{}", labNum));
 
     _asm.genNewLine(codeGenContext.asmCode);
     _asm.genLabel(codeGenContext.asmCode, std::format("_for{}_end", labNum));
 }
 
-void CodeGenerator::generateDoWhileStatement(const IRTree* node){
+void CodeGenerator::generateDoWhileStatement(const IRTree* _dowhile){
     size_t labNum{ getNextLabelNum() };
 
     _asm.genLabel(codeGenContext.asmCode, std::format("_do_while{}", labNum));
-    generateConstruct(node->getChild(0));
+    generateConstruct(_dowhile->getChild(0));
     
-    generateRelationalExpression(node->getChild(1));
-    int type{ node->getChild(1)->getChild(0)->getType() == Types::INT ? 0 : 1 };
-    _asm.genJmp(codeGenContext.asmCode, stringToJMP.at(node->getChild(1)->getValue())[type], std::format("_do_while{}", labNum));
+    generateRelationalExpression(_dowhile->getChild(1));
+    int type{ _dowhile->getChild(1)->getChild(0)->getType() == Types::INT ? 0 : 1 };
+    _asm.genJmp(codeGenContext.asmCode, stringToJMP.at(_dowhile->getChild(1)->getValue())[type], std::format("_do_while{}", labNum));
 }
 
-void CodeGenerator::generateCompoundStatement(const IRTree* node){
-    for(const auto& child : node->getChildren()){
-        generateConstruct(child.get());
+void CodeGenerator::generateCompoundStatement(const IRTree* _compound){
+    for(const auto& _construct : _compound->getChildren()){
+        generateConstruct(_construct.get());
     }
 }
 
 // evaluating rvalue
-void CodeGenerator::generateAssignmentStatement(const IRTree* node){
+void CodeGenerator::generateAssignmentStatement(const IRTree* _assignment){
     size_t temporaryCount{}; // preventing register corruption when function call occurs
-    if(node->getChild(0)->getNodeType() == IRNodeType::TEMPORARY){
-        for(const auto& child : node->getChild(0)->getChildren()){
-            generateVariable(child.get());
+    if(_assignment->getChild(0)->getNodeType() == IRNodeType::TEMPORARY){
+        for(const auto& _variable : _assignment->getChild(0)->getChildren()){
+            generateVariable(_variable.get());
         }
         ++temporaryCount;
     }
-    generateNumericalExpression(node->getChild(1 + temporaryCount));
+    generateNumericalExpression(_assignment->getChild(1 + temporaryCount));
     freeGpReg(codeGenContext.gpFreeRegPos);
-    _asm.genMov(codeGenContext.asmCode, gpRegisters.at(codeGenContext.gpFreeRegPos), generateID(node->getChild(temporaryCount)), "q");
+    _asm.genMov(codeGenContext.asmCode, gpRegisters.at(codeGenContext.gpFreeRegPos), generateID(_assignment->getChild(temporaryCount)), "q");
 }
 
 // return value ends up in %rax
-void CodeGenerator::generateReturnStatement(const IRTree* node){
-    if(node->getChildren().size() != 0){
+void CodeGenerator::generateReturnStatement(const IRTree* _return){
+    if(_return->getChildren().size() != 0){
         size_t temporaryCount{}; // preventing register corruption when function call occurs
-        if(node->getChild(0)->getNodeType() == IRNodeType::TEMPORARY){
-            for(const auto& child : node->getChild(0)->getChildren()){
-                generateVariable(child.get());
+        if(_return->getChild(0)->getNodeType() == IRNodeType::TEMPORARY){
+            for(const auto& _variable : _return->getChild(0)->getChildren()){
+                generateVariable(_variable.get());
             }
             ++temporaryCount;
         }
-        generateNumericalExpression(node->getChild(temporaryCount));
+        generateNumericalExpression(_return->getChild(temporaryCount));
         freeGpReg(codeGenContext.gpFreeRegPos);
         _asm.genMov(codeGenContext.asmCode, gpRegisters.at(codeGenContext.gpFreeRegPos), "%rax", "q");
     }else{
@@ -375,23 +380,23 @@ void CodeGenerator::generateReturnStatement(const IRTree* node){
     _asm.genJmp(codeGenContext.asmCode, "jmp", std::format("{}_end", codeGenContext.functionName));
 }
 
-void CodeGenerator::generateSwitchStatement(const IRTree* node){
+void CodeGenerator::generateSwitchStatement(const IRTree* _switch){
     size_t labNum{ getNextLabelNum() };
 
     _asm.genLabel(codeGenContext.asmCode, std::format("_switch{}", labNum));
 
     size_t i{ 1 };
-    size_t size{ node->getChildren().size() };
-    std::string var{ node->getChild(0)->getName() };
-    bool hasDefault{ node->getChildren().back()->getNodeType() == IRNodeType::DEFAULT };
+    size_t size{ _switch->getChildren().size() };
+    std::string var{ _switch->getChild(0)->getName() };
+    bool hasDefault{ _switch->getChildren().back()->getNodeType() == IRNodeType::DEFAULT };
     
     // cases
     for(; i < size; i++){
-        IRTree* child = node->getChild(i);
-        if(child->getNodeType() == IRNodeType::CASE){
+        const IRTree* _case = _switch->getChild(i);
+        if(_case->getNodeType() == IRNodeType::CASE){
             _asm.genLabel(codeGenContext.asmCode, std::format("_switch{}_case{}", labNum, i-1));
             _asm.genMov(codeGenContext.asmCode, codeGenContext.variableMap.at(var), "%rcx", "q");
-            _asm.genMov(codeGenContext.asmCode, generateLiteral(child->getChild(0)), "%rdx", "q");
+            _asm.genMov(codeGenContext.asmCode, generateLiteral(_case->getChild(0)), "%rdx", "q");
             _asm.genCmp(codeGenContext.asmCode, "%rcx", "%rdx");
             
             std::string jmpLabel = "";
@@ -403,18 +408,18 @@ void CodeGenerator::generateSwitchStatement(const IRTree* node){
             }
             _asm.genJmp(codeGenContext.asmCode, "jne", jmpLabel);
 
-            for(size_t j = 1; j < child->getChildren().size(); ++j){
-                generateConstruct(child->getChild(j));
+            for(size_t j = 1; j < _case->getChildren().size(); ++j){
+                generateConstruct(_case->getChild(j));
             }
 
-            if(child->getChildren().size()==3){
+            if(_case->getChildren().size()==3){
                 _asm.genJmp(codeGenContext.asmCode, "jmp", std::format("_switch{}_end", labNum));
             }
 
         }else{
             _asm.genLabel(codeGenContext.asmCode, std::format("_switch{}_default", labNum));
-            for(size_t j = 0; j < child->getChildren().size(); ++j){
-                generateConstruct(child->getChild(j));
+            for(size_t j = 0; j < _case->getChildren().size(); ++j){
+                generateConstruct(_case->getChild(j));
             }
         }
     }
@@ -422,26 +427,26 @@ void CodeGenerator::generateSwitchStatement(const IRTree* node){
 }
 
 // evaluating equations using general-purpose registers r(8-15) and stack (if necessary)
-void CodeGenerator::generateNumericalExpression(const IRTree* node){
-    if(node->getNodeType() == IRNodeType::ID){
+void CodeGenerator::generateNumericalExpression(const IRTree* _numexp){
+    if(_numexp->getNodeType() == IRNodeType::ID){
         if(codeGenContext.gpFreeRegPos < gpRegisters.size()){
-            _asm.genMov(codeGenContext.asmCode, generateID(node), gpRegisters.at(codeGenContext.gpFreeRegPos), "q");
+            _asm.genMov(codeGenContext.asmCode, generateID(_numexp), gpRegisters.at(codeGenContext.gpFreeRegPos), "q");
         }
         else{
-            _asm.genPush(codeGenContext.asmCode, generateID(node));
+            _asm.genPush(codeGenContext.asmCode, generateID(_numexp));
         }
         takeGpReg(codeGenContext.gpFreeRegPos);
     }
-    else if(node->getNodeType() == IRNodeType::LITERAL){
+    else if(_numexp->getNodeType() == IRNodeType::LITERAL){
         if(codeGenContext.gpFreeRegPos < gpRegisters.size()){
-            _asm.genMov(codeGenContext.asmCode, generateLiteral(node), gpRegisters.at(codeGenContext.gpFreeRegPos), "q");
+            _asm.genMov(codeGenContext.asmCode, generateLiteral(_numexp), gpRegisters.at(codeGenContext.gpFreeRegPos), "q");
         }
         else{
-            _asm.genPush(codeGenContext.asmCode, generateLiteral(node));
+            _asm.genPush(codeGenContext.asmCode, generateLiteral(_numexp));
         }
         takeGpReg(codeGenContext.gpFreeRegPos);
-    }else if (node->getNodeType() == IRNodeType::CALL){
-        generateFunctionCall(node);
+    }else if (_numexp->getNodeType() == IRNodeType::CALL){
+        generateFunctionCall(_numexp);
         if(codeGenContext.gpFreeRegPos < gpRegisters.size()){
             _asm.genMov(codeGenContext.asmCode, "%rax", gpRegisters.at(codeGenContext.gpFreeRegPos), "q");
         }
@@ -454,8 +459,8 @@ void CodeGenerator::generateNumericalExpression(const IRTree* node){
         std::string lreg{};
         std::string rreg{};
         
-        generateNumericalExpression(node->getChild(0));
-        generateNumericalExpression(node->getChild(1));
+        generateNumericalExpression(_numexp->getChild(0));
+        generateNumericalExpression(_numexp->getChild(1));
         
         freeGpReg(codeGenContext.gpFreeRegPos);
         if(codeGenContext.gpFreeRegPos >= gpRegisters.size()){
@@ -474,11 +479,11 @@ void CodeGenerator::generateNumericalExpression(const IRTree* node){
             rreg = gpRegisters.at(codeGenContext.gpFreeRegPos);
         }
         
-        IRNodeType nodeType = node->getNodeType();
+        IRNodeType nodeType = _numexp->getNodeType();
         if(nodeType == IRNodeType::MUL || nodeType == IRNodeType::DIV){ // result of MUL || DIV is in RDX:RAX
             _asm.genOperation(codeGenContext.asmCode, "xor", "%rdx", "%rdx"); //add overflow check (TODO)
             _asm.genMov(codeGenContext.asmCode, rreg, "%rax", "q");
-            if(node->getType() == Types::INT){
+            if(_numexp->getType() == Types::INT){
                 _asm.genOperation(codeGenContext.asmCode, std::format("i{}", irNodeToString.at(nodeType)), lreg);
             }
             else{
@@ -504,18 +509,18 @@ void CodeGenerator::generateNumericalExpression(const IRTree* node){
     }
 }
 
-void CodeGenerator::generateRelationalExpression(const IRTree* node){
+void CodeGenerator::generateRelationalExpression(const IRTree* _relexp){
     size_t temporaryCount{}; // preventing register corruption when function call occurs
     for(size_t i = 0; i < 2; ++i){
-        if(node->getChild(i)->getNodeType() == IRNodeType::TEMPORARY){
-            for(const auto& child : node->getChild(i)->getChildren()){
+        if(_relexp->getChild(i)->getNodeType() == IRNodeType::TEMPORARY){
+            for(const auto& child : _relexp->getChild(i)->getChildren()){
                 generateVariable(child.get());
             }
             ++temporaryCount;
         }
     }
-    generateNumericalExpression(node->getChild(0 + temporaryCount));
-    generateNumericalExpression(node->getChild(1 + temporaryCount));
+    generateNumericalExpression(_relexp->getChild(0 + temporaryCount));
+    generateNumericalExpression(_relexp->getChild(1 + temporaryCount));
     
     freeGpReg(codeGenContext.gpFreeRegPos);
     std::string lreg{ gpRegisters.at(codeGenContext.gpFreeRegPos) };
@@ -524,42 +529,42 @@ void CodeGenerator::generateRelationalExpression(const IRTree* node){
     _asm.genCmp(codeGenContext.asmCode, lreg, rreg);
 }
 
-const std::string& CodeGenerator::generateID(const IRTree* node) const {
-    return codeGenContext.variableMap.at(node->getName()); // returns address from variable map
+const std::string& CodeGenerator::generateID(const IRTree* _id) const {
+    return codeGenContext.variableMap.at(_id->getName()); // returns address from variable map
 }
 
-std::string CodeGenerator::generateLiteral(const IRTree* node) const {
-    std::string val{ node->getValue() };
-    if(node->getType() == Types::UNSIGNED){
+std::string CodeGenerator::generateLiteral(const IRTree* _literal) const {
+    std::string val{ _literal->getValue() };
+    if(_literal->getType() == Types::UNSIGNED){
         val.pop_back();
     }
     return std::format("${}", val);
 }
 
-void CodeGenerator::generateFunctionCall(const IRTree* node){
+void CodeGenerator::generateFunctionCall(const IRTree* _functionCall){
     // push arguments to stack
-    generateArgument(node->getChild(0));
+    generateArgument(_functionCall->getChild(0));
 
-    _asm.genCall(codeGenContext.asmCode, node->getName());
+    _asm.genCall(codeGenContext.asmCode, _functionCall->getName());
 
     // pop arguments from stack
-    clearArguments(node->getChild(0));
+    clearArguments(_functionCall->getChild(0));
 }
 
-void CodeGenerator::generateArgument(const IRTree* node){
+void CodeGenerator::generateArgument(const IRTree* _arguments){
     // evaluating temporaries
-    for(const auto& child : node->getChildren()){
-        if(child->getNodeType() == IRNodeType::TEMPORARY){
-            for(const auto& _child : child->getChildren()){
-                generateVariable(_child.get());
+    for(const auto& _argument : _arguments->getChildren()){
+        if(_argument->getNodeType() == IRNodeType::TEMPORARY){
+            for(const auto& _variable : _argument->getChildren()){
+                generateVariable(_variable.get());
             }
         }
     }
     // pushing arguments onto stack
-    for(size_t i = node->getChildren().size(); i-- > 0;){
-        auto child = node->getChild(i); 
-        if(child->getNodeType() != IRNodeType::TEMPORARY){
-            generateNumericalExpression(child);
+    for(size_t i = _arguments->getChildren().size(); i-- > 0;){
+        const IRTree* _argument = _arguments->getChild(i); 
+        if(_argument->getNodeType() != IRNodeType::TEMPORARY){
+            generateNumericalExpression(_argument);
             freeGpReg(codeGenContext.gpFreeRegPos);
             if(codeGenContext.gpFreeRegPos < gpRegisters.size()){ // if >= gpRegisters.size() argument is already pushed
                 _asm.genPush(codeGenContext.asmCode, gpRegisters.at(codeGenContext.gpFreeRegPos));
@@ -568,11 +573,11 @@ void CodeGenerator::generateArgument(const IRTree* node){
     }
 }
 
-void CodeGenerator::clearArguments(const IRTree* node){
+void CodeGenerator::clearArguments(const IRTree* _arguments){
     // popping arguments of the stack
     size_t argumentCount{};
-    for(size_t i = 0; i < node->getChildren().size(); ++i){
-        if(node->getChild(i)->getNodeType() != IRNodeType::TEMPORARY){
+    for(const auto& _argument : _arguments->getChildren()){
+        if(_argument->getNodeType() != IRNodeType::TEMPORARY){
             ++argumentCount;
         }
     }

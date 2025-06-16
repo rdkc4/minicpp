@@ -66,8 +66,7 @@ void AsmGenerator::genNewLine(std::vector<std::string>& asmCode){
     asmCode.push_back("\n");
 }
 
-std::vector<std::string> AsmGenerator::printfFunction(){
-    std::vector<std::string> printfFunc;
+void AsmGenerator::printfFunction(std::vector<std::string>& printfFunc){
     genNewLine(printfFunc);
     genLabel(printfFunc, "_printf");
     genFuncPrologue(printfFunc);
@@ -117,6 +116,4 @@ std::vector<std::string> AsmGenerator::printfFunction(){
     
     genFuncEpilogue(printfFunc);
     genRet(printfFunc);
-
-    return printfFunc;
 }

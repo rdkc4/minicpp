@@ -23,10 +23,10 @@ class CodeGenerator{
 
     public:
 
-        CodeGenerator(const std::string& file);
+        CodeGenerator(const std::string& filePath);
 
         // start code generation
-        void generateCode(const IRTree* root);
+        void generateCode(const IRTree* _root);
 
     private:
         // component for asm code generation
@@ -53,37 +53,40 @@ class CodeGenerator{
         // ensuring label number is unique for every non-related
         [[nodiscard]] size_t getNextLabelNum() noexcept;
 
+        // writing generated code to file
+        void writeCode(const IRTree* _root);
+
         // function
-        void initFunctions(const IRTree* node);
-        void generateFunction(const IRTree* node);
-        void generateParameter(const IRTree* node);
+        void initFunctions(const IRTree* _root);
+        void generateFunction(const IRTree* _function);
+        void generateParameter(const IRTree* _parameters);
 
         // construct
-        void generateConstruct(const IRTree* node);
+        void generateConstruct(const IRTree* _construct);
 
         // variable
-        void generateVariable(const IRTree* node);
+        void generateVariable(const IRTree* _variable);
 
         // statement
-        void generateStatement(const IRTree* node);
-        void generatePrintfStatement(const IRTree* node);
-        void generateIfStatement(const IRTree* node);
-        void generateWhileStatement(const IRTree* node);
-        void generateForStatement(const IRTree* node);
-        void generateDoWhileStatement(const IRTree* node);
-        void generateCompoundStatement(const IRTree* node);
-        void generateAssignmentStatement(const IRTree* node);
-        void generateReturnStatement(const IRTree* node);
-        void generateSwitchStatement(const IRTree* node);
+        void generateStatement(const IRTree* _statement);
+        void generatePrintfStatement(const IRTree* _printf);
+        void generateIfStatement(const IRTree* _if);
+        void generateWhileStatement(const IRTree* _while);
+        void generateForStatement(const IRTree* _for);
+        void generateDoWhileStatement(const IRTree* _dowhile);
+        void generateCompoundStatement(const IRTree* _compound);
+        void generateAssignmentStatement(const IRTree* _assignment);
+        void generateReturnStatement(const IRTree* _return);
+        void generateSwitchStatement(const IRTree* _switch);
 
         // expression
-        void generateNumericalExpression(const IRTree* node);
-        void generateRelationalExpression(const IRTree* node);
-        const std::string& generateID(const IRTree* node) const;
-        std::string generateLiteral(const IRTree* node) const;
-        void generateFunctionCall(const IRTree* node);
-        void generateArgument(const IRTree* node);
-        void clearArguments(const IRTree* node);
+        void generateNumericalExpression(const IRTree* _numexp);
+        void generateRelationalExpression(const IRTree* _relexp);
+        const std::string& generateID(const IRTree* _id) const;
+        std::string generateLiteral(const IRTree* _literal) const;
+        void generateFunctionCall(const IRTree* _functionCall);
+        void generateArgument(const IRTree* _arguments);
+        void clearArguments(const IRTree* _arguments);
 
 };
 
