@@ -156,9 +156,9 @@ std::unique_ptr<ASTree> Parser::statement(){
         return doWhileStatement();
     else if(currentToken.type == TokenType::_SWITCH)
         return switchStatement();
-    else
-        throw std::runtime_error(std::format("Line {}, Column {}: SYNTAX ERROR -> near '{}'",
-            currentToken.line, currentToken.column, currentToken.value));
+    
+    throw std::runtime_error(std::format("Line {}, Column {}: SYNTAX ERROR -> near '{}'",
+        currentToken.line, currentToken.column, currentToken.value));
 }
 
 // PRINTF_STATEMENT: PRINTF LPAREN NUMERICAL_EXPRESSION RPAREN SEMICOLON;
@@ -191,25 +191,16 @@ std::unique_ptr<ASTree> Parser::compoundStatement(){
 
 // ASSIGNMENT_STATEMENT : ID ASSIGN NUMERICAL_EXPRESSION SEMICOLON
 std::unique_ptr<ASTree> Parser::assignmentStatement(){
-    if(currentToken.type == TokenType::_ID){
-        
-        std::unique_ptr<ASTree> _variable = std::make_unique<ASTree>(Token{currentToken}, ASTNodeType::VARIABLE);
-        consume(TokenType::_ID);
-        
-        std::unique_ptr<ASTree> _assignment = 
-            std::make_unique<ASTree>(Token{"=", currentToken.line, currentToken.column}, ASTNodeType::ASSIGNMENT_STATEMENT);
-        consume(TokenType::_ASSIGN);
-        
-        std::unique_ptr<ASTree> _value = numericalExpression();
-        
-        _assignment->pushChild(std::move(_variable));
-        _assignment->pushChild(std::move(_value));
-        return _assignment;
-    }
-    else{
-        throw std::runtime_error(std::format("Line {}, Column {}: SYNTAX ERROR -> invalid assignment statement: expected 'ID', got '{} {}'",
-            currentToken.line, currentToken.column, tokenTypeToString.at(currentToken.type), currentToken.value));
-    }
+    std::unique_ptr<ASTree> _variable = std::make_unique<ASTree>(Token{currentToken}, ASTNodeType::VARIABLE);
+    consume(TokenType::_ID);
+    
+    std::unique_ptr<ASTree> _assignment = 
+        std::make_unique<ASTree>(Token{"=", currentToken.line, currentToken.column}, ASTNodeType::ASSIGNMENT_STATEMENT);
+    consume(TokenType::_ASSIGN);
+    
+    _assignment->pushChild(std::move(_variable));
+    _assignment->pushChild(numericalExpression());
+    return _assignment;
 }
 
 // RETURN_STATEMENT : RETURN SEMICOLON 
