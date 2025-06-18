@@ -98,6 +98,10 @@ void Lexer::tokenize(){
     //printTokens();
 }
 
+bool Lexer::completedTokenization() const noexcept {
+    return tokens.size() > 0 && tokens.back().type == TokenType::_EOF;
+}
+
 // returns current token and moves onto the next
 const Token& Lexer::nextToken() noexcept {
     if(nextTokenIdx >= tokens.size()){

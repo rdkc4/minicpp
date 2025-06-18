@@ -178,7 +178,7 @@ std::unique_ptr<ASTree> Parser::printfStatement(){
 // COMPOUND_STATEMENT : LBRACKET CONSTRUCTS RBRACKET
 std::unique_ptr<ASTree> Parser::compoundStatement(){
     std::unique_ptr<ASTree> _compound = 
-        std::make_unique<ASTree>(Token{"cpnd_statement", currentToken.line, currentToken.column}, ASTNodeType::COMPOUND_STATEMENT);
+        std::make_unique<ASTree>(Token{"compound_statement", currentToken.line, currentToken.column}, ASTNodeType::COMPOUND_STATEMENT);
 
     consume(TokenType::_LBRACKET);
     while(currentToken.type != TokenType::_RBRACKET){
@@ -227,7 +227,7 @@ std::unique_ptr<ASTree> Parser::returnStatement(){
 //              | IF_STATEMENT ELSE IF CONSTRUCT
 std::unique_ptr<ASTree> Parser::ifStatement(){
     std::unique_ptr<ASTree> _if = 
-        std::make_unique<ASTree>(Token{"if_stat", currentToken.line, currentToken.column}, ASTNodeType::IF_STATEMENT);
+        std::make_unique<ASTree>(Token{"if_statement", currentToken.line, currentToken.column}, ASTNodeType::IF_STATEMENT);
     consume(TokenType::_IF);
     
     consume(TokenType::_LPAREN);
@@ -258,7 +258,7 @@ std::unique_ptr<ASTree> Parser::ifStatement(){
 // WHILE_STATEMENT : WHILE LPAREN RELATIONAL_EXPRESSION RPAREN CONSTRUCT
 std::unique_ptr<ASTree> Parser::whileStatement(){
     std::unique_ptr<ASTree> _while = 
-        std::make_unique<ASTree>(Token{"while_stat", currentToken.line, currentToken.column}, ASTNodeType::WHILE_STATEMENT);
+        std::make_unique<ASTree>(Token{"while_statement", currentToken.line, currentToken.column}, ASTNodeType::WHILE_STATEMENT);
     consume(TokenType::_WHILE);
     
     consume(TokenType::_LPAREN);
@@ -273,7 +273,7 @@ std::unique_ptr<ASTree> Parser::whileStatement(){
 // FOR_STATEMENT : FOR LPAREN ASSIGN_STATEMENT SEMICOLON RELATIONAL_EXPRESSION SEMICOLON ASSIGNMENT_STATEMENT RPAREN CONSTRUCT
 std::unique_ptr<ASTree> Parser::forStatement(){
     std::unique_ptr<ASTree> _for = 
-        std::make_unique<ASTree>(Token{"for_stat", currentToken.line, currentToken.column}, ASTNodeType::FOR_STATEMENT);
+        std::make_unique<ASTree>(Token{"for_statement", currentToken.line, currentToken.column}, ASTNodeType::FOR_STATEMENT);
     consume(TokenType::_FOR);
 
     consume(TokenType::_LPAREN);
@@ -291,7 +291,7 @@ std::unique_ptr<ASTree> Parser::forStatement(){
 
 // DO_WHILE_STATEMENT : DO CONSTRUCT WHILE LPAREN RELATIONAL_EXPRESSION RPAREN SEMICOLON
 std::unique_ptr<ASTree> Parser::doWhileStatement(){
-    std::unique_ptr<ASTree> _dowhile = std::make_unique<ASTree>(Token{"dowhile_stat", currentToken.line, currentToken.column}, ASTNodeType::DO_WHILE_STATEMENT);
+    std::unique_ptr<ASTree> _dowhile = std::make_unique<ASTree>(Token{"dowhile_statement", currentToken.line, currentToken.column}, ASTNodeType::DO_WHILE_STATEMENT);
     consume(TokenType::_DO);
     _dowhile->pushChild(construct());
     consume(TokenType::_WHILE);
@@ -307,7 +307,7 @@ std::unique_ptr<ASTree> Parser::doWhileStatement(){
 // SWITCH_STATEMENT : SWITCH LPAREN ID RPAREN LBRACKET CASES _DEFAULT RBRACKET
 std::unique_ptr<ASTree> Parser::switchStatement(){
     std::unique_ptr<ASTree> _switch = 
-        std::make_unique<ASTree>(Token{"switch_stat", currentToken.line, currentToken.column}, ASTNodeType::SWITCH_STATEMENT);
+        std::make_unique<ASTree>(Token{"switch_statement", currentToken.line, currentToken.column}, ASTNodeType::SWITCH_STATEMENT);
     consume(TokenType::_SWITCH);
 
     consume(TokenType::_LPAREN);
@@ -316,10 +316,10 @@ std::unique_ptr<ASTree> Parser::switchStatement(){
 
     consume(TokenType::_LBRACKET);
     
-    _switch->pushChild(_case()); // switch must have at least 1 case
-    while(currentToken.type == TokenType::_CASE){
+    // switch must have at least 1 case
+    do{
         _switch->pushChild(_case());
-    }
+    }while(currentToken.type == TokenType::_CASE);
     
     if(currentToken.type == TokenType::_DEFAULT){
         _switch->pushChild(_default());

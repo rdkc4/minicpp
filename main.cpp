@@ -1,3 +1,4 @@
+#include <cassert>
 #include <chrono>
 #include <exception>
 #include <iostream>
@@ -26,6 +27,9 @@ bool compile(std::string input){
     }
 
     try {
+        // making sure tokenization was done
+        assert(lexer.completedTokenization());
+        
         Parser parser{ lexer };
         std::unique_ptr<ASTree> astRoot = parser.parseProgram();
         std::cout << "\nSyntax check: successful!\n";
