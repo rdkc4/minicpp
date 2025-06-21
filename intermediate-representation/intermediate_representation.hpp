@@ -24,7 +24,12 @@ class IntermediateRepresentation{
         // tracking variable count, temporaries count and names
         thread_local static IRThreadContext irContext;
         
+        std::vector<std::string> exceptions;
+        std::mutex exceptionMtx;
+        
         static constexpr size_t regSize{ 8 };
+
+        void checkErrors() const;
 
         // function
         std::unique_ptr<IRTree> function(const ASTree* _function);

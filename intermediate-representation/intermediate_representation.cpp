@@ -32,9 +32,6 @@ std::unique_ptr<IRTree> IntermediateRepresentation::formIR(const ASTree* _root){
     ThreadPool threadPool{ std::thread::hardware_concurrency() };
     std::mutex irMtx;
 
-    std::vector<std::string> exceptions;
-    std::mutex exceptionMtx;
-
     for(size_t i = 0; i < total; ++i){
         threadPool.enqueue([&, root=root.get(), i, _function=_functionList->getChild(i)]{
             
@@ -66,6 +63,12 @@ std::unique_ptr<IRTree> IntermediateRepresentation::formIR(const ASTree* _root){
         doneCv.wait(lock, [&]{ return done == total; });
     }
 
+    checkErrors();
+
+    return root;
+}
+
+void IntermediateRepresentation::checkErrors() const {
     // check for exceptions, currently not in order and only 1 per function
     if(!exceptions.empty()){
         std::string err{ ""};
@@ -74,9 +77,6 @@ std::unique_ptr<IRTree> IntermediateRepresentation::formIR(const ASTree* _root){
         }
         throw std::runtime_error(err);
     }
-
-    root->traverse(1);
-    return root;
 }
 
 std::unique_ptr<IRTree> IntermediateRepresentation::function(const ASTree* _function){
