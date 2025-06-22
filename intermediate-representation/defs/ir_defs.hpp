@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <stack>
 #include <string>
+#include <vector>
 
 struct IRThreadContext{
     // current function's variable count
@@ -12,6 +13,7 @@ struct IRThreadContext{
     size_t temporaries;
     // making sure nested temporary variables are handled well
     std::stack<std::string> temporaryNames;
+    std::vector<std::string> errors;
 
     void init(){
         variableCount = 0;
@@ -22,7 +24,10 @@ struct IRThreadContext{
         return (variableCount + temporaries) * regSize;
     }
 
-    // no need for reset method, varCount and tmpCount are reseting at init and tmpNames will be empty
+    void reset(){
+        errors.clear();
+    }
+
 };
 
 #endif

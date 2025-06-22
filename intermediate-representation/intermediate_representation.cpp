@@ -3,10 +3,8 @@
 #include <atomic>
 #include <cassert>
 #include <condition_variable>
-#include <exception>
 #include <memory>
 #include <mutex>
-#include <stdexcept>
 #include <string>
 #include <format>
 #include <thread>
@@ -34,25 +32,18 @@ std::unique_ptr<IRTree> IntermediateRepresentation::formIR(const ASTree* _root){
 
     for(size_t i = 0; i < total; ++i){
         threadPool.enqueue([&, root=root.get(), i, _function=_functionList->getChild(i)]{
-            
-            try{
-                // generating ir of a function
-                std::unique_ptr<IRTree> _irFunction = function(_function);
+            // generating ir of a function
+            std::unique_ptr<IRTree> _irFunction = function(_function);
 
-                {
-                    // setting function on its position
-                    std::lock_guard<std::mutex> lock(irMtx);
-                    root->setChild(std::move(_irFunction), i);
-                }
-            }
-            catch(std::exception& ex){
-                std::lock_guard<std::mutex> lock(exceptionMtx);
-                exceptions.push_back(ex.what());
+            {
+                // setting function on its position
+                std::lock_guard<std::mutex> lock(irMtx);
+                root->setChild(std::move(_irFunction), i);
             }
 
             // check if all ir functions are generated
             if(done.fetch_add(1) + 1 == total){
-                doneCv.notify_all();
+                doneCv.notify_one();
             }
         });
     }
@@ -63,19 +54,21 @@ std::unique_ptr<IRTree> IntermediateRepresentation::formIR(const ASTree* _root){
         doneCv.wait(lock, [&]{ return done == total; });
     }
 
-    checkErrors();
+    checkErrors(_functionList);
 
     return root;
 }
 
-void IntermediateRepresentation::checkErrors() const {
-    // check for exceptions, currently not in order and only 1 per function
-    if(!exceptions.empty()){
-        std::string err{ ""};
-        for(const auto& ex : exceptions){
-            err += ex + "\n";
+void IntermediateRepresentation::checkErrors(const ASTree* _functionList) const {
+    std::string errors{""};
+    for(const auto& _function : _functionList->getChildren()){
+        const std::vector<std::string>& funcErrors = exceptions.at(_function->getToken().value);
+        for(const auto& err : funcErrors){
+            errors += std::format("{}\n", err);
         }
-        throw std::runtime_error(err);
+    }
+    if(!errors.empty()){
+        throw std::runtime_error(errors);
     }
 }
 
@@ -94,6 +87,14 @@ std::unique_ptr<IRTree> IntermediateRepresentation::function(const ASTree* _func
     // bytes allocated for local variables
     std::string varCountStr{ std::to_string(irContext.requiredMemory(regSize)) };
     _irFunction->setValue(varCountStr);
+
+    {
+        // pairing function name with its errors
+        std::lock_guard<std::mutex> lock(exceptionMtx);
+        exceptions[_function->getToken().value] = std::move(irContext.errors); // irContext.errors are cleared after std::move()
+    }
+
+    irContext.reset();
 
     return _irFunction;
 }
@@ -147,8 +148,11 @@ std::unique_ptr<IRTree> IntermediateRepresentation::statement(const ASTree* _sta
             return switchStatement(_statement);
         default:
             // unreachable, added just to suppress warnings
-            throw std::runtime_error(std::format("Line {}, Column {}: SYNTAX ERROR -> Invalid statement '{}'\n", 
-                _statement->getToken().line, _statement->getToken().column, astNodeTypeToString.at(_statement->getNodeType())));
+            irContext.errors.push_back(
+                std::format("Line {}, Column {}: SYNTAX ERROR -> Invalid statement '{}'\n", 
+                _statement->getToken().line, _statement->getToken().column, astNodeTypeToString.at(_statement->getNodeType()))
+            );
+            return nullptr;
     }
 }
 
@@ -341,8 +345,11 @@ T IntermediateRepresentation::mergeValues(T l, T r, const ASTree* _numexp) const
         return l * r;
     else if(op == "/"){
         if(r == 0){
-            throw std::runtime_error(std::format("Line {}, Column {}: SEMANTIC ERROR -> division by ZERO",
-                _numexp->getToken().line, _numexp->getToken().column));
+            irContext.errors.push_back(
+                std::format("Line {}, Column {}: SEMANTIC ERROR -> division by ZERO",
+                    _numexp->getToken().line, _numexp->getToken().column)
+            );
+            return 0;
         }
         return l / r;
     }
@@ -356,10 +363,14 @@ T IntermediateRepresentation::mergeValues(T l, T r, const ASTree* _numexp) const
         return l << r;
     else if(op == ">>")
         return l >> r;
-    else
+    else{
         // unreachable
-        throw std::runtime_error(std::format("Line {}, Column {}: SYNTAX ERROR -> Invalid arithmetic operator '{}'",
-            _numexp->getToken().line, _numexp->getToken().column, op));
+        irContext.errors.push_back(
+            std::format("Line {}, Column {}: SYNTAX ERROR -> Invalid arithmetic operator '{}'",
+                _numexp->getToken().line, _numexp->getToken().column, op)
+        );
+        return 0;
+    }
 }
 
 std::unique_ptr<IRTree> IntermediateRepresentation::relationalExpression(const ASTree* _relexp){

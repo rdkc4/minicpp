@@ -106,7 +106,7 @@ void Analyzer::startFunctionCheck(const ASTree* _functionList){
 
             // semantic analysis of a function ended
             if(done.fetch_add(1) + 1 == total){
-                doneCv.notify_all();
+                doneCv.notify_one();
             }
         });
     }

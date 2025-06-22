@@ -2,6 +2,7 @@
 #define INTERMEDIATE_REPRESENTATION_HPP
 
 #include <memory>
+#include <unordered_map>
 
 #include "../common/intermediate-representation-tree/IRTree.hpp"
 #include "../common/abstract-syntax-tree/ASTree.hpp"
@@ -24,12 +25,12 @@ class IntermediateRepresentation{
         // tracking variable count, temporaries count and names
         thread_local static IRThreadContext irContext;
         
-        std::vector<std::string> exceptions;
+        std::unordered_map<std::string,std::vector<std::string>> exceptions;
         std::mutex exceptionMtx;
         
         static constexpr size_t regSize{ 8 };
 
-        void checkErrors() const;
+        void checkErrors(const ASTree* _functionList) const;
 
         // function
         std::unique_ptr<IRTree> function(const ASTree* _function);

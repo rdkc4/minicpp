@@ -46,7 +46,7 @@ void CodeGenerator::generateCode(const IRTree* _root){
             generateFunction(_function);
 
             if(done.fetch_add(1) + 1 == total){
-                doneCv.notify_all();
+                doneCv.notify_one();
             }
         });
     }
