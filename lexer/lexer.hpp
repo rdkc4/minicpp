@@ -38,6 +38,9 @@ class Lexer{
 
         size_t nextTokenIdx;
         std::vector<Token> tokens;
+        std::vector<std::string> exceptions;
+
+        void checkLexicalErrors() const;
 
         // maintaining lines / columns
         void updatePosition() noexcept;
@@ -47,18 +50,18 @@ class Lexer{
         // token readers
         void getID();
         void getLiteral(bool sign = false);
-        void getAssignOperator(char curr);
-        void getBitwiseOperator(char curr);
-        void getAritOperator(char curr);
+        void getAssignOperator();
+        void getBitwiseOperator();
+        void getAritOperator();
         void getRelOperator();
 
         // checking for token
-        bool isAssignOperator(char curr) const noexcept;
+        bool isAssignOperator() const noexcept;
         bool isKeyword(const std::string& value) const noexcept;
-        bool isSignedLiteral(char curr) const noexcept;
-        bool isAritOperator(char curr) const;
-        bool isBitwiseOperator(char curr) const;
-        bool isRelOperator(char curr) const;
+        bool isSignedLiteral() const noexcept;
+        bool isAritOperator() const;
+        bool isBitwiseOperator() const;
+        bool isRelOperator() const;
 
         // comments (not tokenized, ignored)
         void singleLineComment();
