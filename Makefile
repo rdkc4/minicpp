@@ -5,6 +5,7 @@ CXXFLAGS = -std=c++23 -Wall -Wextra -Werror -g -pthread
 # Source files
 SRCS = main.cpp \
 	common/defs/defs.cpp \
+	common/token/defs/token_defs.cpp \
 	common/token/token.cpp \
 	common/abstract-syntax-tree/defs/ASTree_defs.cpp \
 	common/abstract-syntax-tree/ASTree.cpp \
