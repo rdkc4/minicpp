@@ -82,6 +82,10 @@ std::unique_ptr<IRTree> IntermediateRepresentation::function(const ASTree* _func
 
     for(const auto& _construct : _function->getChild(1)->getChildren()){
         _irFunction->pushChild(construct(_construct.get()));
+        // ignore all constructs after return statement
+        if(_irFunction->getChildren().back()->getNodeType() == IRNodeType::RETURN){
+            break;
+        }
     }
 
     // bytes allocated for local variables
@@ -186,6 +190,10 @@ std::unique_ptr<IRTree> IntermediateRepresentation::compoundStatement(const ASTr
     std::unique_ptr<IRTree> _irCompound = std::make_unique<IRTree>(IRNodeType::COMPOUND);
     for(const auto& _construct : _compound->getChildren()){
         _irCompound->pushChild(construct(_construct.get()));
+        // ignore all constructs after return statement
+        if(_irCompound->getChildren().back()->getNodeType() == IRNodeType::RETURN){
+            break;
+        }
     }
     return _irCompound;
 }
@@ -263,6 +271,10 @@ std::unique_ptr<IRTree> IntermediateRepresentation::_case(const ASTree* _astCase
     _irCase->pushChild(literal(_astCase->getChild(0)));
     for(const auto& _construct : _astCase->getChild(1)->getChildren()){
         _irCase->pushChild(construct(_construct.get()));
+        // ignore all constructs (including break) after return statement
+        if(_irCase->getChildren().back()->getNodeType() == IRNodeType::RETURN){
+            return _irCase;
+        }
     }
     if(_astCase->getChildren().size() == 3){
         _irCase->pushChild(_break());
@@ -274,6 +286,10 @@ std::unique_ptr<IRTree> IntermediateRepresentation::_default(const ASTree* _astD
     std::unique_ptr<IRTree> _irDefault = std::make_unique<IRTree>(IRNodeType::DEFAULT);
     for(const auto& _construct : _astDefault->getChild(0)->getChildren()){
         _irDefault->pushChild(construct(_construct.get()));
+        // ignore all constructs (including break) after return statement
+        if(_irDefault->getChildren().back()->getNodeType() == IRNodeType::RETURN){
+            break;
+        }
     }
     return _irDefault;
 }
