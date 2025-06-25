@@ -38,15 +38,15 @@ std::unique_ptr<ASTree> Parser::functionList(){
     std::unique_ptr<ASTree> _functionList = std::make_unique<ASTree>(Token{"function_list", 0, 0}, ASTNodeType::FUNCTION_LIST); 
     do{
         _functionList->pushChild(function());
-    } while(currentToken.type == TokenType::_TYPE);
+    } while(currentToken.gtype == GeneralTokenType::TYPE);
 
     return _functionList;
 }
 
 // FUNCTION : TYPE ID LPAREN PARAMETERS RPAREN BODY
 std::unique_ptr<ASTree> Parser::function(){
-    Types returnType{ stringToType.find(currentToken.value) != stringToType.end() ? stringToType.at(currentToken.value) : Types::NO_TYPE };
-    consume(TokenType::_TYPE);
+    Types returnType{ tokenTypeToType.find(currentToken.type) != tokenTypeToType.end() ? tokenTypeToType.at(currentToken.type) : Types::NO_TYPE };
+    consume(GeneralTokenType::TYPE);
     Token token{ currentToken };
     consume(TokenType::_ID);
     
@@ -67,15 +67,15 @@ std::unique_ptr<ASTree> Parser::parameter(){
     std::unique_ptr<ASTree> _parameters = 
         std::make_unique<ASTree>(Token{"params", currentToken.line, currentToken.column}, ASTNodeType::PARAMETER);
 
-    while(currentToken.type == TokenType::_TYPE){
-        Types type{ stringToType.at(currentToken.value) };
-        consume(TokenType::_TYPE);
-        auto token{ currentToken };
+    while(currentToken.gtype == GeneralTokenType::TYPE){
+        Types type{ tokenTypeToType.at(currentToken.type) };
+        consume(GeneralTokenType::TYPE);
+        Token token{ currentToken };
         consume(TokenType::_ID);
         
         _parameters->pushChild(std::make_unique<ASTree>(token, type, ASTNodeType::PARAMETER));
 
-        if(currentToken.type == TokenType::_COMMA && lexer.peekAtNext().type == TokenType::_TYPE){
+        if(currentToken.type == TokenType::_COMMA && lexer.peekAtNext().gtype == GeneralTokenType::TYPE){
             consume(TokenType::_COMMA);
         }
         else{
@@ -99,7 +99,7 @@ std::unique_ptr<ASTree> Parser::body(){
 // CONSTRUCT : VARIABLE 
 //           | STATEMENT
 std::unique_ptr<ASTree> Parser::construct(){
-    if(currentToken.type == TokenType::_TYPE){
+    if(currentToken.gtype == GeneralTokenType::TYPE){
         return variable();
     }
     else{
@@ -110,8 +110,8 @@ std::unique_ptr<ASTree> Parser::construct(){
 // VARIABLE : TYPE ID SEMICOLON
 //          | TYPE ID ASSIGN ASSIGNMENT_STATEMENT SEMICOLON
 std::unique_ptr<ASTree> Parser::variable(){
-    Types type{ stringToType.find(currentToken.value) != stringToType.end() ? stringToType.at(currentToken.value) : Types::NO_TYPE };
-    consume(TokenType::_TYPE);
+    Types type{ tokenTypeToType.find(currentToken.type) != tokenTypeToType.end() ? tokenTypeToType.at(currentToken.type) : Types::NO_TYPE };
+    consume(GeneralTokenType::TYPE);
     Token token{ currentToken };
     std::unique_ptr<ASTree> _variable = std::make_unique<ASTree>(token, type, ASTNodeType::VARIABLE);
     

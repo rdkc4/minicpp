@@ -68,7 +68,7 @@ const std::string& IRTree::getValue() const noexcept {
 }
 
 Types IRTree::getType() const noexcept {
-    return type.has_value() ? type.value() : Types::NO_TYPE;
+    return type.value_or(Types::NO_TYPE);
 }
 
 std::string IRTree::toString() const {

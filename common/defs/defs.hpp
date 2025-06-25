@@ -5,6 +5,8 @@
 #include <unordered_map>
 #include <unordered_set>
 
+#include "../token/defs/token_defs.hpp"
+
 /*
     global definitions
 */
@@ -21,7 +23,7 @@ extern const std::unordered_set<std::string> bitwiseOperators;
 
 extern const std::unordered_map<Types, std::string> typeToString;
 
-extern const std::unordered_map<std::string, Types> stringToType;
+extern const std::unordered_map<TokenType, Types> tokenTypeToType;
 
 extern const std::unordered_map<Kinds, std::string> kindToString;
 

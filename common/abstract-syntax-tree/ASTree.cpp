@@ -29,7 +29,7 @@ void ASTree::setType(const Types t) noexcept {
 }
 
 Types ASTree::getType() const noexcept {
-    return type.has_value() ? type.value() : Types::NO_TYPE;
+    return type.value_or(Types::NO_TYPE);
 }
 
 ASTNodeType ASTree::getNodeType() const noexcept {

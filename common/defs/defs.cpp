@@ -16,11 +16,11 @@ const std::unordered_map<Types, std::string> typeToString {
     {Types::NO_TYPE, "no_type"}
 };
 
-const std::unordered_map<std::string, Types> stringToType {
-    {"int", Types::INT},
-    {"unsigned", Types::UNSIGNED},
-    {"void", Types::VOID},
-    {"auto", Types::AUTO}
+const std::unordered_map<TokenType, Types> tokenTypeToType {
+    {TokenType::_INT, Types::INT},
+    {TokenType::_UNSIGNED, Types::UNSIGNED},
+    {TokenType::_VOID, Types::VOID},
+    {TokenType::_AUTO, Types::AUTO}
 };
 
 const std::unordered_map<Kinds, std::string> kindToString {

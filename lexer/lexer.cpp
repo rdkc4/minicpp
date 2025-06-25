@@ -144,7 +144,14 @@ void Lexer::getID(){
         updatePosition(); 
     }
     std::string id{ input.substr(start, position - start) };
-    tokens.push_back(Token{ id, lineNumber, position - prevLineLen, isKeyword(id) ? keywords.at(id) : TokenType::_ID, GeneralTokenType::VALUE});
+
+    if(isKeyword(id)){
+        GeneralTokenType gtype = types.find(keywords.at(id)) != types.end() ? GeneralTokenType::TYPE : GeneralTokenType::OTHER;
+        tokens.push_back(Token{ id, lineNumber, position - prevLineLen, keywords.at(id), gtype});
+    }
+    else{
+        tokens.push_back(Token{ id, lineNumber, position - prevLineLen, TokenType::_ID, GeneralTokenType::VALUE});
+    }
 }
 
 // literal ([+-]?[0-9][0-9]*[u]?)

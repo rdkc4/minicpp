@@ -13,7 +13,6 @@ const std::unordered_map<TokenType, std::string> tokenTypeToString {
     {TokenType::_SEMICOLON, "SEMICOLON"},
     {TokenType::_COLON, "COLON"},
     {TokenType::_ASSIGN, "ASSIGN"},
-    {TokenType::_TYPE, "TYPE"},
     {TokenType::_IF, "IF"},
     {TokenType::_ELSE, "ELSE"},
     {TokenType::_WHILE, "WHILE"},
@@ -27,11 +26,16 @@ const std::unordered_map<TokenType, std::string> tokenTypeToString {
     {TokenType::_COMMA, "COMMA"},
     {TokenType::_EOF, "EOF"},
     {TokenType::_INVALID, "INVALID"},
-    {TokenType::_PRINTF, "PRINTF"}
+    {TokenType::_PRINTF, "PRINTF"},
+    {TokenType::_VOID, "VOID"},
+    {TokenType::_INT, "INT"},
+    {TokenType::_UNSIGNED, "UNSIGNED"},
+    {TokenType::_AUTO, "AUTO"},
 };
 
 const std::unordered_map<GeneralTokenType, std::string> generalTokenTypeToString {
     {GeneralTokenType::VALUE, "VALUE"},
     {GeneralTokenType::OPERATOR, "OPERATOR"},
+    {GeneralTokenType::TYPE, "TYPE"},
     {GeneralTokenType::OTHER, "OTHER"}
 };
