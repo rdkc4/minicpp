@@ -18,7 +18,7 @@ int main(){
 
     auto start{ std::chrono::high_resolution_clock::now() };
 
-    auto ret = compiler.compile(input, output);
+    auto ret{ compiler.compile(input, output) };
 
     auto end{ std::chrono::high_resolution_clock::now() };
     auto duration{ std::chrono::duration_cast<std::chrono::milliseconds>(end - start) };

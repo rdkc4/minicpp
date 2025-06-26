@@ -105,14 +105,6 @@ bool Lexer::completedTokenization() const noexcept {
     return tokens.size() > 0 && tokens.back().type == TokenType::_EOF;
 }
 
-size_t Lexer::tokensSize() const noexcept {
-    return tokens.size();
-}
-
-const Token& Lexer::at(size_t index) const noexcept {
-    return tokens[index];
-}
-
 // returns current token and moves onto the next
 const Token& Lexer::nextToken() noexcept {
     if(nextTokenIdx >= tokens.size()){

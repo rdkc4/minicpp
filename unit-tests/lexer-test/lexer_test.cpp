@@ -4,10 +4,10 @@
 #include <string>
 #include <vector>
 
-#include "../../lexer/lexer.hpp"
+#include "lexer_test.hpp"
 
 TEST(LexerTest, TokenizationOfAssignmentStatement){
-    Lexer lexer{ "int x = -1 + 2 << 3u;" };
+    LexerTest lexer{ "int x = -1 + 2 << 3u;" };
     lexer.tokenize();
 
     std::vector<std::pair<TokenType, std::string>> expectedTokens{ {TokenType::_INT, "int"}, {TokenType::_ID, "x"}, 
@@ -25,7 +25,7 @@ TEST(LexerTest, TokenizationOfAssignmentStatement){
 }
 
 TEST(LexerTest, TokenizationOfIfStatement){
-    Lexer lexer{ "if(a > b){return a;}" };
+    LexerTest lexer{ "if(a > b){return a;}" };
     lexer.tokenize();
 
     std::vector<std::pair<TokenType, std::string>> expectedTokens{ {TokenType::_IF, "if"}, {TokenType::_LPAREN, "("}, 
@@ -44,7 +44,7 @@ TEST(LexerTest, TokenizationOfIfStatement){
 }
 
 TEST(LexerTest, EmptyInput){
-    Lexer lexer{""};
+    LexerTest lexer{""};
     lexer.tokenize();
 
     ASSERT_EQ(lexer.tokensSize(), 1);
@@ -52,7 +52,7 @@ TEST(LexerTest, EmptyInput){
 }
 
 TEST(LexerTest, OnlySingleLineComment){
-    Lexer lexer{"//this is a comment"};
+    LexerTest lexer{"//this is a comment"};
     lexer.tokenize();
 
     ASSERT_EQ(lexer.tokensSize(), 1);
@@ -60,7 +60,7 @@ TEST(LexerTest, OnlySingleLineComment){
 }
 
 TEST(LexerTest, OnlyMultiLineComment){
-    Lexer lexer{"/*this is a comment\n a multi line comment\n */"};
+    LexerTest lexer{"/*this is a comment\n a multi line comment\n */"};
     lexer.tokenize();
 
     ASSERT_EQ(lexer.tokensSize(), 1);
@@ -68,11 +68,11 @@ TEST(LexerTest, OnlyMultiLineComment){
 }
 
 TEST(LexerTest, ThrowsOnInvalidTokens){
-    Lexer lexer{ "int x. = 123;"};
+    LexerTest lexer{ "int x. = 123;"};
     EXPECT_THROW(lexer.tokenize(), std::runtime_error);
 }
 
 TEST(LexerTest, ThrowsOnInvalidMultiLineComment){
-    Lexer lexer{ "/* int x = 3;"};
+    LexerTest lexer{ "/* int x = 3;"};
     EXPECT_THROW(lexer.tokenize(), std::runtime_error);
 }
