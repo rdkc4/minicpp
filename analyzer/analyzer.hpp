@@ -18,7 +18,7 @@ class Analyzer{
 
         void semanticCheck(const ASTree* root);
 
-    private:
+    protected:
         // detection of undefined/redefined variables/functions, type checking
         ScopeManager globalScopeManager;
         // function analyzed by the thread, bool whether it returns, local scope managers for functions
@@ -26,11 +26,13 @@ class Analyzer{
 
         mutable std::mutex exceptionMtx;
         mutable std::unordered_map<std::string, std::vector<std::string>> semanticErrors;
-
+        
+        static constexpr std::string globalError{ "__global" };
+        
         void checkSemanticErrors(const ASTree* _functionList) const;
 
         // function
-        void checkFunctionSignatures(const ASTree* _function);
+        void checkFunctionSignatures(const ASTree* _functionList);
         void startFunctionCheck(const ASTree* _functionList);
         void checkFunction(const ASTree* _function);
         void checkParameter(ASTree* _parameters, const std::string& functionName);
