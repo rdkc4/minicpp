@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <unordered_map>
+#include <mutex>
 
 #include "../common/intermediate-representation-tree/IRTree.hpp"
 #include "../common/abstract-syntax-tree/ASTree.hpp"
