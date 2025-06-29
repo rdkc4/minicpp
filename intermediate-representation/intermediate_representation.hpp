@@ -21,7 +21,7 @@ class IntermediateRepresentation{
         // returns root of the intermediate representation tree
         [[nodiscard]] std::unique_ptr<IRTree> formIR(const ASTree* _root);
 
-    private:
+    protected:
         // tracking variable count, temporaries count and names
         thread_local static IRThreadContext irContext;
         
@@ -53,8 +53,8 @@ class IntermediateRepresentation{
         std::unique_ptr<IRTree> forStatement(const ASTree* _for);
         std::unique_ptr<IRTree> doWhileStatement(const ASTree* _dowhile);
         std::unique_ptr<IRTree> switchStatement(const ASTree* _switch);
-        std::unique_ptr<IRTree> _case(const ASTree* _case);
-        std::unique_ptr<IRTree> _default(const ASTree* _default);
+        std::unique_ptr<IRTree> _case(const ASTree* _astCase);
+        std::unique_ptr<IRTree> _default(const ASTree* _astDefault);
         std::unique_ptr<IRTree> _break() const;
 
         // expressions

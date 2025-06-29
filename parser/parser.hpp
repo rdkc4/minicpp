@@ -19,7 +19,7 @@ class Parser{
         // returns the root of the abstract syntax tree
         [[nodiscard]] std::unique_ptr<ASTree> parseProgram();
 
-    private:
+    protected:
         // token handler
         Lexer& lexer;
         

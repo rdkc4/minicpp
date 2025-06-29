@@ -258,6 +258,8 @@ void Lexer::multiLineComment(){
         }
         updatePosition();
     }
-    throw std::runtime_error(std::format("Line {}, Column {}: SYNTAX ERROR -> multi-line comment starting at line {}, column {}: not closed\n",
-        lineNumber, position - prevLineLen, startLine, startColumn));
+    exceptions.push_back(
+        std::format("Line {}, Column {}: SYNTAX ERROR -> multi-line comment starting at line {}, column {}: not closed\n",
+            lineNumber, position - prevLineLen, startLine, startColumn)
+    );
 }

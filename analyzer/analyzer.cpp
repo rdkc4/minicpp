@@ -24,14 +24,15 @@ void Analyzer::semanticCheck(const ASTree* root){
     globalScopeManager.pushScope();
 
     // define all functions
-    for(const auto& _function : _functionList->getChildren()){
-        checkFunctionSignatures(_function.get());
-    }
+    checkFunctionSignatures(_functionList);
 
     // check if main exists
     if(!globalScopeManager.lookupSymbol("main", {Kinds::FUN})){
-        throw std::runtime_error("'main' function not found");
+        semanticErrors[globalError].push_back("'main' function not found");
     }
+
+    // check if function signatures produced any errors
+    checkSemanticErrors(_functionList);
 
     // concurrent analysis of functions
     startFunctionCheck(_functionList);
@@ -52,41 +53,49 @@ void Analyzer::checkSemanticErrors(const ASTree* _functionList) const {
             }
         }
     }
+    if(!semanticErrors[globalError].empty()){
+        for(const auto& err : semanticErrors[globalError]){
+            errors += err + "\n";
+        }
+    }
     if(!errors.empty()){
         throw std::runtime_error(errors);
     }
 }
 
-void Analyzer::checkFunctionSignatures(const ASTree* _function){
-    Types returnType{ _function->getType() };
-    const std::string& funcName = _function->getToken().value; 
-    semanticErrors[funcName] = {};
+void Analyzer::checkFunctionSignatures(const ASTree* _functionList){
+    semanticErrors[globalError] = {};
+    for(const auto& _function : _functionList->getChildren()){
+        Types returnType{ _function->getType() };
+        const std::string& funcName = _function->getToken().value;
+        semanticErrors[funcName] = {};
 
-    // function type check
-    if(returnType == Types::NO_TYPE){
-        throw std::runtime_error(
-            std::format("Line {}, Column {}: SEMANTIC ERROR -> invalid type '{} {}'", 
-                _function->getToken().line, _function->getToken().column, typeToString.at(returnType), _function->getToken().value)
-        );
-    }
-    else if(returnType == Types::AUTO){
-        throw std::runtime_error(
-            std::format("Line {}, Column {}: SEMANTIC ERROR -> type deduction cannot be performed on function '{} {}'", 
-                _function->getToken().line, _function->getToken().column, typeToString.at(returnType), _function->getToken().value)
-        );
-    }
+        // function redefinition check
+        if(!globalScopeManager.pushSymbol(Symbol{funcName, Kinds::FUN, returnType})){
+            semanticErrors[globalError].push_back(
+                std::format("Line {}, Column {}: SEMANTIC ERROR -> function redefined '{} {}'", 
+                    _function->getToken().line, _function->getToken().column, typeToString.at(returnType), _function->getToken().value)
+            );
+            return;
+        }
 
-    // function redefinition check
-    if(!globalScopeManager.pushSymbol(Symbol{funcName, Kinds::FUN, returnType})){
-        throw std::runtime_error(
-            std::format("Line {}, Column {}: SEMANTIC ERROR -> function redefined '{} {}'", 
-                _function->getToken().line, _function->getToken().column, typeToString.at(returnType), _function->getToken().value)
-        );
+        // function type check
+        if(returnType == Types::NO_TYPE){
+            semanticErrors[funcName].push_back(
+                std::format("Line {}, Column {}: SEMANTIC ERROR -> invalid type '{} {}'", 
+                    _function->getToken().line, _function->getToken().column, typeToString.at(returnType), _function->getToken().value)
+            );
+        }
+        else if(returnType == Types::AUTO){
+            semanticErrors[funcName].push_back(
+                std::format("Line {}, Column {}: SEMANTIC ERROR -> type deduction cannot be performed on function '{} {}'", 
+                    _function->getToken().line, _function->getToken().column, typeToString.at(returnType), _function->getToken().value)
+            );
+        }
+        globalScopeManager.pushScope();
+        checkParameter(_function->getChild(0), funcName);
+        globalScopeManager.popScope();
     }
-
-    globalScopeManager.pushScope();
-    checkParameter(_function->getChild(0), funcName);
-    globalScopeManager.popScope();
 }
 
 void Analyzer::startFunctionCheck(const ASTree* _functionList){
@@ -153,7 +162,7 @@ void Analyzer::checkParameter(ASTree* _parameters, const std::string& functionNa
     
     // parameter check for main
     if(functionName == "main" && _parameters->getChildren().size() > 0){
-        throw std::runtime_error(
+        semanticErrors[functionName].push_back(
             std::format("Line {}, Column {}: SEMANTIC ERROR -> function 'main' cannot take parameters", 
                 _parameters->getToken().line, _parameters->getToken().column)
         );
@@ -163,13 +172,13 @@ void Analyzer::checkParameter(ASTree* _parameters, const std::string& functionNa
         // parameter type check
         Types type{ _parameter->getType() };
         if(type == Types::VOID || type == Types::NO_TYPE){
-            throw std::runtime_error(
+            semanticErrors[functionName].push_back(
                 std::format("Line {}, Column {}: SEMANTIC ERROR -> invalid type '{} {}'", 
                     _parameter->getToken().line, _parameter->getToken().column, typeToString.at(type), _parameter->getToken().value)
             );
         }
         else if(type == Types::AUTO){
-            throw std::runtime_error(
+            semanticErrors[functionName].push_back(
                 std::format("Line {}, Column {}: SEMANTIC ERROR -> type deduction cannot be performed on parameters '{} {}'", 
                     _parameter->getToken().line, _parameter->getToken().column, typeToString.at(type), _parameter->getToken().value)
             );
@@ -177,7 +186,7 @@ void Analyzer::checkParameter(ASTree* _parameters, const std::string& functionNa
 
         // parameter redefinition check
         if(!globalScopeManager.pushSymbol(Symbol{_parameter->getToken().value, Kinds::PAR, _parameter->getType()})){
-            throw std::runtime_error(
+            semanticErrors[functionName].push_back(
                 std::format("Line {}, Column {}: SEMANTIC ERROR -> variable redefined '{}'", 
                     _parameter->getToken().line, _parameter->getToken().column, _parameter->getToken().value)
             );

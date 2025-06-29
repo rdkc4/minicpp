@@ -26,7 +26,7 @@ class Lexer{
         
         void printTokens() const noexcept;
 
-    private:
+    protected:
     
         // input - raw text
         std::string input;
