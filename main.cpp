@@ -24,10 +24,7 @@ int main(){
     auto duration{ std::chrono::duration_cast<std::chrono::milliseconds>(end - start) };
     std::cout << std::format("\nCompilation time: {}ms\n", duration.count());
     
-    if(ret == ExitCode::NO_ERR){
-        std::cout << "\nProgram successfully compiled!\n";
-    }
-    else{
+    if(ret != ExitCode::NO_ERR){
         std::cerr << "\nProgram failed to compile!\n";
     }
 

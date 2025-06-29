@@ -69,10 +69,10 @@ TEST(LexerTest, OnlyMultiLineComment){
 
 TEST(LexerTest, ThrowsOnInvalidTokens){
     LexerTest lexer{ "int x. = 123;"};
-    EXPECT_THROW(lexer.tokenize(), std::runtime_error);
+    ASSERT_THROW(lexer.tokenize(), std::runtime_error);
 }
 
 TEST(LexerTest, ThrowsOnInvalidMultiLineComment){
     LexerTest lexer{ "/* int x = 3;"};
-    EXPECT_THROW(lexer.tokenize(), std::runtime_error);
+    ASSERT_THROW(lexer.tokenize(), std::runtime_error);
 }
