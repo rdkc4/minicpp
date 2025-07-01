@@ -17,7 +17,6 @@ void Lexer::tokenize(){
     while(position < inputSize){
         if(input[position] == '\n'){
             updateLine();
-            updatePosition();
         }
         else if(std::isspace(input[position])){
             updatePosition();
@@ -50,35 +49,35 @@ void Lexer::tokenize(){
             getRelOperator();
         }
         else if(input[position] == '('){
-            tokens.push_back(Token{std::string_view{&input[position],1}, lineNumber, position - prevLineLen, TokenType::_LPAREN});
+            tokens.push_back(Token{std::string_view{&input[position],1}, lineNumber, position + 1 - prevLineLen, TokenType::_LPAREN});
             updatePosition();
         }
         else if(input[position] == ')'){
-            tokens.push_back(Token{std::string_view{&input[position],1}, lineNumber, position - prevLineLen, TokenType::_RPAREN});
+            tokens.push_back(Token{std::string_view{&input[position],1}, lineNumber, position + 1 - prevLineLen, TokenType::_RPAREN});
             updatePosition();
         }
         else if(input[position] == '{'){
-            tokens.push_back(Token{std::string_view{&input[position], 1}, lineNumber, position - prevLineLen, TokenType::_LBRACKET});
+            tokens.push_back(Token{std::string_view{&input[position], 1}, lineNumber, position + 1 - prevLineLen, TokenType::_LBRACKET});
             updatePosition();
         }
         else if(input[position] == '}'){
-            tokens.push_back(Token{std::string_view{&input[position],1}, lineNumber, position - prevLineLen, TokenType::_RBRACKET});
+            tokens.push_back(Token{std::string_view{&input[position],1}, lineNumber, position + 1 - prevLineLen, TokenType::_RBRACKET});
             updatePosition();
         }
         else if(input[position] == ','){
-            tokens.push_back(Token{std::string_view{&input[position],1}, lineNumber, position - prevLineLen, TokenType::_COMMA});
+            tokens.push_back(Token{std::string_view{&input[position],1}, lineNumber, position + 1 - prevLineLen, TokenType::_COMMA});
             updatePosition();
         }
         else if(input[position] == ';'){
-            tokens.push_back(Token{std::string_view{&input[position],1}, lineNumber, position - prevLineLen, TokenType::_SEMICOLON});
+            tokens.push_back(Token{std::string_view{&input[position],1}, lineNumber, position + 1 - prevLineLen, TokenType::_SEMICOLON});
             updatePosition();
         }
         else if(input[position] == ':'){
-            tokens.push_back(Token{std::string_view{&input[position], 1}, lineNumber, position - prevLineLen, TokenType::_COLON});
+            tokens.push_back(Token{std::string_view{&input[position], 1}, lineNumber, position + 1 - prevLineLen, TokenType::_COLON});
             updatePosition();
         }
         else{
-            tokens.push_back(Token{std::string_view{&input[position], 1}, lineNumber, position - prevLineLen, TokenType::_INVALID});
+            tokens.push_back(Token{std::string_view{&input[position], 1}, lineNumber, position + 1 - prevLineLen, TokenType::_INVALID});
             exceptions.push_back(
                 std::format("Line {}, Column {}: LEXICAL ERROR -> unknown symbol '{}'\n", 
                     lineNumber, position - prevLineLen, std::string_view{&input[position], 1})
@@ -137,6 +136,7 @@ void Lexer::updatePosition(size_t n) noexcept {
 }
 
 void Lexer::updateLine() noexcept {
+    updatePosition();
     ++lineNumber;
     prevLineLen = position;
 }
@@ -175,7 +175,7 @@ void Lexer::getLiteral(bool sign){
 
 // assign [=]
 void Lexer::getAssignOperator(){
-    tokens.push_back(Token{std::string_view{&input[position], 1}, lineNumber, position - prevLineLen, TokenType::_ASSIGN});
+    tokens.push_back(Token{std::string_view{&input[position], 1}, lineNumber, position + 1 - prevLineLen, TokenType::_ASSIGN});
     updatePosition();
 }
 
@@ -191,7 +191,7 @@ void Lexer::getBitwiseOperator(){
 
 // arithmetic operators (+, -, *, /)
 void Lexer::getAritOperator(){
-    tokens.push_back(Token{std::string_view{&input[position], 1}, lineNumber, position - prevLineLen, TokenType::_AROP, GeneralTokenType::OPERATOR});
+    tokens.push_back(Token{std::string_view{&input[position], 1}, lineNumber, position + 1 - prevLineLen, TokenType::_AROP, GeneralTokenType::OPERATOR});
     updatePosition();
 }
 

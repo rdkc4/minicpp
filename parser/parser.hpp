@@ -3,7 +3,7 @@
 
 #include <stack>
 #include <unordered_map>
-#include <string_view>
+#include <string>
 
 #include "../lexer/lexer.hpp"
 #include "../common/abstract-syntax-tree/ASTree.hpp"
@@ -70,8 +70,8 @@ class Parser{
         std::unique_ptr<ASTree> literal();
 
         // precedence calculator
-        constexpr int getPrecedence(std::string_view op) const noexcept {
-            const static std::unordered_map<std::string_view, int> precedence {
+        constexpr int getPrecedence(const std::string& op) const noexcept {
+            const static std::unordered_map<std::string, int> precedence {
                 {"|", 1},
                 {"^", 2},
                 {"&", 3},
