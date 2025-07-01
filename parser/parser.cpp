@@ -47,7 +47,7 @@ std::unique_ptr<ASTree> Parser::functionList(){
 std::unique_ptr<ASTree> Parser::function(){
     Types returnType{ tokenTypeToType.find(currentToken.type) != tokenTypeToType.end() ? tokenTypeToType.at(currentToken.type) : Types::NO_TYPE };
     consume(GeneralTokenType::TYPE);
-    Token token{ currentToken };
+    const Token token{ currentToken };
     consume(TokenType::_ID);
     
     std::unique_ptr<ASTree> _function = std::make_unique<ASTree>(token, returnType, ASTNodeType::FUNCTION);
@@ -70,7 +70,7 @@ std::unique_ptr<ASTree> Parser::parameter(){
     while(currentToken.gtype == GeneralTokenType::TYPE){
         Types type{ tokenTypeToType.at(currentToken.type) };
         consume(GeneralTokenType::TYPE);
-        Token token{ currentToken };
+        const Token token{ currentToken };
         consume(TokenType::_ID);
         
         _parameters->pushChild(std::make_unique<ASTree>(token, type, ASTNodeType::PARAMETER));
@@ -112,7 +112,7 @@ std::unique_ptr<ASTree> Parser::construct(){
 std::unique_ptr<ASTree> Parser::variable(){
     Types type{ tokenTypeToType.find(currentToken.type) != tokenTypeToType.end() ? tokenTypeToType.at(currentToken.type) : Types::NO_TYPE };
     consume(GeneralTokenType::TYPE);
-    Token token{ currentToken };
+    const Token token{ currentToken };
     std::unique_ptr<ASTree> _variable = std::make_unique<ASTree>(token, type, ASTNodeType::VARIABLE);
     
     if(lexer.peekAtNext().type == TokenType::_ASSIGN){
@@ -351,7 +351,6 @@ std::unique_ptr<ASTree> Parser::_case(){
     std::unique_ptr<ASTree> _swCase = std::make_unique<ASTree>(Token{"case", currentToken.line, currentToken.column}, ASTNodeType::CASE);
     consume(TokenType::_CASE);
     _swCase->pushChild(literal());
-    consume(TokenType::_LITERAL);
     consume(TokenType::_COLON);
     
     _swCase->pushChild(switchCaseConstruct());
@@ -465,7 +464,6 @@ std::unique_ptr<ASTree> Parser::rpnToTree(std::stack<std::unique_ptr<ASTree>>& r
 std::unique_ptr<ASTree> Parser::expression(){
     if(currentToken.type == TokenType::_LITERAL){
         std::unique_ptr<ASTree> _literal = literal();
-        consume(TokenType::_LITERAL);
         return _literal;
     }
     else if(currentToken.type == TokenType::_ID && lexer.peekAtNext().type == TokenType::_LPAREN){
@@ -527,18 +525,20 @@ std::unique_ptr<ASTree> Parser::argument(){
 
 // ID : ID
 std::unique_ptr<ASTree> Parser::id(){
-    Token token{ currentToken };
+    const Token token{ currentToken };
     consume(TokenType::_ID);
 
     return std::make_unique<ASTree>(token, ASTNodeType::ID);
 }
 
 // LITERAL : LITERAL(unsigned) | LITERAL(int)
-std::unique_ptr<ASTree> Parser::literal() const {
-    if(currentToken.value.back() == 'u'){
-        return std::make_unique<ASTree>(Token{currentToken}, Types::UNSIGNED, ASTNodeType::LITERAL);
+std::unique_ptr<ASTree> Parser::literal(){
+    const Token token{ currentToken };
+    consume(TokenType::_LITERAL);
+    if(token.value.back() == 'u'){
+        return std::make_unique<ASTree>(token, Types::UNSIGNED, ASTNodeType::LITERAL);
     }
-    return std::make_unique<ASTree>(Token{currentToken}, Types::INT, ASTNodeType::LITERAL);
+    return std::make_unique<ASTree>(token, Types::INT, ASTNodeType::LITERAL);
 }
 
 // -> GLOBAL VARIABLES (TODO)

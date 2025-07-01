@@ -65,7 +65,7 @@ class Parser{
         std::unique_ptr<ASTree> functionCall();
         std::unique_ptr<ASTree> argument();
         std::unique_ptr<ASTree> id();
-        std::unique_ptr<ASTree> literal() const;
+        std::unique_ptr<ASTree> literal();
 
         // precedence calculator
         constexpr int getPrecedence(std::string_view op) const noexcept {
