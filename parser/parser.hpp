@@ -2,6 +2,8 @@
 #define PARSER_HPP
 
 #include <stack>
+#include <unordered_map>
+#include <string_view>
 
 #include "../lexer/lexer.hpp"
 #include "../common/abstract-syntax-tree/ASTree.hpp"
@@ -69,25 +71,20 @@ class Parser{
 
         // precedence calculator
         constexpr int getPrecedence(std::string_view op) const noexcept {
-            if(op == "|"){
-                return 1;
-            }
-            else if(op == "^"){
-                return 2;
-            }
-            else if(op == "&"){
-                return 3;
-            }
-            else if(op == "<<" || op == ">>"){
-                return 4;
-            }
-            else if(op == "-" || op == "+"){
-                return 5;
-            }
-            else if (op == "*" || op == "/"){
-                return 6;
-            }
-            return 0;
+            const static std::unordered_map<std::string_view, int> precedence {
+                {"|", 1},
+                {"^", 2},
+                {"&", 3},
+                {"<<", 4},
+                {">>", 4},
+                {"-", 5},
+                {"+", 5},
+                {"*", 6},
+                {"/", 6}
+            };
+
+            auto it = precedence.find(op);
+            return it != precedence.end() ? it->second : 0;
         }
 
 };
