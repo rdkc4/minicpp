@@ -69,6 +69,8 @@ class Analyzer{
         void checkFunctionCall(ASTree* _functionCall);
         void checkArgument(const ASTree* _functionCall);
 
+        bool alwaysReturns(const ASTree* _construct) const noexcept;
+
 };
 
 #endif

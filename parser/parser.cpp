@@ -389,7 +389,7 @@ std::unique_ptr<ASTree> Parser::_break(){
 }
 
 // NUMERICAL_EXPRESSION : EXPRESSION 
-//                      | NUMERICAL_EXPRESSION AROP EXPRESSION
+//                      | NUMERICAL_EXPRESSION OPERATOR EXPRESSION
 // organized in a tree as reverse polish notation (RPN)
 // ast is built on the run (per subexpression)
 std::unique_ptr<ASTree> Parser::numericalExpression(){

@@ -19,6 +19,7 @@ class IRTree{
         void pushChild(std::unique_ptr<IRTree>&& child);
         void setChild(std::unique_ptr<IRTree> child, size_t pos);
         void resizeChildren(size_t n);
+        void eraseChildren(size_t startIndex);
         void clearChildren() noexcept;
         
         // children getters

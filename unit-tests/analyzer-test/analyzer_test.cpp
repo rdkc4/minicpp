@@ -156,6 +156,46 @@ TEST(AnalyzerTest, CheckFunction){
     analyzer.getScopeManager().popScope();
 }
 
+TEST(AnalyzerTest, CheckFunctionNotAllIfPathsReturnError){
+    LexerTest lexer{"int fun(int x){ if(x > 0) return 1; }"};
+    lexer.tokenize();
+
+    ParserTest parser{ lexer };
+    auto ast = parser.testFunction();
+
+    SymbolTable symtab;
+    ScopeManager scopeManager{ symtab };
+    AnalyzerTest analyzer{scopeManager};
+    analyzer.getScopeManager().pushScope();
+    analyzer.getScopeManager().pushSymbol(Symbol{"fun", Kinds::FUN, Types::INT});
+    analyzer.initErrorsEmpty("fun");
+
+    analyzer.testCheckFunction(ast.get());
+    ASSERT_TRUE(!analyzer.getErrors("fun").empty());
+    ASSERT_TRUE(analyzer.getErrors("fun")[0].contains("not all paths return"));
+    analyzer.getScopeManager().popScope();
+}
+
+TEST(AnalyzerTest, CheckFunctionNotAllSwitchPathsReturnError){
+    LexerTest lexer{"int fun(int x){ switch(x){ case 0: return 0; case 1: return 1; } }"};
+    lexer.tokenize();
+
+    ParserTest parser{ lexer };
+    auto ast = parser.testFunction();
+
+    SymbolTable symtab;
+    ScopeManager scopeManager{ symtab };
+    AnalyzerTest analyzer{scopeManager};
+    analyzer.getScopeManager().pushScope();
+    analyzer.getScopeManager().pushSymbol(Symbol{"fun", Kinds::FUN, Types::INT});
+    analyzer.initErrorsEmpty("fun");
+
+    analyzer.testCheckFunction(ast.get());
+    ASSERT_TRUE(!analyzer.getErrors("fun").empty());
+    ASSERT_TRUE(analyzer.getErrors("fun")[0].contains("not all paths return"));
+    analyzer.getScopeManager().popScope();
+}
+
 TEST(AnalyzerTest, CheckFunctionParameterRedefError){
     LexerTest lexer{"int fun(int x){ int x = 1; return 0; }"};
     lexer.tokenize();

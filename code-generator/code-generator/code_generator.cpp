@@ -407,12 +407,13 @@ void CodeGenerator::generateSwitchStatement(const IRTree* _switch){
                 jmpLabel = std::format("_switch{}_{}", labNum, (i < size-1 ?  "case" + std::to_string(i) : "end"));
             }
             _asm.genJmp(codeGenContext.asmCode, "jne", jmpLabel);
-
-            for(size_t j = 1; j < _case->getChildren().size(); ++j){
+            
+            const size_t size = _case->getChildren().size() - static_cast<size_t>(_case->getChildren().back()->getNodeType() == IRNodeType::BREAK);
+            for(size_t j = 1; j < size; ++j){
                 generateConstruct(_case->getChild(j));
             }
 
-            if(_case->getChildren().size()==3){
+            if(_case->getChildren().back()->getNodeType() == IRNodeType::BREAK){
                 _asm.genJmp(codeGenContext.asmCode, "jmp", std::format("_switch{}_end", labNum));
             }
 

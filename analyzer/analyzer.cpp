@@ -141,10 +141,10 @@ void Analyzer::checkFunction(const ASTree* _function){
     analyzerContext.scopeManager->popScope();
     
     // function return type check
-    if(_function->getType() != Types::VOID && !analyzerContext.returned){
+    if(_function->getType() != Types::VOID && !alwaysReturns(_function)){
         analyzerContext.semanticErrors.push_back(
-            std::format("Line {}, Column {}: SEMANTIC ERROR -> function '{} {}' returns '{}'", 
-                _function->getToken().line, _function->getToken().column, typeToString.at(_function->getType()), _function->getToken().value, typeToString.at(Types::VOID))
+            std::format("Line {}, Column {}: SEMANTIC ERROR -> function '{} {}' not all paths return value", 
+                _function->getToken().line, _function->getToken().column, typeToString.at(_function->getType()), _function->getToken().value)
         );
     }
 
@@ -460,7 +460,6 @@ void Analyzer::checkReturnStatement(const ASTree* _return){
                 _return->getToken().line, _return->getToken().column, typeToString.at(expectedReturnType), analyzerContext.functionName, typeToString.at(returnType))
         );
     }
-    analyzerContext.returned = true;
 }
 
 void Analyzer::checkNumericalExpression(ASTree* _numexp){
@@ -612,4 +611,56 @@ void Analyzer::checkArgument(const ASTree* _functionCall){
         }
         ++i;
     }
+}
+
+bool Analyzer::alwaysReturns(const ASTree* _construct) const noexcept {
+    ASTNodeType nodeType{ _construct->getNodeType() };
+    if(nodeType == ASTNodeType::RETURN_STATEMENT){
+        return true;
+    }
+    else if(nodeType == ASTNodeType::FUNCTION){
+        return alwaysReturns(_construct->getChild(1)); // check if body always returns
+    }
+    else if(nodeType == ASTNodeType::IF_STATEMENT){
+        const size_t size{ _construct->getChildren().size() };
+        if((size & 1) == 0){ // no else statement -> doesn't return unconditionally
+            return false;
+        }
+        for(size_t i{ 1 }; i < size; i += 2){
+            if(!alwaysReturns(_construct->getChild(i))){ // check if else-if constructs
+                return false;
+            }
+        }
+        return alwaysReturns(_construct->getChildren().back().get()); // check else constructs
+    }
+    else if(nodeType == ASTNodeType::SWITCH_STATEMENT){
+        const size_t size{ _construct->getChildren().size() };
+        if(_construct->getChildren().back()->getNodeType() != ASTNodeType::DEFAULT){ // no default -> doesn't return unconditionally
+            return false;
+        }
+        for(size_t i{ 1 }; i < size - 1; ++i){
+            // check cases, if there is no break fallthrough to the next case
+            if(!alwaysReturns(_construct->getChild(i)->getChild(1)) && _construct->getChild(i)->getChildren().size() == 3){
+                return false;
+            }
+        }
+        return alwaysReturns(_construct->getChildren().back()->getChild(0)); // check default
+    }
+    else if(nodeType == ASTNodeType::DO_WHILE_STATEMENT){
+        for(const auto& constr : _construct->getChild(0)->getChildren()){
+            if(alwaysReturns(constr.get())){
+                return true;
+            }
+        }
+    }
+    else if(nodeType == ASTNodeType::COMPOUND_STATEMENT || nodeType == ASTNodeType::CONSTRUCT_LIST || nodeType == ASTNodeType::BODY){
+        for(const auto& constr : _construct->getChildren()){
+            if(alwaysReturns(constr.get())){
+                return true;
+            }
+        }
+        return false;
+    }
+    // at the moment constant relational expressions aren't evaluated at the compile-time, so WHILE and FOR will return false by default
+    return false;
 }

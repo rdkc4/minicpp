@@ -24,6 +24,12 @@ void IRTree::resizeChildren(size_t n){
     children.resize(n);
 }
 
+void IRTree::eraseChildren(size_t startIndex) {
+    if(startIndex < children.size()){
+        children.erase(children.begin() + startIndex, children.end());
+    }
+}
+
 void IRTree::clearChildren() noexcept {
     children.clear();
 }

@@ -52,6 +52,23 @@ TEST(IRTest, FunctionDeadCodeElimination){
     ASSERT_TRUE(irt->getChildren().size() == expectedChildrenSize);
 }
 
+TEST(IRTest, FunctionDeadCodeEliminationBranching){
+    LexerTest lexer{"int fun(int x){ if(x > 1) return 0; else return 1; x = x + 1; return x; }"};
+    lexer.tokenize();
+
+    ParserTest parser{lexer};
+    std::unique_ptr<ASTree> ast = parser.testFunction();
+
+    IntermediateRepresentationTest intermediateRepresentation;
+    std::unique_ptr<IRTree> irt;
+    const size_t expectedChildrenSize = 2; // first child is PARAMETERS, second child is if statement
+    
+    ASSERT_NO_THROW(irt = intermediateRepresentation.testFunction(ast.get()));
+    std::cout << irt->getChildren().size() << "\n";
+    ASSERT_TRUE(irt->getNodeType() == IRNodeType::FUNCTION);
+    ASSERT_TRUE(irt->getChildren().size() == expectedChildrenSize);
+}
+
 TEST(IRTest, CompoundStatementDeadCodeElimination){
     LexerTest lexer{"{ return 0; int x = 1; return x; }"};
     lexer.tokenize();

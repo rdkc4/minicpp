@@ -88,6 +88,9 @@ std::unique_ptr<IRTree> IntermediateRepresentation::function(const ASTree* _func
         }
     }
 
+    eliminateDeadCode(_irFunction.get());
+
+    countVariables(_irFunction.get());
     // bytes allocated for local variables
     std::string varCountStr{ std::to_string(irContext.requiredMemory(regSize)) };
     _irFunction->setValue(varCountStr);
@@ -125,7 +128,6 @@ std::unique_ptr<IRTree> IntermediateRepresentation::variable(const ASTree* _vari
     if(_variable->getChildren().size() != 0){
         _irVariable->pushChild(assignmentStatement(_variable->getChild(0)));
     }
-    ++irContext.variableCount;
 
     return _irVariable;
 }
@@ -503,4 +505,62 @@ std::unique_ptr<IRTree> IntermediateRepresentation::initiateTemporaries(const AS
         return temporaryRoot;
     }
     return nullptr;
+}
+
+bool IntermediateRepresentation::eliminateDeadCode(IRTree* _construct){
+    IRNodeType nodeType = _construct->getNodeType();
+    if(nodeType == IRNodeType::RETURN){
+        return true;
+    }
+    else if(nodeType == IRNodeType::FUNCTION || nodeType == IRNodeType::COMPOUND || nodeType == IRNodeType::DEFAULT || nodeType == IRNodeType::CASE){
+        const size_t size{ _construct->getChildren().size() };
+        size_t i = 0 + static_cast<size_t>(nodeType == IRNodeType::CASE);
+        for(; i < size; ++i){
+            if(eliminateDeadCode(_construct->getChild(i))){
+                _construct->eraseChildren(i + 1);
+                return true;
+            }
+        }
+        return false;
+    }
+    else if(nodeType == IRNodeType::IF){
+        bool returnsAlways = true;
+        const size_t size = _construct->getChildren().size();
+        for(size_t i = 1; i < size; i += 2){
+            if(!eliminateDeadCode(_construct->getChild(i))){ // check if else-if constructs
+                returnsAlways = false;
+            }
+        }
+        if((size & 1) == 0){
+            return false;
+        }
+        return eliminateDeadCode(_construct->getChildren().back().get()) && returnsAlways; // check else constructs*/
+    }
+    else if(nodeType == IRNodeType::SWITCH){
+        bool returnsAlways = true;
+        const size_t size = _construct->getChildren().size();
+        for(size_t i = 1; i < size - 1; ++i){
+            // check cases, if there is no break fallthrough to the next case
+            if(!eliminateDeadCode(_construct->getChild(i)) && _construct->getChild(i)->getChildren().size() == 3){
+                returnsAlways = false;
+            }
+        }
+        if(_construct->getChildren().back()->getNodeType() != IRNodeType::DEFAULT){ // no default -> doesn't return unconditionally
+            return false;
+        }
+        return eliminateDeadCode(_construct->getChildren().back()->getChild(0)) && returnsAlways; // check default
+    }
+    else if(nodeType == IRNodeType::DO_WHILE){
+        return eliminateDeadCode(_construct->getChild(0));
+    }
+    return false;
+}
+
+void IntermediateRepresentation::countVariables(const IRTree* _construct){
+    if(_construct->getNodeType() == IRNodeType::VARIABLE){
+        ++irContext.variableCount;
+    }
+    for(const auto& _constr : _construct->getChildren()){
+        countVariables(_constr.get());
+    }
 }

@@ -7,9 +7,9 @@
 #include <vector>
 
 struct IRThreadContext{
-    // current function's variable count
+    // variable + temporary count
     size_t variableCount;
-    // count of the temporary variables for function calls
+    // number to make temporary name unique
     size_t temporaries;
     // making sure nested temporary variables are handled well
     std::stack<std::string> temporaryNames;
@@ -21,7 +21,7 @@ struct IRThreadContext{
     }
 
     size_t requiredMemory(size_t regSize){
-        return (variableCount + temporaries) * regSize;
+        return variableCount * regSize;
     }
 
     void reset(){

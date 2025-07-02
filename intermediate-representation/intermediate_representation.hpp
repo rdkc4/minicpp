@@ -80,6 +80,9 @@ class IntermediateRepresentation{
         std::unique_ptr<IRTree> replaceFunctionCall(const ASTree* _functionCall);
         std::unique_ptr<IRTree> initiateTemporaries(const ASTree* _numexp);
 
+        bool eliminateDeadCode(IRTree* _construct);
+        void countVariables(const IRTree* _construct);
+
 };
 
 #endif
