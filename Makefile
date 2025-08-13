@@ -8,10 +8,55 @@ SRCS = main.cpp \
 	common/token/defs/token_defs.cpp \
 	common/token/token.cpp \
 	common/abstract-syntax-tree/defs/ASTree_defs.cpp \
-	common/abstract-syntax-tree/ASTree.cpp \
+	common/abstract-syntax-tree/source/ASTNode.cpp \
+	common/abstract-syntax-tree/source/ASTExpression.cpp \
+	common/abstract-syntax-tree/source/ASTBinaryExpression.cpp \
+	common/abstract-syntax-tree/source/ASTFunctionCall.cpp \
+	common/abstract-syntax-tree/source/ASTLiteral.cpp \
+	common/abstract-syntax-tree/source/ASTId.cpp \
+	common/abstract-syntax-tree/source/ASTParameter.cpp \
+	common/abstract-syntax-tree/source/ASTStatement.cpp \
+	common/abstract-syntax-tree/source/ASTSwitchBlock.cpp \
+	common/abstract-syntax-tree/source/ASTPrintfSt.cpp \
+	common/abstract-syntax-tree/source/ASTCompoundSt.cpp \
+	common/abstract-syntax-tree/source/ASTAssignSt.cpp \
+	common/abstract-syntax-tree/source/ASTReturnSt.cpp \
+	common/abstract-syntax-tree/source/ASTIfSt.cpp \
+	common/abstract-syntax-tree/source/ASTWhileSt.cpp \
+	common/abstract-syntax-tree/source/ASTDoWhileSt.cpp \
+	common/abstract-syntax-tree/source/ASTForSt.cpp \
+	common/abstract-syntax-tree/source/ASTCaseSt.cpp \
+	common/abstract-syntax-tree/source/ASTDefaultSt.cpp \
+	common/abstract-syntax-tree/source/ASTSwitchSt.cpp \
+	common/abstract-syntax-tree/source/ASTVariable.cpp \
+	common/abstract-syntax-tree/source/ASTFunction.cpp \
+	common/abstract-syntax-tree/source/ASTProgram.cpp \
 	common/symbol/symbol.cpp \
 	common/intermediate-representation-tree/defs/IRTree_defs.cpp \
-	common/intermediate-representation-tree/IRTree.cpp \
+	common/intermediate-representation-tree/source/IRNode.cpp \
+	common/intermediate-representation-tree/source/IRExpression.cpp \
+	common/intermediate-representation-tree/source/IRBinaryExpression.cpp \
+	common/intermediate-representation-tree/source/IRTemporary.cpp \
+	common/intermediate-representation-tree/source/IRFunctionCall.cpp \
+	common/intermediate-representation-tree/source/IRLiteral.cpp \
+	common/intermediate-representation-tree/source/IRId.cpp \
+	common/intermediate-representation-tree/source/IRStatement.cpp \
+	common/intermediate-representation-tree/source/IRVariable.cpp \
+	common/intermediate-representation-tree/source/IRAssignSt.cpp \
+	common/intermediate-representation-tree/source/IRPrintfSt.cpp \
+	common/intermediate-representation-tree/source/IRIfSt.cpp \
+	common/intermediate-representation-tree/source/IRCompoundSt.cpp \
+	common/intermediate-representation-tree/source/IRReturnSt.cpp \
+	common/intermediate-representation-tree/source/IRWhileSt.cpp \
+	common/intermediate-representation-tree/source/IRDoWhileSt.cpp \
+	common/intermediate-representation-tree/source/IRForSt.cpp \
+	common/intermediate-representation-tree/source/IRSwitchBlock.cpp \
+	common/intermediate-representation-tree/source/IRCaseSt.cpp \
+	common/intermediate-representation-tree/source/IRDefaultSt.cpp \
+	common/intermediate-representation-tree/source/IRSwitchSt.cpp \
+	common/intermediate-representation-tree/source/IRParameter.cpp \
+	common/intermediate-representation-tree/source/IRFunction.cpp \
+	common/intermediate-representation-tree/source/IRProgram.cpp \
 	lexer/defs/lexer_defs.cpp \
 	lexer/lexer.cpp \
 	parser/parser.cpp \

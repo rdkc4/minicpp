@@ -16,23 +16,23 @@ class IntermediateRepresentationTest : public IntermediateRepresentation {
             return irContext;
         }
 
-        std::unique_ptr<IRTree> testFunction(const ASTree* _function){
+        std::unique_ptr<IRFunction> testFunction(const ASTFunction* _function){
             return function(_function);
         }
 
-        std::unique_ptr<IRTree> testCompoundStatement(const ASTree* _compound){
+        std::unique_ptr<IRCompoundSt> testCompoundStatement(const ASTCompoundSt* _compound){
             return compoundStatement(_compound);
         }
 
-        std::unique_ptr<IRTree> testAssignmentStatement(const ASTree* _assignment){
+        std::unique_ptr<IRAssignSt> testAssignmentStatement(const ASTAssignSt* _assignment){
             return assignmentStatement(_assignment);
         }
 
-        std::unique_ptr<IRTree> testSwitchStatement(const ASTree* _switch){
+        std::unique_ptr<IRSwitchSt> testSwitchStatement(const ASTSwitchSt* _switch){
             return switchStatement(_switch);
         }
         
-        std::unique_ptr<IRTree> testNumericalExpression(const ASTree* _numexp){
+        std::unique_ptr<IRExpression> testNumericalExpression(const ASTExpression* _numexp){
             return numericalExpression(_numexp);
         }
 

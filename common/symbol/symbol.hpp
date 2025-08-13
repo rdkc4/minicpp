@@ -2,8 +2,10 @@
 #define SYMBOL_HPP
 
 #include <string>
+#include <vector>
+#include <memory>
 
-#include "../abstract-syntax-tree/ASTree.hpp"
+#include "../abstract-syntax-tree/ASTParameter.hpp"
 #include "../defs/defs.hpp"
 
 class Symbol{
@@ -15,13 +17,13 @@ class Symbol{
         const std::string& getName() const noexcept;
         Kinds getKind() const noexcept;
         Types getType() const noexcept;
-        ASTree* getParameters() const noexcept;
+        const std::vector<std::unique_ptr<ASTParameter>>* getParameters() const noexcept;
 
         // setters
         void setName(std::string_view _name);
         void setKind(Kinds _kind) noexcept;
         void setType(Types _type) noexcept;
-        void setParameters(ASTree* par) noexcept;
+        void setParameters(const std::vector<std::unique_ptr<ASTParameter>>* _parameters) noexcept;
 
         std::string symbolToString() const;
 
@@ -29,7 +31,7 @@ class Symbol{
         // name of a symbol
         std::string name;
         // pointer to parameter node (only for functions)
-        ASTree* parameters;
+        const std::vector<std::unique_ptr<ASTParameter>>* parameters;
         // kind of a symbol
         Kinds kind;
         // type of a symbol

@@ -1,0 +1,24 @@
+#ifndef ASTEXPRESSION_HPP
+#define ASTEXPRESSION_HPP
+
+#include "ASTNode.hpp"
+#include "defs/ASTree_defs.hpp"
+#include "../token/token.hpp"
+#include "../defs/defs.hpp"
+
+class ASTExpression : public ASTNode {
+public:
+    ASTExpression(const Token& token, ASTNodeType ntype, Types type = Types::NO_TYPE);
+
+    Types getType() const noexcept;
+
+    void setType(Types t) noexcept;
+
+    void print(size_t offset) const override = 0;
+
+private:
+    Types type;
+};
+
+
+#endif

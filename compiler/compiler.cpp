@@ -28,16 +28,16 @@ ExitCode Compiler::compile(std::string_view input, std::string_view output) {
         assert(lexer.completedTokenization());
         
         Parser parser{ lexer };
-        std::unique_ptr<ASTree> astRoot = parser.parseProgram();
+        std::unique_ptr<ASTProgram> astProgram = parser.parseProgram();
+        //astProgram->print(1);
         //std::cout << "\nSyntax check: successful!\n";
-        //astRoot->traverse(1); //display AST
 
         try{
             SymbolTable symbolTable {};
             ScopeManager scopeManager{ symbolTable };
             Analyzer analyzer{ scopeManager };
 
-            analyzer.semanticCheck(astRoot.get());
+            analyzer.semanticCheck(astProgram.get());
             //std::cout << "\nSemantic check: successful!\n";
 
         } catch(const std::exception& e){
@@ -47,14 +47,14 @@ ExitCode Compiler::compile(std::string_view input, std::string_view output) {
 
         try{
             IntermediateRepresentation intermediateRepresentation {};
-            std::unique_ptr<IRTree> irRoot = intermediateRepresentation.formIR(astRoot.get());
+            std::unique_ptr<IRProgram> irProgram = intermediateRepresentation.formIR(astProgram.get());
+            //irProgram->print(1);
             //std::cout << "\nForming Intermediate Representation: successful!\n";
-            //irRoot->traverse(1); //display IRT
 
             try{
                 std::string filePath { std::string{ output } };
                 CodeGenerator codeGenerator{ filePath };
-                codeGenerator.generateCode(irRoot.get());
+                codeGenerator.generateCode(irProgram.get());
                 //std::cout << "\nCode Generation: successful!\n";
 
             } catch(const std::exception& e){

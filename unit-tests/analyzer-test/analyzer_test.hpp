@@ -32,27 +32,27 @@ class AnalyzerTest : public Analyzer {
             return analyzerContext;
         }
 
-        void testCheckFunctionSignatures(const ASTree* _functionList){
-            checkFunctionSignatures(_functionList);
+        void testCheckFunctionSignatures(const ASTProgram* _program){
+            checkFunctionSignatures(_program);
         }
 
-        void testCheckFunction(const ASTree* _function){
+        void testCheckFunction(const ASTFunction* _function){
             checkFunction(_function);
         }
 
-        void testCheckVariable(const ASTree* _variable){
+        void testCheckVariable(const ASTVariable* _variable){
             checkVariable(_variable);
         }
 
-        void testCheckForStatement(const ASTree* _for){
+        void testCheckForStatement(const ASTForSt* _for){
             checkForStatement(_for);
         }
 
-        void testCheckSwitchStatement(const ASTree* _switch){
+        void testCheckSwitchStatement(const ASTSwitchSt* _switch){
             checkSwitchStatement(_switch);
         }
 
-        void testCheckCompoundStatement(const ASTree* _compound){
+        void testCheckCompoundStatement(const ASTCompoundSt* _compound){
             checkCompoundStatement(_compound);
         }
 

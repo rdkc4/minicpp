@@ -5,13 +5,15 @@
 #include <vector>
 #include <string>
 
+#include "../../common/intermediate-representation-tree/defs/IRTree_defs.hpp"
+
 /*
     code generation related definitions
 */
 
-extern const std::unordered_map<std::string, std::vector<std::string>> stringToJMP;
+extern const std::unordered_map<IRNodeType, std::string> nodeToJMP;
 
-extern const std::unordered_map<std::string, std::vector<std::string>> stringToOppJMP;
+extern const std::unordered_map<IRNodeType, std::string> nodeToOppJMP;
 
 extern const std::vector<std::string> gpRegisters;
 

@@ -66,14 +66,14 @@ TEST(AnalyzerTest, CheckFunctionSignatures){
     lexer.tokenize();
 
     ParserTest parser{ lexer };
-    auto ast = parser.parseProgram();
+    auto _program = parser.parseProgram();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
     AnalyzerTest analyzer{scopeManager};
     analyzer.getScopeManager().pushScope();
 
-    analyzer.testCheckFunctionSignatures(ast->getChild(0));
+    analyzer.testCheckFunctionSignatures(_program.get());
     ASSERT_TRUE(analyzer.getErrors("rectArea").empty());
     ASSERT_TRUE(analyzer.getErrors("sq").empty());
 
@@ -85,15 +85,15 @@ TEST(AnalyzerTest, CheckFunctionSignaturesFunctionRedefError){
     lexer.tokenize();
 
     ParserTest parser{ lexer };
-    auto ast = parser.parseProgram();
+    auto _program = parser.parseProgram();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
     AnalyzerTest analyzer{scopeManager};
     analyzer.getScopeManager().pushScope();
 
-    analyzer.testCheckFunctionSignatures(ast->getChild(0));
-    ASSERT_TRUE(!analyzer.getErrors(analyzer.getGlobalErrLabel()).empty());
+    analyzer.testCheckFunctionSignatures(_program.get());
+    ASSERT_FALSE(analyzer.getErrors(analyzer.getGlobalErrLabel()).empty());
     ASSERT_TRUE(analyzer.getErrors(analyzer.getGlobalErrLabel())[0].contains("redefined"));
 
     analyzer.getScopeManager().popScope();
@@ -104,15 +104,15 @@ TEST(AnalyzerTest, CheckFunctionSignaturesParameterRedefError){
     lexer.tokenize();
 
     ParserTest parser{ lexer };
-    auto ast = parser.parseProgram();
+    auto _program = parser.parseProgram();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
     AnalyzerTest analyzer{scopeManager};
     analyzer.getScopeManager().pushScope();
 
-    analyzer.testCheckFunctionSignatures(ast->getChild(0));
-    ASSERT_TRUE(!analyzer.getErrors("rectArea").empty());
+    analyzer.testCheckFunctionSignatures(_program.get());
+    ASSERT_FALSE(analyzer.getErrors("rectArea").empty());
     ASSERT_TRUE(analyzer.getErrors("rectArea")[0].contains("redefined"));
 
     analyzer.getScopeManager().popScope();
@@ -123,15 +123,15 @@ TEST(AnalyzerTest, CheckFunctionSignaturesMainParamsError){
     lexer.tokenize();
 
     ParserTest parser{ lexer };
-    auto ast = parser.parseProgram();
+    auto _program = parser.parseProgram();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
     AnalyzerTest analyzer{scopeManager};
     analyzer.getScopeManager().pushScope();
 
-    analyzer.testCheckFunctionSignatures(ast->getChild(0));
-    ASSERT_TRUE(!analyzer.getErrors("main").empty());
+    analyzer.testCheckFunctionSignatures(_program.get());
+    ASSERT_FALSE(analyzer.getErrors("main").empty());
     ASSERT_TRUE(analyzer.getErrors("main")[0].contains("parameter"));
 
     analyzer.getScopeManager().popScope();
@@ -142,7 +142,7 @@ TEST(AnalyzerTest, CheckFunction){
     lexer.tokenize();
 
     ParserTest parser{ lexer };
-    auto ast = parser.testFunction();
+    auto _function = parser.testFunction();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
@@ -151,7 +151,7 @@ TEST(AnalyzerTest, CheckFunction){
     analyzer.getScopeManager().pushSymbol(Symbol{"fun", Kinds::FUN, Types::INT});
     analyzer.initErrorsEmpty("fun");
 
-    analyzer.testCheckFunction(ast.get());
+    analyzer.testCheckFunction(_function.get());
     ASSERT_TRUE(analyzer.getErrors("fun").empty());
     analyzer.getScopeManager().popScope();
 }
@@ -161,7 +161,7 @@ TEST(AnalyzerTest, CheckFunctionNotAllIfPathsReturnError){
     lexer.tokenize();
 
     ParserTest parser{ lexer };
-    auto ast = parser.testFunction();
+    auto _function = parser.testFunction();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
@@ -170,8 +170,8 @@ TEST(AnalyzerTest, CheckFunctionNotAllIfPathsReturnError){
     analyzer.getScopeManager().pushSymbol(Symbol{"fun", Kinds::FUN, Types::INT});
     analyzer.initErrorsEmpty("fun");
 
-    analyzer.testCheckFunction(ast.get());
-    ASSERT_TRUE(!analyzer.getErrors("fun").empty());
+    analyzer.testCheckFunction(_function.get());
+    ASSERT_FALSE(analyzer.getErrors("fun").empty());
     ASSERT_TRUE(analyzer.getErrors("fun")[0].contains("not all paths return"));
     analyzer.getScopeManager().popScope();
 }
@@ -181,7 +181,7 @@ TEST(AnalyzerTest, CheckFunctionNotAllSwitchPathsReturnError){
     lexer.tokenize();
 
     ParserTest parser{ lexer };
-    auto ast = parser.testFunction();
+    auto _function = parser.testFunction();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
@@ -190,8 +190,8 @@ TEST(AnalyzerTest, CheckFunctionNotAllSwitchPathsReturnError){
     analyzer.getScopeManager().pushSymbol(Symbol{"fun", Kinds::FUN, Types::INT});
     analyzer.initErrorsEmpty("fun");
 
-    analyzer.testCheckFunction(ast.get());
-    ASSERT_TRUE(!analyzer.getErrors("fun").empty());
+    analyzer.testCheckFunction(_function.get());
+    ASSERT_FALSE(analyzer.getErrors("fun").empty());
     ASSERT_TRUE(analyzer.getErrors("fun")[0].contains("not all paths return"));
     analyzer.getScopeManager().popScope();
 }
@@ -201,7 +201,7 @@ TEST(AnalyzerTest, CheckFunctionParameterRedefError){
     lexer.tokenize();
 
     ParserTest parser{ lexer };
-    auto ast = parser.testFunction();
+    auto _function = parser.testFunction();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
@@ -210,8 +210,8 @@ TEST(AnalyzerTest, CheckFunctionParameterRedefError){
     analyzer.getScopeManager().pushSymbol(Symbol{"fun", Kinds::FUN, Types::INT});
     analyzer.initErrorsEmpty("fun");
 
-    analyzer.testCheckFunction(ast.get());
-    ASSERT_TRUE(!analyzer.getErrors("fun").empty());
+    analyzer.testCheckFunction(_function.get());
+    ASSERT_FALSE(analyzer.getErrors("fun").empty());
     ASSERT_TRUE(analyzer.getErrors("fun")[0].contains("redefined"));
     analyzer.getScopeManager().popScope();
 }
@@ -221,7 +221,7 @@ TEST(AnalyzerTest, CheckFunctionVoidReturnsTypeError){
     lexer.tokenize();
 
     ParserTest parser{ lexer };
-    auto ast = parser.testFunction();
+    auto _function = parser.testFunction();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
@@ -230,8 +230,8 @@ TEST(AnalyzerTest, CheckFunctionVoidReturnsTypeError){
     analyzer.getScopeManager().pushSymbol(Symbol{"fun", Kinds::FUN, Types::VOID});
     analyzer.initErrorsEmpty("fun");
 
-    analyzer.testCheckFunction(ast.get());
-    ASSERT_TRUE(!analyzer.getErrors("fun").empty());
+    analyzer.testCheckFunction(_function.get());
+    ASSERT_FALSE(analyzer.getErrors("fun").empty());
     ASSERT_TRUE(analyzer.getErrors("fun")[0].contains("type mismatch"));
     analyzer.getScopeManager().popScope();
 }
@@ -241,7 +241,7 @@ TEST(AnalyzerTest, CheckFunctionVoidTypeMismatchError){
     lexer.tokenize();
 
     ParserTest parser{ lexer };
-    auto ast = parser.testFunction();
+    auto _function = parser.testFunction();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
@@ -250,8 +250,8 @@ TEST(AnalyzerTest, CheckFunctionVoidTypeMismatchError){
     analyzer.getScopeManager().pushSymbol(Symbol{"fun", Kinds::FUN, Types::INT});
     analyzer.initErrorsEmpty("fun");
 
-    analyzer.testCheckFunction(ast.get());
-    ASSERT_TRUE(!analyzer.getErrors("fun").empty());
+    analyzer.testCheckFunction(_function.get());
+    ASSERT_FALSE(analyzer.getErrors("fun").empty());
     ASSERT_TRUE(analyzer.getErrors("fun")[0].contains("type mismatch"));
     analyzer.getScopeManager().popScope();
 }
@@ -261,7 +261,7 @@ TEST(AnalyzerTest, CheckVariable){
     lexer.tokenize();
 
     ParserTest parser{ lexer };
-    auto ast = parser.testVariable();
+    auto _variable = parser.testVariable();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
@@ -270,7 +270,7 @@ TEST(AnalyzerTest, CheckVariable){
     analyzer.getAnalyzerContext().init("tmp", &scopeManager); // test is single-threaded, it doesn't matter that analyzer and thread share scopeManager
     analyzer.getAnalyzerContext().scopeManager->pushScope();
 
-    analyzer.testCheckVariable(ast.get());
+    analyzer.testCheckVariable(_variable.get());
     ASSERT_TRUE(analyzer.getAnalyzerContext().semanticErrors.empty());
     ASSERT_TRUE(analyzer.getScopeManager().lookupSymbol("x", {Kinds::VAR}));
     
@@ -283,7 +283,7 @@ TEST(AnalyzerTest, CheckVariableExitedScope){
     lexer.tokenize();
 
     ParserTest parser{ lexer };
-    auto ast = parser.testCompoundStatement();
+    auto _compound = parser.testCompoundStatement();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
@@ -291,7 +291,7 @@ TEST(AnalyzerTest, CheckVariableExitedScope){
     
     analyzer.getAnalyzerContext().init("tmp", &scopeManager);
 
-    analyzer.testCheckCompoundStatement(ast.get());
+    analyzer.testCheckCompoundStatement(_compound.get());
     ASSERT_TRUE(analyzer.getAnalyzerContext().semanticErrors.empty());
     analyzer.getAnalyzerContext().reset();
 }
@@ -301,7 +301,7 @@ TEST(AnalyzerTest, CheckVariableRedefError){
     lexer.tokenize();
 
     ParserTest parser{ lexer };
-    auto ast = parser.testVariable();
+    auto _variable = parser.testVariable();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
@@ -311,8 +311,8 @@ TEST(AnalyzerTest, CheckVariableRedefError){
     analyzer.getAnalyzerContext().scopeManager->pushScope();
     analyzer.getAnalyzerContext().scopeManager->pushSymbol(Symbol{"x", Kinds::VAR, Types::INT});
 
-    analyzer.testCheckVariable(ast.get());
-    ASSERT_TRUE(!analyzer.getAnalyzerContext().semanticErrors.empty());
+    analyzer.testCheckVariable(_variable.get());
+    ASSERT_FALSE(analyzer.getAnalyzerContext().semanticErrors.empty());
     ASSERT_TRUE(analyzer.getAnalyzerContext().semanticErrors[0].contains("redefined"));
     
     analyzer.getAnalyzerContext().scopeManager->popScope();
@@ -324,7 +324,7 @@ TEST(AnalyzerTest, CheckVariableTypeMismatchError){
     lexer.tokenize();
 
     ParserTest parser{ lexer };
-    auto ast = parser.testVariable();
+    auto _variable = parser.testVariable();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
@@ -333,8 +333,8 @@ TEST(AnalyzerTest, CheckVariableTypeMismatchError){
     analyzer.getAnalyzerContext().init("tmp", &scopeManager);
     analyzer.getAnalyzerContext().scopeManager->pushScope();
 
-    analyzer.testCheckVariable(ast.get());
-    ASSERT_TRUE(!analyzer.getAnalyzerContext().semanticErrors.empty());
+    analyzer.testCheckVariable(_variable.get());
+    ASSERT_FALSE(analyzer.getAnalyzerContext().semanticErrors.empty());
     ASSERT_TRUE(analyzer.getAnalyzerContext().semanticErrors[0].contains("type mismatch"));
     
     analyzer.getAnalyzerContext().scopeManager->popScope();
@@ -346,7 +346,7 @@ TEST(AnalyzerTest, CheckVariableAutoType){
     lexer.tokenize();
 
     ParserTest parser{ lexer };
-    auto ast = parser.testVariable();
+    auto _variable = parser.testVariable();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
@@ -355,7 +355,7 @@ TEST(AnalyzerTest, CheckVariableAutoType){
     analyzer.getAnalyzerContext().init("tmp", &scopeManager);
     analyzer.getAnalyzerContext().scopeManager->pushScope();
 
-    analyzer.testCheckVariable(ast.get());
+    analyzer.testCheckVariable(_variable.get());
     ASSERT_TRUE(analyzer.getAnalyzerContext().semanticErrors.empty());
     ASSERT_TRUE(analyzer.getAnalyzerContext().scopeManager->lookupSymbol("x", {Kinds::VAR}));
     ASSERT_EQ(analyzer.getAnalyzerContext().scopeManager->getSymbol("x").getType(), Types::UNSIGNED);
@@ -369,7 +369,7 @@ TEST(AnalyzerTest, CheckVariableAutoError){
     lexer.tokenize();
 
     ParserTest parser{ lexer };
-    auto ast = parser.testVariable();
+    auto _variable = parser.testVariable();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
@@ -378,8 +378,8 @@ TEST(AnalyzerTest, CheckVariableAutoError){
     analyzer.getAnalyzerContext().init("tmp", &scopeManager);
     analyzer.getAnalyzerContext().scopeManager->pushScope();
 
-    analyzer.testCheckVariable(ast.get());
-    ASSERT_TRUE(!analyzer.getAnalyzerContext().semanticErrors.empty());
+    analyzer.testCheckVariable(_variable.get());
+    ASSERT_FALSE(analyzer.getAnalyzerContext().semanticErrors.empty());
     ASSERT_TRUE(analyzer.getAnalyzerContext().semanticErrors[0].contains("deduction"));
     
     analyzer.getAnalyzerContext().scopeManager->popScope();
@@ -391,7 +391,7 @@ TEST(AnalyzerTest, CheckVariableUndefinedVariableError){
     lexer.tokenize();
 
     ParserTest parser{ lexer };
-    auto ast = parser.testVariable();
+    auto _variable = parser.testVariable();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
@@ -400,8 +400,8 @@ TEST(AnalyzerTest, CheckVariableUndefinedVariableError){
     analyzer.getAnalyzerContext().init("tmp", &scopeManager);
     analyzer.getAnalyzerContext().scopeManager->pushScope();
 
-    analyzer.testCheckVariable(ast.get());
-    ASSERT_TRUE(!analyzer.getAnalyzerContext().semanticErrors.empty());
+    analyzer.testCheckVariable(_variable.get());
+    ASSERT_FALSE(analyzer.getAnalyzerContext().semanticErrors.empty());
     ASSERT_TRUE(analyzer.getAnalyzerContext().semanticErrors[0].contains("undefined"));
     
     analyzer.getAnalyzerContext().scopeManager->popScope();
@@ -413,7 +413,7 @@ TEST(AnalyzerTest, ForStatement){
     lexer.tokenize();
 
     ParserTest parser{ lexer };
-    auto ast = parser.testForStatement();
+    auto _for = parser.testForStatement();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
@@ -423,7 +423,7 @@ TEST(AnalyzerTest, ForStatement){
     analyzer.getAnalyzerContext().scopeManager->pushScope();
     analyzer.getAnalyzerContext().scopeManager->pushSymbol(Symbol{"i", Kinds::VAR, Types::INT}); // initialize i;
 
-    analyzer.testCheckForStatement(ast.get());
+    analyzer.testCheckForStatement(_for.get());
     ASSERT_TRUE(analyzer.getAnalyzerContext().semanticErrors.empty());
 
     analyzer.getAnalyzerContext().scopeManager->popScope();
@@ -435,7 +435,7 @@ TEST(AnalyzerTest, ForStatementUndefVarError){
     lexer.tokenize();
 
     ParserTest parser{ lexer };
-    auto ast = parser.testForStatement();
+    auto _for = parser.testForStatement();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
@@ -444,8 +444,8 @@ TEST(AnalyzerTest, ForStatementUndefVarError){
     analyzer.getAnalyzerContext().init("tmp", &scopeManager);
     analyzer.getAnalyzerContext().scopeManager->pushScope();
 
-    analyzer.testCheckForStatement(ast.get());
-    ASSERT_TRUE(!analyzer.getAnalyzerContext().semanticErrors.empty());
+    analyzer.testCheckForStatement(_for.get());
+    ASSERT_FALSE(analyzer.getAnalyzerContext().semanticErrors.empty());
     ASSERT_TRUE(analyzer.getAnalyzerContext().semanticErrors[0].contains("undefined"));
     
     analyzer.getAnalyzerContext().scopeManager->popScope();
@@ -457,7 +457,7 @@ TEST(AnalyzerTest, ForStatementTypeMismatchError){
     lexer.tokenize();
 
     ParserTest parser{ lexer };
-    auto ast = parser.testForStatement();
+    auto _for = parser.testForStatement();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
@@ -467,8 +467,8 @@ TEST(AnalyzerTest, ForStatementTypeMismatchError){
     analyzer.getAnalyzerContext().scopeManager->pushScope();
     analyzer.getAnalyzerContext().scopeManager->pushSymbol(Symbol{"i", Kinds::VAR, Types::INT}); // initialize i;
 
-    analyzer.testCheckForStatement(ast.get());
-    ASSERT_TRUE(!analyzer.getAnalyzerContext().semanticErrors.empty());
+    analyzer.testCheckForStatement(_for.get());
+    ASSERT_FALSE(analyzer.getAnalyzerContext().semanticErrors.empty());
     ASSERT_TRUE(analyzer.getAnalyzerContext().semanticErrors[0].contains("type mismatch"));
     
     analyzer.getAnalyzerContext().scopeManager->popScope();
@@ -480,7 +480,7 @@ TEST(AnalyzerTest, SwitchStatement){
     lexer.tokenize();
 
     ParserTest parser{ lexer };
-    auto ast = parser.testSwitchStatement();
+    auto _switch = parser.testSwitchStatement();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
@@ -490,7 +490,7 @@ TEST(AnalyzerTest, SwitchStatement){
     analyzer.getAnalyzerContext().scopeManager->pushScope();
     analyzer.getAnalyzerContext().scopeManager->pushSymbol(Symbol{"x", Kinds::VAR, Types::INT}); // initialize x;
 
-    analyzer.testCheckSwitchStatement(ast.get());
+    analyzer.testCheckSwitchStatement(_switch.get());
     ASSERT_TRUE(analyzer.getAnalyzerContext().semanticErrors.empty());
     
     analyzer.getAnalyzerContext().scopeManager->popScope();   
@@ -502,7 +502,7 @@ TEST(AnalyzerTest, SwitchStatementTypeMismatchError){
     lexer.tokenize();
 
     ParserTest parser{ lexer };
-    auto ast = parser.testSwitchStatement();
+    auto _switch = parser.testSwitchStatement();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
@@ -512,8 +512,8 @@ TEST(AnalyzerTest, SwitchStatementTypeMismatchError){
     analyzer.getAnalyzerContext().scopeManager->pushScope();
     analyzer.getAnalyzerContext().scopeManager->pushSymbol(Symbol{"x", Kinds::VAR, Types::INT}); // initialize x;
 
-    analyzer.testCheckSwitchStatement(ast.get());
-    ASSERT_TRUE(!analyzer.getAnalyzerContext().semanticErrors.empty());
+    analyzer.testCheckSwitchStatement(_switch.get());
+    ASSERT_FALSE(analyzer.getAnalyzerContext().semanticErrors.empty());
     ASSERT_TRUE(analyzer.getAnalyzerContext().semanticErrors[0].contains("type mismatch"));
     
     analyzer.getAnalyzerContext().scopeManager->popScope();   
@@ -525,7 +525,7 @@ TEST(AnalyzerTest, SwitchStatementCaseDuplicateError){
     lexer.tokenize();
 
     ParserTest parser{ lexer };
-    auto ast = parser.testSwitchStatement();
+    auto _switch = parser.testSwitchStatement();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
@@ -535,8 +535,8 @@ TEST(AnalyzerTest, SwitchStatementCaseDuplicateError){
     analyzer.getAnalyzerContext().scopeManager->pushScope();
     analyzer.getAnalyzerContext().scopeManager->pushSymbol(Symbol{"x", Kinds::VAR, Types::INT}); // initialize x;
 
-    analyzer.testCheckSwitchStatement(ast.get());
-    ASSERT_TRUE(!analyzer.getAnalyzerContext().semanticErrors.empty());
+    analyzer.testCheckSwitchStatement(_switch.get());
+    ASSERT_FALSE(analyzer.getAnalyzerContext().semanticErrors.empty());
     ASSERT_TRUE(analyzer.getAnalyzerContext().semanticErrors[0].contains("duplicate case"));
     
     analyzer.getAnalyzerContext().scopeManager->popScope();   

@@ -16,7 +16,7 @@ Types Symbol::getType() const noexcept {
     return type;
 }
 
-ASTree* Symbol::getParameters() const noexcept {
+const std::vector<std::unique_ptr<ASTParameter>>* Symbol::getParameters() const noexcept {
     return parameters;
 }
 
@@ -32,11 +32,11 @@ void Symbol::setType(Types _type) noexcept {
     type = _type;
 }
 
-void Symbol::setParameters(ASTree* par) noexcept {
+void Symbol::setParameters(const std::vector<std::unique_ptr<ASTParameter>>* par) noexcept {
     parameters = par;
 }
 
 std::string Symbol::symbolToString() const {
     return std::format("| {:11} | {:3} | {:8} | {:1} |\n", 
-        name, kindToString.at(kind), typeToString.at(type), (parameters != nullptr ? parameters->getChildren().size() : 0));
+        name, kindToString.at(kind), typeToString.at(type), (parameters != nullptr ? parameters->size() : 0));
 }
