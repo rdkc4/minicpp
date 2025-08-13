@@ -10,10 +10,10 @@ TEST(ParserTest, ParseProgramSuccessful){
 
     const size_t expectedChildrenSize = 2;
 
-    std::unique_ptr<ASTree> _program;
+    std::unique_ptr<ASTProgram> _program;
     ASSERT_NO_THROW(_program = parser.parseProgram());
     ASSERT_EQ(_program->getNodeType(), ASTNodeType::PROGRAM);
-    ASSERT_EQ(_program->getChild(0)->getChildren().size(), expectedChildrenSize);
+    ASSERT_EQ(_program->getFunctionCount(), expectedChildrenSize);
 }
 
 TEST(ParserTest, ParseProgramThrows){
@@ -21,7 +21,7 @@ TEST(ParserTest, ParseProgramThrows){
     lexer.tokenize();
     ParserTest parser{ lexer };
 
-    std::unique_ptr<ASTree> _program;
+    std::unique_ptr<ASTProgram> _program;
     ASSERT_THROW(_program = parser.parseProgram(), std::runtime_error);
 }
 
@@ -32,10 +32,10 @@ TEST(ParserTest, FunctionMultipleParams){
 
     size_t expectedParamCount = 2;
 
-    std::unique_ptr<ASTree> _function;
+    std::unique_ptr<ASTFunction> _function;
     ASSERT_NO_THROW(_function = parser.testFunction());
     ASSERT_EQ(_function->getNodeType(), ASTNodeType::FUNCTION);
-    ASSERT_EQ(_function->getChild(0)->getChildren().size(), expectedParamCount);
+    ASSERT_EQ(_function->getParameterCount(), expectedParamCount);
 }
 
 TEST(ParserTest, FunctionSingleParam){
@@ -45,10 +45,10 @@ TEST(ParserTest, FunctionSingleParam){
 
     size_t expectedParamCount = 1;
 
-    std::unique_ptr<ASTree> _function;
+    std::unique_ptr<ASTFunction> _function;
     ASSERT_NO_THROW(_function = parser.testFunction());
     ASSERT_EQ(_function->getNodeType(), ASTNodeType::FUNCTION);
-    ASSERT_EQ(_function->getChild(0)->getChildren().size(), expectedParamCount);
+    ASSERT_EQ(_function->getParameterCount(), expectedParamCount);
 }
 
 TEST(ParserTest, FunctionNoParams){
@@ -58,10 +58,10 @@ TEST(ParserTest, FunctionNoParams){
 
     size_t expectedParamCount = 0;
 
-    std::unique_ptr<ASTree> _function;
+    std::unique_ptr<ASTFunction> _function;
     ASSERT_NO_THROW(_function = parser.testFunction());
     ASSERT_EQ(_function->getNodeType(), ASTNodeType::FUNCTION);
-    ASSERT_EQ(_function->getChild(0)->getChildren().size(), expectedParamCount);
+    ASSERT_EQ(_function->getParameterCount(), expectedParamCount);
 }
 
 TEST(ParserTest, FunctionNoBodyThrows){
@@ -69,7 +69,7 @@ TEST(ParserTest, FunctionNoBodyThrows){
     lexer.tokenize();
     ParserTest parser{ lexer };
 
-    std::unique_ptr<ASTree> _function;
+    std::unique_ptr<ASTFunction> _function;
     ASSERT_THROW(_function = parser.testFunction(), std::runtime_error);
 }
 
@@ -78,10 +78,10 @@ TEST(ParserTest, VariableDirectInit){
     lexer.tokenize();
     ParserTest parser{ lexer };
 
-    std::unique_ptr<ASTree> _variable;
+    std::unique_ptr<ASTVariable> _variable;
     ASSERT_NO_THROW(_variable = parser.testVariable());
     ASSERT_EQ(_variable->getNodeType(), ASTNodeType::VARIABLE);
-    ASSERT_TRUE(_variable->getChildren().size() == 1);
+    ASSERT_TRUE(_variable->hasAssign());
 }
 
 TEST(ParserTest, VariableNoInit){
@@ -90,10 +90,10 @@ TEST(ParserTest, VariableNoInit){
     ParserTest parser{ lexer };
 
 
-    std::unique_ptr<ASTree> _variable;
+    std::unique_ptr<ASTVariable> _variable;
     ASSERT_NO_THROW(_variable = parser.testVariable());
     ASSERT_EQ(_variable->getNodeType(), ASTNodeType::VARIABLE);
-    ASSERT_TRUE(_variable->getChildren().empty());
+    ASSERT_FALSE(_variable->hasAssign());
 }
 
 TEST(ParserTest, PrintfStatement){
@@ -102,7 +102,7 @@ TEST(ParserTest, PrintfStatement){
     ParserTest parser{ lexer };
 
 
-    std::unique_ptr<ASTree> _printf;
+    std::unique_ptr<ASTPrintfSt> _printf;
     ASSERT_NO_THROW(_printf = parser.testPrintfStatement());
     ASSERT_EQ(_printf->getNodeType(), ASTNodeType::PRINTF);
 }
@@ -114,10 +114,10 @@ TEST(ParserTest, EmptyCompoundStatement){
 
     const size_t expectedChildrenSize = 0;
 
-    std::unique_ptr<ASTree> _compound;
+    std::unique_ptr<ASTCompoundSt> _compound;
     ASSERT_NO_THROW(_compound = parser.testCompoundStatement());
     ASSERT_EQ(_compound->getNodeType(), ASTNodeType::COMPOUND_STATEMENT);
-    ASSERT_EQ(_compound->getChildren().size(), expectedChildrenSize);
+    ASSERT_EQ(_compound->getStatements().size(), expectedChildrenSize);
 }
 
 TEST(ParserTest, CompoundStatement){
@@ -127,10 +127,10 @@ TEST(ParserTest, CompoundStatement){
 
     const size_t expectedChildrenSize = 2;
 
-    std::unique_ptr<ASTree> _compound;
+    std::unique_ptr<ASTCompoundSt> _compound;
     ASSERT_NO_THROW(_compound = parser.testCompoundStatement());
     ASSERT_EQ(_compound->getNodeType(), ASTNodeType::COMPOUND_STATEMENT);
-    ASSERT_EQ(_compound->getChildren().size(), expectedChildrenSize);
+    ASSERT_EQ(_compound->getStatements().size(), expectedChildrenSize);
 }
 
 TEST(ParserTest, AssignmentStatement){
@@ -138,10 +138,10 @@ TEST(ParserTest, AssignmentStatement){
     lexer.tokenize();
     ParserTest parser{ lexer };
 
-    std::unique_ptr<ASTree> _assignment;
+    std::unique_ptr<ASTAssignSt> _assignment;
     ASSERT_NO_THROW(_assignment = parser.testAssignmentStatement());
     ASSERT_EQ(_assignment->getNodeType(), ASTNodeType::ASSIGNMENT_STATEMENT);
-    ASSERT_TRUE(!_assignment->getChildren().empty());
+    ASSERT_TRUE(_assignment->getExp()->getNodeType() == ASTNodeType::LITERAL);
 }
 
 TEST(ParserTest, ReturnStatementVoid){
@@ -149,10 +149,10 @@ TEST(ParserTest, ReturnStatementVoid){
     lexer.tokenize();
     ParserTest parser{ lexer };
 
-    std::unique_ptr<ASTree> _return;
+    std::unique_ptr<ASTReturnSt> _return;
     ASSERT_NO_THROW(_return = parser.testReturnStatement());
     ASSERT_EQ(_return->getNodeType(), ASTNodeType::RETURN_STATEMENT);
-    ASSERT_TRUE(_return->getChildren().empty());
+    ASSERT_FALSE(_return->returns());
 }
 
 TEST(ParserTest, ReturnStatement){
@@ -160,10 +160,10 @@ TEST(ParserTest, ReturnStatement){
     lexer.tokenize();
     ParserTest parser{ lexer };
 
-    std::unique_ptr<ASTree> _return;
+    std::unique_ptr<ASTReturnSt> _return;
     ASSERT_NO_THROW(_return = parser.testReturnStatement());
     ASSERT_EQ(_return->getNodeType(), ASTNodeType::RETURN_STATEMENT);
-    ASSERT_TRUE(!_return->getChildren().empty());
+    ASSERT_TRUE(_return->returns());
 }
 
 TEST(ParserTest, IfStatementOnlyIf){
@@ -171,12 +171,12 @@ TEST(ParserTest, IfStatementOnlyIf){
     lexer.tokenize();
     ParserTest parser{ lexer };
 
-    const size_t expectedChildrenSize = 2;
+    const size_t expectedIfs = 1;
 
-    std::unique_ptr<ASTree> _if;
+    std::unique_ptr<ASTIfSt> _if;
     ASSERT_NO_THROW(_if = parser.testIfStatement());
     ASSERT_EQ(_if->getNodeType(), ASTNodeType::IF_STATEMENT);
-    ASSERT_EQ(_if->getChildren().size(), expectedChildrenSize);
+    ASSERT_EQ(_if->getConditions().size(), expectedIfs);
 }
 
 TEST(ParserTest, IfStatementIfElse){
@@ -184,12 +184,13 @@ TEST(ParserTest, IfStatementIfElse){
     lexer.tokenize();
     ParserTest parser{ lexer };
 
-    const size_t expectedChildrenSize = 3;
+    const size_t expectedElementCount = 2;
 
-    std::unique_ptr<ASTree> _if;
+    std::unique_ptr<ASTIfSt> _if;
     ASSERT_NO_THROW(_if = parser.testIfStatement());
     ASSERT_EQ(_if->getNodeType(), ASTNodeType::IF_STATEMENT);
-    ASSERT_EQ(_if->getChildren().size(), expectedChildrenSize);
+    ASSERT_EQ(_if->getStatements().size(), expectedElementCount);
+    ASSERT_TRUE(_if->hasElse());
 }
 
 TEST(ParserTest, IfStatementIfElseif){
@@ -197,12 +198,12 @@ TEST(ParserTest, IfStatementIfElseif){
     lexer.tokenize();
     ParserTest parser{ lexer };
 
-    const size_t expectedChildrenSize = 4;
+    const size_t expectedIfs = 2;
 
-    std::unique_ptr<ASTree> _if;
+    std::unique_ptr<ASTIfSt> _if;
     ASSERT_NO_THROW(_if = parser.testIfStatement());
     ASSERT_EQ(_if->getNodeType(), ASTNodeType::IF_STATEMENT);
-    ASSERT_EQ(_if->getChildren().size(), expectedChildrenSize);
+    ASSERT_EQ(_if->getConditions().size(), expectedIfs);
 }
 
 TEST(ParserTest, IfStatementIfElseifElse){
@@ -210,12 +211,13 @@ TEST(ParserTest, IfStatementIfElseifElse){
     lexer.tokenize();
     ParserTest parser{ lexer };
 
-    const size_t expectedChildrenSize = 5;
+    const size_t expectedElementCount = 3;
 
-    std::unique_ptr<ASTree> _if;
+    std::unique_ptr<ASTIfSt> _if;
     ASSERT_NO_THROW(_if = parser.testIfStatement());
     ASSERT_EQ(_if->getNodeType(), ASTNodeType::IF_STATEMENT);
-    ASSERT_EQ(_if->getChildren().size(), expectedChildrenSize);
+    ASSERT_EQ(_if->getStatements().size(), expectedElementCount);
+    ASSERT_TRUE(_if->hasElse());
 }
 
 TEST(ParserTest, WhileStatement){
@@ -223,12 +225,9 @@ TEST(ParserTest, WhileStatement){
     lexer.tokenize();
     ParserTest parser{ lexer };
 
-    const size_t expectedChildrenSize = 2;
-
-    std::unique_ptr<ASTree> _while;
+    std::unique_ptr<ASTWhileSt> _while;
     ASSERT_NO_THROW(_while = parser.testWhileStatement());
     ASSERT_EQ(_while->getNodeType(), ASTNodeType::WHILE_STATEMENT);
-    ASSERT_EQ(_while->getChildren().size(), expectedChildrenSize);
 }
 
 TEST(ParserTest, ForStatement){
@@ -236,12 +235,12 @@ TEST(ParserTest, ForStatement){
     lexer.tokenize();
     ParserTest parser{ lexer };
 
-    const size_t expectedChildrenSize = 4;
-
-    std::unique_ptr<ASTree> _for;
+    std::unique_ptr<ASTForSt> _for;
     ASSERT_NO_THROW(_for = parser.testForStatement());
     ASSERT_EQ(_for->getNodeType(), ASTNodeType::FOR_STATEMENT);
-    ASSERT_EQ(_for->getChildren().size(), expectedChildrenSize);   
+    ASSERT_TRUE(_for->hasInitializer());
+    ASSERT_TRUE(_for->hasCondition());
+    ASSERT_TRUE(_for->hasIncrementer());
 }
 
 TEST(ParserTest, DoWhileStatement){
@@ -249,12 +248,9 @@ TEST(ParserTest, DoWhileStatement){
     lexer.tokenize();
     ParserTest parser{ lexer };
 
-    const size_t expectedChildrenSize = 2;
-
-    std::unique_ptr<ASTree> _dowhile;
+    std::unique_ptr<ASTDoWhileSt> _dowhile;
     ASSERT_NO_THROW(_dowhile = parser.testDoWhileStatement());
     ASSERT_EQ(_dowhile->getNodeType(), ASTNodeType::DO_WHILE_STATEMENT);
-    ASSERT_EQ(_dowhile->getChildren().size(), expectedChildrenSize);   
 }
 
 TEST(ParserTest, SwitchStatement){
@@ -262,12 +258,13 @@ TEST(ParserTest, SwitchStatement){
     lexer.tokenize();
     ParserTest parser{ lexer };
 
-    const size_t expectedChildrenSize = 3;
+    const size_t caseCount = 1;
 
-    std::unique_ptr<ASTree> _switch;
+    std::unique_ptr<ASTSwitchSt> _switch;
     ASSERT_NO_THROW(_switch = parser.testSwitchStatement());
     ASSERT_EQ(_switch->getNodeType(), ASTNodeType::SWITCH_STATEMENT);
-    ASSERT_EQ(_switch->getChildren().size(), expectedChildrenSize);   
+    ASSERT_EQ(_switch->getCases().size(), caseCount);
+    ASSERT_TRUE(_switch->hasDefault());  
 }
 
 TEST(ParserTest, SwitchStatementNoDefault){
@@ -275,12 +272,13 @@ TEST(ParserTest, SwitchStatementNoDefault){
     lexer.tokenize();
     ParserTest parser{ lexer };
 
-    const size_t expectedChildrenSize = 2;
+    const size_t caseCount = 1;
 
-    std::unique_ptr<ASTree> _switch;
+    std::unique_ptr<ASTSwitchSt> _switch;
     ASSERT_NO_THROW(_switch = parser.testSwitchStatement());
     ASSERT_EQ(_switch->getNodeType(), ASTNodeType::SWITCH_STATEMENT);
-    ASSERT_EQ(_switch->getChildren().size(), expectedChildrenSize);   
+    ASSERT_EQ(_switch->getCases().size(), caseCount);
+    ASSERT_FALSE(_switch->hasDefault());   
 }
 
 TEST(ParserTest, SwitchStatementNoCaseThrows){
@@ -289,7 +287,7 @@ TEST(ParserTest, SwitchStatementNoCaseThrows){
     ParserTest parser{ lexer };
 
 
-    std::unique_ptr<ASTree> _switch;
+    std::unique_ptr<ASTSwitchSt> _switch;
     ASSERT_THROW(_switch = parser.testSwitchStatement(), std::runtime_error);
 }
 
@@ -298,13 +296,10 @@ TEST(ParserTest, NumericalExpression){
     lexer.tokenize();
     ParserTest parser{ lexer };
 
-    const size_t expectedChildrenSize = 2;
-
-    std::unique_ptr<ASTree> _numexp;
+    std::unique_ptr<ASTExpression> _numexp;
     ASSERT_NO_THROW(_numexp = parser.testNumericalExpression());
-    ASSERT_EQ(_numexp->getNodeType(), ASTNodeType::NUMERICAL_EXPRESSION);
-    ASSERT_EQ(_numexp->getChildren().size(), expectedChildrenSize);
-    ASSERT_EQ(_numexp->getToken().value, "+");
+    ASSERT_EQ(_numexp->getNodeType(), ASTNodeType::BINARY_EXPRESSION);
+    ASSERT_EQ(static_cast<ASTBinaryExpression*>(_numexp.get())->getOperator(), Operators::ADD);
 }
 
 TEST(ParserTest, RelationalExpression){
@@ -312,13 +307,10 @@ TEST(ParserTest, RelationalExpression){
     lexer.tokenize();
     ParserTest parser{ lexer };
 
-    const size_t expectedChildrenSize = 2;
-
-    std::unique_ptr<ASTree> _numexp;
-    ASSERT_NO_THROW(_numexp = parser.testRelationalExpression());
-    ASSERT_EQ(_numexp->getNodeType(), ASTNodeType::RELATIONAL_EXPRESSION);
-    ASSERT_EQ(_numexp->getChildren().size(), expectedChildrenSize);
-    ASSERT_EQ(_numexp->getToken().value, ">");
+    std::unique_ptr<ASTExpression> _relexp;
+    ASSERT_NO_THROW(_relexp = parser.testRelationalExpression());
+    ASSERT_EQ(_relexp->getNodeType(), ASTNodeType::BINARY_EXPRESSION);
+    ASSERT_EQ(static_cast<ASTBinaryExpression*>(_relexp.get())->getOperator(), Operators::GREATER);
 }
 
 TEST(ParserTest, FunctionCallNoArgs){
@@ -326,10 +318,10 @@ TEST(ParserTest, FunctionCallNoArgs){
     lexer.tokenize();
     ParserTest parser{ lexer };
 
-    std::unique_ptr<ASTree> _functionCall;
+    std::unique_ptr<ASTFunctionCall> _functionCall;
     ASSERT_NO_THROW(_functionCall = parser.testFunctionCall());
     ASSERT_EQ(_functionCall->getNodeType(), ASTNodeType::FUNCTION_CALL);
-    ASSERT_TRUE(_functionCall->getChild(0)->getChildren().empty());
+    ASSERT_TRUE(_functionCall->getArgumentCount() == 0);
     ASSERT_EQ(_functionCall->getToken().value, "fun");
 }
 
@@ -338,12 +330,12 @@ TEST(ParserTest, FunctionCallSingleArg){
     lexer.tokenize();
     ParserTest parser{ lexer };
 
-    const size_t expectedChildrenSize = 1;
+    const size_t argumentCount = 1;
 
-    std::unique_ptr<ASTree> _functionCall;
+    std::unique_ptr<ASTFunctionCall> _functionCall;
     ASSERT_NO_THROW(_functionCall = parser.testFunctionCall());
     ASSERT_EQ(_functionCall->getNodeType(), ASTNodeType::FUNCTION_CALL);
-    ASSERT_EQ(_functionCall->getChild(0)->getChildren().size(), expectedChildrenSize);
+    ASSERT_EQ(_functionCall->getArgumentCount(), argumentCount);
     ASSERT_EQ(_functionCall->getToken().value, "fun");
 }
 
@@ -352,12 +344,12 @@ TEST(ParserTest, FunctionCallMultipleArgs){
     lexer.tokenize();
     ParserTest parser{ lexer };
 
-    const size_t expectedChildrenSize = 2;
+    const size_t argumentCount = 2;
 
-    std::unique_ptr<ASTree> _functionCall;
+    std::unique_ptr<ASTFunctionCall> _functionCall;
     ASSERT_NO_THROW(_functionCall = parser.testFunctionCall());
     ASSERT_EQ(_functionCall->getNodeType(), ASTNodeType::FUNCTION_CALL);
-    ASSERT_EQ(_functionCall->getChild(0)->getChildren().size(), expectedChildrenSize);
+    ASSERT_EQ(_functionCall->getArgumentCount(), argumentCount);
     ASSERT_EQ(_functionCall->getToken().value, "fun");
 }
 
@@ -366,6 +358,6 @@ TEST(ParserTest, FunctionCallInvalidArgs){
     lexer.tokenize();
     ParserTest parser{ lexer };
 
-    std::unique_ptr<ASTree> _functionCall;
+    std::unique_ptr<ASTFunctionCall> _functionCall;
     ASSERT_THROW(_functionCall = parser.testFunctionCall(), std::runtime_error);
 }

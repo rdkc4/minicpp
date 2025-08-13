@@ -67,27 +67,22 @@ void AsmGenerator::genNewLine(std::vector<std::string>& asmCode){
 }
 
 void AsmGenerator::printfFunction(std::vector<std::string>& printfFunc){
-    genNewLine(printfFunc);
     genLabel(printfFunc, "_printf");
     genFuncPrologue(printfFunc);
     genOperation(printfFunc, "sub", "$32", "%rsp");
     genOperation(printfFunc, "lea", "31(%rsp), %rsi");
 
-    genNewLine(printfFunc);
     genMov(printfFunc, "%rax", "%r9");
     genMov(printfFunc, "$10", "%rcx");
     genMov(printfFunc, "$0", "%rbx");
-    genNewLine(printfFunc);
 
     genOperation(printfFunc, "cmp", "$0", "%r9");
     genJmp(printfFunc, "jne", "_printf_loop");
-    genNewLine(printfFunc);
 
     genMov(printfFunc, "$'0'", "-1(%rsi)", "b");
     genOperation(printfFunc, "dec", "%rsi");
     genOperation(printfFunc, "inc", "%rbx");
     genJmp(printfFunc, "jmp", "_printf_done");
-    genNewLine(printfFunc);
 
     genLabel(printfFunc, "_printf_loop");
     genOperation(printfFunc, "xor", "%rdx", "%rdx");
@@ -100,19 +95,16 @@ void AsmGenerator::printfFunction(std::vector<std::string>& printfFunc){
     genMov(printfFunc, "%rax", "%r9");
     genOperation(printfFunc, "test", "%rax", "%rax");
     genJmp(printfFunc, "jnz", "_printf_loop");
-    genNewLine(printfFunc);
 
     genLabel(printfFunc, "_printf_done");
     genOperation(printfFunc, "dec", "%rsi");
     genMov(printfFunc,"$'\\n'", "(%rsi)", "b");
     genOperation(printfFunc, "inc", "%rbx");
-    genNewLine(printfFunc);
 
     genMov(printfFunc, "$1", "%rax");
     genMov(printfFunc, "$1", "%rdi");
     genMov(printfFunc, "%rbx", "%rdx");
     printfFunc.push_back("\tsyscall\n");
-    genNewLine(printfFunc);
     
     genFuncEpilogue(printfFunc);
     genRet(printfFunc);

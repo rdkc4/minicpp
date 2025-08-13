@@ -11,17 +11,18 @@
 
 #include "../thread-pool/thread_pool.hpp"
 #include "defs/ir_defs.hpp"
+#include "../common/abstract-syntax-tree/ASTBinaryExpression.hpp"
+#include "../common/intermediate-representation-tree/IRParameter.hpp"
 
 IntermediateRepresentation::IntermediateRepresentation() = default;
 
 thread_local IRThreadContext IntermediateRepresentation::irContext;
 
-std::unique_ptr<IRTree> IntermediateRepresentation::formIR(const ASTree* _root){
-    std::unique_ptr<IRTree> root = std::make_unique<IRTree>(IRNodeType::PROGRAM);
-    const ASTree* _functionList = _root->getChild(0);
+std::unique_ptr<IRProgram> IntermediateRepresentation::formIR(const ASTProgram* _program){
+    std::unique_ptr<IRProgram> _irProgram = std::make_unique<IRProgram>(IRNodeType::PROGRAM);
     
-    size_t total = _functionList->getChildren().size();
-    root->resizeChildren(total);
+    const size_t total = _program->getFunctionCount();
+    _irProgram->resizeFunctions(total);
 
     std::atomic<size_t> done{};
     std::condition_variable doneCv;
@@ -31,14 +32,14 @@ std::unique_ptr<IRTree> IntermediateRepresentation::formIR(const ASTree* _root){
     std::mutex irMtx;
 
     for(size_t i = 0; i < total; ++i){
-        threadPool.enqueue([&, root=root.get(), i, _function=_functionList->getChild(i)]{
+        threadPool.enqueue([&, _irProgram=_irProgram.get(), i, _function=_program->getFunctionAtN(i)]{
             // generating ir of a function
-            std::unique_ptr<IRTree> _irFunction = function(_function);
+            std::unique_ptr<IRFunction> _irFunction = function(_function);
 
             {
                 // setting function on its position
                 std::lock_guard<std::mutex> lock(irMtx);
-                root->setChild(std::move(_irFunction), i);
+                _irProgram->setFunctionAtN(std::move(_irFunction), i);
             }
 
             // check if all ir functions are generated
@@ -54,15 +55,15 @@ std::unique_ptr<IRTree> IntermediateRepresentation::formIR(const ASTree* _root){
         doneCv.wait(lock, [&]{ return done == total; });
     }
 
-    checkErrors(_functionList);
+    checkErrors(_irProgram.get());
 
-    return root;
+    return _irProgram;
 }
 
-void IntermediateRepresentation::checkErrors(const ASTree* _functionList) const {
+void IntermediateRepresentation::checkErrors(const IRProgram* _program) const {
     std::string errors{""};
-    for(const auto& _function : _functionList->getChildren()){
-        const std::vector<std::string>& funcErrors = exceptions.at(_function->getToken().value);
+    for(const auto& _function : _program->getFunctions()){
+        const std::vector<std::string>& funcErrors = exceptions.at(_function->getFunctionName());
         for(const auto& err : funcErrors){
             errors += std::format("{}\n", err);
         }
@@ -72,28 +73,21 @@ void IntermediateRepresentation::checkErrors(const ASTree* _functionList) const 
     }
 }
 
-std::unique_ptr<IRTree> IntermediateRepresentation::function(const ASTree* _function){
-    std::unique_ptr<IRTree> _irFunction = 
-        std::make_unique<IRTree>(_function->getToken().value, "", _function->getType(), IRNodeType::FUNCTION);
+std::unique_ptr<IRFunction> IntermediateRepresentation::function(const ASTFunction* _function){
+    std::unique_ptr<IRFunction> _irFunction = 
+        std::make_unique<IRFunction>(IRNodeType::FUNCTION, _function->getToken().value, _function->getType());
     
     irContext.init();
 
-    _irFunction->pushChild(parameter(_function->getChild(0)));
-
-    for(const auto& _construct : _function->getChild(1)->getChildren()){
-        _irFunction->pushChild(construct(_construct.get()));
-        // ignore all constructs after return statement
-        if(_irFunction->getChildren().back()->getNodeType() == IRNodeType::RETURN){
-            break;
-        }
-    }
+    parameter(_irFunction.get(), _function->getParameters());
+    body(_irFunction.get(), _function->getBody());
 
     eliminateDeadCode(_irFunction.get());
 
-    countVariables(_irFunction.get());
     // bytes allocated for local variables
+    countVariables(_irFunction.get());
     std::string varCountStr{ std::to_string(irContext.requiredMemory(regSize)) };
-    _irFunction->setValue(varCountStr);
+    _irFunction->setRequiredMemory(varCountStr);
 
     {
         // pairing function name with its errors
@@ -106,52 +100,45 @@ std::unique_ptr<IRTree> IntermediateRepresentation::function(const ASTree* _func
     return _irFunction;
 }
 
-std::unique_ptr<IRTree> IntermediateRepresentation::parameter(const ASTree* _parameters) const {
-    std::unique_ptr<IRTree> _irParameters = std::make_unique<IRTree>(IRNodeType::PARAMETER);
-    for(const auto& _parameter : _parameters->getChildren()){
-        _irParameters->pushChild(std::make_unique<IRTree>(std::string{_parameter->getToken().value}, "0", _parameter->getType(), IRNodeType::ID));
-    }
-    return _irParameters;
-}
-
-std::unique_ptr<IRTree> IntermediateRepresentation::construct(const ASTree* _construct){
-    if(_construct->getNodeType() == ASTNodeType::VARIABLE){
-        return variable(_construct);
-    }
-    else{
-        return statement(_construct);
+void IntermediateRepresentation::parameter(IRFunction* _irFunction, const std::vector<std::unique_ptr<ASTParameter>>& _parameters){
+    for(const auto& _parameter : _parameters){
+        _irFunction->addParameter(std::make_unique<IRParameter>(IRNodeType::PARAMETER, _parameter->getToken().value, _parameter->getType()));
     }
 }
 
-std::unique_ptr<IRTree> IntermediateRepresentation::variable(const ASTree* _variable){
-    std::unique_ptr<IRTree> _irVariable = std::make_unique<IRTree>(std::string{_variable->getToken().value}, "0", _variable->getType(), IRNodeType::VARIABLE);
-    if(_variable->getChildren().size() != 0){
-        _irVariable->pushChild(assignmentStatement(_variable->getChild(0)));
-    }
+void IntermediateRepresentation::body(IRFunction* _irFunction, const std::vector<std::unique_ptr<ASTStatement>>& _body){
+    for(const auto& _statement : _body){
+        _irFunction->addStatement(statement(_statement.get()));
 
-    return _irVariable;
+        // ignore all constructs after return statement
+        if(_statement->getNodeType() == ASTNodeType::RETURN_STATEMENT){
+            break;
+        }
+    }
 }
 
-std::unique_ptr<IRTree> IntermediateRepresentation::statement(const ASTree* _statement){
+std::unique_ptr<IRStatement> IntermediateRepresentation::statement(const ASTStatement* _statement){
     switch(_statement->getNodeType()){
+        case ASTNodeType::VARIABLE:
+            return variable(static_cast<const ASTVariable*>(_statement));
         case ASTNodeType::PRINTF:
-            return printfStatement(_statement);
+            return printfStatement(static_cast<const ASTPrintfSt*>(_statement));
         case ASTNodeType::IF_STATEMENT:
-            return ifStatement(_statement);
+            return ifStatement(static_cast<const ASTIfSt*>(_statement));
         case ASTNodeType::COMPOUND_STATEMENT:
-            return compoundStatement(_statement);
+            return compoundStatement(static_cast<const ASTCompoundSt*>(_statement));
         case ASTNodeType::ASSIGNMENT_STATEMENT:
-            return assignmentStatement(_statement);
+            return assignmentStatement(static_cast<const ASTAssignSt*>(_statement));
         case ASTNodeType::RETURN_STATEMENT:
-            return returnStatement(_statement);
+            return returnStatement(static_cast<const ASTReturnSt*>(_statement));
         case ASTNodeType::WHILE_STATEMENT:
-            return whileStatement(_statement);
+            return whileStatement(static_cast<const ASTWhileSt*>(_statement));
         case ASTNodeType::FOR_STATEMENT:
-            return forStatement(_statement);
+            return forStatement(static_cast<const ASTForSt*>(_statement));
         case ASTNodeType::DO_WHILE_STATEMENT:
-            return doWhileStatement(_statement);
+            return doWhileStatement(static_cast<const ASTDoWhileSt*>(_statement));
         case ASTNodeType::SWITCH_STATEMENT:
-            return switchStatement(_statement);
+            return switchStatement(static_cast<const ASTSwitchSt*>(_statement));
         default:
             // unreachable, added just to suppress warnings
             irContext.errors.push_back(
@@ -162,344 +149,345 @@ std::unique_ptr<IRTree> IntermediateRepresentation::statement(const ASTree* _sta
     }
 }
 
-std::unique_ptr<IRTree> IntermediateRepresentation::printfStatement(const ASTree* _printf){
-    std::unique_ptr<IRTree> _irPrintf = std::make_unique<IRTree>(IRNodeType::PRINTF);
+std::unique_ptr<IRVariable> IntermediateRepresentation::variable(const ASTVariable* _variable){
+    std::unique_ptr<IRVariable> _irVariable = std::make_unique<IRVariable>(IRNodeType::VARIABLE, _variable->getToken().value, _variable->getType());
+    if(_variable->hasAssign()){
+        auto temps{ initiateTemporaries(_variable->getAssign()) };
+        _irVariable->setAssign(numericalExpression(_variable->getAssign()), std::move(temps));
+    }
+    return _irVariable;
+}
+
+std::unique_ptr<IRPrintfSt> IntermediateRepresentation::printfStatement(const ASTPrintfSt* _printf){
+    std::unique_ptr<IRPrintfSt> _irPrintf = std::make_unique<IRPrintfSt>(IRNodeType::PRINTF);
 
     // extracting function calls to temporary variables
-    auto temps{ initiateTemporaries(_printf->getChild(0)) };
-    if(temps){
-        _irPrintf->pushChild(std::move(temps));
-    }
-    _irPrintf->pushChild(numericalExpression(_printf->getChild(0)));
+    auto temps{ initiateTemporaries(_printf->getExp()) };
+    _irPrintf->setExp(numericalExpression(_printf->getExp()), std::move(temps));
 
     return _irPrintf;
 }
 
-std::unique_ptr<IRTree> IntermediateRepresentation::ifStatement(const ASTree* _if){
-    std::unique_ptr<IRTree> _irIf = std::make_unique<IRTree>(IRNodeType::IF);
-    for(const auto& child : _if->getChildren()){
-        if(child->getNodeType() == ASTNodeType::RELATIONAL_EXPRESSION){
-            _irIf->pushChild(relationalExpression(child.get()));
-        }
-        else{
-            _irIf->pushChild(construct(child.get()));
-        }
+std::unique_ptr<IRIfSt> IntermediateRepresentation::ifStatement(const ASTIfSt* _if){
+    std::unique_ptr<IRIfSt> _irIf = std::make_unique<IRIfSt>(IRNodeType::IF);
+    const auto& conditions = _if->getConditions();
+    const auto& statements = _if->getStatements();
+
+    const size_t conditionCount = conditions.size();
+
+    for(size_t i = 0; i < conditionCount; ++i){
+        auto temps{ initiateTemporaries(conditions[i].get()) };
+        _irIf->addIf(relationalExpression(conditions[i].get()), statement(statements[i].get()), std::move(temps));
     }
+
+    if(conditionCount != statements.size()){
+        _irIf->addElse(statement(statements.back().get()));
+    }
+
     return _irIf;
 }
 
-std::unique_ptr<IRTree> IntermediateRepresentation::compoundStatement(const ASTree* _compound){
-    std::unique_ptr<IRTree> _irCompound = std::make_unique<IRTree>(IRNodeType::COMPOUND);
-    for(const auto& _construct : _compound->getChildren()){
-        _irCompound->pushChild(construct(_construct.get()));
+std::unique_ptr<IRCompoundSt> IntermediateRepresentation::compoundStatement(const ASTCompoundSt* _compound){
+    std::unique_ptr<IRCompoundSt> _irCompound = std::make_unique<IRCompoundSt>(IRNodeType::COMPOUND);
+    for(const auto& _statement : _compound->getStatements()){
+        _irCompound->addStatement(statement(_statement.get()));
+
         // ignore all constructs after return statement
-        if(_irCompound->getChildren().back()->getNodeType() == IRNodeType::RETURN){
+        if(_statement->getNodeType() == ASTNodeType::RETURN_STATEMENT){
             break;
         }
     }
     return _irCompound;
 }
 
-std::unique_ptr<IRTree> IntermediateRepresentation::assignmentStatement(const ASTree* _assignment){
-    std::unique_ptr<IRTree> _irAssignment = std::make_unique<IRTree>(IRNodeType::ASSIGN);
+std::unique_ptr<IRAssignSt> IntermediateRepresentation::assignmentStatement(const ASTAssignSt* _assignment){
+    std::unique_ptr<IRAssignSt> _irAssignment = std::make_unique<IRAssignSt>(IRNodeType::ASSIGN);
 
     // extracting function calls to temporary variables
-    auto temps{ initiateTemporaries(_assignment->getChild(1)) };
-    if(temps){
-        _irAssignment->pushChild(std::move(temps));
-    }
-    
-    _irAssignment->pushChild(id(_assignment->getChild(0)));
-    _irAssignment->pushChild(numericalExpression(_assignment->getChild(1)));
+    auto temps{ initiateTemporaries(_assignment->getExp()) };
+    _irAssignment->setAssignSt(id(_assignment->getVariable()), numericalExpression(_assignment->getExp()), std::move(temps));
+
     return _irAssignment;
 }
 
-std::unique_ptr<IRTree> IntermediateRepresentation::returnStatement(const ASTree* _return){
-    std::unique_ptr<IRTree> _irReturn = std::make_unique<IRTree>(IRNodeType::RETURN);
-    if(_return->getChildren().size() != 0){
+std::unique_ptr<IRReturnSt> IntermediateRepresentation::returnStatement(const ASTReturnSt* _return){
+    std::unique_ptr<IRReturnSt> _irReturn = std::make_unique<IRReturnSt>(IRNodeType::RETURN);
+    if(_return->returns()){
         // extracting function calls to temporary variables
-        auto temps{ initiateTemporaries(_return->getChild(0)) };
-        if(temps){
-            _irReturn->pushChild(std::move(temps));
-        }
+        auto temps{ initiateTemporaries(_return->getExp()) };
 
-        _irReturn->pushChild(numericalExpression(_return->getChild(0)));
+        _irReturn->setExp(numericalExpression(_return->getExp()), std::move(temps));
     }
     return _irReturn;
 }
 
-std::unique_ptr<IRTree> IntermediateRepresentation::whileStatement(const ASTree* _while){
-    std::unique_ptr<IRTree> _irWhile = std::make_unique<IRTree>(IRNodeType::WHILE);
-    _irWhile->pushChild(relationalExpression(_while->getChild(0)));
-    _irWhile->pushChild(construct(_while->getChild(1)));
+std::unique_ptr<IRWhileSt> IntermediateRepresentation::whileStatement(const ASTWhileSt* _while){
+    std::unique_ptr<IRWhileSt> _irWhile = std::make_unique<IRWhileSt>(IRNodeType::WHILE);
+    auto temps{ initiateTemporaries(_while->getCondition()) };
+    _irWhile->setWhileSt(relationalExpression(_while->getCondition()), statement(_while->getStatement()), std::move(temps));
+
     return _irWhile;
 }
 
-std::unique_ptr<IRTree> IntermediateRepresentation::forStatement(const ASTree* _for){
-    std::unique_ptr<IRTree> _irFor = std::make_unique<IRTree>(IRNodeType::FOR);
-    _irFor->pushChild(assignmentStatement(_for->getChild(0)));
-    _irFor->pushChild(relationalExpression(_for->getChild(1)));
-    _irFor->pushChild(assignmentStatement(_for->getChild(2)));
-    _irFor->pushChild(construct(_for->getChild(3)));
+std::unique_ptr<IRForSt> IntermediateRepresentation::forStatement(const ASTForSt* _for){
+    std::unique_ptr<IRForSt> _irFor = std::make_unique<IRForSt>(IRNodeType::FOR);
+    
+    std::unique_ptr<IRAssignSt> init{ nullptr }, inc{ nullptr };
+    std::unique_ptr<IRExpression> condition{ nullptr };
+    std::unique_ptr<IRTemporary> temps{ nullptr };
+
+    if(_for->hasInitializer()){
+        init = assignmentStatement(_for->getInitializer());
+    }
+    if(_for->hasCondition()){
+        temps = initiateTemporaries(_for->getCondition());
+        condition = relationalExpression(_for->getCondition());
+    }
+    if(_for->hasIncrementer()){
+        inc = assignmentStatement(_for->getIncrementer());
+    }
+
+    _irFor->setForSt(std::move(init), std::move(condition), std::move(inc), statement(_for->getStatement()), std::move(temps));
 
     return _irFor;
 }
 
-std::unique_ptr<IRTree> IntermediateRepresentation::doWhileStatement(const ASTree* _dowhile){
-    std::unique_ptr<IRTree> _irDowhile = std::make_unique<IRTree>(IRNodeType::DO_WHILE);
-    _irDowhile->pushChild(construct(_dowhile->getChild(0)));
-    _irDowhile->pushChild(relationalExpression(_dowhile->getChild(1)));
+std::unique_ptr<IRDoWhileSt> IntermediateRepresentation::doWhileStatement(const ASTDoWhileSt* _dowhile){
+    std::unique_ptr<IRDoWhileSt> _irDowhile = std::make_unique<IRDoWhileSt>(IRNodeType::DO_WHILE);
+    auto temps{ initiateTemporaries(_dowhile->getCondition()) };
+    _irDowhile->setDoWhileSt(relationalExpression(_dowhile->getCondition()), statement(_dowhile->getStatement()), std::move(temps));
 
     return _irDowhile;
 }
 
-std::unique_ptr<IRTree> IntermediateRepresentation::switchStatement(const ASTree* _switch){
-    std::unique_ptr<IRTree> _irSwitch = std::make_unique<IRTree>(IRNodeType::SWITCH);
-    _irSwitch->pushChild(id(_switch->getChild(0)));
-    for(size_t i = 1; i < _switch->getChildren().size(); i++){
-        ASTree* _astCase = _switch->getChild(i);
-        if(_astCase->getNodeType() == ASTNodeType::CASE){
-            _irSwitch->pushChild(_case(_astCase));
-        }
-        else{
-            _irSwitch->pushChild(_default(_astCase));
-        }
+std::unique_ptr<IRSwitchSt> IntermediateRepresentation::switchStatement(const ASTSwitchSt* _switch){
+    std::unique_ptr<IRSwitchSt> _irSwitch = std::make_unique<IRSwitchSt>(IRNodeType::SWITCH);
+
+    _irSwitch->setVariable(id(_switch->getVariable()));
+
+    for(const auto& _swCase : _switch->getCases()){
+        _irSwitch->addCase(_case(_swCase.get()));
     }
+    
+    if(_switch->hasDefault()){
+        _irSwitch->setDefault(_default(_switch->getDefault()));
+    }
+
     return _irSwitch;
 }
 
-std::unique_ptr<IRTree> IntermediateRepresentation::_case(const ASTree* _astCase){
-    std::unique_ptr<IRTree> _irCase = std::make_unique<IRTree>(IRNodeType::CASE);
-    _irCase->pushChild(literal(_astCase->getChild(0)));
-    for(const auto& _construct : _astCase->getChild(1)->getChildren()){
-        _irCase->pushChild(construct(_construct.get()));
-        // ignore all constructs (including break) after return statement
-        if(_irCase->getChildren().back()->getNodeType() == IRNodeType::RETURN){
-            return _irCase;
-        }
-    }
-    if(_astCase->getChildren().size() == 3){
-        _irCase->pushChild(_break());
-    }
+std::unique_ptr<IRCaseSt> IntermediateRepresentation::_case(const ASTCaseSt* _astCase){
+    std::unique_ptr<IRCaseSt> _irCase = std::make_unique<IRCaseSt>(IRNodeType::CASE);
+    _irCase->setCase(literal(_astCase->getLiteral()), switchBlock(_astCase->getSwitchBlock()), _astCase->hasBreak());
+
     return _irCase;
 }
 
-std::unique_ptr<IRTree> IntermediateRepresentation::_default(const ASTree* _astDefault){
-    std::unique_ptr<IRTree> _irDefault = std::make_unique<IRTree>(IRNodeType::DEFAULT);
-    for(const auto& _construct : _astDefault->getChild(0)->getChildren()){
-        _irDefault->pushChild(construct(_construct.get()));
-        // ignore all constructs (including break) after return statement
-        if(_irDefault->getChildren().back()->getNodeType() == IRNodeType::RETURN){
-            break;
-        }
-    }
+std::unique_ptr<IRDefaultSt> IntermediateRepresentation::_default(const ASTDefaultSt* _astDefault){
+    std::unique_ptr<IRDefaultSt> _irDefault = std::make_unique<IRDefaultSt>(IRNodeType::DEFAULT);
+    _irDefault->setSwitchBlock(switchBlock(_astDefault->getSwitchBlock()));
+
     return _irDefault;
 }
 
-std::unique_ptr<IRTree> IntermediateRepresentation::_break() const {
-    return std::make_unique<IRTree>(IRNodeType::BREAK);
+std::unique_ptr<IRSwitchBlock> IntermediateRepresentation::switchBlock(const ASTSwitchBlock* _block){
+    std::unique_ptr<IRSwitchBlock> _irSwBlock = std::make_unique<IRSwitchBlock>(IRNodeType::SWITCH_BLOCK);
+    for(const auto& _statement : _block->getStatements()){
+        _irSwBlock->addStatement(statement(_statement.get()));
+
+        if(_statement->getNodeType() == ASTNodeType::RETURN_STATEMENT){
+            break;
+        }
+    }
+    
+    return _irSwBlock;
 }
 
 // NUMEXP - reduced to (id, literal, function call) or arithmetic operation (add, sub, mul, div)
-std::unique_ptr<IRTree> IntermediateRepresentation::numericalExpression(const ASTree* _numexp){
+std::unique_ptr<IRExpression> IntermediateRepresentation::numericalExpression(const ASTExpression* _numexp){
     if(_numexp->getNodeType() == ASTNodeType::ID){
-        return id(_numexp);
+        return id(static_cast<const ASTId*>(_numexp));
     }
     else if(_numexp->getNodeType() == ASTNodeType::LITERAL){
-        return literal(_numexp);
+        return literal(static_cast<const ASTLiteral*>(_numexp));
     }
     else if(_numexp->getNodeType() == ASTNodeType::FUNCTION_CALL){
-        return replaceFunctionCall(_numexp);
-    }
-    if(_numexp->getChildren().size() == 1){
-        return numericalExpression(_numexp->getChild(0));
+        return replaceFunctionCall(static_cast<const ASTFunctionCall*>(_numexp));
     }
     else{
-        std::unique_ptr<IRTree> leftOperand{ numericalExpression(_numexp->getChild(0)) };
-        std::unique_ptr<IRTree> rightOperand{ numericalExpression(_numexp->getChild(1)) };
+        const ASTBinaryExpression* binExp = static_cast<const ASTBinaryExpression*>(_numexp);
+        std::unique_ptr<IRExpression> leftOperand{ numericalExpression(binExp->getLeftOperand()) };
+        std::unique_ptr<IRExpression> rightOperand{ numericalExpression(binExp->getRightOperand()) };
 
-        if(leftOperand->getNodeType() == rightOperand->getNodeType() && leftOperand->getNodeType() == IRNodeType::LITERAL){
+        if(leftOperand->getNodeType() == IRNodeType::LITERAL && rightOperand->getNodeType() == IRNodeType::LITERAL){
             if(leftOperand->getType() == Types::INT){
-                return mergeLiterals<int>(std::move(leftOperand), std::move(rightOperand), _numexp);
+                return mergeLiterals<int>(static_cast<const IRLiteral*>(leftOperand.get()), 
+                    static_cast<const IRLiteral*>(rightOperand.get()), binExp->getOperator()
+                );
             }
             else if(leftOperand->getType() == Types::UNSIGNED){
-                return mergeLiterals<unsigned>(std::move(leftOperand), std::move(rightOperand), _numexp);
+                return mergeLiterals<unsigned>(static_cast<const IRLiteral*>(leftOperand.get()), 
+                    static_cast<const IRLiteral*>(rightOperand.get()), binExp->getOperator()
+                );
             }
         }
         
         std::string val{ _numexp->getToken().value };
         Types type{ leftOperand->getType() };
-        IRNodeType iNodeType{ arithmeticOperators.find(val) != arithmeticOperators.end() ? stringToArop.at(val) : stringToBitop.at(val)[type == Types::UNSIGNED] };
-        std::unique_ptr<IRTree> _irNumexp = std::make_unique<IRTree>(iNodeType);
-        
-        _irNumexp->setType(type);
-        _irNumexp->pushChild(std::move(leftOperand));
-        _irNumexp->pushChild(std::move(rightOperand));
-        return _irNumexp;
+        IRNodeType iNodeType{ operatorToIRNodeType.at(binExp->getOperator()).getOperation(type) };
+
+        std::unique_ptr<IRBinaryExpression> _irBinExp = std::make_unique<IRBinaryExpression>(iNodeType, type);
+        _irBinExp->setBinaryExpression(std::move(leftOperand), std::move(rightOperand), binExp->getOperator());
+
+        return _irBinExp;
     }
 }
 
 // reducing the depth of the tree if both children are literals
 template<typename T>
-std::unique_ptr<IRTree> IntermediateRepresentation::mergeLiterals(std::unique_ptr<IRTree>&& leftOperand, std::unique_ptr<IRTree>&& rightOperand, const ASTree* _numexp) const {
+std::unique_ptr<IRExpression> IntermediateRepresentation::mergeLiterals(const IRLiteral* leftOperand, const IRLiteral* rightOperand, Operators op) const {
     T lval = (std::is_same<T, int>::value ? std::stoi(leftOperand->getValue()) : std::stoul(leftOperand->getValue()));
     T rval = (std::is_same<T, int>::value ? std::stoi(rightOperand->getValue()) : std::stoul(rightOperand->getValue()));
-    T result{ mergeValues<T>(lval, rval, _numexp) };
+    T result{ mergeValues<T>(lval, rval, op) };
 
     Types type{ std::is_same<T, int>::value ? Types::INT : Types::UNSIGNED };
     std::string suffix{ type == Types::INT ? "" : "u" };
 
-    return std::make_unique<IRTree>("", std::to_string(result) + suffix, type, IRNodeType::LITERAL);
+    return std::make_unique<IRLiteral>(IRNodeType::LITERAL, std::to_string(result) + suffix, type);
 }
 
 template<typename T>
-T IntermediateRepresentation::mergeValues(T l, T r, const ASTree* _numexp) const {
-    std::string op{ _numexp->getToken().value };
-    if(op == "+") 
-        return l + r;
-    else if(op == "-") 
-        return l - r;
-    else if(op == "*") 
-        return l * r;
-    else if(op == "/"){
-        if(r == 0){
-            irContext.errors.push_back(
-                std::format("Line {}, Column {}: SEMANTIC ERROR -> division by ZERO",
-                    _numexp->getToken().line, _numexp->getToken().column)
-            );
+T IntermediateRepresentation::mergeValues(T l, T r, Operators op) const {
+    switch(op){
+        case Operators::ADD:
+            return l + r;
+        case Operators::SUB:
+            return l - r;
+        case Operators::MUL:
+            return l * r;
+        case Operators::DIV:
+            if(r == 0){
+                irContext.errors.push_back(
+                    std::format("Line {}, Column {}: SEMANTIC ERROR -> division by ZERO",
+                        /*_numexp->getToken().line, _numexp->getToken().column*/ 0, 0)
+                );
+                return 0;
+            }
+            return l / r;
+        case Operators::ANDB:
+            return l & r;
+        case Operators::ORB:
+            return l | r;
+        case Operators::XOR:
+            return l ^ r;
+        case Operators::LSHIFT:
+            return l << r;
+        case Operators::RSHIFT:
+            return l >> r;
+        case Operators::GREATER:
+            return l > r ? 1 : 0;
+        case Operators::LESS:
+            return l < r ? 1 : 0;
+        case Operators::GEQUAL:
+            return l >= r ? 1 : 0;
+        case Operators::LEQUAL:
+            return l <= r ? 1 : 0;
+        case Operators::EQUAL:
+            return l == r ? 1 : 0;
+        case Operators::NEQUAL:
+            return l != r ? 1 : 0;
+        case Operators::NO_OP:
+            // unreachable
             return 0;
-        }
-        return l / r;
-    }
-    else if(op == "&") 
-        return l & r;
-    else if(op == "|") 
-        return l | r;
-    else if(op == "^") 
-        return l ^ r;
-    else if(op == "<<")
-        return l << r;
-    else if(op == ">>")
-        return l >> r;
-    else{
-        // unreachable
-        irContext.errors.push_back(
-            std::format("Line {}, Column {}: SYNTAX ERROR -> Invalid arithmetic operator '{}'",
-                _numexp->getToken().line, _numexp->getToken().column, op)
-        );
-        return 0;
     }
 }
 
-std::unique_ptr<IRTree> IntermediateRepresentation::relationalExpression(const ASTree* _relexp){
-    std::unique_ptr<IRTree> _irRelexp = std::make_unique<IRTree>(IRNodeType::CMP);
-    _irRelexp->setValue(_relexp->getToken().value); // stores relational operator as value
+std::unique_ptr<IRBinaryExpression> IntermediateRepresentation::relationalExpression(const ASTExpression* _relexp) {
+    const ASTBinaryExpression* _astBinExp = static_cast<const ASTBinaryExpression*>(_relexp);
+    
+    IRNodeType irNodeType{ operatorToIRNodeType.at(_astBinExp->getOperator()).getOperation(_relexp->getType()) };
+    std::unique_ptr<IRBinaryExpression> _irBinExp = std::make_unique<IRBinaryExpression>(irNodeType, _astBinExp->getType());
 
-    // extracting function calls to temporary variables
-    auto temps{ initiateTemporaries(_relexp->getChild(0)) };
-    if(temps){
-        _irRelexp->pushChild(std::move(temps));
-    }
-    temps = initiateTemporaries(_relexp->getChild(1));
-    if(temps){
-        _irRelexp->pushChild(std::move(temps));
-    }
-
-    _irRelexp->pushChild(numericalExpression(_relexp->getChild(0)));
-    _irRelexp->pushChild(numericalExpression(_relexp->getChild(1)));
-
-    return _irRelexp;
+    _irBinExp->setBinaryExpression(numericalExpression(_astBinExp->getLeftOperand()), numericalExpression(_astBinExp->getRightOperand()), _astBinExp->getOperator());
+    return _irBinExp;
 }
 
-std::unique_ptr<IRTree> IntermediateRepresentation::id(const ASTree* _id) const {
-    return std::make_unique<IRTree>(_id->getToken().value, "0", _id->getType(), IRNodeType::ID);
+std::unique_ptr<IRId> IntermediateRepresentation::id(const ASTId* _id) const {
+    return std::make_unique<IRId>(IRNodeType::ID, _id->getToken().value, _id->getType());
 }
 
-std::unique_ptr<IRTree> IntermediateRepresentation::literal(const ASTree* _literal) const {
-    return std::make_unique<IRTree>("", _literal->getToken().value, _literal->getType(), IRNodeType::LITERAL);
+std::unique_ptr<IRLiteral> IntermediateRepresentation::literal(const ASTLiteral* _literal) const {
+    return std::make_unique<IRLiteral>(IRNodeType::LITERAL, _literal->getToken().value, _literal->getType());
 }
 
-std::unique_ptr<IRTree> IntermediateRepresentation::functionCall(const ASTree* _functionCall){
-    std::unique_ptr<IRTree> _irFunctionCall = 
-        std::make_unique<IRTree>(_functionCall->getToken().value, "", _functionCall->getType(), IRNodeType::CALL);
-    _irFunctionCall->pushChild(argument(_functionCall));
+std::unique_ptr<IRFunctionCall> IntermediateRepresentation::functionCall(const ASTFunctionCall* _functionCall){
+    std::unique_ptr<IRFunctionCall> _irFunctionCall = 
+        std::make_unique<IRFunctionCall>(IRNodeType::CALL, _functionCall->getToken().value, _functionCall->getType());
+    argument(_irFunctionCall.get(), _functionCall);
+
     return _irFunctionCall;
 }
 
-std::unique_ptr<IRTree> IntermediateRepresentation::argument(const ASTree* _functionCall){
-    std::unique_ptr<IRTree> _irArgument = std::make_unique<IRTree>(IRNodeType::ARGUMENT);
-    for(const auto& _argument : _functionCall->getChild(0)->getChildren()){
-        auto tmps = initiateTemporaries(_argument.get());
-        if(tmps){
-            _irArgument->pushChild(std::move(tmps));
-        }
+void IntermediateRepresentation::argument(IRFunctionCall* _irFunctionCall, const ASTFunctionCall* _functionCall){
+    for(const auto& argument : _functionCall->getArguments()){
+        auto temps{ initiateTemporaries(argument.get()) };
+        _irFunctionCall->addArgument(numericalExpression(argument.get()), std::move(temps));
     }
-    for(const auto& _argument : _functionCall->getChild(0)->getChildren()){
-        _irArgument->pushChild(numericalExpression(_argument.get()));
-    }
-    return _irArgument;
 }
 
 // counting the number of function calls that should be replaced by temporary variables
-size_t IntermediateRepresentation::countTemporaries(const ASTree* _numexp) const {
+size_t IntermediateRepresentation::countTemporaries(const ASTExpression* _numexp) const {
     if(_numexp->getNodeType() == ASTNodeType::FUNCTION_CALL){
         return 1;
     }
     else if(_numexp->getNodeType() == ASTNodeType::LITERAL || _numexp->getNodeType() == ASTNodeType::ID || _numexp->getNodeType() == ASTNodeType::VARIABLE){
         return 0;
     }
-    else if(_numexp->getChildren().size() == 1){
-        return countTemporaries(_numexp->getChild(0));
-    }
     else{
-        return countTemporaries(_numexp->getChild(0)) + countTemporaries(_numexp->getChild(1));
+        const ASTBinaryExpression* binExp = static_cast<const ASTBinaryExpression*>(_numexp); 
+        return countTemporaries(binExp->getLeftOperand()) + countTemporaries(binExp->getRightOperand());
     }
 }
 
 // generating temporary variables
-std::unique_ptr<IRTree> IntermediateRepresentation::generateTemporaries(){
+std::string IntermediateRepresentation::generateTemporaries(){
     std::string name = std::format("_t{}", ++irContext.temporaries);
     irContext.temporaryNames.push(name);
-    return std::make_unique<IRTree>(name, "0", Types::NO_TYPE, IRNodeType::VARIABLE);
+    return name;
 }
 
 // assigning a returned value to temporary variables
-void IntermediateRepresentation::assignFunctionCalls(IRTree* _temporaryRoot, const ASTree* _numexp, size_t& idx){
+void IntermediateRepresentation::assignFunctionCalls(IRTemporary* _temporaryRoot, const ASTExpression* _numexp, size_t& idx){
     if(_numexp->getNodeType() == ASTNodeType::FUNCTION_CALL){
-        auto temporary = _temporaryRoot->getChild(idx);
-        temporary->pushChild(std::make_unique<IRTree>(IRNodeType::ASSIGN));
-        temporary->getChild(0)->pushChild(std::make_unique<IRTree>(temporary->getName(), "0", _numexp->getType(), IRNodeType::ID));
-        temporary->getChild(0)->pushChild(functionCall(_numexp));
-        _temporaryRoot->setType(_numexp->getType());
-        ++idx;
+        const ASTFunctionCall* funcCall = static_cast<const ASTFunctionCall*>(_numexp);
+
+        _temporaryRoot->assignTempAtN(functionCall(funcCall), _numexp->getType(), idx++);
     }
     else if(_numexp->getNodeType() == ASTNodeType::LITERAL || _numexp->getNodeType() == ASTNodeType::VARIABLE || _numexp->getNodeType() == ASTNodeType::ID){
         return;
     }
-    else if(_numexp->getChildren().size() == 1){
-        assignFunctionCalls(_temporaryRoot, _numexp->getChild(0), idx);
-    }
     else{
-        assignFunctionCalls(_temporaryRoot, _numexp->getChild(0), idx);
-        assignFunctionCalls(_temporaryRoot, _numexp->getChild(1), idx);
+        const ASTBinaryExpression* binExp = static_cast<const ASTBinaryExpression*>(_numexp);
+        assignFunctionCalls(_temporaryRoot, binExp->getLeftOperand(), idx);
+        assignFunctionCalls(_temporaryRoot, binExp->getRightOperand(), idx);
     }
 }
 
 // replacing function calls with temporary variables in numerical expression
-std::unique_ptr<IRTree> IntermediateRepresentation::replaceFunctionCall(const ASTree* _functionCall){
+std::unique_ptr<IRId> IntermediateRepresentation::replaceFunctionCall(const ASTFunctionCall* _functionCall){
     assert(!irContext.temporaryNames.empty());
     std::string name = irContext.temporaryNames.top();
     irContext.temporaryNames.pop();
-    return std::make_unique<IRTree>(name, "0", _functionCall->getType(), IRNodeType::ID);
+    return std::make_unique<IRId>(IRNodeType::ID, name, _functionCall->getType());
 }
 
-std::unique_ptr<IRTree> IntermediateRepresentation::initiateTemporaries(const ASTree* _numexp){
+std::unique_ptr<IRTemporary> IntermediateRepresentation::initiateTemporaries(const ASTExpression* _numexp){
     size_t tmpCount = countTemporaries(_numexp);
     if(tmpCount > 0){
-        std::unique_ptr<IRTree> temporaryRoot = std::make_unique<IRTree>(IRNodeType::TEMPORARY);
+        std::unique_ptr<IRTemporary> temporaryRoot = std::make_unique<IRTemporary>(IRNodeType::TEMPORARY);
         size_t firstTemporaryIndex = 0;
         for(size_t i = 0; i < tmpCount; ++i){
-            temporaryRoot->pushChild(generateTemporaries());
+            temporaryRoot->addTemporary(generateTemporaries());
         }
         assignFunctionCalls(temporaryRoot.get(), _numexp, firstTemporaryIndex);
         return temporaryRoot;
@@ -507,60 +495,199 @@ std::unique_ptr<IRTree> IntermediateRepresentation::initiateTemporaries(const AS
     return nullptr;
 }
 
-bool IntermediateRepresentation::eliminateDeadCode(IRTree* _construct){
-    IRNodeType nodeType = _construct->getNodeType();
-    if(nodeType == IRNodeType::RETURN){
-        return true;
-    }
-    else if(nodeType == IRNodeType::FUNCTION || nodeType == IRNodeType::COMPOUND || nodeType == IRNodeType::DEFAULT || nodeType == IRNodeType::CASE){
-        const size_t size{ _construct->getChildren().size() };
-        size_t i = 0 + static_cast<size_t>(nodeType == IRNodeType::CASE);
-        for(; i < size; ++i){
-            if(eliminateDeadCode(_construct->getChild(i))){
-                _construct->eraseChildren(i + 1);
-                return true;
+bool IntermediateRepresentation::eliminateDeadCode(IRNode* _construct){
+    switch(_construct->getNodeType()){
+        case IRNodeType::RETURN:
+            return true;
+        case IRNodeType::FUNCTION:{
+            auto _function{static_cast<IRFunction*>(_construct)};
+            size_t currentStmtIdx = 0;
+            for(auto& stmt : _function->getBody()){
+                if(eliminateDeadCode(stmt.get())){
+                    _function->eliminateDead(currentStmtIdx + 1);
+                    return true;
+                }
+                ++currentStmtIdx;
             }
-        }
-        return false;
-    }
-    else if(nodeType == IRNodeType::IF){
-        bool returnsAlways = true;
-        const size_t size = _construct->getChildren().size();
-        for(size_t i = 1; i < size; i += 2){
-            if(!eliminateDeadCode(_construct->getChild(i))){ // check if else-if constructs
-                returnsAlways = false;
-            }
-        }
-        if((size & 1) == 0){
             return false;
         }
-        return eliminateDeadCode(_construct->getChildren().back().get()) && returnsAlways; // check else constructs*/
-    }
-    else if(nodeType == IRNodeType::SWITCH){
-        bool returnsAlways = true;
-        const size_t size = _construct->getChildren().size();
-        for(size_t i = 1; i < size - 1; ++i){
-            // check cases, if there is no break fallthrough to the next case
-            if(!eliminateDeadCode(_construct->getChild(i)) && _construct->getChild(i)->getChildren().size() == 3){
-                returnsAlways = false;
+        case IRNodeType::COMPOUND: {
+            auto _compound{ static_cast<IRCompoundSt*>(_construct) };
+            size_t currentStmtIdx = 0;
+            for(auto& stmt : _compound->getStatements()){
+                if(eliminateDeadCode(stmt.get())){
+                    _compound->eliminateDead(currentStmtIdx + 1);
+                    return true;
+                }
+                ++currentStmtIdx;
             }
-        }
-        if(_construct->getChildren().back()->getNodeType() != IRNodeType::DEFAULT){ // no default -> doesn't return unconditionally
             return false;
         }
-        return eliminateDeadCode(_construct->getChildren().back()->getChild(0)) && returnsAlways; // check default
+        case IRNodeType::DEFAULT:{
+            auto _default{ static_cast<IRDefaultSt*>(_construct) };
+            return eliminateDeadCode(_default->getSwitchBlockNC());
+        }
+        case IRNodeType::CASE: {
+            auto _case{ static_cast<IRCaseSt*>(_construct) };
+            return eliminateDeadCode(_case->getSwitchBlockNC());
+        }
+        case IRNodeType::SWITCH_BLOCK: {
+            auto switchBlock{ static_cast<IRSwitchBlock*>(_construct) };
+            size_t currentStmtIdx = 0;
+            for(auto& stmt : switchBlock->getStatements()){
+                if(eliminateDeadCode(stmt.get())){
+                    switchBlock->eliminateDead(currentStmtIdx + 1);
+                    return true;
+                }
+                ++currentStmtIdx;
+            }
+            return false;   
+        }
+        case IRNodeType::IF: {
+            auto _if{ static_cast<IRIfSt*>(_construct) };
+            bool alwaysReturns = true;
+
+            for(auto& _statement : _if->getStatements()){
+                if(!eliminateDeadCode(_statement.get())){
+                    alwaysReturns = false;
+                }
+            }
+            if(!_if->hasElse()){
+                return false;
+            }
+            return alwaysReturns;
+        }
+        case IRNodeType::SWITCH: {
+            auto _switch{ static_cast<IRSwitchSt*>(_construct) };
+            bool returnsAlways = true;
+            for(auto& _case : _switch->getCases()){
+                if(!eliminateDeadCode(_case.get()) && _case->hasBreak()){
+                    returnsAlways = false;
+                }
+            }
+            if(!_switch->hasDefault()){
+                return false;
+            }
+            return eliminateDeadCode(_switch->getDefaultNC()) && returnsAlways;
+        }
+        case IRNodeType::DO_WHILE: {
+            auto _dowhile{ static_cast<IRDoWhileSt*>(_construct) };
+            return eliminateDeadCode(_dowhile->getStatementNC());
+        }
+        default:
+            return false;
     }
-    else if(nodeType == IRNodeType::DO_WHILE){
-        return eliminateDeadCode(_construct->getChild(0));
-    }
-    return false;
 }
 
-void IntermediateRepresentation::countVariables(const IRTree* _construct){
-    if(_construct->getNodeType() == IRNodeType::VARIABLE){
-        ++irContext.variableCount;
-    }
-    for(const auto& _constr : _construct->getChildren()){
-        countVariables(_constr.get());
+void IntermediateRepresentation::countVariables(const IRNode* _construct){
+    auto nodeType{ _construct->getNodeType() };
+    switch(nodeType){
+        case IRNodeType::VARIABLE:{
+            ++irContext.variableCount;
+            const auto& _var = static_cast<const IRVariable*>(_construct);
+            if(_var->hasTemporaries()){
+                countVariables(_var->getTemporaries());
+            }
+            return;
+        }
+        case IRNodeType::FUNCTION:
+            for(const auto& _statement : static_cast<const IRFunction*>(_construct)->getBody()){
+                countVariables(_statement.get());
+            }
+            return;
+        case IRNodeType::COMPOUND:
+            for(const auto& _statement : static_cast<const IRCompoundSt*>(_construct)->getStatements()){
+                countVariables(_statement.get());
+            }
+            return;
+        case IRNodeType::SWITCH:{
+            const auto _switch = static_cast<const IRSwitchSt*>(_construct);
+            for(const auto& _case : _switch->getCases()){
+                countVariables(_case->getSwitchBlock());
+            }
+            if(_switch->hasDefault()){
+                countVariables(_switch->getDefault()->getSwitchBlock());
+            }
+            return;
+        }
+        case IRNodeType::SWITCH_BLOCK:
+            for(const auto& _statement : static_cast<const IRSwitchBlock*>(_construct)->getStatements()){
+                countVariables(_statement.get());
+            }
+            return;
+        case IRNodeType::IF:{
+            const auto _if = static_cast<const IRIfSt*>(_construct);
+            for(const auto& _statement : _if->getStatements()){
+                countVariables(_statement.get());
+            }
+            for(const auto& temp : _if->getTemporaries()){
+                if(temp != nullptr){
+                    countVariables(temp.get());
+                }
+            }
+            return;
+        }
+        case IRNodeType::FOR: {
+            const auto _for = static_cast<const IRForSt*>(_construct);
+            countVariables(_for->getStatement());
+            if(_for->hasTemporaries()){
+                countVariables(_for->getTemporaries());
+            }
+            return;
+        }
+        case IRNodeType::WHILE:{
+            const auto _while = static_cast<const IRWhileSt*>(_construct);
+            countVariables(_while->getStatement());
+            if(_while->hasTemporaries()){
+                countVariables(_while->getTemporaries());
+            }
+            return;
+        }
+        case IRNodeType::DO_WHILE:{
+            const auto _dowhile = static_cast<const IRDoWhileSt*>(_construct);
+            countVariables(_dowhile->getStatement());
+            if(_dowhile->hasTemporaries()){
+                countVariables(_dowhile->getTemporaries());
+            }
+            return;
+        }
+        case IRNodeType::PRINTF: {
+            const auto _printf = static_cast<const IRPrintfSt*>(_construct);
+            if(_printf->hasTemporaries()){
+                countVariables(_printf->getTemporaries());
+            }
+            return;
+        }
+        case IRNodeType::ASSIGN: {
+            const auto _assign = static_cast<const IRAssignSt*>(_construct);
+            if(_assign->hasTemporaries()){
+                countVariables(_assign->getTemporaries());
+            }
+            return;
+        }
+        case IRNodeType::RETURN: {
+            const auto _ret = static_cast<const IRReturnSt*>(_construct);
+            if(_ret->hasTemporaries()){
+                countVariables(_ret->getTemporaries());
+            }
+            return;
+        }
+        case IRNodeType::CALL:
+            for(const auto& temp : static_cast<const IRFunctionCall*>(_construct)->getTemporaries()){
+                if(temp != nullptr){
+                    countVariables(temp.get());
+                }
+            }
+            return;
+        case IRNodeType::TEMPORARY:
+            for(const auto& _exp : static_cast<const IRTemporary*>(_construct)->getTemporaries()){
+                ++irContext.variableCount;
+                if(_exp->getNodeType() == IRNodeType::CALL){
+                    countVariables(_exp.get());
+                }
+            }
+            return;
+        default:
+            return;
     }
 }

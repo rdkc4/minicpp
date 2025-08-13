@@ -7,6 +7,24 @@ const std::unordered_set<std::string> arithmeticOperators {"+", "-", "*", "/"};
 
 const std::unordered_set<std::string> bitwiseOperators {"&", "|", "^", "<<", ">>"};
 
+const std::unordered_map<std::string, Operators> stringToOperator {
+    {"+", Operators::ADD},
+    {"-", Operators::SUB},
+    {"*", Operators::MUL},
+    {"/", Operators::DIV},
+    {"&", Operators::ANDB},
+    {"|", Operators::ORB},
+    {"^", Operators::XOR},
+    {"<<", Operators::LSHIFT},
+    {">>", Operators::RSHIFT},
+    {"<", Operators::LESS},
+    {">", Operators::GREATER},
+    {"<=", Operators::LEQUAL},
+    {">=", Operators::GEQUAL},
+    {"==", Operators::EQUAL},
+    {"!=", Operators::NEQUAL}
+};
+
 // conversions
 const std::unordered_map<Types, std::string> typeToString {
     {Types::INT, "int"},
@@ -30,4 +48,22 @@ const std::unordered_map<Kinds, std::string> kindToString {
     {Kinds::FUN, "FUN"},
     {Kinds::VAR, "VAR"},
     {Kinds::PAR, "PAR"}
+};
+
+const std::unordered_map<Operators, std::string> operatorToString {
+    {Operators::ADD, "+"},
+    {Operators::SUB, "-"},
+    {Operators::MUL, "*"},
+    {Operators::DIV, "/"},
+    {Operators::ANDB, "&"},
+    {Operators::ORB, "|"},
+    {Operators::XOR, "^"},
+    {Operators::LSHIFT, "<<"},
+    {Operators::RSHIFT, ">>"},
+    {Operators::LESS, "<"},
+    {Operators::GREATER, ">"},
+    {Operators::LEQUAL, "<="},
+    {Operators::GEQUAL, ">="},
+    {Operators::EQUAL, "=="},
+    {Operators::NEQUAL, "!="}
 };

@@ -11,15 +11,15 @@ TEST(IRTest, FormIR){
     lexer.tokenize();
 
     ParserTest parser{lexer};
-    std::unique_ptr<ASTree> ast = parser.parseProgram();
+    std::unique_ptr<ASTProgram> _astProgram = parser.parseProgram();
 
     IntermediateRepresentationTest intermediateRepresentation;
-    std::unique_ptr<IRTree> irt;
-    const size_t expectedChildrenSize = 2;
+    std::unique_ptr<IRProgram> _irProgram;
+    const size_t functionCount = 2;
 
-    ASSERT_NO_THROW(irt = intermediateRepresentation.formIR(ast.get()));
-    ASSERT_TRUE(irt->getNodeType() == IRNodeType::PROGRAM);
-    ASSERT_TRUE(irt->getChildren().size() == expectedChildrenSize);
+    ASSERT_NO_THROW(_irProgram = intermediateRepresentation.formIR(_astProgram.get()));
+    ASSERT_TRUE(_irProgram->getNodeType() == IRNodeType::PROGRAM);
+    ASSERT_TRUE(_irProgram->getFunctionCount() == functionCount);
 }
 
 TEST(IRTest, FormIRThrows){
@@ -27,12 +27,12 @@ TEST(IRTest, FormIRThrows){
     lexer.tokenize();
 
     ParserTest parser{lexer};
-    std::unique_ptr<ASTree> ast = parser.parseProgram();
+    std::unique_ptr<ASTProgram> _astProgram = parser.parseProgram();
 
     IntermediateRepresentationTest intermediateRepresentation;
-    std::unique_ptr<IRTree> irt;
+    std::unique_ptr<IRProgram> _irProgram;
 
-    ASSERT_THROW(irt = intermediateRepresentation.formIR(ast.get()), std::runtime_error);
+    ASSERT_THROW(_irProgram = intermediateRepresentation.formIR(_astProgram.get()), std::runtime_error);
     ASSERT_TRUE(intermediateRepresentation.getErrors("main")[0].contains("division by ZERO"));
 }
 
@@ -41,15 +41,16 @@ TEST(IRTest, FunctionDeadCodeElimination){
     lexer.tokenize();
 
     ParserTest parser{lexer};
-    std::unique_ptr<ASTree> ast = parser.testFunction();
+    std::unique_ptr<ASTFunction> _astFunction = parser.testFunction();
 
     IntermediateRepresentationTest intermediateRepresentation;
-    std::unique_ptr<IRTree> irt;
-    const size_t expectedChildrenSize = 2; // first child is PARAMETERS, second child is RETURN statement
+    std::unique_ptr<IRFunction> _irFunction;
 
-    ASSERT_NO_THROW(irt = intermediateRepresentation.testFunction(ast.get()));
-    ASSERT_TRUE(irt->getNodeType() == IRNodeType::FUNCTION);
-    ASSERT_TRUE(irt->getChildren().size() == expectedChildrenSize);
+    const size_t expectedStmtCount = 1;
+
+    ASSERT_NO_THROW(_irFunction = intermediateRepresentation.testFunction(_astFunction.get()));
+    ASSERT_TRUE(_irFunction->getNodeType() == IRNodeType::FUNCTION);
+    ASSERT_EQ(_irFunction->getBody().size(), expectedStmtCount);
 }
 
 TEST(IRTest, FunctionDeadCodeEliminationIfBranching){
@@ -57,15 +58,16 @@ TEST(IRTest, FunctionDeadCodeEliminationIfBranching){
     lexer.tokenize();
 
     ParserTest parser{lexer};
-    std::unique_ptr<ASTree> ast = parser.testFunction();
+    std::unique_ptr<ASTFunction> _astFunction = parser.testFunction();
 
     IntermediateRepresentationTest intermediateRepresentation;
-    std::unique_ptr<IRTree> irt;
-    const size_t expectedChildrenSize = 2; // first child is PARAMETERS, second child is IF statement
+    std::unique_ptr<IRFunction> _irFunction;
     
-    ASSERT_NO_THROW(irt = intermediateRepresentation.testFunction(ast.get()));
-    ASSERT_TRUE(irt->getNodeType() == IRNodeType::FUNCTION);
-    ASSERT_TRUE(irt->getChildren().size() == expectedChildrenSize);
+    const size_t expectedStmtCount = 1;
+
+    ASSERT_NO_THROW(_irFunction = intermediateRepresentation.testFunction(_astFunction.get()));
+    ASSERT_TRUE(_irFunction->getNodeType() == IRNodeType::FUNCTION);
+    ASSERT_EQ(_irFunction->getBody().size(), expectedStmtCount);
 }
 
 TEST(IRTest, FunctionDeadCodeEliminationSwitchBranching){
@@ -73,15 +75,16 @@ TEST(IRTest, FunctionDeadCodeEliminationSwitchBranching){
     lexer.tokenize();
 
     ParserTest parser{lexer};
-    std::unique_ptr<ASTree> ast = parser.testFunction();
+    std::unique_ptr<ASTFunction> _astFunction = parser.testFunction();
 
     IntermediateRepresentationTest intermediateRepresentation;
-    std::unique_ptr<IRTree> irt;
-    const size_t expectedChildrenSize = 2; // first child is PARAMETERS, second child is SWITCH statement
+    std::unique_ptr<IRFunction> _irFunction;
     
-    ASSERT_NO_THROW(irt = intermediateRepresentation.testFunction(ast.get()));
-    ASSERT_TRUE(irt->getNodeType() == IRNodeType::FUNCTION);
-    ASSERT_TRUE(irt->getChildren().size() == expectedChildrenSize);
+    const size_t expectedStmtCount = 1; 
+    
+    ASSERT_NO_THROW(_irFunction = intermediateRepresentation.testFunction(_astFunction.get()));
+    ASSERT_TRUE(_irFunction->getNodeType() == IRNodeType::FUNCTION);
+    ASSERT_TRUE(_irFunction->getBody().size() == expectedStmtCount);
 }
 
 TEST(IRTest, FunctionDeadCodeEliminationDoWhile){
@@ -89,17 +92,16 @@ TEST(IRTest, FunctionDeadCodeEliminationDoWhile){
     lexer.tokenize();
 
     ParserTest parser{lexer};
-    std::unique_ptr<ASTree> ast = parser.testFunction();
+    std::unique_ptr<ASTFunction> _astFunction = parser.testFunction();
 
     IntermediateRepresentationTest intermediateRepresentation;
-    std::unique_ptr<IRTree> irt;
-    const size_t expectedFuncChildrenSize = 2; // first child is PARAMETERS, second child is DOWHILE statement
-    const size_t expectedDoWhileConstrChildrenSize = 1;
+    std::unique_ptr<IRFunction> _irFunction;
 
-    ASSERT_NO_THROW(irt = intermediateRepresentation.testFunction(ast.get()));
-    ASSERT_TRUE(irt->getNodeType() == IRNodeType::FUNCTION);
-    ASSERT_TRUE(irt->getChildren().size() == expectedFuncChildrenSize);
-    ASSERT_TRUE(irt->getChild(1)->getChild(0)->getChildren().size() == expectedDoWhileConstrChildrenSize);
+    const size_t expectedStmtCount = 1;
+
+    ASSERT_NO_THROW(_irFunction = intermediateRepresentation.testFunction(_astFunction.get()));
+    ASSERT_TRUE(_irFunction->getNodeType() == IRNodeType::FUNCTION);
+    ASSERT_EQ(_irFunction->getBody().size(), expectedStmtCount);
 }
 
 TEST(IRTest, CompoundStatementDeadCodeElimination){
@@ -107,15 +109,16 @@ TEST(IRTest, CompoundStatementDeadCodeElimination){
     lexer.tokenize();
 
     ParserTest parser{lexer};
-    std::unique_ptr<ASTree> ast = parser.testCompoundStatement();
+    std::unique_ptr<ASTCompoundSt> _astCompound = parser.testCompoundStatement();
 
     IntermediateRepresentationTest intermediateRepresentation;
-    std::unique_ptr<IRTree> irt;
-    const size_t expectedChildrenSize = 1;
+    std::unique_ptr<IRCompoundSt> _irCompound;
 
-    ASSERT_NO_THROW(irt = intermediateRepresentation.testCompoundStatement(ast.get()));
-    ASSERT_TRUE(irt->getNodeType() == IRNodeType::COMPOUND);
-    ASSERT_TRUE(irt->getChildren().size() == expectedChildrenSize);
+    const size_t expectedStmtCount = 1;
+
+    ASSERT_NO_THROW(_irCompound = intermediateRepresentation.testCompoundStatement(_astCompound.get()));
+    ASSERT_TRUE(_irCompound->getNodeType() == IRNodeType::COMPOUND);
+    ASSERT_TRUE(_irCompound->getStatements().size() == expectedStmtCount);
 }
 
 TEST(IRTest, AssignmentStatementGeneratesTemporaries){
@@ -123,16 +126,16 @@ TEST(IRTest, AssignmentStatementGeneratesTemporaries){
     lexer.tokenize();
 
     ParserTest parser{lexer};
-    std::unique_ptr<ASTree> ast = parser.testAssignmentStatement();
+    std::unique_ptr<ASTAssignSt> _astAssign = parser.testAssignmentStatement();
 
     IntermediateRepresentationTest intermediateRepresentation;
-    std::unique_ptr<IRTree> irt;
+    std::unique_ptr<IRAssignSt> _irAssign;
 
     intermediateRepresentation.getIRContext().init();
     const size_t expectedTemporariesCount = 2;
 
-    ASSERT_NO_THROW(irt = intermediateRepresentation.testAssignmentStatement(ast.get()));
-    ASSERT_TRUE(irt->getNodeType() == IRNodeType::ASSIGN);
+    ASSERT_NO_THROW(_irAssign = intermediateRepresentation.testAssignmentStatement(_astAssign.get()));
+    ASSERT_TRUE(_irAssign->getNodeType() == IRNodeType::ASSIGN);
     ASSERT_TRUE(intermediateRepresentation.getIRContext().temporaries == expectedTemporariesCount);
 
     intermediateRepresentation.getIRContext().reset();
@@ -143,16 +146,16 @@ TEST(IRTest, SwitchCaseDeadCodeElimination){
     lexer.tokenize();
 
     ParserTest parser{lexer};
-    std::unique_ptr<ASTree> ast = parser.testSwitchStatement();
+    std::unique_ptr<ASTSwitchSt> _astSwitch = parser.testSwitchStatement();
 
     IntermediateRepresentationTest intermediateRepresentation;
-    std::unique_ptr<IRTree> irt;
-    const size_t expectedChildrenSize = 2; // first child is literal, second child is RETURN statement
+    std::unique_ptr<IRSwitchSt> _irSwitch;
+    const size_t expectedStmtCount = 1;
 
-    ASSERT_NO_THROW(irt = intermediateRepresentation.testSwitchStatement(ast.get()));
-    ASSERT_TRUE(irt->getNodeType() == IRNodeType::SWITCH);
-    auto _case = irt->getChild(1);
-    ASSERT_TRUE(_case->getChildren().size() == expectedChildrenSize);
+    ASSERT_NO_THROW(_irSwitch = intermediateRepresentation.testSwitchStatement(_astSwitch.get()));
+    ASSERT_TRUE(_irSwitch->getNodeType() == IRNodeType::SWITCH);
+    auto _case = _irSwitch->getCaseAtN(0);
+    ASSERT_EQ(_case->getSwitchBlock()->getStatements().size(), expectedStmtCount);
 }
 
 TEST(IRTest, NumExpConstantFolding){
@@ -160,12 +163,12 @@ TEST(IRTest, NumExpConstantFolding){
     lexer.tokenize();
 
     ParserTest parser{lexer};
-    std::unique_ptr<ASTree> ast = parser.testNumericalExpression();
+    std::unique_ptr<ASTExpression> _astExp = parser.testNumericalExpression();
 
     IntermediateRepresentationTest intermediateRepresentation;
-    std::unique_ptr<IRTree> irt;
+    std::unique_ptr<IRExpression> _irExp;
 
-    ASSERT_NO_THROW(irt = intermediateRepresentation.testNumericalExpression(ast.get()));
-    ASSERT_TRUE(irt->getNodeType() == IRNodeType::LITERAL);
-    ASSERT_TRUE(irt->getValue() == "6");
+    ASSERT_NO_THROW(_irExp = intermediateRepresentation.testNumericalExpression(_astExp.get()));
+    ASSERT_TRUE(_irExp->getNodeType() == IRNodeType::LITERAL);
+    ASSERT_EQ(static_cast<IRLiteral*>(_irExp.get())->getValue(), "6");
 }
