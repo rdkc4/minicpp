@@ -31,6 +31,7 @@ protected:
     std::unique_ptr<ASTBinaryExpression> _operator(bool isRel = false);
 
     // precedence calculator
+    // higher value = stronger precedence
     constexpr int getPrecedence(const std::string& op) const noexcept {
         const static std::unordered_map<std::string, int> precedence {
             {"|", 1},

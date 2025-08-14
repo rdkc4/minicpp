@@ -5,13 +5,14 @@
 
 TokenConsumer::TokenConsumer(Lexer& lexer) : lexer{ lexer } {} 
 
-const Token& TokenConsumer::next() noexcept {
-    return lexer.next();
+void TokenConsumer::next() noexcept {
+    lexer.next();
 }
 const Token& TokenConsumer::peek() const noexcept {
     return lexer.peek();
 }
 
+// expecting specific type of token
 void TokenConsumer::consume(TokenType expectedType) {
     if(getToken().type != expectedType){
         throw std::runtime_error(std::format("Line {}, Column {}: SYNTAX ERROR -> expected '{}', got '{} {}'",
@@ -20,6 +21,7 @@ void TokenConsumer::consume(TokenType expectedType) {
     next();
 }
 
+// expecting general type of token
 void TokenConsumer::consume(GeneralTokenType expectedGType) {
     if(getToken().gtype != expectedGType){
         throw std::runtime_error(std::format("Line {}, Column {}: SYNTAX ERROR -> expected '{}', got '{} {}'",

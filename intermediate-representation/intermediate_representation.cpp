@@ -322,12 +322,12 @@ std::unique_ptr<IRExpression> IntermediateRepresentation::numericalExpression(co
         if(leftOperand->getNodeType() == IRNodeType::LITERAL && rightOperand->getNodeType() == IRNodeType::LITERAL){
             if(leftOperand->getType() == Types::INT){
                 return mergeLiterals<int>(static_cast<const IRLiteral*>(leftOperand.get()), 
-                    static_cast<const IRLiteral*>(rightOperand.get()), binExp->getOperator()
+                    static_cast<const IRLiteral*>(rightOperand.get()), binExp
                 );
             }
             else if(leftOperand->getType() == Types::UNSIGNED){
                 return mergeLiterals<unsigned>(static_cast<const IRLiteral*>(leftOperand.get()), 
-                    static_cast<const IRLiteral*>(rightOperand.get()), binExp->getOperator()
+                    static_cast<const IRLiteral*>(rightOperand.get()), binExp
                 );
             }
         }
@@ -343,12 +343,12 @@ std::unique_ptr<IRExpression> IntermediateRepresentation::numericalExpression(co
     }
 }
 
-// reducing the depth of the tree if both children are literals
+// reducing the depth of the tree if both operands are literals
 template<typename T>
-std::unique_ptr<IRExpression> IntermediateRepresentation::mergeLiterals(const IRLiteral* leftOperand, const IRLiteral* rightOperand, Operators op) const {
+std::unique_ptr<IRExpression> IntermediateRepresentation::mergeLiterals(const IRLiteral* leftOperand, const IRLiteral* rightOperand, const ASTBinaryExpression* binExp) const {
     T lval = (std::is_same<T, int>::value ? std::stoi(leftOperand->getValue()) : std::stoul(leftOperand->getValue()));
     T rval = (std::is_same<T, int>::value ? std::stoi(rightOperand->getValue()) : std::stoul(rightOperand->getValue()));
-    T result{ mergeValues<T>(lval, rval, op) };
+    T result{ mergeValues<T>(lval, rval, binExp->getOperator(), binExp->getToken().line, binExp->getToken().column) };
 
     Types type{ std::is_same<T, int>::value ? Types::INT : Types::UNSIGNED };
     std::string suffix{ type == Types::INT ? "" : "u" };
@@ -357,7 +357,7 @@ std::unique_ptr<IRExpression> IntermediateRepresentation::mergeLiterals(const IR
 }
 
 template<typename T>
-T IntermediateRepresentation::mergeValues(T l, T r, Operators op) const {
+T IntermediateRepresentation::mergeValues(T l, T r, Operators op, size_t line, size_t column) const {
     switch(op){
         case Operators::ADD:
             return l + r;
@@ -368,8 +368,7 @@ T IntermediateRepresentation::mergeValues(T l, T r, Operators op) const {
         case Operators::DIV:
             if(r == 0){
                 irContext.errors.push_back(
-                    std::format("Line {}, Column {}: SEMANTIC ERROR -> division by ZERO",
-                        /*_numexp->getToken().line, _numexp->getToken().column*/ 0, 0)
+                    std::format("Line {}, Column {}: SEMANTIC ERROR -> division by ZERO", line, column)
                 );
                 return 0;
             }

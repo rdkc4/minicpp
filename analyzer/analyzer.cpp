@@ -42,6 +42,7 @@ void Analyzer::semanticCheck(const ASTProgram* _program){
     globalScopeManager.popScope();
 }
 
+// merging errors captured in each function and reporting it back if there are any
 void Analyzer::checkSemanticErrors(const ASTProgram* _program) const {
     std::string errors{""};
     for(const auto& _function : _program->getFunctions()){
@@ -193,6 +194,7 @@ void Analyzer::checkParameter(const std::vector<std::unique_ptr<ASTParameter>>& 
     }
 }
 
+// adding parameters to symbol table of the current function scope
 void Analyzer::defineParameters(const std::vector<std::unique_ptr<ASTParameter>>& _parameters){
     for(const auto& _parameter : _parameters){
         analyzerContext.scopeManager->pushSymbol(Symbol{_parameter->getToken().value, Kinds::PAR, _parameter->getType()});
@@ -289,36 +291,26 @@ void Analyzer::checkVariable(const ASTVariable* _variable){
     }
 }
 
-// child(0) - numerical expression that should be printed
 void Analyzer::checkPrintfStatement(const ASTPrintfSt* _printf){
     checkNumericalExpression(_printf->getExpNC());
 }
 
-// child(0) - if relational expression 
-// child 1 - if statement constructs
-// child(i), i > 1 && i % 2 == 0 relational expression
-// child(i), i > 1 && i % 2 == 1 constructs
-// if there is odd number of children, else statement is at the back
 void Analyzer::checkIfStatement(const ASTIfSt* _if){
     for(const auto& _condition : _if->getConditions()){
         checkNumericalExpression(_condition.get());
     }
+    // else statement is included
     for(const auto& _statement : _if->getStatements()){
         checkStatement(_statement.get());
     }
 }
 
-// child(0) - relational expression
-// child(1) - constructs
 void Analyzer::checkWhileStatement(const ASTWhileSt* _while){
     checkNumericalExpression(_while->getConditionNC());
     checkStatement(_while->getStatement());
 }
 
-// child(0) - assignment statement (initializer)
-// child(1) - relational expression (condition)
-// child(2) - assignment statement (increment)
-// child(3) - constructs
+// initializer, condition and incrementer are optional
 void Analyzer::checkForStatement(const ASTForSt* _for){
     if(_for->hasInitializer()){
         checkAssignmentStatement(_for->getInitializer());
@@ -333,17 +325,13 @@ void Analyzer::checkForStatement(const ASTForSt* _for){
     checkStatement(_for->getStatement());
 }
 
-// child(0) - constructs
-// child(1) - relational expression
 void Analyzer::checkDoWhileStatement(const ASTDoWhileSt* _dowhile){
     checkStatement(_dowhile->getStatement());
     checkNumericalExpression(_dowhile->getConditionNC());
 }
 
-// child(0) - id
-// child(1) - cases and default
 void Analyzer::checkSwitchStatement(const ASTSwitchSt* _switch){
-    // if id is not defined, switch is ignored, all cases will be ignored, including their constructs 
+    // if id is not defined, switch is ignored, all cases will be ignored, including their statements 
     if(!checkID(_switch->getVariableNC())) return;
     
     // case check
@@ -361,10 +349,6 @@ void Analyzer::checkSwitchStatement(const ASTSwitchSt* _switch){
     }
 }
 
-// cases child(0) - literal
-// cases child(1) - constructs
-// cases child(2) - break (optional)
-// default child(0) - constructs (break can exist, but it will be ignored)
 template<typename T>
 void Analyzer::checkSwitchStatementCases(const ASTSwitchSt* _switch){
     std::unordered_set<T> set;
@@ -413,8 +397,6 @@ void Analyzer::checkCompoundStatement(const ASTCompoundSt* _compound){
     analyzerContext.scopeManager->popScope();
 }
 
-// child(0) - destination variable
-// child 1 - numerical expression
 void Analyzer::checkAssignmentStatement(const ASTAssignSt* _assignment){
     ASTId* _variable{ _assignment->getVariableNC() };
     ASTExpression* _value{ _assignment->getExpNC() };
@@ -539,7 +521,6 @@ void Analyzer::checkLiteral(const ASTLiteral* _literal) const {
     }
 }
 
-// child(0) - arguments
 void Analyzer::checkFunctionCall(ASTFunctionCall* _functionCall){
     // function existence
     if(!globalScopeManager.lookupSymbol(_functionCall->getToken().value, {Kinds::FUN})){
@@ -598,6 +579,7 @@ void Analyzer::checkArgument(const ASTFunctionCall* _functionCall){
     }
 }
 
+// checking if all paths return
 bool Analyzer::alwaysReturns(const ASTNode* _construct) const noexcept {
     ASTNodeType nodeType{ _construct->getNodeType() };
     if(nodeType == ASTNodeType::RETURN_STATEMENT){
@@ -606,6 +588,7 @@ bool Analyzer::alwaysReturns(const ASTNode* _construct) const noexcept {
     else if(nodeType == ASTNodeType::FUNCTION){
         auto _function = static_cast<const ASTFunction*>(_construct);
         for(const auto& _statement : _function->getBody()){
+            // if a statement of a function always returns - function always returns
             if(alwaysReturns(_statement.get())){
                 return true;
             }
@@ -614,9 +597,11 @@ bool Analyzer::alwaysReturns(const ASTNode* _construct) const noexcept {
     }
     else if(nodeType == ASTNodeType::IF_STATEMENT){
         auto _ifSt = static_cast<const ASTIfSt*>(_construct);
+        // if there is no else, not all paths are covered
         if(!_ifSt->hasElse()){
             return false;
         }
+        // if any if / else if / else doesn't return - not all paths return
         for(const auto& _statement : _ifSt->getStatements()){
             if(!alwaysReturns(_statement.get())){
                 return false;
@@ -626,9 +611,11 @@ bool Analyzer::alwaysReturns(const ASTNode* _construct) const noexcept {
     }
     else if(nodeType == ASTNodeType::SWITCH_STATEMENT){
         auto _switch = static_cast<const ASTSwitchSt*>(_construct);
+        // no default - not all paths are covered
         if(!_switch->hasDefault()){
             return false;
         }
+        // each case must return, otherwise not all paths return
         for(const auto& _case : _switch->getCases()){
             // check cases, if there is no break fallthrough to the next case
             if(!alwaysReturns(_case->getSwitchBlock()) && _case->hasBreak()){
@@ -643,6 +630,7 @@ bool Analyzer::alwaysReturns(const ASTNode* _construct) const noexcept {
     }
     else if(nodeType == ASTNodeType::COMPOUND_STATEMENT){
         auto _compoundSt = static_cast<const ASTCompoundSt*>(_construct);
+        // if any statement always returns - compound always returns
         for(const auto& _statement : _compoundSt->getStatements()){
             if(alwaysReturns(_statement.get())){
                 return true;

@@ -8,6 +8,7 @@ ExpressionParser::ExpressionParser(Lexer& lexer) : TokenConsumer{ lexer } {}
 // organized in a tree as reverse polish notation (RPN)
 // ast is built on the run (per subexpression)
 std::unique_ptr<ASTExpression> ExpressionParser::numericalExpression(){
+    // expression captures (subexpression) so there is no need to handle LPAREN and RPAREN
     std::unique_ptr<ASTExpression> _expression = expression();
 
     // holding the expression
@@ -16,6 +17,7 @@ std::unique_ptr<ASTExpression> ExpressionParser::numericalExpression(){
     std::stack<std::unique_ptr<ASTBinaryExpression>> weakOperators;
     
     rpn.push(std::move(_expression));
+    // if there are no operators, this part will be skipped and expression will be returned
     while(getToken().gtype == GeneralTokenType::OPERATOR){
         std::unique_ptr<ASTBinaryExpression> _op{ _operator() };
 
@@ -23,6 +25,7 @@ std::unique_ptr<ASTExpression> ExpressionParser::numericalExpression(){
         rpn.push(std::move(_expression));
 
         weakOperators.push(std::move(_op));
+        // if stronger operator comes up next, weak operators still need to wait
         while(getPrecedence(weakOperators.top()->getToken().value) < getPrecedence(getToken().value)){
             std::unique_ptr<ASTBinaryExpression> _nextOperator{ _operator() };
 
@@ -37,6 +40,7 @@ std::unique_ptr<ASTExpression> ExpressionParser::numericalExpression(){
             }
 
         }
+        // if operator of weaker precedence comes next, retrieve operators that have equal or stronger precedence
         while(!weakOperators.empty() && getPrecedence(weakOperators.top()->getToken().value) >= getPrecedence(getToken().value)){
             rpn.push(std::move(weakOperators.top()));
             weakOperators.pop();
@@ -154,6 +158,7 @@ std::unique_ptr<ASTLiteral> ExpressionParser::literal(){
     return std::make_unique<ASTLiteral>(token, ASTNodeType::LITERAL, Types::INT);
 }
 
+// root of the binary expression node (only operator, operands are assigned later)
 std::unique_ptr<ASTBinaryExpression> ExpressionParser::_operator(bool isRel){
     std::unique_ptr<ASTBinaryExpression> _op =  std::make_unique<ASTBinaryExpression>(Token{getToken()}, ASTNodeType::BINARY_EXPRESSION);
     if(stringToOperator.find(getToken().value) != stringToOperator.end()){

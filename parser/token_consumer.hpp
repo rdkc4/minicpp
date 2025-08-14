@@ -3,12 +3,17 @@
 
 #include "../lexer/lexer.hpp"
 
+/*
+    Lexer wrapper
+    Shared across parsers
+    Non-owning
+*/
 class TokenConsumer {
 public:
     TokenConsumer(Lexer& lexer);
 
 protected:
-    const Token& next() noexcept;
+    void next() noexcept;
     const Token& peek() const noexcept;
 
     void consume(TokenType expectedType);

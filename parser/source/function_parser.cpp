@@ -40,7 +40,7 @@ void FunctionParser::parameter(ASTFunction* _function){
     }
 }
 
-// BODY : LBRACKET STATEMENTS RBRACKET
+// BODY : LBRACKET STATEMENT RBRACKET
 void FunctionParser::body(ASTFunction* _function){
     consume(TokenType::_LBRACKET);
     while(getToken().type != TokenType::_RBRACKET){

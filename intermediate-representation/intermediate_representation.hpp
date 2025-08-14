@@ -43,6 +43,7 @@
 #include "../common/abstract-syntax-tree/ASTFunctionCall.hpp"
 #include "../common/abstract-syntax-tree/ASTLiteral.hpp"
 #include "../common/abstract-syntax-tree/ASTId.hpp"
+#include "../common/abstract-syntax-tree/ASTBinaryExpression.hpp"
 
 /*
     Turning abstract syntax tree into intermediate representation tree
@@ -93,10 +94,10 @@ class IntermediateRepresentation{
         std::unique_ptr<IRExpression> numericalExpression(const ASTExpression* _numexp);
 
         template<typename T>
-        std::unique_ptr<IRExpression> mergeLiterals(const IRLiteral* leftOperand, const IRLiteral* rightOperand, Operators op) const;
+        std::unique_ptr<IRExpression> mergeLiterals(const IRLiteral* leftOperand, const IRLiteral* rightOperand, const ASTBinaryExpression* binExp) const;
 
         template<typename T>
-        T mergeValues(T l, T r, Operators op) const;
+        T mergeValues(T l, T r, Operators op, size_t line, size_t column) const;
 
         std::unique_ptr<IRBinaryExpression> relationalExpression(const ASTExpression* _relexp);
         std::unique_ptr<IRId> id(const ASTId* _id) const;
