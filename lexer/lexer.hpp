@@ -20,8 +20,9 @@ class Lexer{
         // throws at the end if the number of invalid tokens is greater than 0
         void tokenize();
 
-        const Token& nextToken() noexcept;
-        const Token& peekAtNext() const noexcept;
+        const Token& next() noexcept;
+        const Token& peek() const noexcept;
+        const Token& current() const noexcept;
         bool completedTokenization() const noexcept;
         
         void printTokens() const noexcept;

@@ -59,7 +59,11 @@ SRCS = main.cpp \
 	common/intermediate-representation-tree/source/IRProgram.cpp \
 	lexer/defs/lexer_defs.cpp \
 	lexer/lexer.cpp \
-	parser/parser.cpp \
+	parser/source/token_consumer.cpp \
+	parser/source/expression_parser.cpp \
+	parser/source/statement_parser.cpp \
+	parser/source/function_parser.cpp \
+	parser/source/parser.cpp \
 	symbol-handling/symbol-table/symbol_table.cpp \
 	symbol-handling/scope-manager/scope_manager.cpp \
 	thread-pool/thread_pool.cpp \

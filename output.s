@@ -12,7 +12,6 @@ _if0:
 	movq $0, %r9
 	cmp %r9, %r8
 	jne _elif0_0
-
 	movq $0, %r8
 	movq %r8, %rax
 	jmp fib_end

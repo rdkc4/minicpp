@@ -235,13 +235,13 @@ void CodeGenerator::generateIfStatement(const IRIfSt* _if){
 
     std::string jmpLabel{ "" };
     if(size > 1){
-        jmpLabel = std::format("_elif{}_0\n", labNum);
+        jmpLabel = std::format("_elif{}_0", labNum);
     }
     else if(_if->hasElse()){
-        jmpLabel = std::format("_else{}\n", labNum);
+        jmpLabel = std::format("_else{}", labNum);
     }
     else{
-        jmpLabel = std::format("_if{}_end\n", labNum);
+        jmpLabel = std::format("_if{}_end", labNum);
     }
 
     _asm.genJmp(codeGenContext.asmCode, nodeToOppJMP.at(_ifCondition->getNodeType()), jmpLabel);

@@ -9,7 +9,7 @@
 #include "../common/defs/defs.hpp"
 #include "defs/lexer_defs.hpp"
 
-Lexer::Lexer(std::string_view input) : input{ input }, position{ 0 }, lineNumber{ 1 }, prevLineLen{ 0 }, nextTokenIdx{ 0 } {}
+Lexer::Lexer(std::string_view input) : input{ input }, position{ 0 }, lineNumber{ 1 }, prevLineLen{ 0 }, nextTokenIdx{ 1 } {}
 
 void Lexer::tokenize(){
     const size_t inputSize = input.size();
@@ -105,7 +105,7 @@ bool Lexer::completedTokenization() const noexcept {
 }
 
 // returns current token and moves onto the next
-const Token& Lexer::nextToken() noexcept {
+const Token& Lexer::next() noexcept {
     if(nextTokenIdx >= tokens.size()){
         return tokens.back();
     }
@@ -113,11 +113,16 @@ const Token& Lexer::nextToken() noexcept {
 }
 
 // returns next token
-const Token& Lexer::peekAtNext() const noexcept {
+const Token& Lexer::peek() const noexcept {
     if(nextTokenIdx >= tokens.size()){
         return tokens.back();
     }
     return tokens[nextTokenIdx];
+}
+
+// index of a next token starts at 1
+const Token& Lexer::current() const noexcept {
+    return tokens[nextTokenIdx - 1];
 }
 
 void Lexer::printTokens() const noexcept {
