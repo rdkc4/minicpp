@@ -395,7 +395,7 @@ T IntermediateRepresentation::mergeValues(T l, T r, Operators op, size_t line, s
             return l == r ? 1 : 0;
         case Operators::NEQUAL:
             return l != r ? 1 : 0;
-        case Operators::NO_OP:
+        default:
             // unreachable
             return 0;
     }
