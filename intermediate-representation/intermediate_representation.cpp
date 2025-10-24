@@ -524,11 +524,11 @@ bool IntermediateRepresentation::eliminateDeadCode(IRNode* _construct){
         }
         case IRNodeType::DEFAULT:{
             auto _default{ static_cast<IRDefaultSt*>(_construct) };
-            return eliminateDeadCode(_default->getSwitchBlockNC());
+            return eliminateDeadCode(_default->getSwitchBlock());
         }
         case IRNodeType::CASE: {
             auto _case{ static_cast<IRCaseSt*>(_construct) };
-            return eliminateDeadCode(_case->getSwitchBlockNC());
+            return eliminateDeadCode(_case->getSwitchBlock());
         }
         case IRNodeType::SWITCH_BLOCK: {
             auto switchBlock{ static_cast<IRSwitchBlock*>(_construct) };
@@ -567,11 +567,11 @@ bool IntermediateRepresentation::eliminateDeadCode(IRNode* _construct){
             if(!_switch->hasDefault()){
                 return false;
             }
-            return eliminateDeadCode(_switch->getDefaultNC()) && returnsAlways;
+            return eliminateDeadCode(_switch->getDefault()) && returnsAlways;
         }
         case IRNodeType::DO_WHILE: {
             auto _dowhile{ static_cast<IRDoWhileSt*>(_construct) };
-            return eliminateDeadCode(_dowhile->getStatementNC());
+            return eliminateDeadCode(_dowhile->getStatement());
         }
         default:
             return false;

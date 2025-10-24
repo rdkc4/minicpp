@@ -273,7 +273,7 @@ void Analyzer::checkVariable(const ASTVariable* _variable){
 
     // direct initialization
     if(_variable->getAssign() != nullptr){
-        checkNumericalExpression(_variable->getAssignNC());
+        checkNumericalExpression(_variable->getAssign());
 
         Types rtype{_variable->getAssign()->getType() };
 
@@ -292,7 +292,7 @@ void Analyzer::checkVariable(const ASTVariable* _variable){
 }
 
 void Analyzer::checkPrintfStatement(const ASTPrintfSt* _printf){
-    checkNumericalExpression(_printf->getExpNC());
+    checkNumericalExpression(_printf->getExp());
 }
 
 void Analyzer::checkIfStatement(const ASTIfSt* _if){
@@ -306,7 +306,7 @@ void Analyzer::checkIfStatement(const ASTIfSt* _if){
 }
 
 void Analyzer::checkWhileStatement(const ASTWhileSt* _while){
-    checkNumericalExpression(_while->getConditionNC());
+    checkNumericalExpression(_while->getCondition());
     checkStatement(_while->getStatement());
 }
 
@@ -316,7 +316,7 @@ void Analyzer::checkForStatement(const ASTForSt* _for){
         checkAssignmentStatement(_for->getInitializer());
     }
     if(_for->hasCondition()){
-        checkNumericalExpression(_for->getConditionNC());
+        checkNumericalExpression(_for->getCondition());
     }
     if(_for->hasIncrementer()){
         checkAssignmentStatement(_for->getIncrementer());
@@ -327,12 +327,12 @@ void Analyzer::checkForStatement(const ASTForSt* _for){
 
 void Analyzer::checkDoWhileStatement(const ASTDoWhileSt* _dowhile){
     checkStatement(_dowhile->getStatement());
-    checkNumericalExpression(_dowhile->getConditionNC());
+    checkNumericalExpression(_dowhile->getCondition());
 }
 
 void Analyzer::checkSwitchStatement(const ASTSwitchSt* _switch){
     // if id is not defined, switch is ignored, all cases will be ignored, including their statements 
-    if(!checkID(_switch->getVariableNC())) return;
+    if(!checkID(_switch->getVariable())) return;
     
     // case check
     if(_switch->getVariable()->getType() == Types::INT){
@@ -398,8 +398,8 @@ void Analyzer::checkCompoundStatement(const ASTCompoundSt* _compound){
 }
 
 void Analyzer::checkAssignmentStatement(const ASTAssignSt* _assignment){
-    ASTId* _variable{ _assignment->getVariableNC() };
-    ASTExpression* _value{ _assignment->getExpNC() };
+    ASTId* _variable{ _assignment->getVariable() };
+    ASTExpression* _value{ _assignment->getExp() };
 
     // if variable is not defined, rvalue won't be analyzed
     if(!checkID(_variable)) return;
@@ -425,7 +425,7 @@ void Analyzer::checkAssignmentStatement(const ASTAssignSt* _assignment){
 }
 
 void Analyzer::checkReturnStatement(const ASTReturnSt* _return){
-    Types returnType{ _return->returns() ? getNumericalExpressionType(_return->getExpNC()) : Types::VOID };
+    Types returnType{ _return->returns() ? getNumericalExpressionType(_return->getExp()) : Types::VOID };
     
     // if numexp inside of a return statement contains undef var, it will report it, no point checking for type mismatch
     if(returnType == Types::NO_TYPE) return;
@@ -461,8 +461,8 @@ Types Analyzer::getNumericalExpressionType(ASTExpression* _numexp){
     else{
         // numerical expression type check
         ASTBinaryExpression* binExp = static_cast<ASTBinaryExpression*>(_numexp);
-        Types ltype{ getNumericalExpressionType(binExp->getLeftOperandNC()) };
-        Types rtype{ getNumericalExpressionType(binExp->getRightOperandNC()) };
+        Types ltype{ getNumericalExpressionType(binExp->getLeftOperand()) };
+        Types rtype{ getNumericalExpressionType(binExp->getRightOperand()) };
 
         // if either subexpression is invalid, root expression shall be invalid too, no point checking for type mismatch
         if(ltype == Types::NO_TYPE || rtype == Types::NO_TYPE) return Types::NO_TYPE;
@@ -481,8 +481,8 @@ Types Analyzer::getNumericalExpressionType(ASTExpression* _numexp){
 
 void Analyzer::checkRelationalExpression(ASTExpression* _relexp){
     ASTBinaryExpression* _binExp = static_cast<ASTBinaryExpression*>(_relexp);
-    checkNumericalExpression(_binExp->getLeftOperandNC());
-    checkNumericalExpression(_binExp->getRightOperandNC());
+    checkNumericalExpression(_binExp->getLeftOperand());
+    checkNumericalExpression(_binExp->getRightOperand());
     
     auto ltype = _binExp->getLeftOperand()->getType();
     auto rtype = _binExp->getRightOperand()->getType();

@@ -12,9 +12,10 @@ class ASTWhileSt final : public ASTStatement {
 public:
     ASTWhileSt(const Token& token, ASTNodeType ntype);
 
-    const ASTExpression* getCondition() const noexcept;
-
-    ASTExpression* getConditionNC() const noexcept;
+    template<typename Self>
+    decltype(auto) getCondition(this Self&& self) noexcept {
+        return std::forward<Self>(self).condition.get();
+    }
 
     const ASTStatement* getStatement() const noexcept;
 

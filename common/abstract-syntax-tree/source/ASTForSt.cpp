@@ -11,14 +11,6 @@ const ASTAssignSt* ASTForSt::getInitializer() const noexcept {
     return initializer.get();
 }
 
-const ASTExpression* ASTForSt::getCondition() const noexcept {
-    return condition.get();
-}
-
-ASTExpression* ASTForSt::getConditionNC() const noexcept {
-    return condition.get();
-}
-
 const ASTAssignSt* ASTForSt::getIncrementer() const noexcept{
     return incrementer.get();
 }

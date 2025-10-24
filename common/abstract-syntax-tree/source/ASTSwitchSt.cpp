@@ -8,14 +8,6 @@
 
 ASTSwitchSt::ASTSwitchSt(const Token& token, ASTNodeType ntype) : ASTStatement(token, ntype) {}
 
-const ASTId* ASTSwitchSt::getVariable() const noexcept {
-    return variable.get();
-}
-
-ASTId* ASTSwitchSt::getVariableNC() const noexcept {
-    return variable.get();
-}
-
 void ASTSwitchSt::setVariable(std::unique_ptr<ASTId> var){
     variable = std::move(var);
 }

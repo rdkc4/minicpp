@@ -7,14 +7,6 @@
 
 ASTReturnSt::ASTReturnSt(const Token& token, ASTNodeType ntype) : ASTStatement(token, ntype) {}
 
-const ASTExpression* ASTReturnSt::getExp() const noexcept {
-    return exp.get();
-}
-
-ASTExpression* ASTReturnSt::getExpNC() const noexcept {
-    return exp.get();
-}
-
 void ASTReturnSt::setExp(std::unique_ptr<ASTExpression> nexp){
     exp = std::move(nexp);
 }

@@ -28,14 +28,6 @@ void IRSwitchSt::addCase(std::unique_ptr<IRCaseSt> _case){
     cases.push_back(std::move(_case));
 }
 
-const IRDefaultSt* IRSwitchSt::getDefault() const noexcept {
-    return _default.get();
-}
-
-IRDefaultSt* IRSwitchSt::getDefaultNC() noexcept {
-    return _default.get();
-}
-
 void IRSwitchSt::setDefault(std::unique_ptr<IRDefaultSt> _swDefault) {
     _default = std::move(_swDefault);
 }

@@ -14,9 +14,10 @@ public:
 
     const IRLiteral* getLiteral() const noexcept;
 
-    const IRSwitchBlock* getSwitchBlock() const noexcept;
-
-    IRSwitchBlock* getSwitchBlockNC() const noexcept;
+    template<typename Self>
+    decltype(auto) getSwitchBlock(this Self&& self) noexcept {
+        return std::forward<Self>(self).swBlock.get();
+    }
 
     void setCase(std::unique_ptr<IRLiteral> lit, std::unique_ptr<IRSwitchBlock> block, bool hasBr);
 

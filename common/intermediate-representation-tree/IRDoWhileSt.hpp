@@ -14,9 +14,10 @@ public:
 
     const IRExpression* getCondition() const noexcept;
 
-    const IRStatement* getStatement() const noexcept;
-
-    IRStatement* getStatementNC() noexcept;
+    template<typename Self>
+    decltype(auto) getStatement(this Self&& self) noexcept {
+        return std::forward<Self>(self).statement.get();
+    }
 
     void setDoWhileSt(std::unique_ptr<IRExpression> cond, std::unique_ptr<IRStatement> st, std::unique_ptr<IRTemporary> temp = nullptr);
 

@@ -7,14 +7,6 @@
 
 IRDefaultSt::IRDefaultSt(IRNodeType ntype) : IRStatement(ntype) {}
 
-const IRSwitchBlock* IRDefaultSt::getSwitchBlock() const noexcept {
-    return swBlock.get();
-}
-
-IRSwitchBlock* IRDefaultSt::getSwitchBlockNC() noexcept {
-    return swBlock.get();
-}
-
 void IRDefaultSt::setSwitchBlock(std::unique_ptr<IRSwitchBlock> block){
     swBlock = std::move(block);
 }

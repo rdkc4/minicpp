@@ -12,13 +12,15 @@ class ASTAssignSt final : public ASTStatement {
 public:
     ASTAssignSt(const Token& token, ASTNodeType ntype);
 
-    const ASTId* getVariable() const noexcept;
+    template<typename Self>
+    decltype(auto) getVariable(this Self&& self) noexcept {
+        return std::forward<Self>(self).variable.get();
+    }
 
-    ASTId* getVariableNC() const noexcept;
-
-    const ASTExpression* getExp() const noexcept;
-
-    ASTExpression* getExpNC() const noexcept;
+    template<typename Self>
+    decltype(auto) getExp(this Self&& self) noexcept {
+        return std::forward<Self>(self).exp.get();
+    }
 
     void setVariable(std::unique_ptr<ASTId> var);
 

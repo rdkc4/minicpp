@@ -11,10 +11,11 @@
 class ASTPrintfSt final : public ASTStatement {
 public:
     ASTPrintfSt(const Token& token, ASTNodeType ntype);
-
-    const ASTExpression* getExp() const noexcept;
-
-    ASTExpression* getExpNC() const noexcept;
+    
+    template<typename Self>
+    decltype(auto) getExp(this Self&& self) noexcept {
+        return std::forward<Self>(self).exp.get();
+    }
 
     void setExp(std::unique_ptr<ASTExpression> nexp);
 

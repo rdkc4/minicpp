@@ -15,14 +15,6 @@ void ASTVariable::setType(Types t) noexcept {
     type = t;
 }
 
-const ASTExpression* ASTVariable::getAssign() const noexcept {
-    return assignment.get();
-}
-
-ASTExpression* ASTVariable::getAssignNC() const noexcept {
-    return assignment.get();
-}
-
 void ASTVariable::setAssign(std::unique_ptr<ASTExpression> assign){
     assignment = std::move(assign);
 }

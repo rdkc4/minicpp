@@ -15,9 +15,10 @@ class ASTSwitchSt final : public ASTStatement {
 public:
     ASTSwitchSt(const Token& token, ASTNodeType ntype);
 
-    const ASTId* getVariable() const noexcept;
-
-    ASTId* getVariableNC() const noexcept;
+    template<typename Self>
+    decltype(auto) getVariable(this Self&& self) noexcept {
+        return std::forward<Self>(self).variable.get();
+    }
 
     void setVariable(std::unique_ptr<ASTId> var);
 

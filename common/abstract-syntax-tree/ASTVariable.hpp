@@ -17,9 +17,10 @@ public:
 
     void setType(Types t) noexcept;
 
-    const ASTExpression* getAssign() const noexcept;
-
-    ASTExpression* getAssignNC() const noexcept;
+    template<typename Self>
+    decltype(auto) getAssign(this Self&& self) noexcept {
+        return std::forward<Self>(self).assignment.get();
+    }
 
     void setAssign(std::unique_ptr<ASTExpression> assign);
 

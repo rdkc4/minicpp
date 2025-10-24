@@ -24,9 +24,10 @@ public:
 
     void addCase(std::unique_ptr<IRCaseSt> _case);
 
-    const IRDefaultSt* getDefault() const noexcept;
-
-    IRDefaultSt* getDefaultNC() noexcept;
+    template<typename Self>
+    decltype(auto) getDefault(this Self&& self) noexcept {
+        return std::forward<Self>(self)._default.get();
+    }
 
     void setDefault(std::unique_ptr<IRDefaultSt> _swDefault);
 

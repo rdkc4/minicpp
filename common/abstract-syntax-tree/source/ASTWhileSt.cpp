@@ -7,14 +7,6 @@
 
 ASTWhileSt::ASTWhileSt(const Token& token, ASTNodeType ntype) : ASTStatement(token, ntype) {}
 
-const ASTExpression* ASTWhileSt::getCondition() const noexcept {
-    return condition.get();
-}
-
-ASTExpression* ASTWhileSt::getConditionNC() const noexcept {
-    return condition.get();
-}
-
 const ASTStatement* ASTWhileSt::getStatement() const noexcept {
     return statement.get();
 }

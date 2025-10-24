@@ -11,14 +11,6 @@ const IRLiteral* IRCaseSt::getLiteral() const noexcept {
     return literal.get();
 }
 
-const IRSwitchBlock* IRCaseSt::getSwitchBlock() const noexcept {
-    return swBlock.get();
-}
-
-IRSwitchBlock* IRCaseSt::getSwitchBlockNC() const noexcept {
-    return swBlock.get();
-}
-
 void IRCaseSt::setCase(std::unique_ptr<IRLiteral> lit, std::unique_ptr<IRSwitchBlock> block, bool hasBr){
     literal = std::move(lit);
     swBlock = std::move(block);

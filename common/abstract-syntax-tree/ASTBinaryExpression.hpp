@@ -12,13 +12,15 @@ class ASTBinaryExpression final : public ASTExpression {
 public:
     ASTBinaryExpression(const Token& token, ASTNodeType ntype, Types type = Types::NO_TYPE, Operators op = Operators::NO_OP);
     
-    const ASTExpression* getLeftOperand() const noexcept;
+    template<typename Self>
+    decltype(auto) getLeftOperand(this Self&& self) noexcept {
+        return std::forward<Self>(self).leftOperand.get();
+    }
 
-    ASTExpression* getLeftOperandNC() noexcept;
-
-    const ASTExpression* getRightOperand() const noexcept;
-
-    ASTExpression* getRightOperandNC() noexcept;
+    template<typename Self>
+    decltype(auto) getRightOperand(this Self&& self) noexcept {
+        return std::forward<Self>(self).rightOperand.get();
+    }
 
     Operators getOperator() const noexcept;
 

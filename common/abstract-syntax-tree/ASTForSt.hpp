@@ -16,9 +16,10 @@ public:
 
     const ASTAssignSt* getInitializer() const noexcept;
 
-    const ASTExpression* getCondition() const noexcept;
-
-    ASTExpression* getConditionNC() const noexcept;
+    template<typename Self>
+    decltype(auto) getCondition(this Self&& self) noexcept {
+        return std::forward<Self>(self).condition.get();
+    }
 
     const ASTAssignSt* getIncrementer() const noexcept;
     

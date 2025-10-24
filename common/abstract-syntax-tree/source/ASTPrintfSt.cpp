@@ -7,14 +7,6 @@
 
 ASTPrintfSt::ASTPrintfSt(const Token& token, ASTNodeType ntype) : ASTStatement(token, ntype) {}
 
-const ASTExpression* ASTPrintfSt::getExp() const noexcept {
-    return exp.get();
-}
-
-ASTExpression* ASTPrintfSt::getExpNC() const noexcept {
-    return exp.get();
-}
-
 void ASTPrintfSt::setExp(std::unique_ptr<ASTExpression> nexp){
     exp = std::move(nexp);
 }

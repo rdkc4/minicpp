@@ -11,8 +11,10 @@ class IRDefaultSt final : public IRStatement {
 public:
     IRDefaultSt(IRNodeType ntype);
 
-    const IRSwitchBlock* getSwitchBlock() const noexcept;
-    IRSwitchBlock* getSwitchBlockNC() noexcept;
+    template<typename Self>
+    decltype(auto) getSwitchBlock(this Self&& self) noexcept {
+        return std::forward<Self>(self).swBlock.get();
+    }
 
     void setSwitchBlock(std::unique_ptr<IRSwitchBlock> block);
 

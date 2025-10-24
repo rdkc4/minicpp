@@ -11,14 +11,6 @@ const IRExpression* IRDoWhileSt::getCondition() const noexcept {
     return condition.get();
 }
 
-const IRStatement* IRDoWhileSt::getStatement() const noexcept {
-    return statement.get();
-}
-
-IRStatement* IRDoWhileSt::getStatementNC() noexcept {
-    return statement.get();
-}
-
 void IRDoWhileSt::setDoWhileSt(std::unique_ptr<IRExpression> cond, std::unique_ptr<IRStatement> st, std::unique_ptr<IRTemporary> temp){
     condition = std::move(cond);
     statement = std::move(st);
