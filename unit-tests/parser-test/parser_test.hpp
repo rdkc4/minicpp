@@ -2,16 +2,15 @@
 #define PARSER_TEST_HPP
 
 #include "../../parser/parser.hpp"
-#include "../lexer-test/lexer_test.hpp"
 
 class ParserTest : public Parser {
     public:
-        ParserTest(LexerTest& lexer) : Parser{ lexer } {}
+        ParserTest(TokenConsumer& consumer) : Parser{ consumer } {}
 };
 
 class FunctionParserTest : public FunctionParser {
     public:
-        FunctionParserTest(LexerTest& lexer) : FunctionParser{ lexer } {}
+        FunctionParserTest(TokenConsumer& consumer) : FunctionParser{ consumer } {}
 
         std::unique_ptr<ASTFunction> testFunction(){
             return function();
@@ -20,7 +19,7 @@ class FunctionParserTest : public FunctionParser {
 
 class StatementParserTest : public StatementParser {
 public:
-    StatementParserTest(Lexer& lexer) : StatementParser{ lexer } {}
+    StatementParserTest(TokenConsumer& consumer) : StatementParser{ consumer } {}
 
     std::unique_ptr<ASTVariable> testVariable(){
         return variable();
@@ -65,7 +64,7 @@ public:
 
 class ExpressionParserTest : public ExpressionParser {
     public:
-        ExpressionParserTest(Lexer& lexer) : ExpressionParser{ lexer } {}
+        ExpressionParserTest(TokenConsumer& consumer) : ExpressionParser{ consumer } {}
 
         std::unique_ptr<ASTExpression> testNumericalExpression(){
             return numericalExpression();

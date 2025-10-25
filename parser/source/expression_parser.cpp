@@ -1,7 +1,7 @@
 #include "../expression_parser.hpp"
 #include "../token_consumer.hpp"
 
-ExpressionParser::ExpressionParser(Lexer& lexer) : TokenConsumer{ lexer } {}
+ExpressionParser::ExpressionParser(TokenConsumer& consumer) : tokenConsumer{ consumer } {}
 
 // NUMERICAL_EXPRESSION : EXPRESSION 
 //                      | NUMERICAL_EXPRESSION OPERATOR EXPRESSION
@@ -18,7 +18,7 @@ std::unique_ptr<ASTExpression> ExpressionParser::numericalExpression(){
     
     rpn.push(std::move(_expression));
     // if there are no operators, this part will be skipped and expression will be returned
-    while(getToken().gtype == GeneralTokenType::OPERATOR){
+    while(tokenConsumer.getToken().gtype == GeneralTokenType::OPERATOR){
         std::unique_ptr<ASTBinaryExpression> _op{ _operator() };
 
         _expression = expression();
@@ -26,13 +26,13 @@ std::unique_ptr<ASTExpression> ExpressionParser::numericalExpression(){
 
         weakOperators.push(std::move(_op));
         // if stronger operator comes up next, weak operators still need to wait
-        while(getPrecedence(weakOperators.top()->getToken().value) < getPrecedence(getToken().value)){
+        while(getPrecedence(weakOperators.top()->getToken().value) < getPrecedence(tokenConsumer.getToken().value)){
             std::unique_ptr<ASTBinaryExpression> _nextOperator{ _operator() };
 
             std::unique_ptr<ASTExpression> _nextExpression{ expression() };
             rpn.push(std::move(_nextExpression));
             
-            if(getPrecedence(_nextOperator->getToken().value) < getPrecedence(getToken().value)){
+            if(getPrecedence(_nextOperator->getToken().value) < getPrecedence(tokenConsumer.getToken().value)){
                 weakOperators.push(std::move(_nextOperator));
             }
             else{
@@ -41,7 +41,7 @@ std::unique_ptr<ASTExpression> ExpressionParser::numericalExpression(){
 
         }
         // if operator of weaker precedence comes next, retrieve operators that have equal or stronger precedence
-        while(!weakOperators.empty() && getPrecedence(weakOperators.top()->getToken().value) >= getPrecedence(getToken().value)){
+        while(!weakOperators.empty() && getPrecedence(weakOperators.top()->getToken().value) >= getPrecedence(tokenConsumer.getToken().value)){
             rpn.push(std::move(weakOperators.top()));
             weakOperators.pop();
         }
@@ -84,23 +84,24 @@ std::unique_ptr<ASTExpression> ExpressionParser::rpnToTree(std::stack<std::uniqu
 //            | ID 
 //            | LPAREN NUMERICAL_EXPRESSION RPAREN
 std::unique_ptr<ASTExpression> ExpressionParser::expression(){
-    if(getToken().type == TokenType::_LITERAL){
+    if(tokenConsumer.getToken().type == TokenType::_LITERAL){
         return literal();
     }
-    else if(getToken().type == TokenType::_ID && peek().type == TokenType::_LPAREN){
+    else if(tokenConsumer.getToken().type == TokenType::_ID && tokenConsumer.peek().type == TokenType::_LPAREN){
         return functionCall();
     }
-    else if(getToken().type == TokenType::_ID){
+    else if(tokenConsumer.getToken().type == TokenType::_ID){
         return id();    
     }
-    else if(getToken().type == TokenType::_LPAREN){
-        consume(TokenType::_LPAREN);
+    else if(tokenConsumer.getToken().type == TokenType::_LPAREN){
+        tokenConsumer.consume(TokenType::_LPAREN);
         std::unique_ptr<ASTExpression> _numericalExp = numericalExpression();
-        consume(TokenType::_RPAREN);
+        tokenConsumer.consume(TokenType::_RPAREN);
         return _numericalExp;
     }
+    auto token = tokenConsumer.getToken();
     throw std::runtime_error(std::format("Line {}, Column {}: SYNTAX ERROR -> expected 'EXPRESSION', got '{} {}'",
-            getToken().line, getToken().column, tokenTypeToString.at(getToken().type), getToken().value));
+            token.line, token.column, tokenTypeToString.at(token.type), token.value));
 }
 
 
@@ -115,12 +116,12 @@ std::unique_ptr<ASTExpression> ExpressionParser::relationalExpression(){
 
 // FUNCTION_CALL : ID LPAREN ARGUMENT RPAREN
 std::unique_ptr<ASTFunctionCall> ExpressionParser::functionCall(){
-    std::unique_ptr<ASTFunctionCall> _functionCall = std::make_unique<ASTFunctionCall>(getToken(), ASTNodeType::FUNCTION_CALL);
-    consume(TokenType::_ID);
+    std::unique_ptr<ASTFunctionCall> _functionCall = std::make_unique<ASTFunctionCall>(tokenConsumer.getToken(), ASTNodeType::FUNCTION_CALL);
+    tokenConsumer.consume(TokenType::_ID);
     
-    consume(TokenType::_LPAREN);
+    tokenConsumer.consume(TokenType::_LPAREN);
     argument(_functionCall.get());
-    consume(TokenType::_RPAREN);
+    tokenConsumer.consume(TokenType::_RPAREN);
     
     return _functionCall;
 }
@@ -129,10 +130,10 @@ std::unique_ptr<ASTFunctionCall> ExpressionParser::functionCall(){
 //          | NUMERICAL_EXPRESSION 
 //          | ARGUMENT COMMA NUMERICAL_EXPRESSION
 void ExpressionParser::argument(ASTFunctionCall* _functionCall){
-    while(getToken().type != TokenType::_RPAREN){
+    while(tokenConsumer.getToken().type != TokenType::_RPAREN){
         _functionCall->addArgument(numericalExpression());
-        if(getToken().type == TokenType::_COMMA && peek().type != TokenType::_RPAREN){
-            consume(TokenType::_COMMA);
+        if(tokenConsumer.getToken().type == TokenType::_COMMA && tokenConsumer.peek().type != TokenType::_RPAREN){
+            tokenConsumer.consume(TokenType::_COMMA);
         }
         else{
             break;
@@ -142,16 +143,16 @@ void ExpressionParser::argument(ASTFunctionCall* _functionCall){
 
 // ID : ID
 std::unique_ptr<ASTId> ExpressionParser::id(){
-    const Token token{ getToken() };
-    consume(TokenType::_ID);
+    const Token token{ tokenConsumer.getToken() };
+    tokenConsumer.consume(TokenType::_ID);
 
     return std::make_unique<ASTId>(token, ASTNodeType::ID);
 }
 
 // LITERAL : LITERAL(unsigned) | LITERAL(int)
 std::unique_ptr<ASTLiteral> ExpressionParser::literal(){
-    const Token token{ getToken() };
-    consume(TokenType::_LITERAL);
+    const Token token{ tokenConsumer.getToken() };
+    tokenConsumer.consume(TokenType::_LITERAL);
     if(token.value.back() == 'u'){
         return std::make_unique<ASTLiteral>(token, ASTNodeType::LITERAL, Types::UNSIGNED);
     }
@@ -160,16 +161,16 @@ std::unique_ptr<ASTLiteral> ExpressionParser::literal(){
 
 // root of the binary expression node (only operator, operands are assigned later)
 std::unique_ptr<ASTBinaryExpression> ExpressionParser::_operator(bool isRel){
-    std::unique_ptr<ASTBinaryExpression> _op =  std::make_unique<ASTBinaryExpression>(Token{getToken()}, ASTNodeType::BINARY_EXPRESSION);
-    if(stringToOperator.find(getToken().value) != stringToOperator.end()){
-        _op->setOperator(stringToOperator.at(getToken().value));
+    std::unique_ptr<ASTBinaryExpression> _op =  std::make_unique<ASTBinaryExpression>(Token{ tokenConsumer.getToken() }, ASTNodeType::BINARY_EXPRESSION);
+    if(stringToOperator.find(tokenConsumer.getToken().value) != stringToOperator.end()){
+        _op->setOperator(stringToOperator.at(tokenConsumer.getToken().value));
     }
 
     if(isRel){
-        consume(TokenType::_RELOP);
+        tokenConsumer.consume(TokenType::_RELOP);
     }
     else{
-        consume(GeneralTokenType::OPERATOR);
+        tokenConsumer.consume(GeneralTokenType::OPERATOR);
     }
 
     return _op;

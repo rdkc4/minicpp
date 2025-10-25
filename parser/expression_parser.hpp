@@ -13,9 +13,9 @@
 
 #include "token_consumer.hpp"
 
-class ExpressionParser : public TokenConsumer {
+class ExpressionParser {
 public:
-    ExpressionParser(Lexer& lexer);
+    ExpressionParser(TokenConsumer& consumer);
 
     std::unique_ptr<ASTExpression> numericalExpression();
     std::unique_ptr<ASTExpression> relationalExpression();
@@ -23,6 +23,8 @@ public:
     std::unique_ptr<ASTLiteral> literal();
 
 protected:
+    TokenConsumer& tokenConsumer;
+
     // expressions
     std::unique_ptr<ASTExpression> rpnToTree(std::stack<std::unique_ptr<ASTExpression>>& rpn, std::unique_ptr<ASTExpression>& root) const;
     std::unique_ptr<ASTExpression> expression();

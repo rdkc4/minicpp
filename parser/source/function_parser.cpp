@@ -1,18 +1,18 @@
 #include "../function_parser.hpp"
 
-FunctionParser::FunctionParser(Lexer& lexer) : TokenConsumer{ lexer }, stmtParser{ lexer } {}
+FunctionParser::FunctionParser(TokenConsumer& consumer) : stmtParser{ consumer }, tokenConsumer{ consumer } {}
 
 // FUNCTION : TYPE ID LPAREN PARAMETERS RPAREN BODY
 std::unique_ptr<ASTFunction> FunctionParser::function(){
-    Types type{ tokenTypeToType.find(getToken().type) != tokenTypeToType.end() ? tokenTypeToType.at(getToken().type) : Types::NO_TYPE };
-    consume(GeneralTokenType::TYPE);
-    const Token token{ getToken() };
-    consume(TokenType::_ID);
+    Types type{ tokenTypeToType.find(tokenConsumer.getToken().type) != tokenTypeToType.end() ? tokenTypeToType.at(tokenConsumer.getToken().type) : Types::NO_TYPE };
+    tokenConsumer.consume(GeneralTokenType::TYPE);
+    const Token token{ tokenConsumer.getToken() };
+    tokenConsumer.consume(TokenType::_ID);
     std::unique_ptr<ASTFunction> _function = std::make_unique<ASTFunction>(token, ASTNodeType::FUNCTION, type);
 
-    consume(TokenType::_LPAREN);
+    tokenConsumer.consume(TokenType::_LPAREN);
     parameter(_function.get());
-    consume(TokenType::_RPAREN);
+    tokenConsumer.consume(TokenType::_RPAREN);
 
     body(_function.get());
     
@@ -23,16 +23,16 @@ std::unique_ptr<ASTFunction> FunctionParser::function(){
 //            | PARAMETER 
 //            | PARAMETERS COMMA PARAMETER
 void FunctionParser::parameter(ASTFunction* _function){
-    while(getToken().gtype == GeneralTokenType::TYPE){
-        Types type{ tokenTypeToType.at(getToken().type) };
-        consume(GeneralTokenType::TYPE);
-        const Token token{ getToken() };
-        consume(TokenType::_ID);
+    while(tokenConsumer.getToken().gtype == GeneralTokenType::TYPE){
+        Types type{ tokenTypeToType.at(tokenConsumer.getToken().type) };
+        tokenConsumer.consume(GeneralTokenType::TYPE);
+        const Token token{ tokenConsumer.getToken() };
+        tokenConsumer.consume(TokenType::_ID);
         
         _function->addParameter(std::make_unique<ASTParameter>(token, ASTNodeType::PARAMETER, type));
 
-        if(getToken().type == TokenType::_COMMA && peek().gtype == GeneralTokenType::TYPE){
-            consume(TokenType::_COMMA);
+        if(tokenConsumer.getToken().type == TokenType::_COMMA && tokenConsumer.peek().gtype == GeneralTokenType::TYPE){
+            tokenConsumer.consume(TokenType::_COMMA);
         }
         else{
             break;
@@ -42,9 +42,9 @@ void FunctionParser::parameter(ASTFunction* _function){
 
 // BODY : LBRACKET STATEMENT RBRACKET
 void FunctionParser::body(ASTFunction* _function){
-    consume(TokenType::_LBRACKET);
-    while(getToken().type != TokenType::_RBRACKET){
+    tokenConsumer.consume(TokenType::_LBRACKET);
+    while(tokenConsumer.getToken().type != TokenType::_RBRACKET){
         _function->addStatement(stmtParser.statement());
     }
-    consume(TokenType::_RBRACKET);
+    tokenConsumer.consume(TokenType::_RBRACKET);
 }

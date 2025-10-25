@@ -18,14 +18,15 @@
 #include "expression_parser.hpp"
 #include "token_consumer.hpp"
 
-class StatementParser : TokenConsumer {
+class StatementParser {
 public:
-    StatementParser(Lexer& lexer);
+    StatementParser(TokenConsumer& consumer);
 
     std::unique_ptr<ASTStatement> statement();
 
 protected:
     ExpressionParser expParser;
+    TokenConsumer& tokenConsumer;
 
     // statements
     std::unique_ptr<ASTVariable> variable();

@@ -11,8 +11,7 @@
 class TokenConsumer {
 public:
     TokenConsumer(Lexer& lexer);
-
-protected:
+    
     void next() noexcept;
     const Token& peek() const noexcept;
 

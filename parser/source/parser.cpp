@@ -4,7 +4,7 @@
 
 #include "../token_consumer.hpp"
 
-Parser::Parser(Lexer& lexer) : TokenConsumer{ lexer }, funcParser{ lexer }{}
+Parser::Parser(TokenConsumer& consumer) : funcParser{ consumer }, tokenConsumer{ consumer } {}
 
 // PROGRAM : FUNCTION
 //         | PROGRAM FUNCTION
@@ -13,10 +13,10 @@ std::unique_ptr<ASTProgram> Parser::parseProgram(){
     
     do{
         _program->addFunction(funcParser.function());
-    }while(getToken().gtype == GeneralTokenType::TYPE);
+    }while(tokenConsumer.getToken().gtype == GeneralTokenType::TYPE);
 
     // check if input ends correctly
-    consume(TokenType::_EOF);
+    tokenConsumer.consume(TokenType::_EOF);
 
     return _program;
 }

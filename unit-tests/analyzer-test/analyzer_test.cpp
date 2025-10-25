@@ -8,7 +8,8 @@ TEST(AnalyzerTest, SemanticCheck){
     LexerTest lexer{"int fun(){ return 1; } int main(){ return fun();}"};
     lexer.tokenize();
 
-    ParserTest parser{ lexer };
+    TokenConsumer tokenConsumer { lexer };
+    ParserTest parser{ tokenConsumer };
     auto ast = parser.parseProgram();
 
     SymbolTable symtab;
@@ -22,7 +23,8 @@ TEST(AnalyzerTest, SemanticCheckInvalidFunctionCallThrows){
     LexerTest lexer{"int fun(){ return 1; } int main(){ return fun(1);}"};
     lexer.tokenize();
 
-    ParserTest parser{ lexer };
+    TokenConsumer tokenConsumer { lexer };
+    ParserTest parser{ tokenConsumer };
     auto ast = parser.parseProgram();
 
     SymbolTable symtab;
@@ -37,7 +39,8 @@ TEST(AnalyzerTest, SemanticCheckTypeMismatchThrows){
     LexerTest lexer{"int fun(){ return 1u; } int main(){ return fun();}"};
     lexer.tokenize();
 
-    ParserTest parser{ lexer };
+    TokenConsumer tokenConsumer { lexer };
+    ParserTest parser{ tokenConsumer };
     auto ast = parser.parseProgram();
 
     SymbolTable symtab;
@@ -51,7 +54,8 @@ TEST(AnalyzerTest, SemanticCheckNoMainThrows){
     LexerTest lexer{"int fun(){ return 1; } int abc(){ return fun();}"};
     lexer.tokenize();
 
-    ParserTest parser{ lexer };
+    TokenConsumer tokenConsumer { lexer };
+    ParserTest parser{ tokenConsumer };
     auto ast = parser.parseProgram();
 
     SymbolTable symtab;
@@ -65,7 +69,8 @@ TEST(AnalyzerTest, CheckFunctionSignatures){
     LexerTest lexer{"int rectArea(int x, int y){ return x * y; } int sq(int x){ return x * x; }"};
     lexer.tokenize();
 
-    ParserTest parser{ lexer };
+    TokenConsumer tokenConsumer { lexer };
+    ParserTest parser{ tokenConsumer };
     auto _program = parser.parseProgram();
 
     SymbolTable symtab;
@@ -84,7 +89,8 @@ TEST(AnalyzerTest, CheckFunctionSignaturesFunctionRedefError){
     LexerTest lexer{"int rectArea(int x, int y){ return x * y; } int rectArea(int x){ return x * x; }"};
     lexer.tokenize();
 
-    ParserTest parser{ lexer };
+    TokenConsumer tokenConsumer { lexer };
+    ParserTest parser{ tokenConsumer };
     auto _program = parser.parseProgram();
 
     SymbolTable symtab;
@@ -103,7 +109,8 @@ TEST(AnalyzerTest, CheckFunctionSignaturesParameterRedefError){
     LexerTest lexer{"int rectArea(int x, int x){ return x * x; } int main(){ return x * x; }"};
     lexer.tokenize();
 
-    ParserTest parser{ lexer };
+    TokenConsumer tokenConsumer { lexer };
+    ParserTest parser{ tokenConsumer };
     auto _program = parser.parseProgram();
 
     SymbolTable symtab;
@@ -122,7 +129,8 @@ TEST(AnalyzerTest, CheckFunctionSignaturesMainParamsError){
     LexerTest lexer{"int main(int x){ return 0; }"};
     lexer.tokenize();
 
-    ParserTest parser{ lexer };
+    TokenConsumer tokenConsumer { lexer };
+    ParserTest parser{ tokenConsumer };
     auto _program = parser.parseProgram();
 
     SymbolTable symtab;
@@ -141,7 +149,8 @@ TEST(AnalyzerTest, CheckFunction){
     LexerTest lexer{"int fun(){ return 1; }"};
     lexer.tokenize();
 
-    FunctionParserTest parser{ lexer };
+    TokenConsumer tokenConsumer { lexer };
+    FunctionParserTest parser{ tokenConsumer };
     auto _function = parser.testFunction();
 
     SymbolTable symtab;
@@ -160,7 +169,8 @@ TEST(AnalyzerTest, CheckFunctionNotAllIfPathsReturnError){
     LexerTest lexer{"int fun(int x){ if(x > 0) return 1; }"};
     lexer.tokenize();
 
-    FunctionParserTest parser{ lexer };
+    TokenConsumer tokenConsumer { lexer };
+    FunctionParserTest parser{ tokenConsumer };
     auto _function = parser.testFunction();
 
     SymbolTable symtab;
@@ -180,7 +190,8 @@ TEST(AnalyzerTest, CheckFunctionNotAllSwitchPathsReturnError){
     LexerTest lexer{"int fun(int x){ switch(x){ case 0: return 0; case 1: return 1; } }"};
     lexer.tokenize();
 
-    FunctionParserTest parser{ lexer };
+    TokenConsumer tokenConsumer { lexer };
+    FunctionParserTest parser{ tokenConsumer };
     auto _function = parser.testFunction();
 
     SymbolTable symtab;
@@ -200,7 +211,8 @@ TEST(AnalyzerTest, CheckFunctionParameterRedefError){
     LexerTest lexer{"int fun(int x){ int x = 1; return 0; }"};
     lexer.tokenize();
 
-    FunctionParserTest parser{ lexer };
+    TokenConsumer tokenConsumer { lexer };
+    FunctionParserTest parser{ tokenConsumer };
     auto _function = parser.testFunction();
 
     SymbolTable symtab;
@@ -220,7 +232,8 @@ TEST(AnalyzerTest, CheckFunctionVoidReturnsTypeError){
     LexerTest lexer{"void fun(){ return 1; }"};
     lexer.tokenize();
 
-    FunctionParserTest parser{ lexer };
+    TokenConsumer tokenConsumer { lexer };
+    FunctionParserTest parser{ tokenConsumer };
     auto _function = parser.testFunction();
 
     SymbolTable symtab;
@@ -240,7 +253,8 @@ TEST(AnalyzerTest, CheckFunctionVoidTypeMismatchError){
     LexerTest lexer{"int fun(){ return 1u; }"};
     lexer.tokenize();
 
-    FunctionParserTest parser{ lexer };
+    TokenConsumer tokenConsumer { lexer };
+    FunctionParserTest parser{ tokenConsumer };
     auto _function = parser.testFunction();
 
     SymbolTable symtab;
@@ -260,7 +274,8 @@ TEST(AnalyzerTest, CheckVariable){
     LexerTest lexer{"int x = 3;"};
     lexer.tokenize();
 
-    StatementParserTest parser{ lexer };
+    TokenConsumer tokenConsumer { lexer };
+    StatementParserTest parser{ tokenConsumer };
     auto _variable = parser.testVariable();
 
     SymbolTable symtab;
@@ -282,7 +297,8 @@ TEST(AnalyzerTest, CheckVariableExitedScope){
     LexerTest lexer{"{ { int x = 3; } int x = 5; }"};
     lexer.tokenize();
 
-    StatementParserTest parser{ lexer };
+    TokenConsumer tokenConsumer { lexer };
+    StatementParserTest parser{ tokenConsumer };
     auto _compound = parser.testCompoundStatement();
 
     SymbolTable symtab;
@@ -300,7 +316,8 @@ TEST(AnalyzerTest, CheckVariableRedefError){
     LexerTest lexer{"int x = 5;"};
     lexer.tokenize();
 
-    StatementParserTest parser{ lexer };
+    TokenConsumer tokenConsumer { lexer };
+    StatementParserTest parser{ tokenConsumer };
     auto _variable = parser.testVariable();
 
     SymbolTable symtab;
@@ -323,7 +340,8 @@ TEST(AnalyzerTest, CheckVariableTypeMismatchError){
     LexerTest lexer{"int x = 5u;"};
     lexer.tokenize();
 
-    StatementParserTest parser{ lexer };
+    TokenConsumer tokenConsumer { lexer };
+    StatementParserTest parser{ tokenConsumer };
     auto _variable = parser.testVariable();
 
     SymbolTable symtab;
@@ -345,7 +363,8 @@ TEST(AnalyzerTest, CheckVariableAutoType){
     LexerTest lexer{"auto x = 5u;"};
     lexer.tokenize();
 
-    StatementParserTest parser{ lexer };
+    TokenConsumer tokenConsumer { lexer };
+    StatementParserTest parser{ tokenConsumer };
     auto _variable = parser.testVariable();
 
     SymbolTable symtab;
@@ -368,7 +387,8 @@ TEST(AnalyzerTest, CheckVariableAutoError){
     LexerTest lexer{"auto x;"};
     lexer.tokenize();
 
-    StatementParserTest parser{ lexer };
+    TokenConsumer tokenConsumer { lexer };
+    StatementParserTest parser{ tokenConsumer };
     auto _variable = parser.testVariable();
 
     SymbolTable symtab;
@@ -390,7 +410,8 @@ TEST(AnalyzerTest, CheckVariableUndefinedVariableError){
     LexerTest lexer{"int x = y;"};
     lexer.tokenize();
 
-    StatementParserTest parser{ lexer };
+    TokenConsumer tokenConsumer { lexer };
+    StatementParserTest parser{ tokenConsumer };
     auto _variable = parser.testVariable();
 
     SymbolTable symtab;
@@ -412,7 +433,8 @@ TEST(AnalyzerTest, ForStatement){
     LexerTest lexer{"for(i = 0; i < 2; i = i + 1) printf(i);"};
     lexer.tokenize();
 
-    StatementParserTest parser{ lexer };
+    TokenConsumer tokenConsumer { lexer };
+    StatementParserTest parser{ tokenConsumer };
     auto _for = parser.testForStatement();
 
     SymbolTable symtab;
@@ -434,7 +456,8 @@ TEST(AnalyzerTest, ForStatementUndefVarError){
     LexerTest lexer{"for(i = 0; i < 10; i = i + 1) printf(i);"};
     lexer.tokenize();
 
-    StatementParserTest parser{ lexer };
+    TokenConsumer tokenConsumer { lexer };
+    StatementParserTest parser{ tokenConsumer };
     auto _for = parser.testForStatement();
 
     SymbolTable symtab;
@@ -456,7 +479,8 @@ TEST(AnalyzerTest, ForStatementTypeMismatchError){
     LexerTest lexer{"for(i = 0u; i < 10; i = i + 1) printf(i);"};
     lexer.tokenize();
 
-    StatementParserTest parser{ lexer };
+    TokenConsumer tokenConsumer { lexer };
+    StatementParserTest parser{ tokenConsumer };
     auto _for = parser.testForStatement();
 
     SymbolTable symtab;
@@ -479,7 +503,8 @@ TEST(AnalyzerTest, SwitchStatement){
     LexerTest lexer{"switch(x){ case 1: break; default: break; }"};
     lexer.tokenize();
 
-    StatementParserTest parser{ lexer };
+    TokenConsumer tokenConsumer { lexer };
+    StatementParserTest parser{ tokenConsumer };
     auto _switch = parser.testSwitchStatement();
 
     SymbolTable symtab;
@@ -501,7 +526,8 @@ TEST(AnalyzerTest, SwitchStatementTypeMismatchError){
     LexerTest lexer{"switch(x){ case 1u: break; default: break; }"};
     lexer.tokenize();
 
-    StatementParserTest parser{ lexer };
+    TokenConsumer tokenConsumer { lexer };
+    StatementParserTest parser{ tokenConsumer };
     auto _switch = parser.testSwitchStatement();
 
     SymbolTable symtab;
@@ -524,7 +550,8 @@ TEST(AnalyzerTest, SwitchStatementCaseDuplicateError){
     LexerTest lexer{"switch(x){ case 1: break; case 1: break; }"};
     lexer.tokenize();
 
-    StatementParserTest parser{ lexer };
+    TokenConsumer tokenConsumer { lexer };
+    StatementParserTest parser{ tokenConsumer };
     auto _switch = parser.testSwitchStatement();
 
     SymbolTable symtab;

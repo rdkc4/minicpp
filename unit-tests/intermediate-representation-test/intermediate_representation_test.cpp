@@ -10,7 +10,8 @@ TEST(IRTest, FormIR){
     LexerTest lexer{"int fun(){ return 1; } int main(){ return fun(); }"};
     lexer.tokenize();
 
-    ParserTest parser{lexer};
+    TokenConsumer tokenConsumer { lexer };
+    ParserTest parser{ tokenConsumer };
     std::unique_ptr<ASTProgram> _astProgram = parser.parseProgram();
 
     IntermediateRepresentationTest intermediateRepresentation;
@@ -26,7 +27,8 @@ TEST(IRTest, FormIRThrows){
     LexerTest lexer{"int main(){ return 1/0; }"};
     lexer.tokenize();
 
-    ParserTest parser{lexer};
+    TokenConsumer tokenConsumer { lexer };
+    ParserTest parser{ tokenConsumer };
     std::unique_ptr<ASTProgram> _astProgram = parser.parseProgram();
 
     IntermediateRepresentationTest intermediateRepresentation;
@@ -40,7 +42,8 @@ TEST(IRTest, FunctionDeadCodeElimination){
     LexerTest lexer{"int fun(int x){ return 0; x = 1; return x; }"};
     lexer.tokenize();
 
-    FunctionParserTest parser{lexer};
+    TokenConsumer tokenConsumer { lexer };
+    FunctionParserTest parser{ tokenConsumer };
     std::unique_ptr<ASTFunction> _astFunction = parser.testFunction();
 
     IntermediateRepresentationTest intermediateRepresentation;
@@ -57,7 +60,8 @@ TEST(IRTest, FunctionDeadCodeEliminationIfBranching){
     LexerTest lexer{"int fun(int x){ if(x > 1) return 0; else return 1; x = x + 1; return x; }"};
     lexer.tokenize();
 
-    FunctionParserTest parser{lexer};
+    TokenConsumer tokenConsumer { lexer };
+    FunctionParserTest parser{ tokenConsumer };
     std::unique_ptr<ASTFunction> _astFunction = parser.testFunction();
 
     IntermediateRepresentationTest intermediateRepresentation;
@@ -74,7 +78,8 @@ TEST(IRTest, FunctionDeadCodeEliminationSwitchBranching){
     LexerTest lexer{"int fun(int x){ switch(x) { case 0: case 1: return 0; default: return 1; } x = x + 1; return x; }"};
     lexer.tokenize();
 
-    FunctionParserTest parser{lexer};
+    TokenConsumer tokenConsumer { lexer };
+    FunctionParserTest parser{ tokenConsumer };
     std::unique_ptr<ASTFunction> _astFunction = parser.testFunction();
 
     IntermediateRepresentationTest intermediateRepresentation;
@@ -91,7 +96,8 @@ TEST(IRTest, FunctionDeadCodeEliminationDoWhile){
     LexerTest lexer{"int fun(int x){ do{ if(x > 0) return 0; else return 1; x = x - 1; } while(x>0); return x; }"};
     lexer.tokenize();
 
-    FunctionParserTest parser{lexer};
+    TokenConsumer tokenConsumer { lexer };
+    FunctionParserTest parser{ tokenConsumer };
     std::unique_ptr<ASTFunction> _astFunction = parser.testFunction();
 
     IntermediateRepresentationTest intermediateRepresentation;
@@ -108,7 +114,8 @@ TEST(IRTest, CompoundStatementDeadCodeElimination){
     LexerTest lexer{"{ return 0; int x = 1; return x; }"};
     lexer.tokenize();
 
-    StatementParserTest parser{lexer};
+    TokenConsumer tokenConsumer { lexer };
+    StatementParserTest parser{ tokenConsumer };
     std::unique_ptr<ASTCompoundSt> _astCompound = parser.testCompoundStatement();
 
     IntermediateRepresentationTest intermediateRepresentation;
@@ -125,7 +132,8 @@ TEST(IRTest, AssignmentStatementGeneratesTemporaries){
     LexerTest lexer{"x = fun(fun(1, 2), 1);"};
     lexer.tokenize();
 
-    StatementParserTest parser{lexer};
+    TokenConsumer tokenConsumer { lexer };
+    StatementParserTest parser{ tokenConsumer };
     std::unique_ptr<ASTAssignSt> _astAssign = parser.testAssignmentStatement();
 
     IntermediateRepresentationTest intermediateRepresentation;
@@ -145,7 +153,8 @@ TEST(IRTest, SwitchCaseDeadCodeElimination){
     LexerTest lexer{"switch(x){ case 0: return 1; abc = 123; abc = abc + 1; } "};
     lexer.tokenize();
 
-    StatementParserTest parser{lexer};
+    TokenConsumer tokenConsumer { lexer };
+    StatementParserTest parser{ tokenConsumer };
     std::unique_ptr<ASTSwitchSt> _astSwitch = parser.testSwitchStatement();
 
     IntermediateRepresentationTest intermediateRepresentation;
@@ -162,7 +171,8 @@ TEST(IRTest, NumExpConstantFolding){
     LexerTest lexer{"5 + 3 - 1 * 2"};
     lexer.tokenize();
 
-    ExpressionParserTest parser{lexer};
+    TokenConsumer tokenConsumer { lexer };
+    ExpressionParserTest parser{ tokenConsumer };
     std::unique_ptr<ASTExpression> _astExp = parser.testNumericalExpression();
 
     IntermediateRepresentationTest intermediateRepresentation;

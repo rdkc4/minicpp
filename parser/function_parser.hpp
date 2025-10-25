@@ -7,14 +7,15 @@
 #include "statement_parser.hpp"
 #include "token_consumer.hpp"
 
-class FunctionParser : public TokenConsumer {
+class FunctionParser {
 public:
-    FunctionParser(Lexer& lexer);
+    FunctionParser(TokenConsumer& consumer);
 
     std::unique_ptr<ASTFunction> function();
 
 private:
     StatementParser stmtParser;
+    TokenConsumer& tokenConsumer;
 
     void parameter(ASTFunction* _function);
     void body(ASTFunction* _function);

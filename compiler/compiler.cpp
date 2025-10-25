@@ -26,8 +26,10 @@ ExitCode Compiler::compile(std::string_view input, std::string_view output) {
     try {
         // making sure tokenization was done
         assert(lexer.completedTokenization());
-        
-        Parser parser{ lexer };
+
+        TokenConsumer tokenConsumer{ lexer };
+
+        Parser parser{ tokenConsumer };
         std::unique_ptr<ASTProgram> astProgram = parser.parseProgram();
         //astProgram->print(1);
         //std::cout << "\nSyntax check: successful!\n";

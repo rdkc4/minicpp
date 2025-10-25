@@ -12,9 +12,9 @@
     Syntax analysis of the tokenized input
     Abstract syntax tree generation
 */
-class Parser : public TokenConsumer {
+class Parser {
     public:
-        Parser(Lexer& lexer);
+        Parser(TokenConsumer& lexer);
         
         // parsing of the tokenized input
         // returns the root of the abstract syntax tree
@@ -22,6 +22,7 @@ class Parser : public TokenConsumer {
 
     private:
         FunctionParser funcParser;
+        TokenConsumer& tokenConsumer;
 
 };
 
