@@ -67,7 +67,10 @@ SRCS = main.cpp \
 	symbol-handling/symbol-table/symbol_table.cpp \
 	symbol-handling/scope-manager/scope_manager.cpp \
 	thread-pool/thread_pool.cpp \
-	analyzer/analyzer.cpp \
+	analyzer/source/expression_analyzer.cpp \
+	analyzer/source/statement_analyzer.cpp \
+	analyzer/source/function_analyzer.cpp \
+	analyzer/source/analyzer.cpp \
 	intermediate-representation/intermediate_representation.cpp \
 	code-generator/defs/code_generator_defs.cpp \
 	code-generator/asm-generator/asm_generator.cpp \

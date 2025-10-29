@@ -75,14 +75,15 @@ TEST(AnalyzerTest, CheckFunctionSignatures){
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
-    AnalyzerTest analyzer{scopeManager};
-    analyzer.getScopeManager().pushScope();
+    scopeManager.pushScope();
+    std::unordered_map<std::string, std::vector<std::string>> semErrors = {};
+    FunctionAnalyzerTest analyzer(scopeManager, semErrors, "__global");
 
     analyzer.testCheckFunctionSignatures(_program.get());
     ASSERT_TRUE(analyzer.getErrors("rectArea").empty());
     ASSERT_TRUE(analyzer.getErrors("sq").empty());
 
-    analyzer.getScopeManager().popScope();
+    scopeManager.popScope();
 }
 
 TEST(AnalyzerTest, CheckFunctionSignaturesFunctionRedefError){
@@ -95,14 +96,15 @@ TEST(AnalyzerTest, CheckFunctionSignaturesFunctionRedefError){
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
-    AnalyzerTest analyzer{scopeManager};
-    analyzer.getScopeManager().pushScope();
+    scopeManager.pushScope();
+    std::unordered_map<std::string, std::vector<std::string>> semErrors = {};
+    FunctionAnalyzerTest analyzer(scopeManager, semErrors, "__global");
 
     analyzer.testCheckFunctionSignatures(_program.get());
     ASSERT_FALSE(analyzer.getErrors(analyzer.getGlobalErrLabel()).empty());
     ASSERT_TRUE(analyzer.getErrors(analyzer.getGlobalErrLabel())[0].contains("redefined"));
 
-    analyzer.getScopeManager().popScope();
+    scopeManager.popScope();
 }
 
 TEST(AnalyzerTest, CheckFunctionSignaturesParameterRedefError){
@@ -115,14 +117,15 @@ TEST(AnalyzerTest, CheckFunctionSignaturesParameterRedefError){
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
-    AnalyzerTest analyzer{scopeManager};
-    analyzer.getScopeManager().pushScope();
+    scopeManager.pushScope();
+    std::unordered_map<std::string, std::vector<std::string>> semErrors = {};
+    FunctionAnalyzerTest analyzer(scopeManager, semErrors, "__global");
 
     analyzer.testCheckFunctionSignatures(_program.get());
     ASSERT_FALSE(analyzer.getErrors("rectArea").empty());
     ASSERT_TRUE(analyzer.getErrors("rectArea")[0].contains("redefined"));
 
-    analyzer.getScopeManager().popScope();
+    scopeManager.popScope();
 }
 
 TEST(AnalyzerTest, CheckFunctionSignaturesMainParamsError){
@@ -135,14 +138,15 @@ TEST(AnalyzerTest, CheckFunctionSignaturesMainParamsError){
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
-    AnalyzerTest analyzer{scopeManager};
-    analyzer.getScopeManager().pushScope();
+    scopeManager.pushScope();
+    std::unordered_map<std::string, std::vector<std::string>> semErrors = {};
+    FunctionAnalyzerTest analyzer(scopeManager, semErrors, "__global");
 
     analyzer.testCheckFunctionSignatures(_program.get());
     ASSERT_FALSE(analyzer.getErrors("main").empty());
     ASSERT_TRUE(analyzer.getErrors("main")[0].contains("parameter"));
 
-    analyzer.getScopeManager().popScope();
+    scopeManager.popScope();
 }
 
 TEST(AnalyzerTest, CheckFunction){
@@ -155,14 +159,14 @@ TEST(AnalyzerTest, CheckFunction){
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
-    AnalyzerTest analyzer{scopeManager};
-    analyzer.getScopeManager().pushScope();
-    analyzer.getScopeManager().pushSymbol(Symbol{"fun", Kinds::FUN, Types::INT});
-    analyzer.initErrorsEmpty("fun");
+    scopeManager.pushScope();
+    scopeManager.pushSymbol(Symbol{"fun", Kinds::FUN, Types::INT});
+    std::unordered_map<std::string, std::vector<std::string>> semErrors = {{"fun", {}}};
+    FunctionAnalyzerTest analyzer(scopeManager, semErrors, "__global");
 
     analyzer.testCheckFunction(_function.get());
     ASSERT_TRUE(analyzer.getErrors("fun").empty());
-    analyzer.getScopeManager().popScope();
+    scopeManager.popScope();
 }
 
 TEST(AnalyzerTest, CheckFunctionNotAllIfPathsReturnError){
@@ -175,15 +179,15 @@ TEST(AnalyzerTest, CheckFunctionNotAllIfPathsReturnError){
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
-    AnalyzerTest analyzer{scopeManager};
-    analyzer.getScopeManager().pushScope();
-    analyzer.getScopeManager().pushSymbol(Symbol{"fun", Kinds::FUN, Types::INT});
-    analyzer.initErrorsEmpty("fun");
+    scopeManager.pushScope();
+    scopeManager.pushSymbol(Symbol{"fun", Kinds::FUN, Types::INT});
+    std::unordered_map<std::string, std::vector<std::string>> semErrors = {{"fun", {}}};
+    FunctionAnalyzerTest analyzer(scopeManager, semErrors, "__global");
 
     analyzer.testCheckFunction(_function.get());
     ASSERT_FALSE(analyzer.getErrors("fun").empty());
     ASSERT_TRUE(analyzer.getErrors("fun")[0].contains("not all paths return"));
-    analyzer.getScopeManager().popScope();
+    scopeManager.popScope();
 }
 
 TEST(AnalyzerTest, CheckFunctionNotAllSwitchPathsReturnError){
@@ -196,15 +200,15 @@ TEST(AnalyzerTest, CheckFunctionNotAllSwitchPathsReturnError){
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
-    AnalyzerTest analyzer{scopeManager};
-    analyzer.getScopeManager().pushScope();
-    analyzer.getScopeManager().pushSymbol(Symbol{"fun", Kinds::FUN, Types::INT});
-    analyzer.initErrorsEmpty("fun");
+    scopeManager.pushScope();
+    scopeManager.pushSymbol(Symbol{"fun", Kinds::FUN, Types::INT});
+    std::unordered_map<std::string, std::vector<std::string>> semErrors = {{"fun", {}}};
+    FunctionAnalyzerTest analyzer(scopeManager, semErrors, "__global");
 
     analyzer.testCheckFunction(_function.get());
     ASSERT_FALSE(analyzer.getErrors("fun").empty());
     ASSERT_TRUE(analyzer.getErrors("fun")[0].contains("not all paths return"));
-    analyzer.getScopeManager().popScope();
+    scopeManager.popScope();
 }
 
 TEST(AnalyzerTest, CheckFunctionParameterRedefError){
@@ -217,15 +221,15 @@ TEST(AnalyzerTest, CheckFunctionParameterRedefError){
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
-    AnalyzerTest analyzer{scopeManager};
-    analyzer.getScopeManager().pushScope();
-    analyzer.getScopeManager().pushSymbol(Symbol{"fun", Kinds::FUN, Types::INT});
-    analyzer.initErrorsEmpty("fun");
+    scopeManager.pushScope();
+    scopeManager.pushSymbol(Symbol{"fun", Kinds::FUN, Types::INT});
+    std::unordered_map<std::string, std::vector<std::string>> semErrors = {{"fun", {}}};
+    FunctionAnalyzerTest analyzer(scopeManager, semErrors, "__global");
 
     analyzer.testCheckFunction(_function.get());
     ASSERT_FALSE(analyzer.getErrors("fun").empty());
     ASSERT_TRUE(analyzer.getErrors("fun")[0].contains("redefined"));
-    analyzer.getScopeManager().popScope();
+    scopeManager.popScope();
 }
 
 TEST(AnalyzerTest, CheckFunctionVoidReturnsTypeError){
@@ -238,15 +242,15 @@ TEST(AnalyzerTest, CheckFunctionVoidReturnsTypeError){
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
-    AnalyzerTest analyzer{scopeManager};
-    analyzer.getScopeManager().pushScope();
-    analyzer.getScopeManager().pushSymbol(Symbol{"fun", Kinds::FUN, Types::VOID});
-    analyzer.initErrorsEmpty("fun");
+    scopeManager.pushScope();
+    scopeManager.pushSymbol(Symbol{"fun", Kinds::FUN, Types::VOID});
+    std::unordered_map<std::string, std::vector<std::string>> semErrors = {{"fun", {}}};
+    FunctionAnalyzerTest analyzer(scopeManager, semErrors, "__global");
 
     analyzer.testCheckFunction(_function.get());
     ASSERT_FALSE(analyzer.getErrors("fun").empty());
     ASSERT_TRUE(analyzer.getErrors("fun")[0].contains("type mismatch"));
-    analyzer.getScopeManager().popScope();
+    scopeManager.popScope();
 }
 
 TEST(AnalyzerTest, CheckFunctionVoidTypeMismatchError){
@@ -259,15 +263,15 @@ TEST(AnalyzerTest, CheckFunctionVoidTypeMismatchError){
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
-    AnalyzerTest analyzer{scopeManager};
-    analyzer.getScopeManager().pushScope();
-    analyzer.getScopeManager().pushSymbol(Symbol{"fun", Kinds::FUN, Types::INT});
-    analyzer.initErrorsEmpty("fun");
+    scopeManager.pushScope();
+    scopeManager.pushSymbol(Symbol{"fun", Kinds::FUN, Types::INT});
+    std::unordered_map<std::string, std::vector<std::string>> semErrors = {{"fun", {}}};
+    FunctionAnalyzerTest analyzer(scopeManager, semErrors, "__global");
 
     analyzer.testCheckFunction(_function.get());
     ASSERT_FALSE(analyzer.getErrors("fun").empty());
     ASSERT_TRUE(analyzer.getErrors("fun")[0].contains("type mismatch"));
-    analyzer.getScopeManager().popScope();
+    scopeManager.popScope();
 }
 
 TEST(AnalyzerTest, CheckVariable){
@@ -280,17 +284,17 @@ TEST(AnalyzerTest, CheckVariable){
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
-    AnalyzerTest analyzer{scopeManager};
+    StatementAnalyzerTest analyzer(scopeManager);
     
-    analyzer.getAnalyzerContext().init("tmp", &scopeManager); // test is single-threaded, it doesn't matter that analyzer and thread share scopeManager
-    analyzer.getAnalyzerContext().scopeManager->pushScope();
+    analyzer.getContext().init("tmp", &scopeManager);
+    analyzer.getContext().scopeManager->pushScope();
 
     analyzer.testCheckVariable(_variable.get());
-    ASSERT_TRUE(analyzer.getAnalyzerContext().semanticErrors.empty());
-    ASSERT_TRUE(analyzer.getScopeManager().lookupSymbol("x", {Kinds::VAR}));
+    ASSERT_TRUE(analyzer.getContext().semanticErrors.empty());
+    ASSERT_TRUE(scopeManager.lookupSymbol("x", {Kinds::VAR}));
     
-    analyzer.getAnalyzerContext().scopeManager->popScope();
-    analyzer.getAnalyzerContext().reset();
+    analyzer.getContext().scopeManager->popScope();
+    analyzer.getContext().reset();
 }
 
 TEST(AnalyzerTest, CheckVariableExitedScope){
@@ -303,13 +307,13 @@ TEST(AnalyzerTest, CheckVariableExitedScope){
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
-    AnalyzerTest analyzer{scopeManager};
+    StatementAnalyzerTest analyzer{ scopeManager };
     
-    analyzer.getAnalyzerContext().init("tmp", &scopeManager);
+    analyzer.getContext().init("tmp", &scopeManager);
 
     analyzer.testCheckCompoundStatement(_compound.get());
-    ASSERT_TRUE(analyzer.getAnalyzerContext().semanticErrors.empty());
-    analyzer.getAnalyzerContext().reset();
+    ASSERT_TRUE(analyzer.getContext().semanticErrors.empty());
+    analyzer.getContext().reset();
 }
 
 TEST(AnalyzerTest, CheckVariableRedefError){
@@ -322,18 +326,18 @@ TEST(AnalyzerTest, CheckVariableRedefError){
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
-    AnalyzerTest analyzer{scopeManager};
+    StatementAnalyzerTest analyzer{scopeManager};
     
-    analyzer.getAnalyzerContext().init("tmp", &scopeManager);
-    analyzer.getAnalyzerContext().scopeManager->pushScope();
-    analyzer.getAnalyzerContext().scopeManager->pushSymbol(Symbol{"x", Kinds::VAR, Types::INT});
+    analyzer.getContext().init("tmp", &scopeManager);
+    analyzer.getContext().scopeManager->pushScope();
+    analyzer.getContext().scopeManager->pushSymbol(Symbol{"x", Kinds::VAR, Types::INT});
 
     analyzer.testCheckVariable(_variable.get());
-    ASSERT_FALSE(analyzer.getAnalyzerContext().semanticErrors.empty());
-    ASSERT_TRUE(analyzer.getAnalyzerContext().semanticErrors[0].contains("redefined"));
+    ASSERT_FALSE(analyzer.getContext().semanticErrors.empty());
+    ASSERT_TRUE(analyzer.getContext().semanticErrors[0].contains("redefined"));
     
-    analyzer.getAnalyzerContext().scopeManager->popScope();
-    analyzer.getAnalyzerContext().reset();
+    analyzer.getContext().scopeManager->popScope();
+    analyzer.getContext().reset();
 }
 
 TEST(AnalyzerTest, CheckVariableTypeMismatchError){
@@ -346,17 +350,17 @@ TEST(AnalyzerTest, CheckVariableTypeMismatchError){
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
-    AnalyzerTest analyzer{scopeManager};
+    StatementAnalyzerTest analyzer{scopeManager};
     
-    analyzer.getAnalyzerContext().init("tmp", &scopeManager);
-    analyzer.getAnalyzerContext().scopeManager->pushScope();
+    analyzer.getContext().init("tmp", &scopeManager);
+    analyzer.getContext().scopeManager->pushScope();
 
     analyzer.testCheckVariable(_variable.get());
-    ASSERT_FALSE(analyzer.getAnalyzerContext().semanticErrors.empty());
-    ASSERT_TRUE(analyzer.getAnalyzerContext().semanticErrors[0].contains("type mismatch"));
+    ASSERT_FALSE(analyzer.getContext().semanticErrors.empty());
+    ASSERT_TRUE(analyzer.getContext().semanticErrors[0].contains("type mismatch"));
     
-    analyzer.getAnalyzerContext().scopeManager->popScope();
-    analyzer.getAnalyzerContext().reset();
+    analyzer.getContext().scopeManager->popScope();
+    analyzer.getContext().reset();
 }
 
 TEST(AnalyzerTest, CheckVariableAutoType){
@@ -369,18 +373,18 @@ TEST(AnalyzerTest, CheckVariableAutoType){
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
-    AnalyzerTest analyzer{scopeManager};
+    StatementAnalyzerTest analyzer{scopeManager};
     
-    analyzer.getAnalyzerContext().init("tmp", &scopeManager);
-    analyzer.getAnalyzerContext().scopeManager->pushScope();
+    analyzer.getContext().init("tmp", &scopeManager);
+    analyzer.getContext().scopeManager->pushScope();
 
     analyzer.testCheckVariable(_variable.get());
-    ASSERT_TRUE(analyzer.getAnalyzerContext().semanticErrors.empty());
-    ASSERT_TRUE(analyzer.getAnalyzerContext().scopeManager->lookupSymbol("x", {Kinds::VAR}));
-    ASSERT_EQ(analyzer.getAnalyzerContext().scopeManager->getSymbol("x").getType(), Types::UNSIGNED);
+    ASSERT_TRUE(analyzer.getContext().semanticErrors.empty());
+    ASSERT_TRUE(analyzer.getContext().scopeManager->lookupSymbol("x", {Kinds::VAR}));
+    ASSERT_EQ(analyzer.getContext().scopeManager->getSymbol("x").getType(), Types::UNSIGNED);
     
-    analyzer.getAnalyzerContext().scopeManager->popScope();
-    analyzer.getAnalyzerContext().reset();
+    analyzer.getContext().scopeManager->popScope();
+    analyzer.getContext().reset();
 }
 
 TEST(AnalyzerTest, CheckVariableAutoError){
@@ -393,17 +397,17 @@ TEST(AnalyzerTest, CheckVariableAutoError){
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
-    AnalyzerTest analyzer{scopeManager};
+    StatementAnalyzerTest analyzer{scopeManager};
     
-    analyzer.getAnalyzerContext().init("tmp", &scopeManager);
-    analyzer.getAnalyzerContext().scopeManager->pushScope();
+    analyzer.getContext().init("tmp", &scopeManager);
+    analyzer.getContext().scopeManager->pushScope();
 
     analyzer.testCheckVariable(_variable.get());
-    ASSERT_FALSE(analyzer.getAnalyzerContext().semanticErrors.empty());
-    ASSERT_TRUE(analyzer.getAnalyzerContext().semanticErrors[0].contains("deduction"));
+    ASSERT_FALSE(analyzer.getContext().semanticErrors.empty());
+    ASSERT_TRUE(analyzer.getContext().semanticErrors[0].contains("deduction"));
     
-    analyzer.getAnalyzerContext().scopeManager->popScope();
-    analyzer.getAnalyzerContext().reset();
+    analyzer.getContext().scopeManager->popScope();
+    analyzer.getContext().reset();
 }
 
 TEST(AnalyzerTest, CheckVariableUndefinedVariableError){
@@ -416,17 +420,17 @@ TEST(AnalyzerTest, CheckVariableUndefinedVariableError){
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
-    AnalyzerTest analyzer{scopeManager};
+    StatementAnalyzerTest analyzer{scopeManager};
 
-    analyzer.getAnalyzerContext().init("tmp", &scopeManager);
-    analyzer.getAnalyzerContext().scopeManager->pushScope();
+    analyzer.getContext().init("tmp", &scopeManager);
+    analyzer.getContext().scopeManager->pushScope();
 
     analyzer.testCheckVariable(_variable.get());
-    ASSERT_FALSE(analyzer.getAnalyzerContext().semanticErrors.empty());
-    ASSERT_TRUE(analyzer.getAnalyzerContext().semanticErrors[0].contains("undefined"));
+    ASSERT_FALSE(analyzer.getContext().semanticErrors.empty());
+    ASSERT_TRUE(analyzer.getContext().semanticErrors[0].contains("undefined"));
     
-    analyzer.getAnalyzerContext().scopeManager->popScope();
-    analyzer.getAnalyzerContext().reset();
+    analyzer.getContext().scopeManager->popScope();
+    analyzer.getContext().reset();
 }
 
 TEST(AnalyzerTest, ForStatement){
@@ -439,17 +443,17 @@ TEST(AnalyzerTest, ForStatement){
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
-    AnalyzerTest analyzer{scopeManager};
+    StatementAnalyzerTest analyzer{scopeManager};
 
-    analyzer.getAnalyzerContext().init("tmp", &scopeManager);
-    analyzer.getAnalyzerContext().scopeManager->pushScope();
-    analyzer.getAnalyzerContext().scopeManager->pushSymbol(Symbol{"i", Kinds::VAR, Types::INT}); // initialize i;
+    analyzer.getContext().init("tmp", &scopeManager);
+    analyzer.getContext().scopeManager->pushScope();
+    analyzer.getContext().scopeManager->pushSymbol(Symbol{"i", Kinds::VAR, Types::INT}); // initialize i;
 
     analyzer.testCheckForStatement(_for.get());
-    ASSERT_TRUE(analyzer.getAnalyzerContext().semanticErrors.empty());
+    ASSERT_TRUE(analyzer.getContext().semanticErrors.empty());
 
-    analyzer.getAnalyzerContext().scopeManager->popScope();
-    analyzer.getAnalyzerContext().reset();
+    analyzer.getContext().scopeManager->popScope();
+    analyzer.getContext().reset();
 }
 
 TEST(AnalyzerTest, ForStatementUndefVarError){
@@ -462,17 +466,17 @@ TEST(AnalyzerTest, ForStatementUndefVarError){
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
-    AnalyzerTest analyzer{scopeManager};
+    StatementAnalyzerTest analyzer{scopeManager};
     
-    analyzer.getAnalyzerContext().init("tmp", &scopeManager);
-    analyzer.getAnalyzerContext().scopeManager->pushScope();
+    analyzer.getContext().init("tmp", &scopeManager);
+    analyzer.getContext().scopeManager->pushScope();
 
     analyzer.testCheckForStatement(_for.get());
-    ASSERT_FALSE(analyzer.getAnalyzerContext().semanticErrors.empty());
-    ASSERT_TRUE(analyzer.getAnalyzerContext().semanticErrors[0].contains("undefined"));
+    ASSERT_FALSE(analyzer.getContext().semanticErrors.empty());
+    ASSERT_TRUE(analyzer.getContext().semanticErrors[0].contains("undefined"));
     
-    analyzer.getAnalyzerContext().scopeManager->popScope();
-    analyzer.getAnalyzerContext().reset();
+    analyzer.getContext().scopeManager->popScope();
+    analyzer.getContext().reset();
 }
 
 TEST(AnalyzerTest, ForStatementTypeMismatchError){
@@ -485,18 +489,18 @@ TEST(AnalyzerTest, ForStatementTypeMismatchError){
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
-    AnalyzerTest analyzer{scopeManager};
+    StatementAnalyzerTest analyzer{scopeManager};
     
-    analyzer.getAnalyzerContext().init("tmp", &scopeManager);
-    analyzer.getAnalyzerContext().scopeManager->pushScope();
-    analyzer.getAnalyzerContext().scopeManager->pushSymbol(Symbol{"i", Kinds::VAR, Types::INT}); // initialize i;
+    analyzer.getContext().init("tmp", &scopeManager);
+    analyzer.getContext().scopeManager->pushScope();
+    analyzer.getContext().scopeManager->pushSymbol(Symbol{"i", Kinds::VAR, Types::INT}); // initialize i;
 
     analyzer.testCheckForStatement(_for.get());
-    ASSERT_FALSE(analyzer.getAnalyzerContext().semanticErrors.empty());
-    ASSERT_TRUE(analyzer.getAnalyzerContext().semanticErrors[0].contains("type mismatch"));
+    ASSERT_FALSE(analyzer.getContext().semanticErrors.empty());
+    ASSERT_TRUE(analyzer.getContext().semanticErrors[0].contains("type mismatch"));
     
-    analyzer.getAnalyzerContext().scopeManager->popScope();
-    analyzer.getAnalyzerContext().reset();
+    analyzer.getContext().scopeManager->popScope();
+    analyzer.getContext().reset();
 }
 
 TEST(AnalyzerTest, SwitchStatement){
@@ -509,17 +513,17 @@ TEST(AnalyzerTest, SwitchStatement){
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
-    AnalyzerTest analyzer{scopeManager};
+    StatementAnalyzerTest analyzer{scopeManager};
     
-    analyzer.getAnalyzerContext().init("tmp", &scopeManager);
-    analyzer.getAnalyzerContext().scopeManager->pushScope();
-    analyzer.getAnalyzerContext().scopeManager->pushSymbol(Symbol{"x", Kinds::VAR, Types::INT}); // initialize x;
+    analyzer.getContext().init("tmp", &scopeManager);
+    analyzer.getContext().scopeManager->pushScope();
+    analyzer.getContext().scopeManager->pushSymbol(Symbol{"x", Kinds::VAR, Types::INT}); // initialize x;
 
     analyzer.testCheckSwitchStatement(_switch.get());
-    ASSERT_TRUE(analyzer.getAnalyzerContext().semanticErrors.empty());
+    ASSERT_TRUE(analyzer.getContext().semanticErrors.empty());
     
-    analyzer.getAnalyzerContext().scopeManager->popScope();   
-    analyzer.getAnalyzerContext().reset();
+    analyzer.getContext().scopeManager->popScope();   
+    analyzer.getContext().reset();
 }
 
 TEST(AnalyzerTest, SwitchStatementTypeMismatchError){
@@ -532,18 +536,18 @@ TEST(AnalyzerTest, SwitchStatementTypeMismatchError){
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
-    AnalyzerTest analyzer{scopeManager};
+    StatementAnalyzerTest analyzer{scopeManager};
     
-    analyzer.getAnalyzerContext().init("tmp", &scopeManager);
-    analyzer.getAnalyzerContext().scopeManager->pushScope();
-    analyzer.getAnalyzerContext().scopeManager->pushSymbol(Symbol{"x", Kinds::VAR, Types::INT}); // initialize x;
+    analyzer.getContext().init("tmp", &scopeManager);
+    analyzer.getContext().scopeManager->pushScope();
+    analyzer.getContext().scopeManager->pushSymbol(Symbol{"x", Kinds::VAR, Types::INT}); // initialize x;
 
     analyzer.testCheckSwitchStatement(_switch.get());
-    ASSERT_FALSE(analyzer.getAnalyzerContext().semanticErrors.empty());
-    ASSERT_TRUE(analyzer.getAnalyzerContext().semanticErrors[0].contains("type mismatch"));
+    ASSERT_FALSE(analyzer.getContext().semanticErrors.empty());
+    ASSERT_TRUE(analyzer.getContext().semanticErrors[0].contains("type mismatch"));
     
-    analyzer.getAnalyzerContext().scopeManager->popScope();   
-    analyzer.getAnalyzerContext().reset();
+    analyzer.getContext().scopeManager->popScope();   
+    analyzer.getContext().reset();
 }
 
 TEST(AnalyzerTest, SwitchStatementCaseDuplicateError){
@@ -556,16 +560,16 @@ TEST(AnalyzerTest, SwitchStatementCaseDuplicateError){
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
-    AnalyzerTest analyzer{scopeManager};
+    StatementAnalyzerTest analyzer{scopeManager};
     
-    analyzer.getAnalyzerContext().init("tmp", &scopeManager);
-    analyzer.getAnalyzerContext().scopeManager->pushScope();
-    analyzer.getAnalyzerContext().scopeManager->pushSymbol(Symbol{"x", Kinds::VAR, Types::INT}); // initialize x;
+    analyzer.getContext().init("tmp", &scopeManager);
+    analyzer.getContext().scopeManager->pushScope();
+    analyzer.getContext().scopeManager->pushSymbol(Symbol{"x", Kinds::VAR, Types::INT}); // initialize x;
 
     analyzer.testCheckSwitchStatement(_switch.get());
-    ASSERT_FALSE(analyzer.getAnalyzerContext().semanticErrors.empty());
-    ASSERT_TRUE(analyzer.getAnalyzerContext().semanticErrors[0].contains("duplicate case"));
+    ASSERT_FALSE(analyzer.getContext().semanticErrors.empty());
+    ASSERT_TRUE(analyzer.getContext().semanticErrors[0].contains("duplicate case"));
     
-    analyzer.getAnalyzerContext().scopeManager->popScope();   
-    analyzer.getAnalyzerContext().reset();
+    analyzer.getContext().scopeManager->popScope();   
+    analyzer.getContext().reset();
 }
