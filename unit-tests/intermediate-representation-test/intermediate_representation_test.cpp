@@ -46,7 +46,8 @@ TEST(IRTest, FunctionDeadCodeElimination){
     FunctionParserTest parser{ tokenConsumer };
     std::unique_ptr<ASTFunction> _astFunction = parser.testFunction();
 
-    IntermediateRepresentationTest intermediateRepresentation;
+    std::unordered_map<std::string, std::vector<std::string>> exceptions;
+    FunctionIntermediateRepresentationTest intermediateRepresentation{ exceptions };
     std::unique_ptr<IRFunction> _irFunction;
 
     const size_t expectedStmtCount = 1;
@@ -64,7 +65,8 @@ TEST(IRTest, FunctionDeadCodeEliminationIfBranching){
     FunctionParserTest parser{ tokenConsumer };
     std::unique_ptr<ASTFunction> _astFunction = parser.testFunction();
 
-    IntermediateRepresentationTest intermediateRepresentation;
+    std::unordered_map<std::string, std::vector<std::string>> exceptions;
+    FunctionIntermediateRepresentationTest intermediateRepresentation{ exceptions };
     std::unique_ptr<IRFunction> _irFunction;
     
     const size_t expectedStmtCount = 1;
@@ -82,7 +84,8 @@ TEST(IRTest, FunctionDeadCodeEliminationSwitchBranching){
     FunctionParserTest parser{ tokenConsumer };
     std::unique_ptr<ASTFunction> _astFunction = parser.testFunction();
 
-    IntermediateRepresentationTest intermediateRepresentation;
+    std::unordered_map<std::string, std::vector<std::string>> exceptions;
+    FunctionIntermediateRepresentationTest intermediateRepresentation{ exceptions };
     std::unique_ptr<IRFunction> _irFunction;
     
     const size_t expectedStmtCount = 1; 
@@ -100,7 +103,8 @@ TEST(IRTest, FunctionDeadCodeEliminationDoWhile){
     FunctionParserTest parser{ tokenConsumer };
     std::unique_ptr<ASTFunction> _astFunction = parser.testFunction();
 
-    IntermediateRepresentationTest intermediateRepresentation;
+    std::unordered_map<std::string, std::vector<std::string>> exceptions;
+    FunctionIntermediateRepresentationTest intermediateRepresentation{ exceptions };
     std::unique_ptr<IRFunction> _irFunction;
 
     const size_t expectedStmtCount = 1;
@@ -118,7 +122,7 @@ TEST(IRTest, CompoundStatementDeadCodeElimination){
     StatementParserTest parser{ tokenConsumer };
     std::unique_ptr<ASTCompoundSt> _astCompound = parser.testCompoundStatement();
 
-    IntermediateRepresentationTest intermediateRepresentation;
+    StatementIntermediateRepresentationTest intermediateRepresentation;
     std::unique_ptr<IRCompoundSt> _irCompound;
 
     const size_t expectedStmtCount = 1;
@@ -136,17 +140,18 @@ TEST(IRTest, AssignmentStatementGeneratesTemporaries){
     StatementParserTest parser{ tokenConsumer };
     std::unique_ptr<ASTAssignSt> _astAssign = parser.testAssignmentStatement();
 
-    IntermediateRepresentationTest intermediateRepresentation;
+    StatementIntermediateRepresentationTest intermediateRepresentation;
     std::unique_ptr<IRAssignSt> _irAssign;
 
-    intermediateRepresentation.getIRContext().init();
+    auto& context = FunctionIntermediateRepresentationTest::getContext();
+    context.init();
     const size_t expectedTemporariesCount = 2;
 
     ASSERT_NO_THROW(_irAssign = intermediateRepresentation.testAssignmentStatement(_astAssign.get()));
     ASSERT_TRUE(_irAssign->getNodeType() == IRNodeType::ASSIGN);
-    ASSERT_TRUE(intermediateRepresentation.getIRContext().temporaries == expectedTemporariesCount);
+    ASSERT_TRUE(context.temporaries == expectedTemporariesCount);
 
-    intermediateRepresentation.getIRContext().reset();
+    context.reset();
 }
 
 TEST(IRTest, SwitchCaseDeadCodeElimination){
@@ -157,7 +162,7 @@ TEST(IRTest, SwitchCaseDeadCodeElimination){
     StatementParserTest parser{ tokenConsumer };
     std::unique_ptr<ASTSwitchSt> _astSwitch = parser.testSwitchStatement();
 
-    IntermediateRepresentationTest intermediateRepresentation;
+    StatementIntermediateRepresentationTest intermediateRepresentation;
     std::unique_ptr<IRSwitchSt> _irSwitch;
     const size_t expectedStmtCount = 1;
 
@@ -175,7 +180,7 @@ TEST(IRTest, NumExpConstantFolding){
     ExpressionParserTest parser{ tokenConsumer };
     std::unique_ptr<ASTExpression> _astExp = parser.testNumericalExpression();
 
-    IntermediateRepresentationTest intermediateRepresentation;
+    ExpressionIntermediateRepresentationTest intermediateRepresentation;
     std::unique_ptr<IRExpression> _irExp;
 
     ASSERT_NO_THROW(_irExp = intermediateRepresentation.testNumericalExpression(_astExp.get()));

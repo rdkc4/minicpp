@@ -2,6 +2,7 @@
 #define INTERMEDIATE_REPRESENTATION_TEST_HPP
 
 #include <cassert>
+#include <memory>
 
 #include "../../intermediate-representation/intermediate_representation.hpp"
 
@@ -11,32 +12,36 @@ class IntermediateRepresentationTest : public IntermediateRepresentation {
             assert(exceptions.find(func) != exceptions.end());
             return exceptions.at(func);
         }
+};
 
-        IRThreadContext& getIRContext() const noexcept {
-            return irContext;
-        }
-
-        std::unique_ptr<IRFunction> testFunction(const ASTFunction* _function){
+class FunctionIntermediateRepresentationTest : public FunctionIntermediateRepresentation {
+    public:
+        std::unique_ptr<IRFunction> testFunction(const ASTFunction* _function) {
             return function(_function);
         }
 
+};
+
+class StatementIntermediateRepresentationTest : public StatementIntermediateRepresentation {
+    public:
         std::unique_ptr<IRCompoundSt> testCompoundStatement(const ASTCompoundSt* _compound){
             return compoundStatement(_compound);
         }
 
-        std::unique_ptr<IRAssignSt> testAssignmentStatement(const ASTAssignSt* _assignment){
-            return assignmentStatement(_assignment);
+        std::unique_ptr<IRAssignSt> testAssignmentStatement(const ASTAssignSt* _assign){
+            return assignmentStatement(_assign);
         }
 
         std::unique_ptr<IRSwitchSt> testSwitchStatement(const ASTSwitchSt* _switch){
             return switchStatement(_switch);
         }
-        
-        std::unique_ptr<IRExpression> testNumericalExpression(const ASTExpression* _numexp){
-            return numericalExpression(_numexp);
-        }
-
 };
 
+class ExpressionIntermediateRepresentationTest : public ExpressionIntermediateRepresentation {
+    public:
+        std::unique_ptr<IRExpression> testNumericalExpression(ASTExpression* _expression){
+            return numericalExpression(_expression);
+        }
+};
 
 #endif

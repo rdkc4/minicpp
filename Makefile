@@ -71,7 +71,12 @@ SRCS = main.cpp \
 	analyzer/source/statement_analyzer.cpp \
 	analyzer/source/function_analyzer.cpp \
 	analyzer/source/analyzer.cpp \
-	intermediate-representation/intermediate_representation.cpp \
+	optimization/source/dead_code.cpp \
+	optimization/source/stack_memory.cpp \
+	intermediate-representation/source/expression_intermediate_representation.cpp \
+	intermediate-representation/source/statement_intermediate_representation.cpp \
+	intermediate-representation/source/function_intermediate_representation.cpp \
+	intermediate-representation/source/intermediate_representation.cpp \
 	code-generator/defs/code_generator_defs.cpp \
 	code-generator/asm-generator/asm_generator.cpp \
 	code-generator/code-generator/code_generator.cpp \
