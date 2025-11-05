@@ -21,13 +21,13 @@ void Lexer::tokenize(){
             updatePosition();
         }
         else if(std::isalpha(input[position])){
-            getID();
+            pushID();
         }
         else if(std::isdigit(input[position])){
-            getLiteral();
+            pushLiteral();
         }
         else if(isSignedLiteral()){
-            getLiteral(true);
+            pushLiteral(true);
         }
         else if(input[position] == '/' && position < inputSize - 1 && input[position + 1] == '/'){
             singleLineComment();
@@ -36,16 +36,16 @@ void Lexer::tokenize(){
             multiLineComment();
         }
         else if(isBitwiseOperator()){
-            getBitwiseOperator();
+            pushBitwiseOperator();
         }
         else if(isAritOperator()){
-            getAritOperator();
+            pushAritOperator();
         }
         else if(isAssignOperator()){
-            getAssignOperator();
+            pushAssignOperator();
         }
         else if(isRelOperator()){
-            getRelOperator();
+            pushRelOperator();
         }
         else if(input[position] == '('){
             tokens.push_back(Token{std::string_view{&input[position],1}, lineNumber, position + 1 - prevLineLen, TokenType::_LPAREN});
@@ -104,12 +104,10 @@ void Lexer::showLexicalErrors() const{
     std::cerr << err;
 }
 
-// moves onto the next token
 void Lexer::next() noexcept {
     ++nextTokenIdx;
 }
 
-// returns next token
 const Token& Lexer::peek() const noexcept {
     if(nextTokenIdx >= tokens.size()){
         return tokens.back();
@@ -117,7 +115,6 @@ const Token& Lexer::peek() const noexcept {
     return tokens[nextTokenIdx];
 }
 
-// index of a next token starts at 1
 const Token& Lexer::current() const noexcept {
     if(nextTokenIdx >= tokens.size()){
         return tokens.back();
@@ -146,8 +143,8 @@ void Lexer::updateLine() noexcept {
     prevLineLen = position;
 }
 
-// ID ([A-Za-z][A-Za-z0-9_]*)
-void Lexer::getID(){
+/// ID ([A-Za-z][A-Za-z0-9_]*)
+void Lexer::pushID(){
     const size_t start{ position };
     while(position < input.size() && (std::isalnum(input[position]) || input[position] == '_')){
         updatePosition(); 
@@ -163,8 +160,8 @@ void Lexer::getID(){
     }
 }
 
-// literal ([+-]?[0-9][0-9]*[u]?)
-void Lexer::getLiteral(bool sign){
+/// literal ([+-]?[0-9][0-9]*[u]?)
+void Lexer::pushLiteral(bool sign){
     size_t start{ sign ? ++position : position };
     while(position < input.size() && std::isdigit(input[position])){
         updatePosition();
@@ -178,14 +175,14 @@ void Lexer::getLiteral(bool sign){
     tokens.push_back(Token{std::string_view{&input[start], position - start}, lineNumber, position - prevLineLen, TokenType::_LITERAL, GeneralTokenType::VALUE});
 }
 
-// assign [=]
-void Lexer::getAssignOperator(){
+/// assign [=]
+void Lexer::pushAssignOperator(){
     tokens.push_back(Token{std::string_view{&input[position], 1}, lineNumber, position + 1 - prevLineLen, TokenType::_ASSIGN});
     updatePosition();
 }
 
-// bitwise operators (&, |, ^, <<, >>)
-void Lexer::getBitwiseOperator(){
+/// bitwise operators (&, |, ^, <<, >>)
+void Lexer::pushBitwiseOperator(){
     const size_t start{ position };
     if(input[position] == '<' || input[position] == '>'){
         updatePosition();
@@ -194,14 +191,14 @@ void Lexer::getBitwiseOperator(){
     tokens.push_back(Token{std::string_view{&input[start], position - start}, lineNumber, position - prevLineLen, TokenType::_BITWISE, GeneralTokenType::OPERATOR});
 }
 
-// arithmetic operators (+, -, *, /)
-void Lexer::getAritOperator(){
+/// arithmetic operators (+, -, *, /)
+void Lexer::pushAritOperator(){
     tokens.push_back(Token{std::string_view{&input[position], 1}, lineNumber, position + 1 - prevLineLen, TokenType::_AROP, GeneralTokenType::OPERATOR});
     updatePosition();
 }
 
-// relational operators (<, >, <=, >=, ==, !=)
-void Lexer::getRelOperator(){
+/// relational operators (<, >, <=, >=, ==, !=)
+void Lexer::pushRelOperator(){
     const size_t start{ position };
     if(position < input.size() - 1 && relationalOperators.find(std::string{&input[position], 2}) != relationalOperators.end()){
         updatePosition(2);
