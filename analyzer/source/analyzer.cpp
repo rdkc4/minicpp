@@ -47,20 +47,21 @@ bool Analyzer::hasSemanticError(const ASTProgram* _program) const noexcept {
 }
 
 void Analyzer::showSemanticErrors(const ASTProgram* _program) const {
-    std::cerr << "\nSemantic check: failed!\n{}\n";
+    std::string err = "\nSemantic check: failed!\n";
     for(const auto& _function : _program->getFunctions()){
         const std::string& funcName = _function->getToken().value;
         if(!semanticErrors[funcName].empty()){
-            for(const auto& err : semanticErrors[funcName]){
-                std::cerr << std::format("{}\n", err);
+            for(const auto& exception : semanticErrors[funcName]){
+                err += std::format("{}\n", exception);
             }
         }
     }
     if(!semanticErrors[globalError].empty()){
-        for(const auto& err : semanticErrors[globalError]){
-            std::cerr << std::format("{}\n", err);
+        for(const auto& exception : semanticErrors[globalError]){
+            err += std::format("{}\n", exception);
         }
     }
+    std::cerr << err;
 }
 
 void Analyzer::startFunctionCheck(const ASTProgram* _program){

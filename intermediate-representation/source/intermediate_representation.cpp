@@ -64,11 +64,12 @@ bool IntermediateRepresentation::hasErrors(const IRProgram* _program) const noex
 }
 
 void IntermediateRepresentation::showErrors(const IRProgram* _program) const {
-    std::cerr << "\nForming Intermediate Representation: failed!\n";
+    std::string err = "\nForming Intermediate Representation: failed!\n";
     for(const auto& _function : _program->getFunctions()){
         const std::vector<std::string>& funcErrors = exceptions.at(_function->getFunctionName());
-        for(const auto& err : funcErrors){
-            std::cerr << std::format("{}\n", err);
+        for(const auto& error : funcErrors){
+            err += std::format("{}\n", error);
         }
     }
+    std::cerr << err;
 }

@@ -97,11 +97,11 @@ bool Lexer::hasLexicalErrors() const noexcept{
 }
 
 void Lexer::showLexicalErrors() const{
-    std::cerr << "\nLexical check: failed\n";
-    std::cerr << std::format("Invalid token count: {}\n", exceptions.size());
+    std::string err{ std::format("\nLexical check: failed\nInvalid token count: {}\n", exceptions.size()) };
     for(const auto& exception : exceptions){
-        std::cerr << std::format("{}\n", exception);
+        err += std::format("{}\n", exception);
     }
+    std::cerr << err;
 }
 
 // moves onto the next token
