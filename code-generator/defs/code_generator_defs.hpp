@@ -41,6 +41,16 @@ struct CodeGeneratorThreadContext{
         variableMap.clear();
         asmCode.clear();
     }
+
+    // allocating general-purpose register r(8-15)
+    size_t takeGpReg() noexcept {
+        return ++gpFreeRegPos;
+    }
+
+    // releasing general-purpose register r(8-15)
+    size_t freeGpReg() noexcept {
+        return --gpFreeRegPos;
+    }
 };
 
 #endif

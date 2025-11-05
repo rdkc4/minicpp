@@ -78,8 +78,12 @@ SRCS = main.cpp \
 	intermediate-representation/source/function_intermediate_representation.cpp \
 	intermediate-representation/source/intermediate_representation.cpp \
 	code-generator/defs/code_generator_defs.cpp \
-	code-generator/asm-generator/asm_generator.cpp \
-	code-generator/code-generator/code_generator.cpp \
+	code-generator/asm-generator/source/asm_instruction_generator.cpp \
+	code-generator/asm-generator/source/asm_function_generator.cpp \
+	code-generator/code-generator/source/expression_code_generator.cpp \
+	code-generator/code-generator/source/statement_code_generator.cpp \
+	code-generator/code-generator/source/function_code_generator.cpp \
+	code-generator/code-generator/source/code_generator.cpp \
 	compiler/compiler.cpp
 
 # Object files (derived from the source files)

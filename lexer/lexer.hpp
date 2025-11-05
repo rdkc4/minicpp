@@ -25,6 +25,9 @@ class Lexer{
         const Token& peek() const noexcept;
         const Token& current() const noexcept;
         bool completedTokenization() const noexcept;
+
+        bool hasLexicalErrors() const noexcept;
+        void showLexicalErrors() const; 
         
         void printTokens() const noexcept;
 
@@ -41,8 +44,6 @@ class Lexer{
         size_t nextTokenIdx;
         std::vector<Token> tokens;
         std::vector<std::string> exceptions;
-
-        void checkLexicalErrors() const;
 
         // maintaining lines / columns
         void updatePosition() noexcept;

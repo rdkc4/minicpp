@@ -1,6 +1,5 @@
 #include <gtest/gtest.h>
 #include <memory>
-#include <stdexcept>
 
 #include "intermediate_representation_test.hpp"
 #include "../lexer-test/lexer_test.hpp"
@@ -15,10 +14,9 @@ TEST(IRTest, FormIR){
     std::unique_ptr<ASTProgram> _astProgram = parser.parseProgram();
 
     IntermediateRepresentationTest intermediateRepresentation;
-    std::unique_ptr<IRProgram> _irProgram;
+    std::unique_ptr<IRProgram> _irProgram = intermediateRepresentation.formIR(_astProgram.get());
     const size_t functionCount = 2;
 
-    ASSERT_NO_THROW(_irProgram = intermediateRepresentation.formIR(_astProgram.get()));
     ASSERT_TRUE(_irProgram->getNodeType() == IRNodeType::PROGRAM);
     ASSERT_TRUE(_irProgram->getFunctionCount() == functionCount);
 }
@@ -32,9 +30,9 @@ TEST(IRTest, FormIRThrows){
     std::unique_ptr<ASTProgram> _astProgram = parser.parseProgram();
 
     IntermediateRepresentationTest intermediateRepresentation;
-    std::unique_ptr<IRProgram> _irProgram;
+    std::unique_ptr<IRProgram> _irProgram = intermediateRepresentation.formIR(_astProgram.get());
 
-    ASSERT_THROW(_irProgram = intermediateRepresentation.formIR(_astProgram.get()), std::runtime_error);
+    ASSERT_TRUE(intermediateRepresentation.hasErrors(_irProgram.get()));
     ASSERT_TRUE(intermediateRepresentation.getErrors("main")[0].contains("division by ZERO"));
 }
 
@@ -48,11 +46,10 @@ TEST(IRTest, FunctionDeadCodeElimination){
 
     std::unordered_map<std::string, std::vector<std::string>> exceptions;
     FunctionIntermediateRepresentationTest intermediateRepresentation{ exceptions };
-    std::unique_ptr<IRFunction> _irFunction;
+    std::unique_ptr<IRFunction> _irFunction = intermediateRepresentation.testFunction(_astFunction.get());
 
     const size_t expectedStmtCount = 1;
 
-    ASSERT_NO_THROW(_irFunction = intermediateRepresentation.testFunction(_astFunction.get()));
     ASSERT_TRUE(_irFunction->getNodeType() == IRNodeType::FUNCTION);
     ASSERT_EQ(_irFunction->getBody().size(), expectedStmtCount);
 }
@@ -67,11 +64,10 @@ TEST(IRTest, FunctionDeadCodeEliminationIfBranching){
 
     std::unordered_map<std::string, std::vector<std::string>> exceptions;
     FunctionIntermediateRepresentationTest intermediateRepresentation{ exceptions };
-    std::unique_ptr<IRFunction> _irFunction;
+    std::unique_ptr<IRFunction> _irFunction = intermediateRepresentation.testFunction(_astFunction.get());
     
     const size_t expectedStmtCount = 1;
 
-    ASSERT_NO_THROW(_irFunction = intermediateRepresentation.testFunction(_astFunction.get()));
     ASSERT_TRUE(_irFunction->getNodeType() == IRNodeType::FUNCTION);
     ASSERT_EQ(_irFunction->getBody().size(), expectedStmtCount);
 }
@@ -86,11 +82,10 @@ TEST(IRTest, FunctionDeadCodeEliminationSwitchBranching){
 
     std::unordered_map<std::string, std::vector<std::string>> exceptions;
     FunctionIntermediateRepresentationTest intermediateRepresentation{ exceptions };
-    std::unique_ptr<IRFunction> _irFunction;
+    std::unique_ptr<IRFunction> _irFunction = intermediateRepresentation.testFunction(_astFunction.get());
     
     const size_t expectedStmtCount = 1; 
     
-    ASSERT_NO_THROW(_irFunction = intermediateRepresentation.testFunction(_astFunction.get()));
     ASSERT_TRUE(_irFunction->getNodeType() == IRNodeType::FUNCTION);
     ASSERT_TRUE(_irFunction->getBody().size() == expectedStmtCount);
 }
@@ -105,11 +100,10 @@ TEST(IRTest, FunctionDeadCodeEliminationDoWhile){
 
     std::unordered_map<std::string, std::vector<std::string>> exceptions;
     FunctionIntermediateRepresentationTest intermediateRepresentation{ exceptions };
-    std::unique_ptr<IRFunction> _irFunction;
+    std::unique_ptr<IRFunction> _irFunction = intermediateRepresentation.testFunction(_astFunction.get());
 
     const size_t expectedStmtCount = 1;
 
-    ASSERT_NO_THROW(_irFunction = intermediateRepresentation.testFunction(_astFunction.get()));
     ASSERT_TRUE(_irFunction->getNodeType() == IRNodeType::FUNCTION);
     ASSERT_EQ(_irFunction->getBody().size(), expectedStmtCount);
 }
@@ -123,11 +117,10 @@ TEST(IRTest, CompoundStatementDeadCodeElimination){
     std::unique_ptr<ASTCompoundSt> _astCompound = parser.testCompoundStatement();
 
     StatementIntermediateRepresentationTest intermediateRepresentation;
-    std::unique_ptr<IRCompoundSt> _irCompound;
+    std::unique_ptr<IRCompoundSt> _irCompound = intermediateRepresentation.testCompoundStatement(_astCompound.get());
 
     const size_t expectedStmtCount = 1;
 
-    ASSERT_NO_THROW(_irCompound = intermediateRepresentation.testCompoundStatement(_astCompound.get()));
     ASSERT_TRUE(_irCompound->getNodeType() == IRNodeType::COMPOUND);
     ASSERT_TRUE(_irCompound->getStatements().size() == expectedStmtCount);
 }
@@ -141,13 +134,12 @@ TEST(IRTest, AssignmentStatementGeneratesTemporaries){
     std::unique_ptr<ASTAssignSt> _astAssign = parser.testAssignmentStatement();
 
     StatementIntermediateRepresentationTest intermediateRepresentation;
-    std::unique_ptr<IRAssignSt> _irAssign;
 
     auto& context = FunctionIntermediateRepresentationTest::getContext();
     context.init();
     const size_t expectedTemporariesCount = 2;
 
-    ASSERT_NO_THROW(_irAssign = intermediateRepresentation.testAssignmentStatement(_astAssign.get()));
+    std::unique_ptr<IRAssignSt> _irAssign = intermediateRepresentation.testAssignmentStatement(_astAssign.get());
     ASSERT_TRUE(_irAssign->getNodeType() == IRNodeType::ASSIGN);
     ASSERT_TRUE(context.temporaries == expectedTemporariesCount);
 
@@ -163,10 +155,9 @@ TEST(IRTest, SwitchCaseDeadCodeElimination){
     std::unique_ptr<ASTSwitchSt> _astSwitch = parser.testSwitchStatement();
 
     StatementIntermediateRepresentationTest intermediateRepresentation;
-    std::unique_ptr<IRSwitchSt> _irSwitch;
+    std::unique_ptr<IRSwitchSt> _irSwitch = intermediateRepresentation.testSwitchStatement(_astSwitch.get());
     const size_t expectedStmtCount = 1;
 
-    ASSERT_NO_THROW(_irSwitch = intermediateRepresentation.testSwitchStatement(_astSwitch.get()));
     ASSERT_TRUE(_irSwitch->getNodeType() == IRNodeType::SWITCH);
     auto _case = _irSwitch->getCaseAtN(0);
     ASSERT_EQ(_case->getSwitchBlock()->getStatements().size(), expectedStmtCount);
@@ -181,9 +172,8 @@ TEST(IRTest, NumExpConstantFolding){
     std::unique_ptr<ASTExpression> _astExp = parser.testNumericalExpression();
 
     ExpressionIntermediateRepresentationTest intermediateRepresentation;
-    std::unique_ptr<IRExpression> _irExp;
+    std::unique_ptr<IRExpression> _irExp = intermediateRepresentation.testNumericalExpression(_astExp.get());
 
-    ASSERT_NO_THROW(_irExp = intermediateRepresentation.testNumericalExpression(_astExp.get()));
     ASSERT_TRUE(_irExp->getNodeType() == IRNodeType::LITERAL);
     ASSERT_EQ(static_cast<IRLiteral*>(_irExp.get())->getValue(), "6");
 }

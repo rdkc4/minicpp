@@ -1,4 +1,5 @@
-#include "optimization.hpp"
+#ifndef OPTIMIZATION_STACK_MEMORY_HPP
+#define OPTIMIZATION_STACK_MEMORY_HPP
 
 #include "../common/intermediate-representation-tree/IRFunction.hpp"
 #include "../common/intermediate-representation-tree/IRVariable.hpp"
@@ -35,3 +36,5 @@ namespace Optimization {
         size_t computeStackMemory([[maybe_unused]] const IRNode* _node);
     };
 };
+
+#endif

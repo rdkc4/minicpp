@@ -16,7 +16,8 @@ TEST(AnalyzerTest, SemanticCheck){
     ScopeManager scopeManager{ symtab };
     AnalyzerTest analyzer{scopeManager};
 
-    ASSERT_NO_THROW(analyzer.semanticCheck(ast.get()));
+    analyzer.semanticCheck(ast.get());
+    ASSERT_FALSE(analyzer.hasSemanticError(ast.get()));
 }
 
 TEST(AnalyzerTest, SemanticCheckInvalidFunctionCallThrows){
@@ -31,7 +32,8 @@ TEST(AnalyzerTest, SemanticCheckInvalidFunctionCallThrows){
     ScopeManager scopeManager{ symtab };
     AnalyzerTest analyzer{scopeManager};
     
-    ASSERT_THROW(analyzer.semanticCheck(ast.get()), std::runtime_error);
+    analyzer.semanticCheck(ast.get());
+    ASSERT_TRUE(analyzer.hasSemanticError(ast.get()));
     ASSERT_TRUE(analyzer.getErrors("main")[0].contains("invalid function call"));
 }
 
@@ -47,7 +49,8 @@ TEST(AnalyzerTest, SemanticCheckTypeMismatchThrows){
     ScopeManager scopeManager{ symtab };
     AnalyzerTest analyzer{scopeManager};
 
-    ASSERT_THROW(analyzer.semanticCheck(ast.get()), std::runtime_error);
+    analyzer.semanticCheck(ast.get());
+    ASSERT_TRUE(analyzer.hasSemanticError(ast.get()));
 }
 
 TEST(AnalyzerTest, SemanticCheckNoMainThrows){
@@ -62,7 +65,8 @@ TEST(AnalyzerTest, SemanticCheckNoMainThrows){
     ScopeManager scopeManager{ symtab };
     AnalyzerTest analyzer{scopeManager};
 
-    ASSERT_THROW(analyzer.semanticCheck(ast.get()), std::runtime_error);
+    analyzer.semanticCheck(ast.get());
+    ASSERT_TRUE(analyzer.hasSemanticError(ast.get()));
 }
 
 TEST(AnalyzerTest, CheckFunctionSignatures){

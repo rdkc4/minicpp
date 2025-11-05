@@ -1,4 +1,5 @@
-#include "optimization.hpp"
+#ifndef OPTIMIZATION_CONSTANT_FOLDING_HPP
+#define OPTIMIZATION_CONSTANT_FOLDING_HPP
 
 #include <cassert>
 #include <string>
@@ -76,3 +77,5 @@ namespace Optimization {
         }
     }
 };
+
+#endif

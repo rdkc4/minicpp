@@ -14,17 +14,15 @@ int main(){
 
     std::string output{ "output.s" };
 
-    Compiler compiler;
-
     auto start{ std::chrono::high_resolution_clock::now() };
 
-    auto ret{ compiler.compile(input, output) };
+    auto ret{ Compiler::compile(input, output) };
 
     auto end{ std::chrono::high_resolution_clock::now() };
     auto duration{ std::chrono::duration_cast<std::chrono::milliseconds>(end - start) };
     std::cout << std::format("\nCompilation time: {}ms\n", duration.count());
     
-    if(ret != ExitCode::NO_ERR){
+    if(ret != Compiler::ExitCode::NO_ERR){
         std::cerr << "\nProgram failed to compile!\n";
     }
 

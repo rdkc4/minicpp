@@ -8,6 +8,7 @@
 #include <string>
 #include <format>
 #include <thread>
+#include <iostream>
 
 #include "../../thread-pool/thread_pool.hpp"
 
@@ -50,20 +51,24 @@ std::unique_ptr<IRProgram> IntermediateRepresentation::formIR(const ASTProgram* 
         doneCv.wait(lock, [&]{ return done == total; });
     }
 
-    checkErrors(_irProgram.get());
-
     return _irProgram;
 }
 
-void IntermediateRepresentation::checkErrors(const IRProgram* _program) const {
-    std::string errors{""};
+bool IntermediateRepresentation::hasErrors(const IRProgram* _program) const noexcept {
+    for(const auto& _function : _program->getFunctions()){
+        if(!exceptions.at(_function->getFunctionName()).empty()){
+            return true;
+        }
+    }
+    return false;
+}
+
+void IntermediateRepresentation::showErrors(const IRProgram* _program) const {
+    std::cerr << "\nForming Intermediate Representation: failed!\n";
     for(const auto& _function : _program->getFunctions()){
         const std::vector<std::string>& funcErrors = exceptions.at(_function->getFunctionName());
         for(const auto& err : funcErrors){
-            errors += std::format("{}\n", err);
+            std::cerr << std::format("{}\n", err);
         }
-    }
-    if(!errors.empty()){
-        throw std::runtime_error(errors);
     }
 }

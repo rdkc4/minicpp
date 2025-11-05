@@ -1,5 +1,4 @@
 #include <gtest/gtest.h>
-#include <stdexcept>
 #include <utility>
 #include <string>
 #include <vector>
@@ -69,10 +68,12 @@ TEST(LexerTest, OnlyMultiLineComment){
 
 TEST(LexerTest, ThrowsOnInvalidTokens){
     LexerTest lexer{ "int x. = 123;"};
-    ASSERT_THROW(lexer.tokenize(), std::runtime_error);
+    lexer.tokenize();
+    ASSERT_TRUE(lexer.hasLexicalErrors());
 }
 
 TEST(LexerTest, ThrowsOnInvalidMultiLineComment){
     LexerTest lexer{ "/* int x = 3;"};
-    ASSERT_THROW(lexer.tokenize(), std::runtime_error);
+    lexer.tokenize();
+    ASSERT_TRUE(lexer.hasLexicalErrors());
 }

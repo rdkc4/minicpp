@@ -23,6 +23,9 @@ class Analyzer{
 
         static AnalyzerThreadContext& getThreadContext() noexcept;
 
+        bool hasSemanticError(const ASTProgram* _program) const noexcept;
+        void showSemanticErrors(const ASTProgram* _program) const;
+
     protected:
         // detection of undefined/redefined variables/functions, type checking
         ScopeManager& globalScopeManager;
@@ -32,8 +35,6 @@ class Analyzer{
         mutable std::unordered_map<std::string, std::vector<std::string>> semanticErrors;
         
         static constexpr std::string globalError{ "__global" };
-        
-        void checkSemanticErrors(const ASTProgram* _functions) const;
 
         // function
         void startFunctionCheck(const ASTProgram* _program);

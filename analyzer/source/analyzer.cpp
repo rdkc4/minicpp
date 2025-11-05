@@ -3,9 +3,9 @@
 #include <atomic>
 #include <condition_variable>
 #include <memory>
-#include <stdexcept>
 #include <thread>
 #include <cassert>
+#include <iostream>
 
 #include "../../thread-pool/thread_pool.hpp"
 #include "../function_analyzer.hpp"
@@ -21,35 +21,45 @@ void Analyzer::semanticCheck(const ASTProgram* _program){
     functionAnalyzer.checkFunctionSignatures(_program);
 
     // check if function signatures produced any errors
-    checkSemanticErrors(_program);
+    if(hasSemanticError(_program)){
+        return;
+    }
 
     // concurrent analysis of functions
     startFunctionCheck(_program);
 
-    // throw all errors in order
-    checkSemanticErrors(_program);
-
     globalScopeManager.popScope();
 }
 
-// merging errors captured in each function and reporting it back if there are any
-void Analyzer::checkSemanticErrors(const ASTProgram* _program) const {
-    std::string errors{""};
+bool Analyzer::hasSemanticError(const ASTProgram* _program) const noexcept {
+    for(const auto& _function : _program->getFunctions()){
+        const std::string& funcName = _function->getToken().value;
+        if(!semanticErrors[funcName].empty()){
+            return true;
+        }   
+    }
+    
+    if(!semanticErrors[globalError].empty()){
+        return true;
+    }
+
+    return false;
+}
+
+void Analyzer::showSemanticErrors(const ASTProgram* _program) const {
+    std::cerr << "\nSemantic check: failed!\n{}\n";
     for(const auto& _function : _program->getFunctions()){
         const std::string& funcName = _function->getToken().value;
         if(!semanticErrors[funcName].empty()){
             for(const auto& err : semanticErrors[funcName]){
-                errors += err + "\n";
+                std::cerr << std::format("{}\n", err);
             }
         }
     }
     if(!semanticErrors[globalError].empty()){
         for(const auto& err : semanticErrors[globalError]){
-            errors += err + "\n";
+            std::cerr << std::format("{}\n", err);
         }
-    }
-    if(!errors.empty()){
-        throw std::runtime_error(errors);
     }
 }
 

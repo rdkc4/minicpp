@@ -1,4 +1,5 @@
-#include "optimization.hpp"
+#ifndef OPTIMIZATION_DEAD_CODE_HPP
+#define OPTIMIZATION_DEAD_CODE_HPP
 
 #include "../common/intermediate-representation-tree/IRFunction.hpp"
 #include "../common/intermediate-representation-tree/IRCompoundSt.hpp"
@@ -22,3 +23,5 @@ namespace Optimization {
         bool eliminateDeadCode([[maybe_unused]] IRNode* _node);
     };
 };
+
+#endif

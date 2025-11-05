@@ -2,7 +2,6 @@
 
 #include <cctype>
 #include <iostream>
-#include <stdexcept>
 #include <format>
 #include <string_view>
 
@@ -86,22 +85,23 @@ void Lexer::tokenize(){
         }
     }
     tokens.push_back(Token{"", lineNumber, position - prevLineLen, TokenType::_EOF});
-    checkLexicalErrors();
     //printTokens();
-}
-
-void Lexer::checkLexicalErrors() const {
-    if(!exceptions.empty()) {
-        std::string err{ std::format("Invalid token count: {}\n", exceptions.size()) };
-        for(const auto& ex : exceptions){
-            err += ex;
-        }
-        throw std::runtime_error(err);
-    }
 }
 
 bool Lexer::completedTokenization() const noexcept {
     return tokens.size() > 0 && tokens.back().type == TokenType::_EOF;
+}
+
+bool Lexer::hasLexicalErrors() const noexcept{
+    return !exceptions.empty();
+}
+
+void Lexer::showLexicalErrors() const{
+    std::cerr << "\nLexical check: failed\n";
+    std::cerr << std::format("Invalid token count: {}\n", exceptions.size());
+    for(const auto& exception : exceptions){
+        std::cerr << std::format("{}\n", exception);
+    }
 }
 
 // moves onto the next token

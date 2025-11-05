@@ -24,11 +24,12 @@ class IntermediateRepresentation{
         // returns root of the intermediate representation tree
         [[nodiscard]] std::unique_ptr<IRProgram> formIR(const ASTProgram* _program);
 
+        bool hasErrors(const IRProgram* _program) const noexcept;
+        void showErrors(const IRProgram* _program) const;
+
     protected:
         FunctionIntermediateRepresentation funcIR;
         std::unordered_map<std::string,std::vector<std::string>> exceptions;
-
-        void checkErrors(const IRProgram* _program) const;
 };
 
 #endif

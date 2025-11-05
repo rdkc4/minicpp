@@ -14,8 +14,7 @@ TEST(CodeGenTest, ReturnsNumExp){
     const std::string outputNoExt{ "tmp1" };
     const std::string output{ outputNoExt + ext[0] };
     
-    Compiler compiler;
-    compiler.compile(input, output);
+    Compiler::compile(input, output);
 
     std::string asmCmd = std::format("as {} -o {}", output, outputNoExt + ext[1]);
     int assemble = system(asmCmd.c_str());
@@ -45,8 +44,7 @@ TEST(CodeGenTest, ReturnsFuncCall){
     const std::string outputNoExt{ "tmp2" };
     const std::string output{ outputNoExt + ext[0] };
     
-    Compiler compiler;
-    compiler.compile(input, output);
+    Compiler::compile(input, output);
 
     std::string asmCmd = std::format("as {} -o {}", output, outputNoExt + ext[1]);
     int assemble = system(asmCmd.c_str());
@@ -76,8 +74,7 @@ TEST(CodeGenTest, ReturnsRecursiveFuncCall){
     const std::string outputNoExt{ "tmp3" };
     const std::string output{ outputNoExt + ext[0] };
     
-    Compiler compiler;
-    compiler.compile(input, output);
+    Compiler::compile(input, output);
 
     std::string asmCmd = std::format("as {} -o {}", output, outputNoExt + ext[1]);
     int assemble = system(asmCmd.c_str());
@@ -107,8 +104,7 @@ TEST(CodeGenTest, SwitchStatementCase){
     const std::string outputNoExt{ "tmp4" };
     const std::string output{ outputNoExt + ext[0] };
     
-    Compiler compiler;
-    compiler.compile(input, output);
+    Compiler::compile(input, output);
 
     std::string asmCmd = std::format("as {} -o {}", output, outputNoExt + ext[1]);
     int assemble = system(asmCmd.c_str());
@@ -138,8 +134,7 @@ TEST(CodeGenTest, SwitchStatementDefault){
     const std::string outputNoExt{ "tmp5" };
     const std::string output{ outputNoExt + ext[0] };
     
-    Compiler compiler;
-    compiler.compile(input, output);
+    Compiler::compile(input, output);
 
     std::string asmCmd = std::format("as {} -o {}", output, outputNoExt + ext[1]);
     int assemble = system(asmCmd.c_str());
@@ -169,8 +164,7 @@ TEST(CodeGenTest, WhileStatement){
     const std::string outputNoExt{ "tmp6" };
     const std::string output{ outputNoExt + ext[0] };
     
-    Compiler compiler;
-    compiler.compile(input, output);
+    Compiler::compile(input, output);
 
     std::string asmCmd = std::format("as {} -o {}", output, outputNoExt + ext[1]);
     int assemble = system(asmCmd.c_str());
@@ -200,8 +194,7 @@ TEST(CodeGenTest, DoWhileStatement){
     const std::string outputNoExt{ "tmp7" };
     const std::string output{ outputNoExt + ext[0] };
     
-    Compiler compiler;
-    compiler.compile(input, output);
+    Compiler::compile(input, output);
 
     std::string asmCmd = std::format("as {} -o {}", output, outputNoExt + ext[1]);
     int assemble = system(asmCmd.c_str());
@@ -231,8 +224,7 @@ TEST(CodeGenTest, ForStatement){
     const std::string outputNoExt{ "tmp8" };
     const std::string output{ outputNoExt + ext[0] };
     
-    Compiler compiler;
-    compiler.compile(input, output);
+    Compiler::compile(input, output);
 
     std::string asmCmd = std::format("as {} -o {}", output, outputNoExt + ext[1]);
     int assemble = system(asmCmd.c_str());
