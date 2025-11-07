@@ -5,6 +5,10 @@
 #include "defs/ASTree_defs.hpp"
 #include "../token/token.hpp"
 
+/** 
+ * @class ASTStatement
+ * @brief AST node that represents statement, parent node of all statement nodes
+*/
 class ASTStatement : public ASTNode {
 public:
     ASTStatement(const Token& token, ASTNodeType ntype);

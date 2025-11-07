@@ -164,7 +164,7 @@ std::unique_ptr<ASTWhileSt> StatementParser::whileStatement(){
     auto condition{ expParser.relationalExpression() };
     tokenConsumer.consume(TokenType::_RPAREN);
     
-    _while->setDoWhile(std::move(condition), statement());
+    _while->setWhile(std::move(condition), statement());
 
     return _while;
 }

@@ -17,5 +17,7 @@ bool ASTReturnSt::returns() const noexcept {
 
 void ASTReturnSt::print(size_t offset) const {
     std::cout << std::format("{}|-> {}", std::string(offset * 2, ' '), toString());
-    exp->print(offset + 1);
+    if(exp != nullptr){
+        exp->print(offset + 1);
+    }
 }

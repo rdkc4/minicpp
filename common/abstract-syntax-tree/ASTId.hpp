@@ -6,10 +6,20 @@
 #include "../token/token.hpp"
 #include "../defs/defs.hpp"
 
+/** 
+ * @class ASTId
+ * @brief AST node representing id
+*/
 class ASTId final : public ASTExpression {
 public:
     ASTId(const Token token, ASTNodeType ntype, Types type = Types::NO_TYPE);
     
+    /** 
+     * @brief prints id node
+     * @note debugging purposes
+     * @param offset - indentation
+     * @returns void
+    */
     void print(size_t offset) const override;
 };
 

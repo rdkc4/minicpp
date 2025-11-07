@@ -40,8 +40,11 @@ bool ASTForSt::hasIncrementer() const noexcept {
 
 void ASTForSt::print(size_t offset) const {
     std::cout << std::format("{}|-> {}", std::string(offset * 2, ' '), toString());
-    initializer->print(offset + 1);
-    condition->print(offset + 1);
-    incrementer->print(offset + 1);
+    if(initializer != nullptr)
+        initializer->print(offset + 1);
+    if(condition != nullptr)
+        condition->print(offset + 1);
+    if(incrementer != nullptr)
+        incrementer->print(offset + 1);
     statement->print(offset + 1);
 }
