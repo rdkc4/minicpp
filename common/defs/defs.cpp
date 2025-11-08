@@ -43,7 +43,6 @@ const std::unordered_map<TokenType, Types> tokenTypeToType {
 
 const std::unordered_map<Kinds, std::string> kindToString {
     {Kinds::NO_KIND, "NO_KIND"},
-    {Kinds::REG, "REG"},
     {Kinds::LIT, "LIT"},
     {Kinds::FUN, "FUN"},
     {Kinds::VAR, "VAR"},

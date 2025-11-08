@@ -8,34 +8,79 @@
 #include "../abstract-syntax-tree/ASTParameter.hpp"
 #include "../defs/defs.hpp"
 
+/** 
+ * @class Symbol
+ * @brief description of a symbol
+*/
 class Symbol{
-    public:
+public:
+    Symbol(std::string_view name, Kinds kind = Kinds::NO_KIND, Types type = Types::NO_TYPE);
 
-        Symbol(std::string_view name, Kinds kind = Kinds::NO_KIND, Types type = Types::NO_TYPE);
+    /** 
+     * @brief getter for the name of the symbol
+     * @returns const reference to a name of the symbol
+    */
+    const std::string& getName() const noexcept;
 
-        // getters
-        const std::string& getName() const noexcept;
-        Kinds getKind() const noexcept;
-        Types getType() const noexcept;
-        const std::vector<std::unique_ptr<ASTParameter>>* getParameters() const noexcept;
+    /** 
+     * @brief getter for the kind of the symbol
+     * @returns kind of the symbol
+    */
+    Kinds getKind() const noexcept;
 
-        // setters
-        void setName(std::string_view _name);
-        void setKind(Kinds _kind) noexcept;
-        void setType(Types _type) noexcept;
-        void setParameters(const std::vector<std::unique_ptr<ASTParameter>>* _parameters) noexcept;
+    /** 
+     * @brief getter for the type of the symbol
+     * @returns type of the symbol
+    */
+    Types getType() const noexcept;
 
-        std::string symbolToString() const;
+    /** 
+     * @brief getter for the parameters (if symbol is a function)
+     * @returns pointer to a vector of pointers to parameters
+    */
+    const std::vector<std::unique_ptr<ASTParameter>>* getParameters() const noexcept;
 
-    private:
-        // name of a symbol
-        std::string name;
-        // pointer to parameter node (only for functions)
-        const std::vector<std::unique_ptr<ASTParameter>>* parameters;
-        // kind of a symbol
-        Kinds kind;
-        // type of a symbol
-        Types type;
+    /** 
+     * @brief initializes symbol name
+     * @param _name - name of the symbol
+     * @returns void
+    */
+    void setName(std::string_view _name);
+
+    /** 
+     * @brief initializes symbol kind
+     * @param _kind - kind of the symbol
+     * @returns void
+    */    
+    void setKind(Kinds _kind) noexcept;
+
+    /** 
+     * @brief initializes symbol type
+     * @param _type - type of the symbol
+     * @returns void
+    */
+    void setType(Types _type) noexcept;
+
+    /** 
+     * @brief initializes symbol parameters (if the symbol is a function)
+     * @param _parameters - pointer to a vector of pointers to the parameters of the symbol
+     * @returns void
+    */
+    void setParameters(const std::vector<std::unique_ptr<ASTParameter>>* _parameters) noexcept;
+
+    /** 
+     * @brief formats the fields of the symbol
+     * @note debugging purposes
+     * @returns formatted symbol string
+    */
+    std::string symbolToString() const;
+
+private:
+    std::string name;
+    /// pointer to parameter node (only for functions)
+    const std::vector<std::unique_ptr<ASTParameter>>* parameters;
+    Kinds kind;
+    Types type;
 
 };
 

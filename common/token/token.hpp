@@ -5,16 +5,20 @@
 
 #include "defs/token_defs.hpp"
 
+/** 
+ * @struct Token
+ * @brief description of a token
+*/
 struct Token{
-    // more specific description
+    /// literal value of the token
     std::string value;
-    // line where token was found
+    /// line where token was found
     size_t line;
-    // column where token was found
+    /// column where token ends
     size_t column;
-    // type of a token
+    /// type of a token
     TokenType type;
-    // general type of a token
+    /// general type of a token
     GeneralTokenType gtype;
 
     Token();
