@@ -6,8 +6,6 @@
 
 Parser::Parser(TokenConsumer& consumer) : funcParser{ consumer }, tokenConsumer{ consumer } {}
 
-// PROGRAM : FUNCTION
-//         | PROGRAM FUNCTION
 std::unique_ptr<ASTProgram> Parser::parseProgram(){
     std::unique_ptr<ASTProgram> _program = std::make_unique<ASTProgram>(Token{"program", 0, 0}, ASTNodeType::PROGRAM);
     
@@ -20,14 +18,3 @@ std::unique_ptr<ASTProgram> Parser::parseProgram(){
 
     return _program;
 }
-
-// -> GLOBAL VARIABLES (TODO)
-// -> RELATIONAL EXPRESSIONS WITH MULTIPLE CONDITIONS (TODO)
-// -> MORE TYPES (TODO)
-// -> ENUMERATORS (TODO)
-// -> LISTS (TODO)
-// -> ANONYMOUS FUNCTIONS (TODO)
-// -> INCLUDE / HANDLING MULTIPLE FILES (TODO)
-// -> PRE/POST INCREMENT/DECREMENT (TODO)
-// -> BITWISE OPERATORS (!, ~) (TODO)
-// -> TERNARY OPERATOR ? : (TODO)

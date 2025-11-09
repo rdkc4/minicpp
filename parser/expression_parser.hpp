@@ -13,27 +13,99 @@
 
 #include "token_consumer.hpp"
 
+/** 
+ * @class ExpressionParser
+ * @brief used for parsing expressions
+*/
 class ExpressionParser {
 public:
     ExpressionParser(TokenConsumer& consumer);
 
+    /** 
+     * @brief parses numerical expression
+     * @details NUMERICAL_EXPRESSION : EXPRESSION (OPERATOR EXPRESSION)*
+     * @returns pointer to an expression node
+    */
     std::unique_ptr<ASTExpression> numericalExpression();
+
+    /** 
+     * @brief parses relational expression
+     * @details RELATIONAL EXPRESSION : NUMERICAL_EXPRESSION RELOP NUMERICAL_EXPRESSION
+     * @returns pointer to an expression node
+    */
     std::unique_ptr<ASTExpression> relationalExpression();
+
+    /** 
+     * @brief parses id expression
+     * @details ID : ID
+     * @returns pointer to an id node
+    */
     std::unique_ptr<ASTId> id();
+
+    /** 
+     * @brief parses literal expression
+     * @details LITERAL : LITERAL(unsigned) | LITERAL(int)
+     * @returns pointer to a literal node
+    */
     std::unique_ptr<ASTLiteral> literal();
 
-protected:
+private:
     TokenConsumer& tokenConsumer;
 
-    // expressions
+protected:
+    /** 
+     * @brief transforms rpn stack to a tree
+     * @param rpn - reference to a rpn stack
+     * @param root - pointer to the root of the (sub)expression 
+     * @returns pointer to the transformed expression node
+    */
     std::unique_ptr<ASTExpression> rpnToTree(std::stack<std::unique_ptr<ASTExpression>>& rpn, std::unique_ptr<ASTExpression>& root) const;
+
+    /** 
+     * @brief parses expression
+     * @details
+     *
+     * EXPRESSION
+     * 
+     * : LITERAL
+     *
+     * | FUNCTION_CALL
+     *
+     * | ID
+     *
+     * | LPAREN NUMERICAL_EXPRESSION RPAREN
+     * @returns pointer to an expression node
+    */
     std::unique_ptr<ASTExpression> expression();
+
+    /** 
+     * @brief parses function call
+     * @details FUNCTION_CALL : ID LPAREN (ARGUMENT)? RPAREN
+     * @returns pointer to a function call node
+    */
     std::unique_ptr<ASTFunctionCall> functionCall();
+
+    /** 
+     * @brief parses argument of the function call
+     * @param _functionCall - function call that owns arguments
+     * @details (NUMERICAL_EXPRESSION (COMMA NUMERICAL_EXPRESSION)*)?
+     * @returns void
+    */
     void argument(ASTFunctionCall* _functionCall);
+
+    /** 
+     * @brief parses the root of the binary expression node (only operator)
+     * @param isRel - flag if operator is relational or not
+     * @returns pointer to a binary expression node
+    */
     std::unique_ptr<ASTBinaryExpression> _operator(bool isRel = false);
 
-    // precedence calculator
-    // higher value = stronger precedence
+    /** 
+     * @brief calculates the precedence of the operator
+     * @note higher value means stronger precedence
+     * @param op - operator
+     * @returns strength of the precedence of the operator
+    */
     constexpr int getPrecedence(const std::string& op) const noexcept {
         const static std::unordered_map<std::string, int> precedence {
             {"|", 1},

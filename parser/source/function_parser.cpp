@@ -2,7 +2,6 @@
 
 FunctionParser::FunctionParser(TokenConsumer& consumer) : stmtParser{ consumer }, tokenConsumer{ consumer } {}
 
-// FUNCTION : TYPE ID LPAREN PARAMETERS RPAREN BODY
 std::unique_ptr<ASTFunction> FunctionParser::function(){
     Types type{ tokenTypeToType.find(tokenConsumer.getToken().type) != tokenTypeToType.end() ? tokenTypeToType.at(tokenConsumer.getToken().type) : Types::NO_TYPE };
     tokenConsumer.consume(GeneralTokenType::TYPE);
@@ -19,9 +18,6 @@ std::unique_ptr<ASTFunction> FunctionParser::function(){
     return _function;
 }
 
-// PARAMETERS : EMPTY 
-//            | PARAMETER 
-//            | PARAMETERS COMMA PARAMETER
 void FunctionParser::parameter(ASTFunction* _function){
     while(tokenConsumer.getToken().gtype == GeneralTokenType::TYPE){
         Types type{ tokenTypeToType.at(tokenConsumer.getToken().type) };
@@ -40,7 +36,6 @@ void FunctionParser::parameter(ASTFunction* _function){
     }
 }
 
-// BODY : LBRACKET STATEMENT RBRACKET
 void FunctionParser::body(ASTFunction* _function){
     tokenConsumer.consume(TokenType::_LBRACKET);
     while(tokenConsumer.getToken().type != TokenType::_RBRACKET){

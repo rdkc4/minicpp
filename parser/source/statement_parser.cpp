@@ -3,15 +3,6 @@
 
 StatementParser::StatementParser(TokenConsumer& consumer) : expParser{ consumer }, tokenConsumer{ consumer } {}
 
-// STATEMENT : VARIABLE_DECL
-//           | RETURN_STATEMENT
-//           | PRINTF_STATEMENT
-//           | IF_STATEMENT
-//           | COMPOUND_STATEMENT
-//           | WHILE_STATEMENT
-//           | FOR_STATEMENT
-//           | DO_WHILE_STATEMENT
-//           | SWITCH_STATEMENT
 std::unique_ptr<ASTStatement> StatementParser::statement(){
     if(tokenConsumer.getToken().gtype == GeneralTokenType::TYPE){
         return variable();
@@ -43,8 +34,6 @@ std::unique_ptr<ASTStatement> StatementParser::statement(){
         token.line, token.column, token.value));
 }
 
-// VARIABLE : TYPE ID SEMICOLON
-//          | TYPE ID ASSIGN ASSIGNMENT_STATEMENT SEMICOLON
 std::unique_ptr<ASTVariable> StatementParser::variable(){
     Types type{ tokenTypeToType.find(tokenConsumer.getToken().type) != tokenTypeToType.end() ? tokenTypeToType.at(tokenConsumer.getToken().type) : Types::NO_TYPE };
     tokenConsumer.consume(GeneralTokenType::TYPE);
@@ -60,7 +49,6 @@ std::unique_ptr<ASTVariable> StatementParser::variable(){
     return _variable;
 }
 
-// PRINTF_STATEMENT: PRINTF LPAREN NUMERICAL_EXPRESSION RPAREN SEMICOLON;
 std::unique_ptr<ASTPrintfSt> StatementParser::printfStatement(){
     std::unique_ptr<ASTPrintfSt> _printf = 
         std::make_unique<ASTPrintfSt>(Token{"printf_statement", tokenConsumer.getToken().line, tokenConsumer.getToken().column}, ASTNodeType::PRINTF);
@@ -74,8 +62,6 @@ std::unique_ptr<ASTPrintfSt> StatementParser::printfStatement(){
     return _printf;
 }
 
-// COMPOUND_STATEMENT : LBRACKET RBRACKET
-//                    | LBRACKET STATEMENT RBRACKET
 std::unique_ptr<ASTCompoundSt> StatementParser::compoundStatement(){
     std::unique_ptr<ASTCompoundSt> _compound = 
         std::make_unique<ASTCompoundSt>(Token{"compound_statement", tokenConsumer.getToken().line, tokenConsumer.getToken().column}, ASTNodeType::COMPOUND_STATEMENT);
@@ -89,7 +75,6 @@ std::unique_ptr<ASTCompoundSt> StatementParser::compoundStatement(){
     return _compound;
 }
 
-// ASSIGNMENT_STATEMENT : ID ASSIGN NUMERICAL_EXPRESSION SEMICOLON
 std::unique_ptr<ASTAssignSt> StatementParser::assignmentStatement(bool expectsSemicolon){
     std::unique_ptr<ASTId> _variable{ expParser.id() };
     
@@ -106,8 +91,6 @@ std::unique_ptr<ASTAssignSt> StatementParser::assignmentStatement(bool expectsSe
     return _assignment;
 }
 
-// RETURN_STATEMENT : RETURN SEMICOLON 
-//                  | RETURN NUMERICAL_EXPRESSION SEMICOLON
 std::unique_ptr<ASTReturnSt> StatementParser::returnStatement(){
     std::unique_ptr<ASTReturnSt> _return = 
         std::make_unique<ASTReturnSt>(Token{"return_statement", tokenConsumer.getToken().line, tokenConsumer.getToken().column}, ASTNodeType::RETURN_STATEMENT);
@@ -121,9 +104,6 @@ std::unique_ptr<ASTReturnSt> StatementParser::returnStatement(){
     return _return;
 }
 
-// IF_STATEMENT : IF LPAREN RELATIONAL_EXPRESSION RPAREN STATEMENT
-//              | IF_STATEMENT ELSE IF STATEMENT
-//              | IF_STATEMENT ELSE STATEMENT
 std::unique_ptr<ASTIfSt> StatementParser::ifStatement(){
     std::unique_ptr<ASTIfSt> _if = 
         std::make_unique<ASTIfSt>(Token{"if_statement", tokenConsumer.getToken().line, tokenConsumer.getToken().column}, ASTNodeType::IF_STATEMENT);
@@ -154,7 +134,6 @@ std::unique_ptr<ASTIfSt> StatementParser::ifStatement(){
     return _if;
 }
 
-// WHILE_STATEMENT : WHILE LPAREN RELATIONAL_EXPRESSION RPAREN STATEMENT
 std::unique_ptr<ASTWhileSt> StatementParser::whileStatement(){
     std::unique_ptr<ASTWhileSt> _while = 
         std::make_unique<ASTWhileSt>(Token{"while_statement", tokenConsumer.getToken().line, tokenConsumer.getToken().column}, ASTNodeType::WHILE_STATEMENT);
@@ -169,7 +148,6 @@ std::unique_ptr<ASTWhileSt> StatementParser::whileStatement(){
     return _while;
 }
 
-// FOR_STATEMENT : FOR LPAREN ASSIGN_STATEMENT SEMICOLON RELATIONAL_EXPRESSION SEMICOLON ASSIGNMENT_STATEMENT RPAREN STATEMENT
 std::unique_ptr<ASTForSt> StatementParser::forStatement(){
     std::unique_ptr<ASTForSt> _for = 
         std::make_unique<ASTForSt>(Token{"for_statement", tokenConsumer.getToken().line, tokenConsumer.getToken().column}, ASTNodeType::FOR_STATEMENT);
@@ -192,7 +170,7 @@ std::unique_ptr<ASTForSt> StatementParser::forStatement(){
 
     // optional incrementer
     if(tokenConsumer.getToken().type != TokenType::_RPAREN){
-        _inc = assignmentStatement(false); // false - doesn't expect semicolon at the end of statement
+        _inc = assignmentStatement( false); // false - doesn't expect semicolon at the end of the statement
     }
     tokenConsumer.consume(TokenType::_RPAREN);
 
@@ -201,7 +179,6 @@ std::unique_ptr<ASTForSt> StatementParser::forStatement(){
     return _for;
 }
 
-// DO_WHILE_STATEMENT : DO STATEMENT WHILE LPAREN RELATIONAL_EXPRESSION RPAREN SEMICOLON
 std::unique_ptr<ASTDoWhileSt> StatementParser::doWhileStatement(){
     std::unique_ptr<ASTDoWhileSt> _dowhile = 
         std::make_unique<ASTDoWhileSt>(Token{"dowhile_statement", tokenConsumer.getToken().line, tokenConsumer.getToken().column}, ASTNodeType::DO_WHILE_STATEMENT);
@@ -218,7 +195,6 @@ std::unique_ptr<ASTDoWhileSt> StatementParser::doWhileStatement(){
     return _dowhile;
 }
 
-// SWITCH_STATEMENT : SWITCH LPAREN ID RPAREN LBRACKET CASES _DEFAULT RBRACKET
 std::unique_ptr<ASTSwitchSt> StatementParser::switchStatement(){
     std::unique_ptr<ASTSwitchSt> _switch = 
         std::make_unique<ASTSwitchSt>(Token{"switch_statement", tokenConsumer.getToken().line, tokenConsumer.getToken().column}, ASTNodeType::SWITCH_STATEMENT);
@@ -243,9 +219,6 @@ std::unique_ptr<ASTSwitchSt> StatementParser::switchStatement(){
     return _switch;
 }
 
-// SWITCH_CASE_BLOCK : EMPTY
-//                   | STATEMENT
-//                   | SWITCH_CASE_BLOCK STATEMENT
 std::unique_ptr<ASTSwitchBlock> StatementParser::switchCaseBlock(){
     std::unique_ptr<ASTSwitchBlock> _switchBlock = 
         std::make_unique<ASTSwitchBlock>(Token{"switch_block", tokenConsumer.getToken().line, tokenConsumer.getToken().column}, ASTNodeType::SWITCH_BLOCK);
@@ -259,8 +232,6 @@ std::unique_ptr<ASTSwitchBlock> StatementParser::switchCaseBlock(){
     return _switchBlock;
 }
 
-// _CASE : CASE LITERAL COLON SWITCH_CASE_BLOCK
-//       | CASE LITERAL COLON SWITCH_CASE_BLOCK _BREAK
 std::unique_ptr<ASTCaseSt> StatementParser::_case(){
     bool hasBreak{ false };
     std::unique_ptr<ASTCaseSt> _swCase = 
@@ -280,8 +251,6 @@ std::unique_ptr<ASTCaseSt> StatementParser::_case(){
     return _swCase;
 }
 
-// _DEFAULT : DEFAULT COLON SWITCH_CASE_BLOCK
-//          | DEFAULT COLON SWITCH_CASE_BLOCK _BREAK
 std::unique_ptr<ASTDefaultSt> StatementParser::_default(){
     std::unique_ptr<ASTDefaultSt> _swDefault = 
         std::make_unique<ASTDefaultSt>(Token{"default", tokenConsumer.getToken().line, tokenConsumer.getToken().column}, ASTNodeType::DEFAULT);
@@ -296,9 +265,8 @@ std::unique_ptr<ASTDefaultSt> StatementParser::_default(){
     return _swDefault;
 }
 
-// _BREAK : BREAK SEMICOLON
 void StatementParser::_break(){
-    // only for switch statement at the moment, located at the end of case
+    // only for switch statement at the moment, located at the end of the case
     tokenConsumer.consume(TokenType::_BREAK);
     tokenConsumer.consume(TokenType::_SEMICOLON);
 }
