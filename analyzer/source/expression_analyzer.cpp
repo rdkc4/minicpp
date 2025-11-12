@@ -12,10 +12,10 @@ ExpressionAnalyzer::ExpressionAnalyzer(ScopeManager& scopeManager) : globalScope
 
 void ExpressionAnalyzer::checkNumericalExpression(ASTExpression* _numexp){
     // setting type to numexp node for easier type checking
-    _numexp->setType(getNumericalExpressionType(_numexp));
+    _numexp->setType(checkNumericalExpressionType(_numexp));
 }
 
-Types ExpressionAnalyzer::getNumericalExpressionType(ASTExpression* _numexp){
+Types ExpressionAnalyzer::checkNumericalExpressionType(ASTExpression* _numexp){
     if(_numexp->getNodeType() == ASTNodeType::ID){
         checkID(static_cast<ASTId*>(_numexp));
         return _numexp->getType();
@@ -31,8 +31,8 @@ Types ExpressionAnalyzer::getNumericalExpressionType(ASTExpression* _numexp){
     else{
         // numerical expression type check
         ASTBinaryExpression* binExp = static_cast<ASTBinaryExpression*>(_numexp);
-        Types ltype{ getNumericalExpressionType(binExp->getLeftOperand()) };
-        Types rtype{ getNumericalExpressionType(binExp->getRightOperand()) };
+        Types ltype{ checkNumericalExpressionType(binExp->getLeftOperand()) };
+        Types rtype{ checkNumericalExpressionType(binExp->getRightOperand()) };
 
         // if either subexpression is invalid, root expression shall be invalid too, no point checking for type mismatch
         if(ltype == Types::NO_TYPE || rtype == Types::NO_TYPE) return Types::NO_TYPE;
@@ -57,7 +57,8 @@ void ExpressionAnalyzer::checkRelationalExpression(ASTExpression* _relexp){
     auto& analyzerContext = FunctionAnalyzer::getContext();
     auto ltype = _binExp->getLeftOperand()->getType();
     auto rtype = _binExp->getRightOperand()->getType();
-    if(ltype != rtype){
+
+    if(ltype != rtype && ltype != Types::NO_TYPE && rtype != Types::NO_TYPE){
         analyzerContext.semanticErrors.push_back(
             std::format("Line {}, Column {}: SEMANTIC ERROR -> invalid assignment statement - type mismatch: expected '{}', got '{}'", 
                 _relexp->getToken().line, _relexp->getToken().column, typeToString.at(ltype), typeToString.at(rtype))

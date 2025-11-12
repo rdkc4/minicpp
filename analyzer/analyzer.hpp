@@ -2,42 +2,59 @@
 #define ANALYZER_HPP
 
 #include <unordered_map>
-#include <mutex>
 #include <string>
 #include <vector>
 
 #include "../common/abstract-syntax-tree/ASTProgram.hpp"
 #include "../symbol-handling/scope-manager/scope_manager.hpp"
-#include "defs/analyzer_defs.hpp"
 #include "function_analyzer.hpp"
 
-/*
-    Semantic analysis of abstract syntax tree
+/**
+ * @class Analyzer
+ * @brief semantic analysis of the abstract syntax tree
 */
 class Analyzer{
-    public:
-        
-        Analyzer(ScopeManager& scopeManager);
+public:
+    Analyzer(ScopeManager& scopeManager);
 
-        void semanticCheck(const ASTProgram* _program);
+    /** 
+     * @brief entry point for the semantic check
+     * @param _program - pointer to a root of the ast
+     * @returns void
+    */
+    void semanticCheck(const ASTProgram* _program);
 
-        static AnalyzerThreadContext& getThreadContext() noexcept;
+    /** 
+     * @brief checks if code is semantically correct
+     * @param _program - const pointer to a root of the ast
+     * @note _program is needed to obtain name of all functions
+     * @returns true if any semantic error is caught, false otherwise
+    */
+    bool hasSemanticError(const ASTProgram* _program) const noexcept;
 
-        bool hasSemanticError(const ASTProgram* _program) const noexcept;
-        void showSemanticErrors(const ASTProgram* _program) const;
+    /** 
+     * @brief displays semantic errors
+     * @param _program - const pointer to a root of the ast
+     * @note _program is needed to obtain name of all functions
+     * @returns void
+    */
+    void showSemanticErrors(const ASTProgram* _program) const;
 
-    protected:
-        // detection of undefined/redefined variables/functions, type checking
-        ScopeManager& globalScopeManager;
-        FunctionAnalyzer functionAnalyzer;
+protected:
+    ScopeManager& globalScopeManager;
+    FunctionAnalyzer functionAnalyzer;
 
-        mutable std::mutex exceptionMtx;
-        mutable std::unordered_map<std::string, std::vector<std::string>> semanticErrors;
-        
-        static constexpr std::string globalError{ "__global" };
+    mutable std::unordered_map<std::string, std::vector<std::string>> semanticErrors;
+    
+    /// identifier for signature errors
+    static constexpr std::string globalError{ "__global" };
 
-        // function
-        void startFunctionCheck(const ASTProgram* _program);
+    /** 
+     * @brief starts checking functions parallelly
+     * @param _program - const pointer to a root of the ast
+     * @returns void
+    */
+    void startFunctionCheck(const ASTProgram* _program);
 };
 
 #endif

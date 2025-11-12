@@ -2,13 +2,11 @@
 #include "../function_analyzer.hpp"
 
 #include <format>
-#include <string>
-#include <unordered_set>
 
 StatementAnalyzer::StatementAnalyzer(ScopeManager& scopeManager) : globalScopeManager{ scopeManager }, expressionAnalyzer{ scopeManager } {}
 
 void StatementAnalyzer::checkStatement(const ASTStatement* _statement){
-    auto& analyzerContext = FunctionAnalyzer::getContext();
+    AnalyzerThreadContext& analyzerContext = getContext();
     switch(_statement->getNodeType()){
         case ASTNodeType::VARIABLE:
             checkVariable(static_cast<const ASTVariable*>(_statement));
@@ -48,9 +46,13 @@ void StatementAnalyzer::checkStatement(const ASTStatement* _statement){
     }
 }
 
+AnalyzerThreadContext& StatementAnalyzer::getContext() noexcept {
+    return FunctionAnalyzer::getContext();
+}
+
 void StatementAnalyzer::checkVariable(const ASTVariable* _variable){
     // variable type check
-    auto& analyzerContext = FunctionAnalyzer::getContext();
+    AnalyzerThreadContext& analyzerContext = getContext();
     Types type{ _variable->getType() };
     if(type == Types::VOID || type == Types::NO_TYPE){
         analyzerContext.semanticErrors.push_back(
@@ -80,7 +82,7 @@ void StatementAnalyzer::checkVariable(const ASTVariable* _variable){
         Types rtype{_variable->getAssign()->getType() };
 
         // variable initialization type check
-        if(rtype != type && type != Types::AUTO){
+        if(rtype != type && type != Types::AUTO && rtype != Types::NO_TYPE){ // rtype == no_type => error was caught in expression, no need to write it again
             analyzerContext.semanticErrors.push_back(
                 std::format("Line {}, Column {}: SEMANTIC ERROR -> invalid assignment statement - type mismatch: expected '{}', got '{}'", 
                     _variable->getToken().line, _variable->getToken().column, typeToString.at(type), typeToString.at(rtype))
@@ -132,69 +134,9 @@ void StatementAnalyzer::checkDoWhileStatement(const ASTDoWhileSt* _dowhile){
     expressionAnalyzer.checkNumericalExpression(_dowhile->getCondition());
 }
 
-void StatementAnalyzer::checkSwitchStatement(const ASTSwitchSt* _switch){
-    // if id is not defined, switch is ignored, all cases will be ignored, including their statements 
-    if(!expressionAnalyzer.checkID(_switch->getVariable())) return;
-    
-    auto& analyzerContext = FunctionAnalyzer::getContext();
-    // case check
-    if(_switch->getVariable()->getType() == Types::INT){
-        checkSwitchStatementCases<int>(_switch);
-    }
-    else if(_switch->getVariable()->getType() == Types::UNSIGNED){
-        checkSwitchStatementCases<unsigned>(_switch);
-    }
-    else{
-        analyzerContext.semanticErrors.push_back(
-            std::format("Line {}, Column {}: SEMANTIC ERROR -> invalid type '{}'", 
-                _switch->getToken().line, _switch->getToken().column, _switch->getVariable()->getToken().value)
-        );
-    }
-}
-
-template<typename T>
-void StatementAnalyzer::checkSwitchStatementCases(const ASTSwitchSt* _switch){
-    auto& analyzerContext = FunctionAnalyzer::getContext();
-    std::unordered_set<T> set;
-    Types expectedType{ std::is_same<T, int>::value ? Types::INT : Types::UNSIGNED };
-
-    for(const auto& _case : _switch->getCases()){
-        expressionAnalyzer.checkLiteral(_case->getLiteral());
-
-        T val;
-        // case type check
-        Types type{ _case->getLiteral()->getType() };
-        if(type != expectedType){
-            analyzerContext.semanticErrors.push_back(
-                std::format("Line {}, Column {}: SEMANTIC ERROR -> invalid case - type mismatch: expected '{}', got '{}'", 
-                    _case->getToken().line, _case->getToken().column, typeToString.at(expectedType), typeToString.at(type))
-            );
-        }
-        // case duplicate check
-        else if(set.find(val = (std::is_same<T, int>::value ? std::stoi(_case->getLiteral()->getToken().value) 
-                                                            : std::stoul(_case->getLiteral()->getToken().value))) != set.end()){
-            analyzerContext.semanticErrors.push_back(
-                std::format("Line {}, Column {}: SEMANTIC ERROR -> duplicate case '{}'", 
-                    _case->getToken().line, _case->getToken().column, _case->getLiteral()->getToken().value)
-            );
-        }
-        else{
-            for(const auto& _statement : _case->getSwitchBlock()->getStatements()){
-                checkStatement(_statement.get());
-            }
-            set.insert(val);
-        }
-    }
-    if(_switch->hasDefault()){
-        for(const auto& _statement : _switch->getDefault()->getSwitchBlock()->getStatements()){
-            checkStatement(_statement.get());
-        }
-    }
-}
-
 void StatementAnalyzer::checkCompoundStatement(const ASTCompoundSt* _compound){
     // compound scope
-    auto& analyzerContext = FunctionAnalyzer::getContext();
+    AnalyzerThreadContext& analyzerContext = getContext();
     analyzerContext.scopeManager->pushScope();
     for(const auto& _statement : _compound->getStatements()){
         checkStatement(_statement.get());
@@ -216,7 +158,7 @@ void StatementAnalyzer::checkAssignmentStatement(const ASTAssignSt* _assignment)
     // if numexp contains undefined element it will report the undefined variable, no point checking for type mismatch
     if(rtype == Types::NO_TYPE) return;
 
-    auto& analyzerContext = FunctionAnalyzer::getContext();
+    AnalyzerThreadContext& analyzerContext = getContext();
 
     // assignment type check
     if(rtype != ltype && ltype != Types::AUTO){
@@ -232,12 +174,12 @@ void StatementAnalyzer::checkAssignmentStatement(const ASTAssignSt* _assignment)
 }
 
 void StatementAnalyzer::checkReturnStatement(const ASTReturnSt* _return){
-    Types returnType{ _return->returns() ? expressionAnalyzer.getNumericalExpressionType(_return->getExp()) : Types::VOID };
+    Types returnType{ _return->returns() ? expressionAnalyzer.checkNumericalExpressionType(_return->getExp()) : Types::VOID };
     
     // if numexp inside of a return statement contains undef var, it will report it, no point checking for type mismatch
     if(returnType == Types::NO_TYPE) return;
     
-    auto& analyzerContext = FunctionAnalyzer::getContext();
+    AnalyzerThreadContext& analyzerContext = getContext();
 
     // return type check
     Types expectedReturnType{ globalScopeManager.getSymbol(analyzerContext.functionName).getType() };
@@ -245,6 +187,26 @@ void StatementAnalyzer::checkReturnStatement(const ASTReturnSt* _return){
         analyzerContext.semanticErrors.push_back(
             std::format("Line {}, Column {}: SEMANTIC ERROR -> invalid return statement - type mismatch: '{} {}' returns '{}'", 
                 _return->getToken().line, _return->getToken().column, typeToString.at(expectedReturnType), analyzerContext.functionName, typeToString.at(returnType))
+        );
+    }
+}
+
+void StatementAnalyzer::checkSwitchStatement(const ASTSwitchSt* _switch){
+    // if id is not defined, switch is ignored, all cases will be ignored, including their statements 
+    if(!expressionAnalyzer.checkID(_switch->getVariable())) return;
+    
+    AnalyzerThreadContext& analyzerContext = getContext();
+    // case check
+    if(_switch->getVariable()->getType() == Types::INT){
+        checkSwitchStatementCases<int>(_switch);
+    }
+    else if(_switch->getVariable()->getType() == Types::UNSIGNED){
+        checkSwitchStatementCases<unsigned>(_switch);
+    }
+    else{
+        analyzerContext.semanticErrors.push_back(
+            std::format("Line {}, Column {}: SEMANTIC ERROR -> invalid type '{}'", 
+                _switch->getToken().line, _switch->getToken().column, _switch->getVariable()->getToken().value)
         );
     }
 }
