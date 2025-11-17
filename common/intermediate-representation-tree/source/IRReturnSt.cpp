@@ -33,5 +33,7 @@ void IRReturnSt::print(size_t offset) const {
     if(temporaries != nullptr){
         temporaries->print(offset + 1);
     }
-    exp->print(offset + 1);
+    if(returns()){
+        exp->print(offset + 1);
+    }
 }
