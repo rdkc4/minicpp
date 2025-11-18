@@ -17,29 +17,99 @@
 
 #include "../optimization/constant_folding.hpp"
 
+/**
+ * @class ExpressionIntermediateRepresentation
+ * @brief turns ast expression into irt expression
+*/
 class ExpressionIntermediateRepresentation {
 public:
     ExpressionIntermediateRepresentation();
 
+    /**
+     * @brief turns ast numerical expression into irt numerical expression
+     * @param _numexp - const pointer to the ast numerical expression
+     * @returns pointer to the irt numerical expression
+    */
     std::unique_ptr<IRExpression> numericalExpression(const ASTExpression* _numexp);
+
+    /**
+     * @brief turns ast relational expression into irt relational expression
+     * @param _relexp - const pointer to the ast relational expression
+     * @returns pointer to the irt relational expression
+     * @note at the moment only binary expression
+    */
     std::unique_ptr<IRBinaryExpression> relationalExpression(const ASTExpression* _relexp);
+
+    /**
+     * @brief turns ast id into irt id
+     * @param _id - const pointer to the ast id
+     * @returns pointer to the irt id
+    */
     std::unique_ptr<IRId> id(const ASTId* _id) const;
+
+    /**
+     * @brief turns ast literal into irt literal
+     * @param _literal - const pointer to the ast literal
+     * @returns pointer to the irt literal
+    */
     std::unique_ptr<IRLiteral> literal(const ASTLiteral* _literal) const;
 
+    /**
+     * @brief generates temporary variables for runction calls of the numerical expression
+     * @param _numexp - const pointer to the ast numerical expression
+     * @returns pointer to the temporary variables
+    */
     std::unique_ptr<IRTemporary> initiateTemporaries(const ASTExpression* _numexp);
 
 private:
+    /**
+     * @brief turns ast function call into irt function call
+     * @param _functionCall - const pointer to the ast function call
+     * @returns pointer to the irt function call
+    */
     std::unique_ptr<IRFunctionCall> functionCall(const ASTFunctionCall* _functionCall);
+
+    /**
+     * @brief turns arguments of the ast function call into arguments of the irt function call
+     * @param _irFunctionCall - pointer to the irt function call
+     * @param _functionCall - const pointer to the ast function call
+     * @returns void
+    */
     void argument(IRFunctionCall* _irFunctionCall, const ASTFunctionCall* _functionCall);
 
-    // assigning function calls to temporary variables, preventing register corruption
+    /**
+     * @brief counting the number of required temporaries
+     * @param _numexp - const pointer to the ast numerical expression
+     * @returns number of required temporaries
+    */
     size_t countTemporaries(const ASTExpression* _numexp) const;
+
+    /**
+     * @brief generates the name for the temporary variable
+     * @returns name of the temporary variable
+    */
     std::string generateTemporaries();
+
+    /**
+     * @brief assigns function calls to the temporaries
+     * @param _temporaryRoot - pointer to the parent node of the temporaries
+     * @param _numexp - const pointer to the ast numerical expression
+     * @param idx - index of the temporary being assigned
+    */
     void assignFunctionCalls(IRTemporary* _temporaryRoot, const ASTExpression* _numexp, size_t& idx);
+
+    /**
+     * @brief replaces function calls with temporaries
+     * @param _functionCall - const pointer to the ast function call
+     * @returns pointer to the irt id of the temporary variable
+    */
     std::unique_ptr<IRId> replaceFunctionCall(const ASTFunctionCall* _functionCall);
 
 
-    // helper function to get operand value as T
+    /**
+     * @brief helper function to get operand value
+     * @returns operand value as T
+    */
     template<typename T>
     T getOperandValue(const IRLiteral* operand) const {
         if (std::is_same<T, int>::value) {
@@ -50,6 +120,14 @@ private:
     }
     
     // reducing the depth of the tree if both operands are literals
+    /**
+     * @brief merges literals of the expression
+     * @note reduces the depth of the expression subtree when all children are literals
+     * @param leftOperand - const pointer to the irt numerical expression
+     * @param rightOperand - const pointer to the irt numerical expression
+     * @binExp - const pointer to the ast binary expression, contains operation
+     * @returns result of the merge operation
+    */
     template<typename T>
     Optimization::ConstantFolding::MergeResult<std::unique_ptr<IRExpression>> mergeLiterals(const IRLiteral* leftOperand, const IRLiteral* rightOperand, const ASTBinaryExpression* binExp) const {
         T lval = getOperandValue<T>(leftOperand);

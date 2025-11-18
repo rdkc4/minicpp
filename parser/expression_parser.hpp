@@ -106,7 +106,7 @@ protected:
      * @param op - operator
      * @returns strength of the precedence of the operator
     */
-    constexpr int getPrecedence(const std::string& op) const noexcept {
+    int getPrecedence(const std::string& op) const noexcept {
         const static std::unordered_map<std::string, int> precedence {
             {"|", 1},
             {"^", 2},

@@ -11,25 +11,40 @@
 #include "../common/abstract-syntax-tree/ASTProgram.hpp"
 #include "function_intermediate_representation.hpp"
 
-/*
-    Turning abstract syntax tree into intermediate representation tree
+/**
+ * @class IntermediateRepresentation
+ * @brief turns abstract syntax tree into intermediate representation tree
 */
-class IntermediateRepresentation{
+class IntermediateRepresentation {
 
-    public:
+public:
 
-        IntermediateRepresentation();
+    IntermediateRepresentation();
 
-        // simplifying ast for easier code generation
-        // returns root of the intermediate representation tree
-        [[nodiscard]] std::unique_ptr<IRProgram> formIR(const ASTProgram* _program);
+    /**
+     * @brief transforms ast program into irt program
+     * @param _program - const pointer to the root of the ast program
+     * @returns pointer to the root of irt program
+    */
+    [[nodiscard]] std::unique_ptr<IRProgram> formIR(const ASTProgram* _program);
 
-        bool hasErrors(const IRProgram* _program) const noexcept;
-        void showErrors(const IRProgram* _program) const;
+    /**
+     * @brief checks if any errors are caught
+     * @param _program - const pointer to the root of the irt
+     * @returns true if any error is caught, false otherwise
+    */
+    bool hasErrors(const IRProgram* _program) const noexcept;
 
-    protected:
-        FunctionIntermediateRepresentation funcIR;
-        std::unordered_map<std::string,std::vector<std::string>> exceptions;
+    /**
+     * @brief displays all ir errors
+     * @param _program - pointer to the root of the irt program
+     * @returns void
+    */
+    void showErrors(const IRProgram* _program) const;
+
+protected:
+    FunctionIntermediateRepresentation funcIR;
+    std::unordered_map<std::string,std::vector<std::string>> exceptions;
 };
 
 #endif
