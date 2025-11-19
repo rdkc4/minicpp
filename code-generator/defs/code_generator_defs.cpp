@@ -1,6 +1,5 @@
 #include "code_generator_defs.hpp"
 
-// jumps
 const std::unordered_map<IRNodeType, std::string> nodeToJMP {
     {IRNodeType::JG, "jg"},
     {IRNodeType::JA, "ja"},
@@ -14,7 +13,6 @@ const std::unordered_map<IRNodeType, std::string> nodeToJMP {
     {IRNodeType::JNE, "jne"}
 };
 
-// opposite jumps
 const std::unordered_map<IRNodeType, std::string> nodeToOppJMP {
     {IRNodeType::JG, "jle"},
     {IRNodeType::JA, "jbe"},
@@ -28,5 +26,5 @@ const std::unordered_map<IRNodeType, std::string> nodeToOppJMP {
     {IRNodeType::JNE, "je"}
 };
 
-// general purpose registers (x86_64 architecture)
+/// general purpose registers (x86_64 architecture)
 const std::vector<std::string> gpRegisters {"%r8", "%r9", "%r10", "%r11", "%r12", "%r13", "%r14", "%r15"};
