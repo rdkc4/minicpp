@@ -9,14 +9,32 @@
 
 namespace Optimization {
 
+    /** 
+     * @namespace ConstantFolding
+     * @brief Module for computing the operations that can be resolved in a compile-time
+    */
     namespace ConstantFolding {
 
+        /** 
+         * @struct MergeResult
+         * @brief result of the merge operation
+        */
         template<typename T>
         struct MergeResult {
             T result;
             std::string error = "";
         };
 
+        /** 
+         * @brief performs operation on two constants
+         * @note T - type of the constants
+         * @param l - left operand
+         * @param r - right operand
+         * @param op - operator
+         * @param line - line of the token
+         * @param column - column of the token
+         * @returns result of the merge operation
+        */
         template<typename T>
         MergeResult<T> mergeValues(T l, T r, Operators op, size_t line, size_t column){
             MergeResult<T> constFold;
