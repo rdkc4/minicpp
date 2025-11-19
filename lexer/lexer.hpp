@@ -42,13 +42,13 @@ class Lexer{
 
         /** 
          * @brief asserts that the tokenization has been completed
-         * @returns boolean, confirmation that entire input has been tokenized
+         * @returns true if input has been tokenized, false otherwise
         */
         bool completedTokenization() const noexcept;
 
         /** 
          * @brief checks if any lexical error has been caught
-         * @returns boolean, whether or not there are any lexical errors
+         * @returns false if there are no lexical errors, true otherwise
         */
         bool hasLexicalErrors() const noexcept;
 
@@ -117,7 +117,7 @@ class Lexer{
 
         /** 
          * @brief pushes literal to tokens
-         * @param sign - boolean, tells if literal is signed or not, false by default
+         * @param sign - flag that tells if literal is signed or not, default false
          * @returns void
         */
         void pushLiteral(bool sign = false);
@@ -148,38 +148,38 @@ class Lexer{
 
         /** 
          * @brief checks if current sequence of characters is an assignment operator
-         * @returns boolean
+         * @returns true if sequence matches assign operator, false otherwise
         */
         bool isAssignOperator() const noexcept;
 
         /** 
          * @brief checks if the current sequence of characters is a keyword
          * @param value - const string representing id or keyword
-         * @returns boolean
+         * @returns true if sequence matches keyword, false otherwise
         */
         bool isKeyword(const std::string& value) const noexcept;
 
         /** 
          * @brief checks if the current sequence of characters is a signed literal
-         * @returns boolean
+         * @returns true if sequence matches signed literal, false otherwise
         */
         bool isSignedLiteral() const noexcept;
 
         /** 
          * @brief checks if the current sequence of characters is an arithmetic operator
-         * @returns boolean
+         * @returns true if sequence matches arithmetic operator, false otherwise
         */
         bool isAritOperator() const;
 
         /** 
          * @brief checks if the current sequence of characters is a bitwise operator
-         * @returns boolean
+         * @returns true if sequence matches bitwise operator, false otherwise
         */
         bool isBitwiseOperator() const;
 
         /** 
          * @brief checks if the current sequence of characters is a relational operator
-         * @returns boolean
+         * @returns true if sequence matches relational operator, false otherwise
         */
         bool isRelOperator() const;
 

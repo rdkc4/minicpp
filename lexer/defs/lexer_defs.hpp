@@ -7,14 +7,10 @@
 
 #include "../../common/token/defs/token_defs.hpp"
 
-/**
- * @brief lexer related definitions
-*/
-
-/// keywords reserved for the language
+/// keywords reserved for the compiler
 extern const std::unordered_map<std::string, TokenType> keywords;
 
-/// types reserved for the language
+/// types reserved for the compiler
 extern const std::unordered_set<TokenType> types;
 
 #endif
