@@ -184,7 +184,7 @@ _do_while3:
 	movq -16(%rbp), %r8
 	movq $1, %r9
 	movq %r9, %rcx
-	sal %rcx, %r8
+	sal %cl, %r8
 	movq -40(%rbp), %r9
 	movq $2, %r10
 	xor %rdx, %rdx

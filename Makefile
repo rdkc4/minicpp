@@ -122,7 +122,7 @@ $(EXEC): $(OBJS)
 
 # Run the program with input
 run: $(EXEC)
-	./$(EXEC) < testfile.txt
+	./$(EXEC) testfile.txt
 
 # Run all unit tests
 test: $(TEST_EXEC)

@@ -64,7 +64,7 @@ void ExpressionCodeGenerator::generateNumericalExpression(const IRExpression* _n
         
         IRNodeType nodeType = _numexp->getNodeType();
         if(nodeType == IRNodeType::MUL || nodeType == IRNodeType::DIV){ // result of MUL || DIV is in RDX:RAX
-            AsmGenerator::Instruction::genOperation(codeGenContext.asmCode, "xor", "%rdx", "%rdx"); //add overflow check (TODO)
+            AsmGenerator::Instruction::genOperation(codeGenContext.asmCode, "xor", "%rdx", "%rdx");
             AsmGenerator::Instruction::genMov(codeGenContext.asmCode, rreg, "%rax", "q");
             if(_numexp->getType() == Types::INT){
                 AsmGenerator::Instruction::genOperation(codeGenContext.asmCode, std::format("i{}", irNodeToString.at(nodeType)), lreg);
@@ -79,7 +79,7 @@ void ExpressionCodeGenerator::generateNumericalExpression(const IRExpression* _n
         }
         else if(nodeType == IRNodeType::SHL || nodeType == IRNodeType::SAL || nodeType == IRNodeType::SHR || nodeType == IRNodeType::SAR){
             AsmGenerator::Instruction::genMov(codeGenContext.asmCode, lreg, "%rcx", "q");
-            AsmGenerator::Instruction::genOperation(codeGenContext.asmCode, irNodeToString.at(nodeType), "%rcx", rreg);
+            AsmGenerator::Instruction::genOperation(codeGenContext.asmCode, irNodeToString.at(nodeType), "%cl", rreg);
         }
         else{
             AsmGenerator::Instruction::genOperation(codeGenContext.asmCode, irNodeToString.at(nodeType), lreg, rreg);
