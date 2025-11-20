@@ -64,7 +64,9 @@ public:
     void print(size_t offset) const override;
 
 private:
+    /// vector of pointers to relational expressions of the if-statement
     std::vector<std::unique_ptr<ASTExpression>> conditions;
+    /// vector of pointers to statements of the if-statement
     std::vector<std::unique_ptr<ASTStatement>> statements;
 
 };

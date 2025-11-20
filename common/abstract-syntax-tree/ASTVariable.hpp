@@ -68,7 +68,9 @@ public:
     void print(size_t offset) const override;
 
 private:
+    /// type of the variable
     Types type;
+    /// pointer to the expression assigned to the variable
     std::unique_ptr<ASTExpression> assignment;
 
 };

@@ -53,7 +53,9 @@ public:
     void print(size_t offset) const override;
 
 private:
+    /// pointer to the relational expression of the while-statement
     std::unique_ptr<ASTExpression> condition;
+    /// pointer to the statement of the while-statement
     std::unique_ptr<ASTStatement> statement;
 
 };

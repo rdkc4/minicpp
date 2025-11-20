@@ -43,6 +43,7 @@ public:
     void print(size_t offset) const override;
 
 private:
+    /// pointer to the switch-block of the default case
     std::unique_ptr<ASTSwitchBlock> swBlock;
 
 };

@@ -74,7 +74,9 @@ public:
 private:
     /// return type of the function
     Types type;
+    /// vector of pointers to parameters of the function
     std::vector<std::unique_ptr<ASTParameter>> parameters;
+    /// vector of pointers to statements of the body
     std::vector<std::unique_ptr<ASTStatement>> body;
 
 };

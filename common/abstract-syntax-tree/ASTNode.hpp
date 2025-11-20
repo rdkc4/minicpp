@@ -43,10 +43,18 @@ public:
     */
     const std::string toString() const;
 
+    /** 
+     * @brief prints ast node
+     * @note debugging purposes
+     * @param offset - indentation
+     * @returns void
+    */
     virtual void print(size_t offset) const = 0;
 
 private:
+    /// token describing the ast node
     Token token;
+    /// type of the ast node
     ASTNodeType nodeType;
 };
 

@@ -46,9 +46,9 @@ public:
     void print(size_t offset) const override;
 
 private:
+    /// pointer to the expression of the printf statement
     std::unique_ptr<ASTExpression> exp;
 
 };
-
 
 #endif

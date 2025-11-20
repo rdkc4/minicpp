@@ -43,6 +43,7 @@ public:
     void print(size_t offset) const override;
 
 private:
+    /// vector of pointers to statements of the compound statement
     std::vector<std::unique_ptr<ASTStatement>> statements;
 
 };

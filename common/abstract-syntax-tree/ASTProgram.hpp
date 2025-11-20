@@ -56,6 +56,7 @@ public:
     void print(size_t offset) const override;
 
 private:
+    /// vector of pointers to functions of the program
     std::vector<std::unique_ptr<ASTFunction>> functions;
 
 };

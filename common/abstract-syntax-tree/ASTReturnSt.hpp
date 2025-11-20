@@ -53,6 +53,7 @@ public:
     void print(size_t offset) const override;
 
 private:
+    /// pointer to the expression of the return statement
     std::unique_ptr<ASTExpression> exp;
 
 };

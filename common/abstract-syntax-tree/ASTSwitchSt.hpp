@@ -81,8 +81,11 @@ public:
     void print(size_t offset) const override;
 
 private:
+    /// pointer to id of the variable of the switch-statement
     std::unique_ptr<ASTId> variable;
+    /// vector of pointer to cases of the switch-statement
     std::vector<std::unique_ptr<ASTCaseSt>> cases;
+    /// pointer to the default case of the switch-statement
     std::unique_ptr<ASTDefaultSt> _default;
 
 };

@@ -43,6 +43,7 @@ public:
     void print(size_t offset) const override = 0;
 
 private:
+    /// type of the expression
     Types type;
 };
 

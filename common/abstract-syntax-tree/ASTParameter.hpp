@@ -42,6 +42,7 @@ public:
     void print(size_t offset) const override;
 
 private:
+    /// type of the parameter
     Types type;
 };
 
