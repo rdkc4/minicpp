@@ -16,7 +16,11 @@
 */
 class Parser {
 public:
-    Parser(TokenConsumer& lexer);
+    /** 
+     * @brief Creates new instance of the parser
+     * @param consumer - reference to token handler wrapped around the lexer 
+    */
+    Parser(TokenConsumer& consumer);
         
     /** 
      * @brief entry point for the parsing of the program
@@ -26,7 +30,9 @@ public:
     [[nodiscard]] std::unique_ptr<ASTProgram> parseProgram();
 
 private:
+    /// parser specialized for functions
     FunctionParser funcParser;
+    /// reference to a token handler wrapped around the lexer
     TokenConsumer& tokenConsumer;
 
 };

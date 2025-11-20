@@ -13,6 +13,11 @@
 */
 class TokenConsumer {
 public:
+    /** 
+     * @brief Creates instance of the token consumer
+     * @param lexer - reference to the lexer
+     * @note token consumer is a wrapper around the lexer
+    */
     TokenConsumer(Lexer& lexer);
     
     /** 
@@ -52,6 +57,7 @@ public:
     }
 
 private:
+    /// reference to a lexer containing tokenized input
     Lexer& lexer;
 };
 

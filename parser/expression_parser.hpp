@@ -19,6 +19,10 @@
 */
 class ExpressionParser {
 public:
+    /** 
+     * @brief Creates new instance of the parser specialized for expressions
+     * @param consumer - reference to token handler wrapped around the lexer 
+    */
     ExpressionParser(TokenConsumer& consumer);
 
     /** 
@@ -50,6 +54,7 @@ public:
     std::unique_ptr<ASTLiteral> literal();
 
 private:
+    /// reference to a token handler wrapped around the lexer
     TokenConsumer& tokenConsumer;
 
 protected:

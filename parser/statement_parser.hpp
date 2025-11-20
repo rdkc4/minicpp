@@ -24,6 +24,10 @@
 */
 class StatementParser {
 public:
+    /** 
+     * @brief Creates new instance of the parser specialized for statements
+     * @param consumer - reference to token handler wrapped around the lexer 
+    */
     StatementParser(TokenConsumer& consumer);
 
     /** 
@@ -54,7 +58,9 @@ public:
     std::unique_ptr<ASTStatement> statement();
 
 private:
+    /// parser specialized for expressions
     ExpressionParser expParser;
+    /// reference to a token handler wrapped around the lexer
     TokenConsumer& tokenConsumer;
 
 protected:

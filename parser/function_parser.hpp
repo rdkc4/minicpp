@@ -13,6 +13,10 @@
 */
 class FunctionParser {
 public:
+    /** 
+     * @brief Creates new instance of the parser specialized for functions
+     * @param consumer - reference to token handler wrapped around the lexer 
+    */
     FunctionParser(TokenConsumer& consumer);
 
     /** 
@@ -23,7 +27,9 @@ public:
     std::unique_ptr<ASTFunction> function();
 
 private:
+    /// parser specialized for statements
     StatementParser stmtParser;
+    /// reference to a token handler wrapped around the lexer
     TokenConsumer& tokenConsumer;
 
     /** 
