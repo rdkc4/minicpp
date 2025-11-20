@@ -14,6 +14,10 @@
 */
 class IRCaseSt final : public IRStatement {
 public:
+    /** 
+     * @brief Creates the instance of the irt case
+     * @param ntype - type of the irt node
+    */
     IRCaseSt(IRNodeType ntype);
 
     /**
@@ -55,8 +59,11 @@ public:
     void print(size_t offset) const override;
 
 private:
+    /// pointer to the literal of the case
     std::unique_ptr<IRLiteral> literal;
+    /// pointer to the switch-block of the case
     std::unique_ptr<IRSwitchBlock> swBlock;
+    /// flag if case breaks
     bool breaks;
 };
 

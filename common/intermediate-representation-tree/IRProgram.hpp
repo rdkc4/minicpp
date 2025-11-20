@@ -14,6 +14,10 @@
 */
 class IRProgram final : public IRNode {
 public:
+    /** 
+     * @brief Creates the instance of the irt program
+     * @param ntype - type of the irt node
+    */
     IRProgram(IRNodeType ntype);
 
     /** 
@@ -59,6 +63,7 @@ public:
     void print(size_t offset) const override;
 
 private:
+    /// vector of pointers to functions of the program
     std::vector<std::unique_ptr<IRFunction>> functions;
 };
 

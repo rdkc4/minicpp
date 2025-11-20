@@ -14,6 +14,12 @@
 */
 class IRId final : public IRExpression {
 public:
+    /** 
+     * @brief Creates the instance of the irt id
+     * @param ntype - type of the irt node
+     * @param idName - name of the id
+     * @param type - type of the id
+    */
     IRId(IRNodeType ntype, std::string_view idName, Types type);
 
     /** 
@@ -51,7 +57,9 @@ public:
     void print(size_t offset) const override;
 
 private:
+    /// name of the id
     std::string idName;
+    /// value of the id
     std::string value;
 };
 

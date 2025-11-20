@@ -14,6 +14,10 @@
 */
 class IRPrintfSt final : public IRStatement {
 public:
+    /** 
+     * @brief Creates the instance of the irt printf statement
+     * @param ntype - type of the irt node
+    */
     IRPrintfSt(IRNodeType ntype);
 
     /** 
@@ -57,7 +61,9 @@ public:
     void print(size_t offset) const override;
 
 private:
+    /// pointer to the expression of the printf statement
     std::unique_ptr<IRExpression> exp;
+    /// pointer to the temporaries of the printf statement
     std::unique_ptr<IRTemporary> temporaries;
 };
 

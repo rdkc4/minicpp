@@ -14,6 +14,12 @@
 */
 class IRParameter final : public IRNode {
 public:
+    /** 
+     * @brief Creates the instance of the irt parameter
+     * @param ntype - type of the irt node
+     * @param parName - name of the parameter
+     * @param type - type of the parameter
+    */
     IRParameter(IRNodeType ntype, std::string_view parName, Types type);
 
     /** 
@@ -51,7 +57,9 @@ public:
     void print(size_t offset) const override;
 
 private:
+    /// name of the parameter
     std::string parName;
+    /// type of the parameter
     Types type;
 };
 

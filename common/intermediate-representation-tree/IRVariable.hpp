@@ -16,6 +16,12 @@
 */
 class IRVariable final : public IRStatement {
 public:
+    /** 
+     * @brief Creates the instance of the irt variable declaration
+     * @param ntype - type of the irt node
+     * @param varName - name of the variable
+     * @param type - type of the variable
+    */
     IRVariable(IRNodeType ntype, std::string_view varName, Types type);
 
     /** 
@@ -98,10 +104,15 @@ public:
     void print(size_t offset) const override;
 
 private:
+    /// name of the variable
     std::string varName;
+    /// value of the variable
     std::string value;
+    /// type of the variable
     Types type;
+    /// pointer to the expression assigned to the variable
     std::unique_ptr<IRExpression> assignment;
+    /// pointer to the temporaries of the variable
     std::unique_ptr<IRTemporary> temporaries;
 };
 

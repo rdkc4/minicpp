@@ -17,6 +17,10 @@
 */
 class IRTemporary final : public IRNode {
 public:
+    /** 
+     * @brief Creates the instance of the irt temporary
+     * @param ntype - type of the irt node
+    */
     IRTemporary(IRNodeType ntype);
 
     /** 
@@ -85,8 +89,11 @@ public:
     void print(size_t offset) const override;
 
 private:
+    /// vector of types of the temporaries
     std::vector<Types> types;
+    /// vector of names of the temporaries
     std::vector<std::string> tempNames;
+    /// vector of pointers to expressions of the temporaries
     std::vector<std::unique_ptr<IRExpression>> temporaries;
 };
 

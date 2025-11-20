@@ -13,6 +13,10 @@
 */
 class IRDefaultSt final : public IRStatement {
 public:
+    /** 
+     * @brief Creates the instance of the irt default case
+     * @param ntype - type of the irt node
+    */
     IRDefaultSt(IRNodeType ntype);
 
     /**
@@ -39,6 +43,7 @@ public:
     void print(size_t offset) const override;
 
 private:
+    /// pointer to the switch-block of the default case
     std::unique_ptr<IRSwitchBlock> swBlock;
 };
 

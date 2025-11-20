@@ -16,6 +16,12 @@
 */
 class IRFunctionCall final : public IRExpression {
 public:
+    /** 
+     * @brief Creates the instance of the irt function call
+     * @param ntype - type of the irt node
+     * @param callName - name of the function being called
+     * @param type - return type of the function being called
+    */
     IRFunctionCall(IRNodeType ntype, const std::string& callName, Types type);
 
     /** 
@@ -74,8 +80,11 @@ public:
     void print(size_t offset) const override;
 
 private:
+    /// name of the function being called
     std::string callName;
+    /// vector of pointers to expressions representing arguments
     std::vector<std::unique_ptr<IRExpression>> arguments;
+    /// vector of pointers to temporaries of the function call
     std::vector<std::unique_ptr<IRTemporary>> temporaries;
 };
 

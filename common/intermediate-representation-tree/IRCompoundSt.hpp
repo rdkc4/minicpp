@@ -13,6 +13,10 @@
 */
 class IRCompoundSt final : public IRStatement {
 public:
+    /** 
+     * @brief Creates the instance of the irt compound statement
+     * @param ntype - type of the irt node
+    */
     IRCompoundSt(IRNodeType ntype);
 
     /**
@@ -44,6 +48,7 @@ public:
     void print(size_t offset) const override;
 
 private:
+    /// vector of pointers to statements of the compound statement
     std::vector<std::unique_ptr<IRStatement>> statements;
 };
 

@@ -16,6 +16,10 @@
 */
 class IRIfSt final : public IRStatement {
 public:
+    /** 
+     * @brief Creates the instance of the irt if-statement
+     * @param ntype - type of the irt node
+    */
     IRIfSt(IRNodeType ntype);
 
     /** 
@@ -86,8 +90,11 @@ public:
     void print(size_t offset) const override;
 
 private:
+    /// vector of pointers to relational expressions of the if-statement
     std::vector<std::unique_ptr<IRExpression>> conditions;
+    /// vector of pointers to statements of the if-statement
     std::vector<std::unique_ptr<IRStatement>> statements;
+    /// vector of pointers to temporaries of the if-statement
     std::vector<std::unique_ptr<IRTemporary>> temporaries;
 };
 

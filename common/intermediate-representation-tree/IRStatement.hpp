@@ -12,6 +12,10 @@
 */
 class IRStatement : public IRNode {
 public:
+    /** 
+     * @brief Creates the instance of the irt statement
+     * @param ntype - type of the irt node
+    */
     IRStatement(IRNodeType ntype);
     
     /** 

@@ -13,6 +13,12 @@
 */
 class IRLiteral final : public IRExpression {
 public:
+    /** 
+     * @brief Creates the instance of the irt literal
+     * @param ntype - type of the irt node
+     * @param val - value of the literal
+     * @param type - type of the literal
+    */
     IRLiteral(IRNodeType ntype, const std::string& val, Types type);
 
     /** 
@@ -37,6 +43,7 @@ public:
     void print(size_t offset) const override;
 
 private:
+    /// value of the literal
     std::string value;
 };
 

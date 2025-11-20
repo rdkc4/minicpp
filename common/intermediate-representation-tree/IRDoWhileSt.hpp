@@ -14,6 +14,10 @@
 */
 class IRDoWhileSt final : public IRStatement {
 public:
+    /** 
+     * @brief Creates the instance of the irt do-while statement
+     * @param ntype - type of the irt node
+    */
     IRDoWhileSt(IRNodeType ntype);
 
     /**
@@ -60,8 +64,11 @@ public:
     void print(size_t offset) const override;
 
 private:
+    /// pointer to the relational expression of the do-while statement
     std::unique_ptr<IRExpression> condition;
+    /// pointer to the statement of the do-while statement
     std::unique_ptr<IRStatement> statement;
+    /// pointer to the temporaries of the do-while statement
     std::unique_ptr<IRTemporary> temporaries;
 };
 

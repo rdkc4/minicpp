@@ -13,6 +13,11 @@
 */
 class IRBinaryExpression final : public IRExpression {
 public:
+    /** 
+     * @brief Creates the instance of the irt binary expression
+     * @param ntype - type of the irt node
+     * @param type - type of the binary expression
+    */
     IRBinaryExpression(IRNodeType ntype, Types type);
 
     /**
@@ -50,8 +55,11 @@ public:
     void print(size_t offset) const override;
 
 private:
+    /// pointer to the left operand of the binary expression
     std::unique_ptr<IRExpression> leftOperand;
+    /// pointer to the right operand of the binary expression
     std::unique_ptr<IRExpression> rightOperand;
+    /// operator of the binary expression
     Operators op;
 };
 

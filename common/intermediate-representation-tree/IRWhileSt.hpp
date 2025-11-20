@@ -14,6 +14,10 @@
 */
 class IRWhileSt final : public IRStatement {
 public:
+    /** 
+     * @brief Creates the instance of the irt while-statement
+     * @param ntype - type of the irt node
+    */
     IRWhileSt(IRNodeType ntype);
 
     /** 
@@ -58,8 +62,11 @@ public:
     void print(size_t offset) const override;
 
 private:
+    /// pointer to the relational expression of the while-statement
     std::unique_ptr<IRExpression> condition;
+    /// pointer to the statement of the while-statement
     std::unique_ptr<IRStatement> statement;
+    /// pointer to the temporaries of the while-statement
     std::unique_ptr<IRTemporary> temporaries;
 };
 

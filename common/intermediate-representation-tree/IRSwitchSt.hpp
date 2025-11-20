@@ -16,6 +16,10 @@
 */
 class IRSwitchSt final : public IRStatement {
 public:
+    /** 
+     * @brief Creates the instance of the irt switch-statement
+     * @param ntype - type of the irt node
+    */
     IRSwitchSt(IRNodeType ntype);
 
     /** 
@@ -83,8 +87,11 @@ public:
     void print(size_t offset) const override;
 
 private:
+    /// pointer to the id of the variable of the switch-statement
     std::unique_ptr<IRId> variable;
+    /// vector of pointers to cases of the switch-statement
     std::vector<std::unique_ptr<IRCaseSt>> cases;
+    /// pointer to default case of the switch-statement
     std::unique_ptr<IRDefaultSt> _default;
 };
 

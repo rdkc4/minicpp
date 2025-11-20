@@ -11,7 +11,15 @@
 */
 class IRNode {
 public:
+    /** 
+     * @brief Creates the instance of the irt node
+     * @param ntype - type of the irt node
+    */
     IRNode(IRNodeType ntype);
+
+    /** 
+     * @brief Destructs the instance of the irt node
+    */
     virtual ~IRNode();
 
     /** 
@@ -35,6 +43,7 @@ public:
     virtual void print(size_t offset) const = 0;
 
 private:
+    /// type of the irt node
     IRNodeType nodeType;
 };
 

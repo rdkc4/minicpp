@@ -17,6 +17,12 @@
 */
 class IRFunction final : public IRNode {
 public:
+    /** 
+     * @brief Creates the instance of the irt function
+     * @param ntype - type of the irt node
+     * @param funcName - name of the function
+     * @param type - return type of the function
+    */
     IRFunction(IRNodeType ntype, const std::string& funcName, Types type);
 
     /** 
@@ -100,10 +106,15 @@ public:
     void print(size_t offset) const override;
 
 private:
+    /// name of the function
     std::string functionName;
+    /// memory required for the stack of the function
     std::string requiredMemory;
+    /// return type of the function
     Types type;
+    /// vector of pointers to parameters of the function
     std::vector<std::unique_ptr<IRParameter>> parameters;
+    /// vector of pointers to statements of the body
     std::vector<std::unique_ptr<IRStatement>> body;
 };
 

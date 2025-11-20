@@ -15,6 +15,10 @@
 */
 class IRAssignSt final : public IRStatement {
 public:
+    /** 
+     * @brief Creates the instance of the irt assignment statement
+     * @param ntype - type of the irt node
+    */
     IRAssignSt(IRNodeType ntype);
 
     /**
@@ -61,8 +65,11 @@ public:
     void print(size_t offset) const override;
 
 private:
+    /// pointer to the id of the variable
     std::unique_ptr<IRId> variable;
+    /// pointer to the expression assigned to the variable
     std::unique_ptr<IRExpression> exp;
+    /// pointer to the temporaries of the assignment statement
     std::unique_ptr<IRTemporary> temporaries;
 };
 
