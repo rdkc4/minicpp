@@ -4,6 +4,8 @@
 #include "../../asm-generator/asm_instruction_generator.hpp"
 #include "../../../common/intermediate-representation-tree/IRBinaryExpression.hpp"
 
+ExpressionCodeGenerator::ExpressionCodeGenerator() = default;
+
 // evaluating equations using general-purpose registers r(8-15) and stack (if necessary)
 void ExpressionCodeGenerator::generateNumericalExpression(const IRExpression* _numexp){
     auto& codeGenContext = FunctionCodeGenerator::getContext();

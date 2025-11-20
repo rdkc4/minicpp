@@ -43,7 +43,7 @@ struct Operation {
             case Types::UNSIGNED:
                 return _unsigned;
             default:
-                assert(false && "unreachable");
+                return IRNodeType::NONE;
         }
     }
 };

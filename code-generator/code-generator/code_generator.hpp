@@ -7,39 +7,63 @@
 #include "../../common/intermediate-representation-tree/IRProgram.hpp"
 #include "function_code_generator.hpp"
 
-/*
-    Generating asm code from intermediate representation tree
-    ASM CODE GENERATION - x86_64 (linux)
-    // running asm code
-    $ as -o output.o output.s
-    $ ld -o output output.o
-    $ ./output
-    $ echo $? (to check return value)
+/** 
+ * @class CodeGenerator
+ * @brief generates the code for the x86-64 asm
+ * @details
+ *
+ * $ as -o output.o output.s
+ *
+ * $ ld -o output output.o
+ *
+ * $ ./output
+ *
+ * $ echo $? - prints return value
 */
-class CodeGenerator{
-    public:
-        CodeGenerator(const std::string& filePath);
+class CodeGenerator {
+public:
+    /** 
+     * @brief Creates an instance of the code generator
+     * @param filePath - path for the output asm file
+    */
+    CodeGenerator(const std::string& filePath);
 
-        // ensuring label number is unique for every non-related
-        static size_t getNextLabelNum() noexcept;
+    /** 
+     * @brief generates the unique number for the label
+     * @returns number of the label
+    */
+    static size_t getNextLabelNum() noexcept;
 
-        // start code generation
-        void generateCode(const IRProgram* _root);
+    /** 
+     * @brief starts the code generation of the program
+     * @param _root - const pointer to the irt program
+     * @returns void 
+    */
+    void generateCode(const IRProgram* _root);
 
-        bool successful() const noexcept;
+    /** 
+     * @brief checks if the code generation was successful
+     * @returns true if asm is generated, false otherwise
+    */
+    bool successful() const noexcept;
 
-    private:
-        // number for next label
-        // since functions are generated parallely, labelNums won't be in any particular order
-        static std::atomic<size_t> labelNum;
-        // output file path (.s)
-        const std::string outputPath;
-        FunctionCodeGenerator funcGenerator;
+private:
+    /// number for the next label
+    static std::atomic<size_t> labelNum;
+    /// output file path (.s)
+    const std::string outputPath;
+    /// code generator specialized for generating functions
+    FunctionCodeGenerator funcGenerator;
 
-        std::unordered_map<std::string, std::vector<std::string>> asmCode;
+    /// maps the name of the function to its assembly code
+    std::unordered_map<std::string, std::vector<std::string>> asmCode;
 
-        // writing generated code to file
-        void writeCode(const IRProgram* _root);
+    /** 
+     * @brief writes generated code into asm file
+     * @param _root - const pointer to the root of the program
+     * @returns void
+    */
+    void writeCode(const IRProgram* _root);
 
 };
 
