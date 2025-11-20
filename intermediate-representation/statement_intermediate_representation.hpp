@@ -34,6 +34,9 @@
 */
 class StatementIntermediateRepresentation {
 public:
+    /** 
+     * @brief Creates the instance of the statement intermediate representation
+    */
     StatementIntermediateRepresentation();
 
     /**
@@ -44,6 +47,7 @@ public:
     std::unique_ptr<IRStatement> statement(const ASTStatement* _statement);
     
 protected:
+    /// intermediate representation specialized for expressions
     ExpressionIntermediateRepresentation expIR;
 
     /**

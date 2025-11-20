@@ -17,6 +17,10 @@
 */
 class FunctionIntermediateRepresentation {
 public:
+    /** 
+     * @brief Creates the instance of the function intermediate representation
+     * @param exceptions -reference to the map of functions and their exceptions
+    */
     FunctionIntermediateRepresentation(std::unordered_map<std::string, std::vector<std::string>>& exceptions);
 
     /**
@@ -33,10 +37,15 @@ public:
     std::unique_ptr<IRFunction> function(const ASTFunction* _function);
 
 private:
+    /// thread local context of the function
     static thread_local IRThreadContext irContext;
     
+    /// intermediate representation specialized for statements
     StatementIntermediateRepresentation stmtIR;
+
+    /// maps function name to its exceptions
     std::unordered_map<std::string,std::vector<std::string>>& exceptions;
+    /// mutex for concurrent access to exceptions
     std::mutex exceptionMtx;
 
     /**

@@ -15,12 +15,19 @@ struct IRThreadContext{
     size_t temporaries;
     /// making sure nested temporary variables are handled properly
     std::stack<std::string> temporaryNames;
+    /// vector of the errors of the function
     std::vector<std::string> errors;
 
+    /** 
+     * @brief initializes the context of the thread
+    */
     void init(){
         temporaries = 0;
     }
 
+    /** 
+     * @brief resets the context of the thread
+    */
     void reset(){
         errors.clear();
     }

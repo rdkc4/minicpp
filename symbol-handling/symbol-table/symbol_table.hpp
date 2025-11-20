@@ -14,6 +14,11 @@ class SymbolTable{
 public:
 
     /** 
+     * @brief Creates the instance of the symbol table
+    */
+    SymbolTable();
+
+    /** 
      * @brief checks if symbol exists in a table
      * @param name - name of the symbol
      * @param kind - list of kinds that symbol is allowed to have

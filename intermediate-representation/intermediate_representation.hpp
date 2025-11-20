@@ -16,9 +16,10 @@
  * @brief turns abstract syntax tree into intermediate representation tree
 */
 class IntermediateRepresentation {
-
 public:
-
+    /** 
+     * @brief Creates the instance of the intermediate representation
+    */
     IntermediateRepresentation();
 
     /**
@@ -43,7 +44,9 @@ public:
     void showErrors(const IRProgram* _program) const;
 
 protected:
+    /// intermediate representation specialized for functions
     FunctionIntermediateRepresentation funcIR;
+    /// maps function name to its exceptions
     std::unordered_map<std::string,std::vector<std::string>> exceptions;
 };
 

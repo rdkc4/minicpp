@@ -13,7 +13,10 @@
 */
 class Lexer{
 public:
-
+    /** 
+     * @brief Creates the instance of the lexer
+     * @param input - source code that needs to be tokenized
+    */
     Lexer(std::string_view input);
 
     /**

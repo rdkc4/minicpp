@@ -23,6 +23,9 @@
 */
 class ExpressionIntermediateRepresentation {
 public:
+    /** 
+     * @brief Creates the instance of the expression intermediate representation
+    */
     ExpressionIntermediateRepresentation();
 
     /**

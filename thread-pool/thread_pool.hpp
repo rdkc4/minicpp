@@ -46,11 +46,16 @@ public:
     }
 
 private:
+    /// vector of threads owned by thread pool
     std::vector<std::thread> threads;
+    /// queue of tasks
     std::queue<std::function<void()>> tasks;
+    /// mutex for concurrent access to tasks
     std::mutex mtx;
+    /// condition variable for waiting/notifying
     std::condition_variable cv;
-    bool stop; ///< flag that handles stoppage of worker threads
+    /// flag that handles stoppage of worker threads
+    bool stop;
 };
 
 #endif
