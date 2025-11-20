@@ -15,6 +15,10 @@
 */
 class Analyzer{
 public:
+    /** 
+     * @brief Creates the instance of the analyzer
+     * @param scopeManager - reference to the global scope manager
+    */
     Analyzer(ScopeManager& scopeManager);
 
     /** 

@@ -4,6 +4,8 @@
 
 #include "../../asm-generator/asm_instruction_generator.hpp"
 
+StatementCodeGenerator::StatementCodeGenerator() = default;
+
 void StatementCodeGenerator::generateStatement(const IRStatement* _statement){
     switch(_statement->getNodeType()){
         case IRNodeType::VARIABLE:

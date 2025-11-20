@@ -25,6 +25,10 @@
 */
 class StatementAnalyzer {
 public:
+    /** 
+     * @brief Creates the instance of the analyzer specialized for statements
+     * @param scopeManager - reference to the global scope manager
+    */
     StatementAnalyzer(ScopeManager& scopeManager);
 
     /** 

@@ -12,7 +12,6 @@
 */
 class ScopeManager{
 public:
-
     /** 
      * @brief ScopeManager constructor
      * @param symTab - reference to a symbol table

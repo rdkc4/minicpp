@@ -20,6 +20,10 @@
 */
 class StatementCodeGenerator {
 public:
+    /** 
+     * @brief Creates the instance of the code generator specialized for statements
+    */
+    StatementCodeGenerator();
 
     /**
      * @brief generates asm code for the statement

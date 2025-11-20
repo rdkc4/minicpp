@@ -15,7 +15,6 @@
 */
 class ThreadPool{
 public:
-
     /** 
      * @brief starts specified number of worker threads
      * @param n - number of worker threads that handle tasks

@@ -21,6 +21,12 @@
 */
 class FunctionAnalyzer {
 public:
+    /** 
+     * @brief Creates the instance of the analyzer specialized for functions
+     * @param scopeManager - reference to the global scope manager
+     * @param semErrors - reference to the map connecting function names with their semantic errors
+     * @param err - global error label
+    */
     FunctionAnalyzer(ScopeManager& scopeManager, std::unordered_map<std::string, std::vector<std::string>>& semErrors, const std::string& err);
 
     /** 

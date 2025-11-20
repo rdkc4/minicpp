@@ -12,7 +12,6 @@
 */
 class SymbolTable{
 public:
-
     /** 
      * @brief Creates the instance of the symbol table
     */

@@ -13,6 +13,10 @@
 */
 class ExpressionAnalyzer {
 public:
+    /** 
+     * @brief Creates the instance of the analyzer specialized for expressions
+     * @param scopeManager - reference to the global scope manager
+    */
     ExpressionAnalyzer(ScopeManager& scopeManager);
 
     /** 
