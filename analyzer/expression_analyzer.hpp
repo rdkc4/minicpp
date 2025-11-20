@@ -44,6 +44,7 @@ public:
     void checkLiteral(const ASTLiteral* _literal) const;
 
 private:
+    /// reference to the global scope manager
     ScopeManager& globalScopeManager;
 
     /** 

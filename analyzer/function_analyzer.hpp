@@ -44,13 +44,22 @@ public:
     static AnalyzerThreadContext& getContext() noexcept;
 
 protected:
+    /// thread local context of the analyzer
     static thread_local AnalyzerThreadContext analyzerContext;
 
+    /// reference to the global scope manager
     ScopeManager& globalScopeManager;
+
+    /// mutex for the concurrent access to semantic errors map
     mutable std::mutex exceptionMtx;
+
+    /// maps function name to its semantic errors
     std::unordered_map<std::string, std::vector<std::string>>& semanticErrors;
+
+    /// label of the global scope errors
     const std::string& globalError;
 
+    /// analyzer specialized for statements
     StatementAnalyzer statementAnalyzer;
 
     /** 

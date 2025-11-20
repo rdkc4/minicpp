@@ -5,23 +5,33 @@
 
 #include "../../symbol-handling/scope-manager/scope_manager.hpp"
 
-/*
-    context for semantic analysis threads
+/** 
+ * @struct AnalyzerThreadContext
+ * @brief context of the thread checking semantics of the function
 */
-
 struct AnalyzerThreadContext {
-    // name of a function analyzed by the thread
+    /// name of the function analyzed by the thread
     std::string functionName = "";
-    // function scope manager
+    /// pointer to the function scope manager
     ScopeManager* scopeManager = nullptr;
-    // buffer for exception messages
+    /// vector for exception messages
     std::vector<std::string> semanticErrors;
 
+    /** 
+     * @brief initializes the context of the thread
+     * @param funcName - name of the function
+     * @param scopeMng - pointer to the scope manager
+     * @returns void
+    */
     void init(std::string_view funcName, ScopeManager* scopeMng){
         functionName = funcName;
         scopeManager = scopeMng;
     }
 
+    /** 
+     * @brief resets the context of the thread
+     * @returns void
+    */
     void reset(){
         functionName = "";
         scopeManager = nullptr;

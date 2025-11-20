@@ -41,9 +41,12 @@ public:
     void showSemanticErrors(const ASTProgram* _program) const;
 
 protected:
+    /// reference to the global scope manager
     ScopeManager& globalScopeManager;
+    /// analyzer specialized for functions
     FunctionAnalyzer functionAnalyzer;
 
+    /// maps functionName to its semantic errors
     mutable std::unordered_map<std::string, std::vector<std::string>> semanticErrors;
     
     /// identifier for signature errors
