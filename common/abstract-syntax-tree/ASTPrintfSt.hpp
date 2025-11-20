@@ -14,6 +14,11 @@
 */
 class ASTPrintfSt final : public ASTStatement {
 public:
+    /** 
+     * @brief Creates the instance of the ast printf statement
+     * @param token - const reference to the token
+     * @param ntype - type of the ast node
+    */
     ASTPrintfSt(const Token& token, ASTNodeType ntype);
     
     /** 

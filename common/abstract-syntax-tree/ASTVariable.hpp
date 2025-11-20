@@ -15,6 +15,12 @@
 */
 class ASTVariable final : public ASTStatement {
 public:
+    /** 
+     * @brief Creates the instance of the ast variable declaration
+     * @param token - const reference to the token
+     * @param ntype - type of the ast node
+     * @param type - type of the variable
+    */
     ASTVariable(const Token& token, ASTNodeType ntype, Types type = Types::NO_TYPE);
 
     /** 

@@ -13,6 +13,12 @@
 */
 class ASTExpression : public ASTNode {
 public:
+    /** 
+     * @brief Creates the instance of the ast expression
+     * @param token - const reference to the token
+     * @param ntype - type of the ast node
+     * @param type - type of the expression
+    */
     ASTExpression(const Token& token, ASTNodeType ntype, Types type = Types::NO_TYPE);
 
     /** 

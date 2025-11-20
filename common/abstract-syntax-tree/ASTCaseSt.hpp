@@ -15,6 +15,11 @@
 */
 class ASTCaseSt final : public ASTStatement {
 public:
+    /** 
+     * @brief Creates the instance of the ast case
+     * @param token - const reference to the token
+     * @param ntype - type of the ast node
+    */
     ASTCaseSt(const Token& token, ASTNodeType ntype);
 
     /** 

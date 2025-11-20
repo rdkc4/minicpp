@@ -14,6 +14,11 @@
 */
 class ASTAssignSt final : public ASTStatement {
 public:
+    /** 
+     * @brief Creates the instance of the ast assignment statement
+     * @param token - const reference to the token
+     * @param ntype - type of the ast node
+    */
     ASTAssignSt(const Token& token, ASTNodeType ntype);
 
     /** 

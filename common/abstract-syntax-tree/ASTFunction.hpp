@@ -17,6 +17,12 @@
 */
 class ASTFunction final : public ASTNode {
 public:
+    /** 
+     * @brief Creates the instance of the ast function
+     * @param token - const reference to the token
+     * @param ntype - type of the ast node
+     * @param type - return type of the function
+    */
     ASTFunction(const Token& token, ASTNodeType ntype, Types type = Types::NO_TYPE);
 
     /** 

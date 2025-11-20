@@ -12,7 +12,16 @@
 */
 class ASTNode{ 
 public:
+    /** 
+     * @brief Creates the instance of the ast node
+     * @param token - const reference to the token
+     * @param ntype - type of the ast node
+    */
     ASTNode(const Token token, ASTNodeType ntype);
+
+    /** 
+     * @brief Destructs the instance of the ast node
+    */
     virtual ~ASTNode();
 
     /** 

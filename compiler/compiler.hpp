@@ -14,7 +14,7 @@
 */
 namespace Compiler {
     /** 
-     * @enum
+     * @enum ExitCode
      * @brief exit codes of the compiler
     */
     enum class ExitCode { NO_ERR, LEXICAL_ERR, SYNTAX_ERR, SEMANTIC_ERR, IR_ERR, CODEGEN_ERR };

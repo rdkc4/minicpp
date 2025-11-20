@@ -12,6 +12,12 @@
 */
 class ASTParameter final : public ASTNode {
 public:
+    /** 
+     * @brief Creates the instance of the ast parameter
+     * @param token - const reference to the token
+     * @param ntype - type of the ast node
+     * @param type - type of the parameter
+    */
     ASTParameter(const Token& token, ASTNodeType ntype, Types type = Types::NO_TYPE);
     
     /** 

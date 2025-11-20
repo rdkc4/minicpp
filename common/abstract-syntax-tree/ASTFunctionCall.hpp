@@ -15,6 +15,12 @@
 */
 class ASTFunctionCall final : public ASTExpression {
 public:
+    /** 
+     * @brief Creates the instance of the ast function call
+     * @param token - const reference to the token
+     * @param ntype - type of the ast node
+     * @param type - type of the function call
+    */
     ASTFunctionCall(const Token& token, ASTNodeType ntype, Types type = Types::NO_TYPE);
 
     /** 

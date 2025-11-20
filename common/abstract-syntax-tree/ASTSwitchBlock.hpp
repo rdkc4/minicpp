@@ -14,6 +14,11 @@
 */
 class ASTSwitchBlock final : public ASTStatement {
 public:
+    /** 
+     * @brief Creates the instance of the ast switch-block
+     * @param token - const reference to the token
+     * @param ntype - type of the ast node
+    */
     ASTSwitchBlock(const Token& token, ASTNodeType ntype);
     
     /** 

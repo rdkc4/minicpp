@@ -14,6 +14,11 @@
 */
 class ASTProgram final : public ASTNode {
 public:
+    /** 
+     * @brief Creates the instance of the ast program
+     * @param token - const reference to the token
+     * @param ntype - type of the ast node
+    */
     ASTProgram(const Token& token, ASTNodeType ntype);
 
     /** 

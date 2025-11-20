@@ -14,6 +14,11 @@
 */
 class ASTReturnSt final : public ASTStatement {
 public:
+    /** 
+     * @brief Creates the instance of the ast return statement
+     * @param token - const reference to the token
+     * @param ntype - type of the ast node
+    */
     ASTReturnSt(const Token& token, ASTNodeType ntype);
 
     /** 

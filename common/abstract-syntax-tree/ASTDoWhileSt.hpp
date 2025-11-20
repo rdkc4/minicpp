@@ -14,6 +14,11 @@
 */
 class ASTDoWhileSt final : public ASTStatement {
 public:
+    /** 
+     * @brief Creates the instance of the ast do-while statement
+     * @param token - const reference to the token
+     * @param ntype - type of the ast node
+    */
     ASTDoWhileSt(const Token& token, ASTNodeType ntype);
 
     /** 

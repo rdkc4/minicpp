@@ -15,6 +15,11 @@
 */
 class ASTIfSt final : public ASTStatement {
 public:
+    /** 
+     * @brief Creates the instance of the ast if-statement
+     * @param token - const reference to the token
+     * @param ntype - type of the ast node
+    */
     ASTIfSt(const Token& token, ASTNodeType ntype);
 
     /** 

@@ -14,6 +14,13 @@
 */
 class ASTBinaryExpression final : public ASTExpression {
 public:
+    /** 
+     * @brief Creates the instance of the ast binary expression
+     * @param token - const reference to the token
+     * @param ntype - type of the ast node
+     * @param type - type of the binary expression
+     * @param op - operator of the binary expression
+    */
     ASTBinaryExpression(const Token& token, ASTNodeType ntype, Types type = Types::NO_TYPE, Operators op = Operators::NO_OP);
     
     /** 
