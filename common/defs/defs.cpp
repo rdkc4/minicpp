@@ -1,6 +1,5 @@
 #include "defs.hpp"
 
-// supported operators
 const std::unordered_set<std::string> relationalOperators {"<", ">", "<=", ">=", "==", "!=" };
 
 const std::unordered_set<std::string> arithmeticOperators {"+", "-", "*", "/"};
@@ -25,7 +24,6 @@ const std::unordered_map<std::string, Operators> stringToOperator {
     {"!=", Operators::NEQUAL}
 };
 
-// conversions
 const std::unordered_map<Types, std::string> typeToString {
     {Types::INT, "int"},
     {Types::UNSIGNED, "unsigned"},

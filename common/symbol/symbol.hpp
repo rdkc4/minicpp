@@ -14,6 +14,12 @@
 */
 class Symbol{
 public:
+    /** 
+     * @brief Creates a new instance of the symbol
+     * @param name - name of the symbol
+     * @param kind - kind of the symbol, default NO_KIND
+     * @param type - type of the symbol, default NO_TYPE
+    */
     Symbol(std::string_view name, Kinds kind = Kinds::NO_KIND, Types type = Types::NO_TYPE);
 
     /** 
@@ -76,10 +82,13 @@ public:
     std::string symbolToString() const;
 
 private:
+    /// name of the symbol
     std::string name;
     /// pointer to parameter node (only for functions)
     const std::vector<std::unique_ptr<ASTParameter>>* parameters;
+    /// kind of the symbol
     Kinds kind;
+    /// type of the symbol
     Types type;
 
 };

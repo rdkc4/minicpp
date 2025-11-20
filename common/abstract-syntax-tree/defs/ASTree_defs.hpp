@@ -4,12 +4,17 @@
 #include <unordered_map>
 #include <string>
 
+/** 
+ * @enum ASTNodeType
+ * @brief types of the ast nodes
+*/
 enum class ASTNodeType{
     PROGRAM, FUNCTION_LIST, FUNCTION, PARAMETER, BODY, VARIABLE_LIST, VARIABLE, SWITCH_BLOCK, STATEMENT, COMPOUND_STATEMENT, 
     ASSIGNMENT_STATEMENT, RETURN_STATEMENT, IF_STATEMENT, WHILE_STATEMENT, FOR_STATEMENT, DO_WHILE_STATEMENT, SWITCH_STATEMENT, 
     NUMERICAL_EXPRESSION, EXPRESSION, RELATIONAL_EXPRESSION, BINARY_EXPRESSION, FUNCTION_CALL, ARGUMENT, LITERAL, ID, CASE, DEFAULT, BREAK, PRINTF
 };
 
+/// maps ast node type to a string
 extern const std::unordered_map<ASTNodeType, std::string> astNodeTypeToString;
 
 #endif

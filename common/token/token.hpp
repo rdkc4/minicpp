@@ -21,9 +21,36 @@ struct Token{
     /// general type of a token
     GeneralTokenType gtype;
 
+    /** 
+     * @brief Creates a new instance of a token
+    */
     Token();
+
+    /** 
+     * @brief Creates a new instance of a token
+     * @param value - literal value of the token
+     * @param line - line where token was found
+     * @param column - column where token ends
+    */
     Token(std::string_view value, size_t line, size_t column);
+
+    /** 
+     * @brief Creates a new instance of a token
+     * @param value - literal value of the token
+     * @param line - line where token was found
+     * @param column - column where token ends
+     * @param type - type of the token
+    */
     Token(std::string_view value, size_t line, size_t column, TokenType type);
+
+    /** 
+     * @brief Creates a new instance of a token
+     * @param value - literal value of the token
+     * @param line - line where token was found
+     * @param column - column where token ends
+     * @param type - type of the token
+     * @param gtype - general type of the token
+    */
     Token(std::string_view value, size_t line, size_t column, TokenType type, GeneralTokenType gtype);
 };
 
