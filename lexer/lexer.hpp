@@ -2,7 +2,6 @@
 #define LEXER_HPP
 
 #include <string>
-#include <string_view>
 #include <vector>
 
 #include "../common/token/token.hpp"
@@ -17,7 +16,7 @@ public:
      * @brief Creates the instance of the lexer
      * @param input - source code that needs to be tokenized
     */
-    Lexer(std::string_view input);
+    Lexer(const std::vector<std::string>& input);
 
     /**
         * @brief translating input into a sequence of tokens
@@ -69,9 +68,13 @@ public:
     void printTokens() const noexcept;
 
 private:
-    /// raw text that needs to be tokenized
-    std::string input;
+    /// code that needs to be tokenized
+    const std::vector<std::string>& input;
     
+    /// index of the current file
+    size_t fileIndex;
+    // length of the current file
+    size_t fileLength;
     /// current position in the input
     size_t position;
     /// current line in the input

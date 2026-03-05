@@ -2,7 +2,7 @@
 
 ## Overview
 
-Mini C compiler written in C++23, targeting x86_64 architecture. 
+Mini compiler written in C++23, targeting x86_64 architecture. 
 
 ## Documentation
 

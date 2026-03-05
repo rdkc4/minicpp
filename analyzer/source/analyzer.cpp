@@ -1,7 +1,6 @@
 #include "../analyzer.hpp"
 
-#include <atomic>
-#include <condition_variable>
+#include <latch>
 #include <memory>
 #include <thread>
 #include <cassert>
@@ -68,27 +67,14 @@ void Analyzer::startFunctionCheck(const ASTProgram* _program){
     // handling threads for concurrent function analysis
     ThreadPool threadPool{ std::thread::hardware_concurrency() };
     
-    // counter of analyzed functions
-    std::atomic<size_t> done{0};
-    std::condition_variable doneCv;
-    std::mutex doneMtx;
-
-    size_t total = _program->getFunctionCount();
+    std::latch doneLatch{ static_cast<std::ptrdiff_t>(_program->getFunctionCount()) };
 
     for(const auto& _function : _program->getFunctions()){
         threadPool.enqueue([&, _function=_function.get()] {
             functionAnalyzer.checkFunction(_function);
-
-            // semantic analysis of a function ended
-            if(done.fetch_add(1) + 1 == total){
-                doneCv.notify_one();
-            }
+            doneLatch.count_down();
         });
     }
 
-    {
-        // wait until each function is analyzed
-        std::unique_lock<std::mutex> lock(doneMtx);
-        doneCv.wait(lock, [&] { return done == total; });
-    }
+    doneLatch.wait();
 }

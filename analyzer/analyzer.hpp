@@ -54,7 +54,7 @@ protected:
     mutable std::unordered_map<std::string, std::vector<std::string>> semanticErrors;
     
     /// identifier for signature errors
-    static constexpr std::string globalError{ "__global" };
+    static inline std::string globalError{ "__global" };
 
     /** 
      * @brief starts checking functions parallelly

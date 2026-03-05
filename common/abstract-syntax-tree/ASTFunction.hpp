@@ -52,10 +52,23 @@ public:
     void addStatement(std::unique_ptr<ASTStatement> statement);
 
     /** 
+     * @brief sets predifined flag of a function
+     * @param isPredefined - flag for predefined function
+     * @returns void;
+    */
+    void setPredefined(bool isPredefined) noexcept;
+
+    /** 
      * @brief getter for return type
      * @returns return type of the function
     */
     Types getType() const noexcept;
+
+    /** 
+     * @brief checks if function is predifined
+     * @returns true if function is predefined, false otherwise
+    */
+    bool isPredefined() const noexcept;
 
     /** 
      * @brief getter for the amount of parameters
@@ -74,6 +87,8 @@ public:
 private:
     /// return type of the function
     Types type;
+    /// flag if function is predefined
+    bool predefined;
     /// vector of pointers to parameters of the function
     std::vector<std::unique_ptr<ASTParameter>> parameters;
     /// vector of pointers to statements of the body

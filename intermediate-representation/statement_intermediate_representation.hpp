@@ -14,6 +14,7 @@
 #include "../common/abstract-syntax-tree/ASTForSt.hpp"
 #include "../common/abstract-syntax-tree/ASTDoWhileSt.hpp"
 #include "../common/abstract-syntax-tree/ASTSwitchSt.hpp"
+#include "../common/abstract-syntax-tree/ASTFunctionCallSt.hpp"
 
 #include "../common/intermediate-representation-tree/IRStatement.hpp"
 #include "../common/intermediate-representation-tree/IRVariable.hpp"
@@ -26,6 +27,7 @@
 #include "../common/intermediate-representation-tree/IRForSt.hpp"
 #include "../common/intermediate-representation-tree/IRDoWhileSt.hpp"
 #include "../common/intermediate-representation-tree/IRSwitchSt.hpp"
+#include "../common/intermediate-representation-tree/IRFunctionCallSt.hpp"
 #include "expression_intermediate_representation.hpp"
 
 /**
@@ -46,10 +48,6 @@ public:
     */
     std::unique_ptr<IRStatement> statement(const ASTStatement* _statement);
     
-protected:
-    /// intermediate representation specialized for expressions
-    ExpressionIntermediateRepresentation expIR;
-
     /**
      * @brief turns ast variable declaration into irt variable declaration
      * @param _variable - const pointer to the ast variable declaration
@@ -91,6 +89,13 @@ protected:
      * @returns pointer to the irt return statement
     */
     std::unique_ptr<IRReturnSt> returnStatement(const ASTReturnSt* _return);
+
+    /**
+     * @brief turns ast function-call statement into irt function-call statement
+     * @param _return - const pointer to the ast function-call statement
+     * @returns pointer to the irt function-call statement
+    */
+    std::unique_ptr<IRFunctionCallSt> functionCallStatement(const ASTFunctionCallSt* _call);
 
     /**
      * @brief turns ast while-statement into irt while-statement
@@ -140,6 +145,11 @@ protected:
      * @returns pointer to the irt switch-block
     */
     std::unique_ptr<IRSwitchBlock> switchBlock(const ASTSwitchBlock* _block);
+
+private:
+    /// intermediate representation specialized for expressions
+    ExpressionIntermediateRepresentation expIR;
+
 };
 
 #endif

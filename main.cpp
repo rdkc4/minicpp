@@ -22,8 +22,9 @@ int main(int argc, char** argv){
 
     std::stringstream input;
     input << inputFileStream.rdbuf();
+    inputFileStream.close();
 
-    std::string output{ argc == 3 ? argv[2] : "output.s" };
+    std::string output{ argc == 3 ? argv[2] : "output" };
 
     auto start{ std::chrono::high_resolution_clock::now() };
 

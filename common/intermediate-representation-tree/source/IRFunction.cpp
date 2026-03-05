@@ -6,7 +6,7 @@
 #include <string>
 #include <format>
 
-IRFunction::IRFunction(IRNodeType ntype, const std::string& funcName, Types type) : IRNode(ntype), functionName{ funcName }, requiredMemory{ "0" }, type{ type } {}
+IRFunction::IRFunction(IRNodeType ntype, const std::string& funcName, Types type) : IRNode(ntype), functionName{ funcName }, requiredMemory{ "0" }, type{ type }, predefined{ false } {}
 
 const std::vector<std::unique_ptr<IRParameter>>& IRFunction::getParameters() const noexcept {
     return parameters;
@@ -52,6 +52,14 @@ void IRFunction::eliminateDead(size_t startIdx){
     if(startIdx < body.size()){
         body.erase(body.begin() + startIdx, body.end());
     }
+}
+
+void IRFunction::setPredefined(bool isPredefined) noexcept {
+    predefined = isPredefined;
+}
+
+bool IRFunction::isPredefined() const noexcept {
+    return predefined;
 }
 
 void IRFunction::print(size_t offset) const {

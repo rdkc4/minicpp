@@ -2,6 +2,8 @@
 #include "../function_code_generator.hpp"
 #include "../code_generator.hpp"
 
+#include <format>
+
 #include "../../asm-generator/asm_instruction_generator.hpp"
 
 StatementCodeGenerator::StatementCodeGenerator() = default;
@@ -38,6 +40,9 @@ void StatementCodeGenerator::generateStatement(const IRStatement* _statement){
         case IRNodeType::SWITCH:
             generateSwitchStatement(static_cast<const IRSwitchSt*>(_statement));
             break;
+        case IRNodeType::CALL:
+            generateFunctionCallStatement(static_cast<const IRFunctionCallSt*>(_statement));
+            return;
         default:
             return;
     }
@@ -247,6 +252,10 @@ void StatementCodeGenerator::generateReturnStatement(const IRReturnSt* _return){
         AsmGenerator::Instruction::genOperation(codeGenContext.asmCode, "xor", "%rax", "%rax");
     }
     AsmGenerator::Instruction::genJmp(codeGenContext.asmCode, "jmp", std::format("{}_end", codeGenContext.functionName));
+}
+
+void StatementCodeGenerator::generateFunctionCallStatement(const IRFunctionCallSt* _call){
+    exprGenerator.generateFunctionCall(_call->getFunctionCall());
 }
 
 void StatementCodeGenerator::generateSwitchStatement(const IRSwitchSt* _switch){

@@ -66,7 +66,9 @@ void FunctionAnalyzer::checkFunction(const ASTFunction* _function){
     // function scope
     analyzerContext.scopeManager->pushScope();
     defineParameters(_function->getParameters());
-    checkBody(_function->getBody());
+    if(!_function->isPredefined()){
+        checkBody(_function->getBody());
+    }
     analyzerContext.scopeManager->popScope();
     
     // function return type check

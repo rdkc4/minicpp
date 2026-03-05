@@ -111,8 +111,9 @@ main:
 	movq -24(%rbp), %r8
 	movq %r8, -16(%rbp)
 	movq -16(%rbp), %r8
-	movq %r8, %rax
-	call _printf
+	push %r8
+	call print_i
+	add $8, %rsp
 	movq $0, -32(%rbp)
 	movq $0, -40(%rbp)
 	movq $5, %r8
@@ -136,8 +137,9 @@ main:
 	or %r9, %r8
 	movq %r8, -56(%rbp)
 	movq -56(%rbp), %r8
-	movq %r8, %rax
-	call _printf
+	push %r8
+	call print_u
+	add $8, %rsp
 	movq $0, %r8
 	movq %r8, -32(%rbp)
 _for2:
@@ -175,8 +177,9 @@ _do_while3:
 	movq -64(%rbp), %r8
 	movq %r8, -16(%rbp)
 	movq -16(%rbp), %r8
-	movq %r8, %rax
-	call _printf
+	push %r8
+	call print_i
+	add $8, %rsp
 	movq $3, %r8
 	movq %r8, -72(%rbp)
 	movq $1, %r8
@@ -194,8 +197,9 @@ _do_while3:
 	sub %r9, %r8
 	movq %r8, -16(%rbp)
 	movq -16(%rbp), %r8
-	movq %r8, %rax
-	call _printf
+	push %r8
+	call print_i
+	add $8, %rsp
 	movq -8(%rbp), %r8
 	movq -80(%rbp), %r9
 	add %r9, %r8
@@ -207,8 +211,9 @@ _do_while3:
 	movq -96(%rbp), %r8
 	movq %r8, -88(%rbp)
 	movq -88(%rbp), %r8
-	movq %r8, %rax
-	call _printf
+	push %r8
+	call print_i
+	add $8, %rsp
 	movq -88(%rbp), %r8
 	movq %r8, %rax
 	jmp main_end
@@ -219,39 +224,3 @@ main_end:
 	mov %rax, %rdi
 	movq $60, %rax
 	syscall
-_printf:
-	push %rbp
-	mov %rsp, %rbp
-	sub $32, %rsp
-	lea 31(%rsp), %rsi
-	mov %rax, %r9
-	mov $10, %rcx
-	mov $0, %rbx
-	cmp $0, %r9
-	jne _printf_loop
-	movb $'0', -1(%rsi)
-	dec %rsi
-	inc %rbx
-	jmp _printf_done
-_printf_loop:
-	xor %rdx, %rdx
-	mov %r9, %rax
-	div %rcx
-	add $'0', %dl
-	dec %rsi
-	mov %dl, (%rsi)
-	inc %rbx
-	mov %rax, %r9
-	test %rax, %rax
-	jnz _printf_loop
-_printf_done:
-	dec %rsi
-	movb $'\n', (%rsi)
-	inc %rbx
-	mov $1, %rax
-	mov $1, %rdi
-	mov %rbx, %rdx
-	syscall
-	mov %rbp, %rsp
-	pop %rbp
-	ret

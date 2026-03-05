@@ -4,8 +4,8 @@
 #include <filesystem>
 #include <fstream>
 #include <memory>
-#include <mutex>
 #include <string>
+#include <latch>
 #include <thread>
 
 #include "../../../thread-pool/thread_pool.hpp"
@@ -26,28 +26,17 @@ void CodeGenerator::generateCode(const IRProgram* _program){
 
     ThreadPool threadPool{ std::thread::hardware_concurrency() };
 
-    // counter of generated functions
-    std::atomic<size_t> done{0};
-    std::condition_variable doneCv;
-    std::mutex doneMtx;
-
-    const size_t total = _program->getFunctionCount();
+    std::latch doneLatch{ static_cast<ptrdiff_t>(_program->getFunctionCount()) };
 
     for(const auto& _function : _program->getFunctions()){
         threadPool.enqueue([&, _function=_function.get()]{
             funcGenerator.generateFunction(_function);
-
-            if(done.fetch_add(1) + 1 == total){
-                doneCv.notify_one();
-            }
+            
+            doneLatch.count_down();
         });
     }
 
-    {
-        // wait until each function is generated
-        std::unique_lock<std::mutex> lock(doneMtx);
-        doneCv.wait(lock, [&] { return done == total; });
-    }
+    doneLatch.wait();
 
     writeCode(_program);
 }

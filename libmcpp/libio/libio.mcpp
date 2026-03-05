@@ -1,0 +1,2 @@
+void print_i(int number);
+void print_u(unsigned number);

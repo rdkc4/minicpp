@@ -1,6 +1,8 @@
 #include "../expression_code_generator.hpp"
 #include "../function_code_generator.hpp"
 
+#include <format>
+
 #include "../../asm-generator/asm_instruction_generator.hpp"
 #include "../../../common/intermediate-representation-tree/IRBinaryExpression.hpp"
 

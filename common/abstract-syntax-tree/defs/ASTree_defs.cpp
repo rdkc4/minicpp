@@ -2,11 +2,9 @@
 
 const std::unordered_map<ASTNodeType, std::string> astNodeTypeToString {
     {ASTNodeType::PROGRAM, "PROGRAM"},
-    {ASTNodeType::FUNCTION_LIST, "FUNCTION_LIST"},
     {ASTNodeType::FUNCTION, "FUNCTION"},
     {ASTNodeType::PARAMETER, "PARAMETER"},
     {ASTNodeType::BODY, "BODY"},
-    {ASTNodeType::VARIABLE_LIST, "VARIABLE_LIST"},
     {ASTNodeType::VARIABLE, "VARIABLE"},
     {ASTNodeType::SWITCH_BLOCK, "SWITCH_BLOCK"},
     {ASTNodeType::STATEMENT, "STATEMENT"},
@@ -27,9 +25,12 @@ const std::unordered_map<ASTNodeType, std::string> astNodeTypeToString {
     {ASTNodeType::RELATIONAL_EXPRESSION, "RELATIONAL_EXPRESSION"},
     {ASTNodeType::BINARY_EXPRESSION, "BINARY_EXPRESSION"},
     {ASTNodeType::FUNCTION_CALL, "FUNCTION_CALL"},
+    {ASTNodeType::FUNCTION_CALL_STATEMENT, "FUNCTION_CALL_STATEMENT"},
     {ASTNodeType::ARGUMENT, "ARGUMENT"},
     {ASTNodeType::LITERAL, "LITERAL"},
     {ASTNodeType::ID, "ID"},
     {ASTNodeType::CASE, "CASE"},
-    {ASTNodeType::DEFAULT, "DEFAULT"}
+    {ASTNodeType::DEFAULT, "DEFAULT"},
+    {ASTNodeType::DIRECTIVE, "DIRECTIVE"},
+    {ASTNodeType::INCLUDE, "INCLUDE"}
 };

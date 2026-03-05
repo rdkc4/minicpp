@@ -1,9 +1,14 @@
 # Compiler and flags
 CXX = clang++
-CXXFLAGS = -std=c++23 -Wall -Wextra -Werror -g -pthread
+AS = clang
+CXXFLAGS = -std=c++23 -Wall -Wextra -Werror -g -pthread -O1
+
+SANITIZER = -fsanitize=address,undefined
 
 # Source files
 SRCS = main.cpp \
+	common/preprocessing/source/preprocessing_libraries.cpp \
+	preprocessor/preprocessor.cpp \
 	common/defs/defs.cpp \
 	common/token/defs/token_defs.cpp \
 	common/token/token.cpp \
@@ -29,6 +34,9 @@ SRCS = main.cpp \
 	common/abstract-syntax-tree/source/ASTDefaultSt.cpp \
 	common/abstract-syntax-tree/source/ASTSwitchSt.cpp \
 	common/abstract-syntax-tree/source/ASTVariable.cpp \
+	common/abstract-syntax-tree/source/ASTFunctionCallSt.cpp \
+	common/abstract-syntax-tree/source/ASTInclude.cpp \
+	common/abstract-syntax-tree/source/ASTDirective.cpp \
 	common/abstract-syntax-tree/source/ASTFunction.cpp \
 	common/abstract-syntax-tree/source/ASTProgram.cpp \
 	common/symbol/symbol.cpp \
@@ -50,6 +58,7 @@ SRCS = main.cpp \
 	common/intermediate-representation-tree/source/IRWhileSt.cpp \
 	common/intermediate-representation-tree/source/IRDoWhileSt.cpp \
 	common/intermediate-representation-tree/source/IRForSt.cpp \
+	common/intermediate-representation-tree/source/IRFunctionCallSt.cpp \
 	common/intermediate-representation-tree/source/IRSwitchBlock.cpp \
 	common/intermediate-representation-tree/source/IRCaseSt.cpp \
 	common/intermediate-representation-tree/source/IRDefaultSt.cpp \
@@ -63,6 +72,7 @@ SRCS = main.cpp \
 	parser/source/expression_parser.cpp \
 	parser/source/statement_parser.cpp \
 	parser/source/function_parser.cpp \
+	parser/source/directive_parser.cpp \
 	parser/source/parser.cpp \
 	symbol-handling/symbol-table/symbol_table.cpp \
 	symbol-handling/scope-manager/scope_manager.cpp \
@@ -76,6 +86,7 @@ SRCS = main.cpp \
 	intermediate-representation/source/expression_intermediate_representation.cpp \
 	intermediate-representation/source/statement_intermediate_representation.cpp \
 	intermediate-representation/source/function_intermediate_representation.cpp \
+	intermediate-representation/source/directive_intermediate_representation.cpp \
 	intermediate-representation/source/intermediate_representation.cpp \
 	code-generator/defs/code_generator_defs.cpp \
 	code-generator/asm-generator/source/asm_instruction_generator.cpp \
@@ -86,8 +97,14 @@ SRCS = main.cpp \
 	code-generator/code-generator/source/code_generator.cpp \
 	compiler/compiler.cpp
 
+# Assembly files
+ASM_SRCS = libmcpp/libio/libio.s
+
 # Object files (derived from the source files)
 OBJS = $(SRCS:.cpp=.o)
+
+# Assembly object files
+ASM_OBJS = $(ASM_SRCS:.s=.o)
 
 # Output executable
 EXEC = minicpp
@@ -104,7 +121,7 @@ GTEST_LIBS = -lgtest -lgtest_main -pthread
 
 # Common dependencies shared with tests
 # Test dependencies: all OBJS except main.o
-TEST_DEPS = $(filter-out main.o, $(OBJS))
+TEST_DEPS = $(filter-out main.o, $(OBJS) $(ASM_OBJS))
 
 # Phony targets
 .PHONY: all clean distclean test run
@@ -113,16 +130,20 @@ TEST_DEPS = $(filter-out main.o, $(OBJS))
 all: $(EXEC)
 
 # Rule to build main executable
-$(EXEC): $(OBJS)
-	$(CXX) $(OBJS) -o $@
+$(EXEC): $(OBJS) $(ASM_OBJS)
+	$(CXX) $(OBJS) $(ASM_OBJS) -o $@ $(SANITIZER)
 
 # Generic compilation rule with dependency generation
 %.o: %.cpp
-	$(CXX) $(CXXFLAGS) -MMD -MP -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(SANITIZER) -MMD -MP -c $< -o $@
+
+# Assembly compilation rule
+%.o: %.s
+	$(AS) -c $< -o $@
 
 # Run the program with input
 run: $(EXEC)
-	./$(EXEC) testfile.txt
+	./$(EXEC) testfile.mcpp
 
 # Run all unit tests
 test: $(TEST_EXEC)
@@ -130,11 +151,11 @@ test: $(TEST_EXEC)
 
 # Build test executable by linking test + required source objects
 $(TEST_EXEC): $(TEST_OBJS) $(TEST_DEPS)
-	$(CXX) $(CXXFLAGS) $^ -o $@ $(GTEST_LIBS)
+	$(CXX) $(CXXFLAGS) $^ -o $@ $(SANITIZER) $(GTEST_LIBS)
 
 # Clean up all binaries and object files
 clean:
-	rm -f $(OBJS) $(EXEC) $(TEST_OBJS) $(TEST_EXEC)
+	rm -f $(OBJS) $(ASM_OBJS) $(EXEC) $(TEST_OBJS) $(TEST_EXEC)
 
 # Clean up dependencies
 distclean: clean

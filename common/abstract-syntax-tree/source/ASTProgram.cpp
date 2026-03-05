@@ -19,12 +19,27 @@ const ASTFunction* ASTProgram::getFunctionAtN(size_t n) const noexcept {
     return functions[n].get();
 }
 
+const std::vector<std::unique_ptr<ASTDirective>>& ASTProgram::getDirectives() const noexcept {
+    return directives;
+}
+
+const ASTDirective* ASTProgram::getDirectiveAtN(size_t n) const noexcept {
+    return directives[n].get();
+}
+
 void ASTProgram::addFunction(std::unique_ptr<ASTFunction> function){
     functions.push_back(std::move(function));
 }
 
+void ASTProgram::addDirective(std::unique_ptr<ASTDirective> directive) {
+    directives.push_back(std::move(directive));
+}
+
 void ASTProgram::print(size_t offset) const {
     std::cout << std::format("{}|-> {}", std::string(offset*2, ' '), toString());
+    for(const auto& dir : directives) {
+        dir->print(offset + 1);
+    }
     for(const auto& func : functions){
         func->print(offset + 1);
     }

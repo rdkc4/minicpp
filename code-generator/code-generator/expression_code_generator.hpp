@@ -53,7 +53,6 @@ public:
     */
     void generateTemporaries(const IRTemporary* _temporary);
 
-private:
     /** 
      * @brief generates the asm code for the function call
      * @param _functionCall - const pointer to the irt function call

@@ -3,6 +3,7 @@
 
 #include <unordered_set>
 #include <string>
+#include <format>
 
 #include "../common/abstract-syntax-tree/ASTStatement.hpp"
 #include "../common/abstract-syntax-tree/ASTVariable.hpp"
@@ -15,6 +16,7 @@
 #include "../common/abstract-syntax-tree/ASTCompoundSt.hpp"
 #include "../common/abstract-syntax-tree/ASTAssignSt.hpp"
 #include "../common/abstract-syntax-tree/ASTReturnSt.hpp"
+#include "../common/abstract-syntax-tree/ASTFunctionCallSt.hpp"
 #include "../symbol-handling/scope-manager/scope_manager.hpp"
 #include "defs/analyzer_defs.hpp"
 #include "expression_analyzer.hpp"
@@ -112,6 +114,13 @@ protected:
      * @returns void
     */
     void checkReturnStatement(const ASTReturnSt* _return);
+
+    /** 
+     * @brief semantic check for function-call-statement
+     * @param _call - const pointer to a function-call-statement node
+     * @returns void
+    */
+    void checkFunctionCallStatement(const ASTFunctionCallSt* _call);
 
     /** 
      * @brief semantic check for switch-statement

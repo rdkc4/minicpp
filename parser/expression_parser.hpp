@@ -53,6 +53,13 @@ public:
     */
     std::unique_ptr<ASTLiteral> literal();
 
+    /** 
+     * @brief parses function call
+     * @details FUNCTION_CALL : ID LPAREN (ARGUMENT)? RPAREN
+     * @returns pointer to a function call node
+    */
+    std::unique_ptr<ASTFunctionCall> functionCall();
+
 private:
     /// reference to a token handler wrapped around the lexer
     TokenConsumer& tokenConsumer;
@@ -82,13 +89,6 @@ protected:
      * @returns pointer to an expression node
     */
     std::unique_ptr<ASTExpression> expression();
-
-    /** 
-     * @brief parses function call
-     * @details FUNCTION_CALL : ID LPAREN (ARGUMENT)? RPAREN
-     * @returns pointer to a function call node
-    */
-    std::unique_ptr<ASTFunctionCall> functionCall();
 
     /** 
      * @brief parses argument of the function call

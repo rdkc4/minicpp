@@ -13,6 +13,12 @@ std::unique_ptr<ASTFunction> FunctionParser::function(){
     parameter(_function.get());
     tokenConsumer.consume(TokenType::_RPAREN);
 
+    if(tokenConsumer.getToken().type == TokenType::_SEMICOLON){
+        tokenConsumer.consume(TokenType::_SEMICOLON);
+        _function->setPredefined(true);
+        return _function;
+    }
+
     body(_function.get());
     
     return _function;

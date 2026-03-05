@@ -47,10 +47,6 @@ public:
     */
     void checkLiteral(const ASTLiteral* _literal) const;
 
-private:
-    /// reference to the global scope manager
-    ScopeManager& globalScopeManager;
-
     /** 
      * @brief semantic check of the relational expression
      * @param _relexp - pointer to a relational expression
@@ -71,6 +67,10 @@ private:
      * @returns void
     */
     void checkArgument(const ASTFunctionCall* _functionCall);
+
+private:
+    /// reference to the global scope manager
+    ScopeManager& globalScopeManager;
 };
 
 #endif

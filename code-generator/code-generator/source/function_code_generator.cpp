@@ -1,5 +1,7 @@
 #include "../function_code_generator.hpp"
 
+#include <format>
+
 #include "../../asm-generator/asm_instruction_generator.hpp"
 
 FunctionCodeGenerator::FunctionCodeGenerator(std::unordered_map<std::string, std::vector<std::string>>& asmCode) : asmCode{ asmCode } {}
@@ -27,6 +29,10 @@ void FunctionCodeGenerator::initFunctions(const IRProgram* _program){
 }
 
 void FunctionCodeGenerator::generateFunction(const IRFunction* _function){
+    if(_function->isPredefined()){
+        return;
+    }
+
     codeGenContext.init(_function->getFunctionName());
 
     // function label

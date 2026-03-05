@@ -11,6 +11,7 @@
 #include "../../common/intermediate-representation-tree/IRCompoundSt.hpp"
 #include "../../common/intermediate-representation-tree/IRAssignSt.hpp"
 #include "../../common/intermediate-representation-tree/IRReturnSt.hpp"
+#include "../../common/intermediate-representation-tree/IRFunctionCallSt.hpp"
 #include "../../common/intermediate-representation-tree/IRSwitchSt.hpp"
 #include "expression_code_generator.hpp"
 
@@ -98,6 +99,13 @@ private:
      * @returns void
     */
     void generateReturnStatement(const IRReturnSt* _return);
+
+    /** 
+     * @brief generates asm code for the function-call statement
+     * @param _call - const pointer to the irt function-call statement
+     * @returns void
+    */
+    void generateFunctionCallStatement(const IRFunctionCallSt* _call);
 
     /** 
      * @brief generates asm code for the switch-statement

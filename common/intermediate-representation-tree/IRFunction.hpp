@@ -98,6 +98,19 @@ public:
     void eliminateDead(size_t startIdx);
 
     /** 
+     * @brief sets predifined flag of a function
+     * @param isPredefined - flag for predefined function
+     * @returns void;
+    */
+    void setPredefined(bool isPredefined) noexcept;
+
+    /** 
+     * @brief checks if function is predifined
+     * @returns true if function is predefined, false otherwise
+    */
+    bool isPredefined() const noexcept;
+
+    /** 
      * @brief prints formatted string of the function node
      * @note debugging purposes
      * @param offset - indentation
@@ -112,6 +125,8 @@ private:
     std::string requiredMemory;
     /// return type of the function
     Types type;
+    /// flag if function is predefined
+    bool predefined;
     /// vector of pointers to parameters of the function
     std::vector<std::unique_ptr<IRParameter>> parameters;
     /// vector of pointers to statements of the body

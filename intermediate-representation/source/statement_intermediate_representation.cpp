@@ -1,6 +1,7 @@
 #include "../statement_intermediate_representation.hpp"
 
 #include <cassert>
+#include <utility>
 
 StatementIntermediateRepresentation::StatementIntermediateRepresentation() = default;
 
@@ -26,8 +27,10 @@ std::unique_ptr<IRStatement> StatementIntermediateRepresentation::statement(cons
             return doWhileStatement(static_cast<const ASTDoWhileSt*>(_statement));
         case ASTNodeType::SWITCH_STATEMENT:
             return switchStatement(static_cast<const ASTSwitchSt*>(_statement));
+        case ASTNodeType::FUNCTION_CALL_STATEMENT:
+            return functionCallStatement(static_cast<const ASTFunctionCallSt*>(_statement));
         default:
-            assert(false && "unreachable");
+            std::unreachable();
     }
 }
 
@@ -101,6 +104,13 @@ std::unique_ptr<IRReturnSt> StatementIntermediateRepresentation::returnStatement
         _irReturn->setExp(expIR.numericalExpression(_return->getExp()), std::move(temps));
     }
     return _irReturn;
+}
+
+std::unique_ptr<IRFunctionCallSt> StatementIntermediateRepresentation::functionCallStatement(const ASTFunctionCallSt* _call){
+    std::unique_ptr<IRFunctionCallSt> _irCall = std::make_unique<IRFunctionCallSt>(IRNodeType::CALL);
+    _irCall->setFunctionCallSt(expIR.functionCall(_call->getFunctionCall()));
+
+    return _irCall;
 }
 
 std::unique_ptr<IRWhileSt> StatementIntermediateRepresentation::whileStatement(const ASTWhileSt* _while){

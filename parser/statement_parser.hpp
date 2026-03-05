@@ -14,6 +14,7 @@
 #include "../common/abstract-syntax-tree/ASTDoWhileSt.hpp"
 #include "../common/abstract-syntax-tree/ASTForSt.hpp"
 #include "../common/abstract-syntax-tree/ASTSwitchSt.hpp"
+#include "../common/abstract-syntax-tree/ASTFunctionCallSt.hpp"
 
 #include "expression_parser.hpp"
 #include "token_consumer.hpp"
@@ -135,6 +136,13 @@ protected:
      * @returns pointer to a do-while statement node
     */
     std::unique_ptr<ASTDoWhileSt> doWhileStatement();
+
+    /** 
+     * @brief parses function-call statement
+     * @details FUNCTION_CALL_STATEMENT : FUNCTION_CALL SEMICOLON
+     * @returns pointer to a function-call statement node
+    */
+    std::unique_ptr<ASTFunctionCallSt> functionCallStatement();
 
     /** 
      * @brief parses switch statement
