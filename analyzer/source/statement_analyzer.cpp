@@ -11,9 +11,6 @@ void StatementAnalyzer::checkStatement(const ASTStatement* _statement){
         case ASTNodeType::VARIABLE:
             checkVariable(static_cast<const ASTVariable*>(_statement));
             break;
-        case ASTNodeType::PRINTF:
-            checkPrintfStatement(static_cast<const ASTPrintfSt*>(_statement));
-            break;
         case ASTNodeType::IF_STATEMENT:
             checkIfStatement(static_cast<const ASTIfSt*>(_statement));
             break;
@@ -93,10 +90,6 @@ void StatementAnalyzer::checkVariable(const ASTVariable* _variable){
             analyzerContext.scopeManager->getSymbol(_variable->getToken().value).setType(rtype);
         }
     }
-}
-
-void StatementAnalyzer::checkPrintfStatement(const ASTPrintfSt* _printf){
-    expressionAnalyzer.checkNumericalExpression(_printf->getExp());
 }
 
 void StatementAnalyzer::checkIfStatement(const ASTIfSt* _if){

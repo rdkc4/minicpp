@@ -3,7 +3,6 @@
 
 #include "../../common/intermediate-representation-tree/IRStatement.hpp"
 #include "../../common/intermediate-representation-tree/IRVariable.hpp"
-#include "../../common/intermediate-representation-tree/IRPrintfSt.hpp"
 #include "../../common/intermediate-representation-tree/IRIfSt.hpp"
 #include "../../common/intermediate-representation-tree/IRWhileSt.hpp"
 #include "../../common/intermediate-representation-tree/IRForSt.hpp"
@@ -43,13 +42,6 @@ private:
      * @returns void
     */
     void generateVariable(const IRVariable* _variable);
-
-    /** 
-     * @brief generates asm code for the printf statement
-     * @param _printf - const pointer to the irt printf statement
-     * @returns void
-    */
-    void generatePrintfStatement(const IRPrintfSt* _printf);
 
     /** 
      * @brief generates asm code for the if-statement

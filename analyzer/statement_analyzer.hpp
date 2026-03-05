@@ -7,7 +7,6 @@
 
 #include "../common/abstract-syntax-tree/ASTStatement.hpp"
 #include "../common/abstract-syntax-tree/ASTVariable.hpp"
-#include "../common/abstract-syntax-tree/ASTPrintfSt.hpp"
 #include "../common/abstract-syntax-tree/ASTIfSt.hpp"
 #include "../common/abstract-syntax-tree/ASTWhileSt.hpp"
 #include "../common/abstract-syntax-tree/ASTForSt.hpp"
@@ -58,13 +57,6 @@ protected:
      * @returns void
     */
     void checkVariable(const ASTVariable* _variable);
-
-    /** 
-     * @brief semantic check for printf statement
-     * @param _printf - const pointer to a printf statement node
-     * @returns void
-    */
-    void checkPrintfStatement(const ASTPrintfSt* _printf);
 
     /** 
      * @brief semantic check for if-statement

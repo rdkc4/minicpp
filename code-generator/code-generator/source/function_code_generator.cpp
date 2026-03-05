@@ -8,18 +8,8 @@ FunctionCodeGenerator::FunctionCodeGenerator(std::unordered_map<std::string, std
 
 thread_local CodeGeneratorThreadContext FunctionCodeGenerator::codeGenContext;
 
-std::atomic<bool> FunctionCodeGenerator::prints{ false };
-
 CodeGeneratorThreadContext& FunctionCodeGenerator::getContext() noexcept {
     return codeGenContext;
-}
-
-void FunctionCodeGenerator::updatePrints(bool _prints) noexcept {
-    prints.store(_prints);
-}
-
-bool FunctionCodeGenerator::hasPrint() const noexcept {
-    return prints.load();
 }
 
 void FunctionCodeGenerator::initFunctions(const IRProgram* _program){

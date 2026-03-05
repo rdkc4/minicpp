@@ -9,8 +9,6 @@ std::unique_ptr<IRStatement> StatementIntermediateRepresentation::statement(cons
     switch(_statement->getNodeType()){
         case ASTNodeType::VARIABLE:
             return variable(static_cast<const ASTVariable*>(_statement));
-        case ASTNodeType::PRINTF:
-            return printfStatement(static_cast<const ASTPrintfSt*>(_statement));
         case ASTNodeType::IF_STATEMENT:
             return ifStatement(static_cast<const ASTIfSt*>(_statement));
         case ASTNodeType::COMPOUND_STATEMENT:
@@ -41,16 +39,6 @@ std::unique_ptr<IRVariable> StatementIntermediateRepresentation::variable(const 
         _irVariable->setAssign(expIR.numericalExpression(_variable->getAssign()), std::move(temps));
     }
     return _irVariable;
-}
-
-std::unique_ptr<IRPrintfSt> StatementIntermediateRepresentation::printfStatement(const ASTPrintfSt* _printf){
-    std::unique_ptr<IRPrintfSt> _irPrintf = std::make_unique<IRPrintfSt>(IRNodeType::PRINTF);
-
-    // extracting function calls to temporary variables
-    auto temps{ expIR.initiateTemporaries(_printf->getExp()) };
-    _irPrintf->setExp(expIR.numericalExpression(_printf->getExp()), std::move(temps));
-
-    return _irPrintf;
 }
 
 std::unique_ptr<IRIfSt> StatementIntermediateRepresentation::ifStatement(const ASTIfSt* _if){

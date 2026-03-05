@@ -11,7 +11,6 @@
 #include "../../../thread-pool/thread_pool.hpp"
 
 #include "../../asm-generator/asm_instruction_generator.hpp"
-#include "../../asm-generator/asm_function_generator.hpp"
 
 CodeGenerator::CodeGenerator(const std::string& filePath) : outputPath{ filePath }, funcGenerator{ asmCode } {}
 
@@ -55,14 +54,7 @@ void CodeGenerator::writeCode(const IRProgram* _program){
             file << instruction;
         }
     }
-    
-    if(funcGenerator.hasPrint()){
-        std::vector<std::string> printfFunc;
-        AsmGenerator::Function::printfFunction(printfFunc);
-        for(const auto& instruction : printfFunc){
-            file << instruction;
-        }
-    }
+
     file.close();
 }
 

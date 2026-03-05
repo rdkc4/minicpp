@@ -438,7 +438,7 @@ TEST(AnalyzerTest, CheckVariableUndefinedVariableError){
 }
 
 TEST(AnalyzerTest, ForStatement){
-    LexerTest lexer{"for(i = 0; i < 2; i = i + 1) printf(i);"};
+    LexerTest lexer{"for(i = 0; i < 2; i = i + 1) i = i + 1;"};
     lexer.tokenize();
 
     TokenConsumer tokenConsumer { lexer };
@@ -461,7 +461,7 @@ TEST(AnalyzerTest, ForStatement){
 }
 
 TEST(AnalyzerTest, ForStatementUndefVarError){
-    LexerTest lexer{"for(i = 0; i < 10; i = i + 1) printf(i);"};
+    LexerTest lexer{"for(i = 0; i < 10; i = i + 1) i = i + 1;"};
     lexer.tokenize();
 
     TokenConsumer tokenConsumer { lexer };
@@ -484,7 +484,7 @@ TEST(AnalyzerTest, ForStatementUndefVarError){
 }
 
 TEST(AnalyzerTest, ForStatementTypeMismatchError){
-    LexerTest lexer{"for(i = 0u; i < 10; i = i + 1) printf(i);"};
+    LexerTest lexer{"for(i = 0u; i < 10; i = i + 1) i = i + 1;"};
     lexer.tokenize();
 
     TokenConsumer tokenConsumer { lexer };

@@ -5,7 +5,6 @@
 
 #include "../common/abstract-syntax-tree/ASTStatement.hpp"
 #include "../common/abstract-syntax-tree/ASTVariable.hpp"
-#include "../common/abstract-syntax-tree/ASTPrintfSt.hpp"
 #include "../common/abstract-syntax-tree/ASTCompoundSt.hpp"
 #include "../common/abstract-syntax-tree/ASTAssignSt.hpp"
 #include "../common/abstract-syntax-tree/ASTReturnSt.hpp"
@@ -41,8 +40,6 @@ public:
      *
      * | RETURN_STATEMENT
      *
-     * | PRINTF_STATEMENT
-     *
      * | IF_STATEMENT
      *
      * | COMPOUND_STATEMENT
@@ -71,13 +68,6 @@ protected:
      * @returns pointer to a variable declaration node
     */
     std::unique_ptr<ASTVariable> variable();
-
-    /** 
-     * @brief parses printf statement
-     * @details PRINTF_STATEMENT: PRINTF LPAREN NUMERICAL_EXPRESSION RPAREN SEMICOLON;
-     * @returns pointer to a printf statement node
-    */
-    std::unique_ptr<ASTPrintfSt> printfStatement();
 
     /** 
      * @brief parses compound statement

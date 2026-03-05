@@ -8,7 +8,6 @@ const std::unordered_map<ASTNodeType, std::string> astNodeTypeToString {
     {ASTNodeType::VARIABLE, "VARIABLE"},
     {ASTNodeType::SWITCH_BLOCK, "SWITCH_BLOCK"},
     {ASTNodeType::STATEMENT, "STATEMENT"},
-    {ASTNodeType::PRINTF, "PRINTF_STATEMENT"},
     {ASTNodeType::COMPOUND_STATEMENT, "COMPOUND_STATEMENT"},
     {ASTNodeType::ASSIGNMENT_STATEMENT, "ASSIGNMENT_STATEMENT"},
     {ASTNodeType::RETURN_STATEMENT, "RETURN_STATEMENT"},

@@ -25,10 +25,6 @@ public:
         return variable();
     }
 
-    std::unique_ptr<ASTPrintfSt> testPrintfStatement(){
-        return printfStatement();
-    }
-
     std::unique_ptr<ASTCompoundSt> testCompoundStatement(){
         return compoundStatement();
     }

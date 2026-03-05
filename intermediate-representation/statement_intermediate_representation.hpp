@@ -5,7 +5,6 @@
 
 #include "../common/abstract-syntax-tree/ASTStatement.hpp"
 #include "../common/abstract-syntax-tree/ASTVariable.hpp"
-#include "../common/abstract-syntax-tree/ASTPrintfSt.hpp"
 #include "../common/abstract-syntax-tree/ASTIfSt.hpp"
 #include "../common/abstract-syntax-tree/ASTCompoundSt.hpp"
 #include "../common/abstract-syntax-tree/ASTAssignSt.hpp"
@@ -18,7 +17,6 @@
 
 #include "../common/intermediate-representation-tree/IRStatement.hpp"
 #include "../common/intermediate-representation-tree/IRVariable.hpp"
-#include "../common/intermediate-representation-tree/IRPrintfSt.hpp"
 #include "../common/intermediate-representation-tree/IRIfSt.hpp"
 #include "../common/intermediate-representation-tree/IRCompoundSt.hpp"
 #include "../common/intermediate-representation-tree/IRAssignSt.hpp"
@@ -54,13 +52,6 @@ public:
      * @returns irt pointer to the variable declaratiom
     */
     std::unique_ptr<IRVariable> variable(const ASTVariable* _variable);
-
-    /**
-     * @brief turns ast printf statement into irt printf statement
-     * @param _printf - const pointer to the ast printf statement
-     * @returns pointer to the irt printf statement
-    */
-    std::unique_ptr<IRPrintfSt> printfStatement(const ASTPrintfSt* _printf);
 
     /**
      * @brief turns ast if-statement into irt if-statement

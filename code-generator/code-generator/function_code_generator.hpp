@@ -5,7 +5,6 @@
 #include <memory>
 #include <unordered_map>
 #include <string>
-#include <atomic>
 
 #include "../../common/intermediate-representation-tree/IRProgram.hpp"
 #include "../../common/intermediate-representation-tree/IRFunction.hpp"
@@ -31,19 +30,6 @@ public:
     static CodeGeneratorThreadContext& getContext() noexcept;
 
     /** 
-     * @brief updates flag, whether or not printf function should be generated
-     * @param _prints - flag if program prints or not
-     * @returns void
-    */
-    static void updatePrints(bool _prints) noexcept;
-
-    /** 
-     * @brief checks whether program prints or not
-     * @returns true if program prints, false otherwise 
-    */
-    bool hasPrint() const noexcept;
-
-    /** 
      * @brief initializes the vector holding asm code for all functions
      * @param _root - const pointer to the irt program
      * @returns void
@@ -60,8 +46,6 @@ public:
 private:
     /// thread local context of the function
     static thread_local CodeGeneratorThreadContext codeGenContext;
-    /// flag whether or not program prints
-    static std::atomic<bool> prints;
     /// code generator specialized for statements
     StatementCodeGenerator stmtGenerator;
 

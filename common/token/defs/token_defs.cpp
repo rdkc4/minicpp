@@ -26,7 +26,6 @@ const std::unordered_map<TokenType, std::string> tokenTypeToString {
     {TokenType::_COMMA, "COMMA"},
     {TokenType::_EOF, "EOF"},
     {TokenType::_INVALID, "INVALID"},
-    {TokenType::_PRINTF, "PRINTF"},
     {TokenType::_VOID, "VOID"},
     {TokenType::_INT, "INT"},
     {TokenType::_UNSIGNED, "UNSIGNED"},

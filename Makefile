@@ -22,7 +22,6 @@ SRCS = main.cpp \
 	common/abstract-syntax-tree/source/ASTParameter.cpp \
 	common/abstract-syntax-tree/source/ASTStatement.cpp \
 	common/abstract-syntax-tree/source/ASTSwitchBlock.cpp \
-	common/abstract-syntax-tree/source/ASTPrintfSt.cpp \
 	common/abstract-syntax-tree/source/ASTCompoundSt.cpp \
 	common/abstract-syntax-tree/source/ASTAssignSt.cpp \
 	common/abstract-syntax-tree/source/ASTReturnSt.cpp \
@@ -51,7 +50,6 @@ SRCS = main.cpp \
 	common/intermediate-representation-tree/source/IRStatement.cpp \
 	common/intermediate-representation-tree/source/IRVariable.cpp \
 	common/intermediate-representation-tree/source/IRAssignSt.cpp \
-	common/intermediate-representation-tree/source/IRPrintfSt.cpp \
 	common/intermediate-representation-tree/source/IRIfSt.cpp \
 	common/intermediate-representation-tree/source/IRCompoundSt.cpp \
 	common/intermediate-representation-tree/source/IRReturnSt.cpp \
@@ -90,7 +88,6 @@ SRCS = main.cpp \
 	intermediate-representation/source/intermediate_representation.cpp \
 	code-generator/defs/code_generator_defs.cpp \
 	code-generator/asm-generator/source/asm_instruction_generator.cpp \
-	code-generator/asm-generator/source/asm_function_generator.cpp \
 	code-generator/code-generator/source/expression_code_generator.cpp \
 	code-generator/code-generator/source/statement_code_generator.cpp \
 	code-generator/code-generator/source/function_code_generator.cpp \

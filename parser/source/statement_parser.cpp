@@ -14,10 +14,7 @@ std::unique_ptr<ASTStatement> StatementParser::statement(){
     }
 
     auto token = tokenConsumer.getToken();
-    if(token.type == TokenType::_PRINTF){
-        return printfStatement();
-    }
-    else if(token.type == TokenType::_RETURN)
+    if(token.type == TokenType::_RETURN)
         return returnStatement();
     else if(token.type == TokenType::_IF)
         return ifStatement();
@@ -31,9 +28,8 @@ std::unique_ptr<ASTStatement> StatementParser::statement(){
         return doWhileStatement();
     else if(token.type == TokenType::_SWITCH)
         return switchStatement();
-    else if(token.type == TokenType::_ID && tokenConsumer.peek().type == TokenType::_LPAREN){
+    else if(token.type == TokenType::_ID && tokenConsumer.peek().type == TokenType::_LPAREN)
         return functionCallStatement();
-    }
     
     throw std::runtime_error(std::format("Line {}, Column {}: SYNTAX ERROR -> near '{}'",
         token.line, token.column, token.value));
@@ -52,19 +48,6 @@ std::unique_ptr<ASTVariable> StatementParser::variable(){
     tokenConsumer.consume(TokenType::_SEMICOLON);
 
     return _variable;
-}
-
-std::unique_ptr<ASTPrintfSt> StatementParser::printfStatement(){
-    std::unique_ptr<ASTPrintfSt> _printf = 
-        std::make_unique<ASTPrintfSt>(Token{"printf_statement", tokenConsumer.getToken().line, tokenConsumer.getToken().column}, ASTNodeType::PRINTF);
-
-    tokenConsumer.consume(TokenType::_PRINTF);
-    tokenConsumer.consume(TokenType::_LPAREN);
-    _printf->setExp(expParser.numericalExpression());
-    tokenConsumer.consume(TokenType::_RPAREN);
-    tokenConsumer.consume(TokenType::_SEMICOLON);
-
-    return _printf;
 }
 
 std::unique_ptr<ASTCompoundSt> StatementParser::compoundStatement(){

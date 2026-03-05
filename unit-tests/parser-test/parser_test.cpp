@@ -105,18 +105,6 @@ TEST(ParserTest, VariableNoInit){
     ASSERT_FALSE(_variable->hasAssign());
 }
 
-TEST(ParserTest, PrintfStatement){
-    LexerTest lexer{ "printf(x + y);"};
-    lexer.tokenize();
-    TokenConsumer tokenConsumer { lexer };
-    StatementParserTest parser{ tokenConsumer };
-
-
-    std::unique_ptr<ASTPrintfSt> _printf;
-    ASSERT_NO_THROW(_printf = parser.testPrintfStatement());
-    ASSERT_EQ(_printf->getNodeType(), ASTNodeType::PRINTF);
-}
-
 TEST(ParserTest, EmptyCompoundStatement){
     LexerTest lexer{ "{}"};
     lexer.tokenize();
@@ -132,7 +120,7 @@ TEST(ParserTest, EmptyCompoundStatement){
 }
 
 TEST(ParserTest, CompoundStatement){
-    LexerTest lexer{ "{ int x = 3; printf(x); }"};
+    LexerTest lexer{ "{ int x = 3; int y = x; }"};
     lexer.tokenize();
     TokenConsumer tokenConsumer { lexer };
     StatementParserTest parser{ tokenConsumer };
@@ -252,7 +240,7 @@ TEST(ParserTest, WhileStatement){
 }
 
 TEST(ParserTest, ForStatement){
-    LexerTest lexer{ "for(i = 0; i < 5; i = i + 1) printf(i);"};
+    LexerTest lexer{ "for(i = 0; i < 5; i = i + 1) i = i + 1;"};
     lexer.tokenize();
     TokenConsumer tokenConsumer { lexer };
     StatementParserTest parser{ tokenConsumer };
