@@ -53,13 +53,6 @@ public:
     */
     void clearSymbols() noexcept;
 
-    /** 
-     * @brief prints all symbols from the symbol table
-     * @note debugging purposes
-     * @returns void
-    */
-    void printSymbolTable() const;
-
 private:
     /// mapping symbol name to symbol
     std::unordered_map<std::string, Symbol> symbolTable;

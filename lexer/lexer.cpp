@@ -1,8 +1,8 @@
 #include "lexer.hpp"
 
 #include <cctype>
-#include <iostream>
 #include <format>
+#include <sstream>
 #include <string_view>
 
 #include "../common/defs/defs.hpp"
@@ -87,7 +87,7 @@ void Lexer::tokenize(){
             }
             else{
                 tokens.push_back(Token{std::string_view{&input[fileIndex][position], 1}, lineNumber, position + 1 - prevLineLen, TokenType::_INVALID});
-                exceptions.push_back(
+                lexicalErrors.push_back(
                     std::format("Line {}, Column {}: LEXICAL ERROR -> unknown symbol '{}'\n", 
                         lineNumber, position - prevLineLen, std::string_view{&input[fileIndex][position], 1})
                 );
@@ -96,7 +96,6 @@ void Lexer::tokenize(){
         }
     }
     tokens.push_back(Token{"", lineNumber, position - prevLineLen, TokenType::_EOF});
-    //printTokens();
 }
 
 bool Lexer::completedTokenization() const noexcept {
@@ -104,15 +103,20 @@ bool Lexer::completedTokenization() const noexcept {
 }
 
 bool Lexer::hasLexicalErrors() const noexcept{
-    return !exceptions.empty();
+    return !lexicalErrors.empty();
 }
 
-void Lexer::showLexicalErrors() const{
-    std::string err{ std::format("\nLexical check: failed\nInvalid token count: {}\n", exceptions.size()) };
-    for(const auto& exception : exceptions){
-        err += std::format("{}\n", exception);
+std::string Lexer::getLexicalErrors() const noexcept {
+    if(lexicalErrors.empty()){
+        return "";
     }
-    std::cerr << err;
+
+    std::stringstream errors{"Lexical check failed:\n"};
+    for(const auto& error : lexicalErrors){
+        errors << error << "\n";
+    }
+
+    return errors.str();
 }
 
 void Lexer::next() noexcept {
@@ -131,13 +135,6 @@ const Token& Lexer::current() const noexcept {
         return tokens.back();
     }
     return tokens[nextTokenIdx - 1];
-}
-
-void Lexer::printTokens() const noexcept {
-    for(const auto& token: tokens){
-        std::cout << std::format("Token: type - {:<15} gtype - {:<10} line - {:<5}\t column - {:<5} value - {}\n", 
-            tokenTypeToString.at(token.type), generalTokenTypeToString.at(token.gtype), token.line, token.column, token.value);
-    }
 }
 
 void Lexer::updatePosition() noexcept {
@@ -271,7 +268,7 @@ void Lexer::multiLineComment(){
         }
         updatePosition();
     }
-    exceptions.push_back(
+    lexicalErrors.push_back(
         std::format("Line {}, Column {}: SYNTAX ERROR -> multi-line comment starting at line {}, column {}: not closed\n",
             lineNumber, position - prevLineLen, startLine, startColumn)
     );

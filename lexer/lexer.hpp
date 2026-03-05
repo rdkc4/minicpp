@@ -55,17 +55,10 @@ public:
     bool hasLexicalErrors() const noexcept;
 
     /**
-        * @brief prints all lexical errors
-        * @returns void
+        * @brief getter for the lexical errors
+        * @returns lexical errors merged into a string
     */
-    void showLexicalErrors() const; 
-    
-    /** 
-        * @brief prints all tokens
-        * @note debugging purposes
-        * @returns void
-    */
-    void printTokens() const noexcept;
+    std::string getLexicalErrors() const noexcept;
 
 private:
     /// code that needs to be tokenized
@@ -90,7 +83,7 @@ private:
     size_t nextTokenIdx;
     
     /// vector of lexical errors
-    std::vector<std::string> exceptions;
+    std::vector<std::string> lexicalErrors;
 
 protected:
     /// vector of tokens generated from the input

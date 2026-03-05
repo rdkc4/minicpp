@@ -38,11 +38,11 @@ public:
     bool hasErrors(const IRProgram* _program) const noexcept;
 
     /**
-     * @brief displays all ir errors
+     * @brief getter for the ir errors
      * @param _program - pointer to the root of the irt program
-     * @returns void
+     * @returns errors merged into a string
     */
-    void showErrors(const IRProgram* _program) const;
+    std::string getErrors(const IRProgram* _program) const noexcept;
 
 private:
     /// intermediate representation specialized for functions

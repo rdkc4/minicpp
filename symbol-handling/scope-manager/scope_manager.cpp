@@ -1,6 +1,5 @@
 #include "scope_manager.hpp"
 
-#include <iostream>
 #include <initializer_list>
 
 ScopeManager::ScopeManager(SymbolTable& symTab) : symbolTable{ symTab } {}
@@ -37,9 +36,4 @@ Symbol& ScopeManager::getSymbol(const std::string& name) const {
 
 bool ScopeManager::lookupSymbol(const std::string& name, std::initializer_list<Kinds> kind) const {
     return symbolTable.lookupSymbol(name, kind);
-}
-
-void ScopeManager::printSymbolTable() const {
-    symbolTable.printSymbolTable();
-    std::cout << std::string(36,'-') << "\n";
 }

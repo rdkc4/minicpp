@@ -37,10 +37,10 @@ public:
     bool hasErrors() const noexcept;
 
     /** 
-     * @brief displays all preprocessing errors
-     * @returns void
+     * @brief getter for the preprocessing errors
+     * @returns errors merged into a string
     */
-    void showErrors() const;
+    std::string getPreprocessErrors() const noexcept;
 
 private:
     /// vector of preprocessed files containing the source code of each

@@ -37,12 +37,12 @@ public:
     bool hasSemanticError(const ASTProgram* _program) const noexcept;
 
     /** 
-     * @brief displays semantic errors
+     * @brief getter for the semantic errors
      * @param _program - const pointer to a root of the ast
      * @note _program is needed to obtain name of all functions
-     * @returns void
+     * @returns semantic errors merged into a string 
     */
-    void showSemanticErrors(const ASTProgram* _program) const;
+    std::string getSemanticErrors(const ASTProgram* _program) const noexcept;
 
 protected:
     /// reference to the global scope manager

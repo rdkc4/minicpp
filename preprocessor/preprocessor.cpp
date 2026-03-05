@@ -4,7 +4,6 @@
 #include <cctype>
 #include <fstream>
 #include <sstream>
-#include <iostream>
 
 #include "../common/preprocessing/preprocessing_libraries.hpp"
 
@@ -34,12 +33,17 @@ bool Preprocessor::hasErrors() const noexcept {
     return !preprocessErrors.empty();
 }
 
-void Preprocessor::showErrors() const {
-    std::string err{ "\nPreprocessing: failed\n" };
-    for(const auto& preprocessErr : preprocessErrors){
-        err += std::format("{}\n", preprocessErr);
+std::string Preprocessor::getPreprocessErrors() const noexcept {
+    if(preprocessErrors.empty()){
+        return "";
     }
-    std::cerr << err;
+
+    std::stringstream errors{"Preprocessing failed:\n"};
+    for(const auto& error : preprocessErrors){
+        errors << error << "\n";
+    }
+
+    return errors.str();
 }
 
 void Preprocessor::handleDirective(const std::string& source, size_t& idx){

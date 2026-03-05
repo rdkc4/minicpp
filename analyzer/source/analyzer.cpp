@@ -2,9 +2,9 @@
 
 #include <latch>
 #include <memory>
+#include <sstream>
 #include <thread>
 #include <cassert>
-#include <iostream>
 
 #include "../../thread-pool/thread_pool.hpp"
 #include "../function_analyzer.hpp"
@@ -45,22 +45,31 @@ bool Analyzer::hasSemanticError(const ASTProgram* _program) const noexcept {
     return false;
 }
 
-void Analyzer::showSemanticErrors(const ASTProgram* _program) const {
-    std::string err = "\nSemantic check: failed!\n";
+std::string Analyzer::getSemanticErrors(const ASTProgram* _program) const noexcept {
+    if(semanticErrors.empty()){
+        return "";
+    }
+
+    std::stringstream errors{"Semantic check failed:\n"};
+    size_t errLen = errors.str().length();
+
     for(const auto& _function : _program->getFunctions()){
         const std::string& funcName = _function->getToken().value;
         if(!semanticErrors[funcName].empty()){
-            for(const auto& exception : semanticErrors[funcName]){
-                err += std::format("{}\n", exception);
+            for(const auto& error : semanticErrors[funcName]){
+                errors << error << "\n";
             }
         }
     }
     if(!semanticErrors[globalError].empty()){
-        for(const auto& exception : semanticErrors[globalError]){
-            err += std::format("{}\n", exception);
+        for(const auto& error : semanticErrors[globalError]){
+            errors << error << "\n";
         }
     }
-    std::cerr << err;
+
+    std::string strErrors = errors.str(); 
+
+    return strErrors.length() != errLen ? strErrors : "";
 }
 
 void Analyzer::startFunctionCheck(const ASTProgram* _program){

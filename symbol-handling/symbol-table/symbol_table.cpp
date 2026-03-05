@@ -1,7 +1,6 @@
 #include "symbol_table.hpp"
 
 #include <initializer_list>
-#include <iostream>
 
 SymbolTable::SymbolTable() = default;
 
@@ -32,10 +31,4 @@ void SymbolTable::deleteSymbol(const std::string& name){
 
 void SymbolTable::clearSymbols() noexcept {
     symbolTable.clear();
-}
-
-void SymbolTable::printSymbolTable() const {
-    for(const auto& symbol : symbolTable){
-        std::cout << symbol.second.symbolToString();
-    }
 }

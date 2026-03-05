@@ -2,11 +2,10 @@
 
 #include <cassert>
 #include <memory>
+#include <sstream>
 #include <string>
-#include <format>
 #include <thread>
 #include <latch>
-#include <iostream>
 
 #include "../../common/abstract-syntax-tree/ASTInclude.hpp"
 #include "../../thread-pool/thread_pool.hpp"
@@ -55,13 +54,22 @@ bool IntermediateRepresentation::hasErrors(const IRProgram* _program) const noex
     return false;
 }
 
-void IntermediateRepresentation::showErrors(const IRProgram* _program) const {
-    std::string err = "\nForming Intermediate Representation: failed!\n";
+std::string IntermediateRepresentation::getErrors(const IRProgram* _program) const noexcept {
+    if(exceptions.empty()){
+        return "";
+    }
+
+    std::stringstream errors{"Forming Intermediate Representation failed:\n"};
+    size_t errLen = errors.str().length();
+
     for(const auto& _function : _program->getFunctions()){
         const std::vector<std::string>& funcErrors = exceptions.at(_function->getFunctionName());
         for(const auto& error : funcErrors){
-            err += std::format("{}\n", error);
+            errors << error << "\n";
         }
     }
-    std::cerr << err;
+
+    std::string strErrors = errors.str(); 
+
+    return strErrors.length() != errLen ? strErrors : "";
 }

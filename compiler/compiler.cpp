@@ -20,7 +20,7 @@ const std::pair<Compiler::ExitCode, std::vector<std::string>> Compiler::preproce
     preprocessor.preprocess(source);
 
     if(preprocessor.hasErrors()){
-        preprocessor.showErrors();
+        std::cerr << preprocessor.getPreprocessErrors();
         return { Compiler::ExitCode::PREPROCESS_ERR, preprocessor.getPreprocessed() };
     }
 
@@ -29,8 +29,9 @@ const std::pair<Compiler::ExitCode, std::vector<std::string>> Compiler::preproce
 
 Compiler::ExitCode Compiler::lexicalAnalysis(Lexer& lexer){
     lexer.tokenize();
+    
     if(lexer.hasLexicalErrors()){
-        lexer.showLexicalErrors();
+        std::cerr << lexer.getLexicalErrors();
         return Compiler::ExitCode::LEXICAL_ERR;
     }
 
@@ -59,7 +60,7 @@ Compiler::ExitCode Compiler::semanticAnalysis(std::unique_ptr<ASTProgram>& astPr
     analyzer.semanticCheck(astProgram.get());
 
     if(analyzer.hasSemanticError(astProgram.get())){
-        analyzer.showSemanticErrors(astProgram.get());
+        std::cerr << analyzer.getSemanticErrors(astProgram.get());
         return Compiler::ExitCode::SEMANTIC_ERR;
     }
 
@@ -69,8 +70,9 @@ Compiler::ExitCode Compiler::semanticAnalysis(std::unique_ptr<ASTProgram>& astPr
 Compiler::ExitCode Compiler::transformASTToIRT(std::unique_ptr<ASTProgram>& astProgram, std::unique_ptr<IRProgram>& irProgram){
         IntermediateRepresentation intermediateRepresentation{};
         irProgram = intermediateRepresentation.formIR(astProgram.get());
+
         if(intermediateRepresentation.hasErrors(irProgram.get())){
-            intermediateRepresentation.showErrors(irProgram.get());
+            std::cerr << intermediateRepresentation.getErrors(irProgram.get());
             return Compiler::ExitCode::IR_ERR;
         }
         std::cout << irProgram->getLinkedLibs() << "\n";
@@ -126,7 +128,6 @@ Compiler::ExitCode Compiler::compile(const std::string& input, std::string_view 
     if(result != Compiler::ExitCode::NO_ERR){
         return result;
     }
-    //astProgram->print(1);
 
     result = semanticAnalysis(astProgram);
     if(result != Compiler::ExitCode::NO_ERR){
@@ -138,7 +139,6 @@ Compiler::ExitCode Compiler::compile(const std::string& input, std::string_view 
     if(result != Compiler::ExitCode::NO_ERR){
         return result;
     }
-    //irProgram->print(1);
 
     result = generateCode(irProgram.get(), output);
     if(result != Compiler::ExitCode::NO_ERR){

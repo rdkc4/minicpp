@@ -58,13 +58,6 @@ public:
     */
     bool lookupSymbol(const std::string& name, std::initializer_list<Kinds> kind) const;
 
-    /** 
-     * @brief prints all symbols from the symbol table
-     * @note debugging purposes
-     * @returns void
-    */
-    void printSymbolTable() const;
-
 private:
     /// table of active symbols
     SymbolTable& symbolTable;
