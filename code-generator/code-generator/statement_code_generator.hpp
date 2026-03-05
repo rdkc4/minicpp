@@ -32,10 +32,6 @@ public:
     */
     void generateStatement(const IRStatement* _statement);
 
-private:
-    /// code generator specialized for expressions
-    ExpressionCodeGenerator exprGenerator;
-
     /** 
      * @brief generates asm code for the variable declaration
      * @param _variable - const pointer to the irt variable declaration
@@ -105,6 +101,11 @@ private:
      * @returns void
     */
     void generateSwitchStatement(const IRSwitchSt* _switch);
+
+private:
+    /// code generator specialized for expressions
+    ExpressionCodeGenerator exprGenerator;
+
 };
 
 #endif

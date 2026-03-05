@@ -1,11 +1,5 @@
 #include "../ASTFunction.hpp"
 
-#include <memory>
-#include <vector>
-#include <string>
-#include <iostream>
-#include <format>
-
 ASTFunction::ASTFunction(const Token& token, ASTNodeType ntype, Types type) : ASTNode(token, ntype), type{ type }, predefined{ false } {}
 
 const std::vector<std::unique_ptr<ASTParameter>>& ASTFunction::getParameters() const noexcept {
@@ -38,18 +32,4 @@ bool ASTFunction::isPredefined() const noexcept {
 
 size_t ASTFunction::getParameterCount() const noexcept {
     return parameters.size();
-}
-
-void ASTFunction::print(size_t offset) const {
-    std::cout << std::format("{}|-> {}", std::string(offset * 2, ' '), toString());
-
-    std::cout << std::format("{}|-> {}", std::string((offset + 1) * 2, ' '), "PARAMETERS\n");
-    for(const auto& par : parameters){
-        par->print(offset + 2);
-    }
-
-    std::cout << std::format("{}|-> {}", std::string((offset + 1) * 2, ' '), "BODY\n");
-    for(const auto& st : body){
-        st->print(offset + 2);
-    }
 }

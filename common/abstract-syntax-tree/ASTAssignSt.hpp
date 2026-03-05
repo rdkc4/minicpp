@@ -53,17 +53,10 @@ public:
     */
     void setExp(std::unique_ptr<ASTExpression> nexp);
 
-    /** 
-     * @brief prints assignment statement node
-     * @note debugging purposes
-     * @param offset - indentation
-     * @returns void
-    */
-    void print(size_t offset) const override;
-
 private:
     /// pointer to the id of the variable
     std::unique_ptr<ASTId> variable;
+
     /// pointer to the assigned expression
     std::unique_ptr<ASTExpression> exp;
 

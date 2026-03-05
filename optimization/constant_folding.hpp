@@ -1,9 +1,9 @@
 #ifndef OPTIMIZATION_CONSTANT_FOLDING_HPP
 #define OPTIMIZATION_CONSTANT_FOLDING_HPP
 
-#include <cassert>
 #include <string>
 #include <format>
+#include <utility>
 
 #include "../common/defs/defs.hpp"
 
@@ -90,7 +90,7 @@ namespace Optimization {
                     constFold.result = static_cast<T>(l != r);
                     return constFold;
                 default:
-                    assert(false && "unreachable");
+                    std::unreachable();
             }
         }
     }

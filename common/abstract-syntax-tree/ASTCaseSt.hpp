@@ -49,19 +49,13 @@ public:
     */
     bool hasBreak() const noexcept;
 
-    /** 
-     * @brief prints case statement node
-     * @note debugging purposes
-     * @param offset - indentation
-     * @returns void
-    */
-    void print(size_t offset) const override;
-
 private:
     /// pointer to the literal of the case
     std::unique_ptr<ASTLiteral> literal;
+
     /// pointer to the switch-block of the case
     std::unique_ptr<ASTSwitchBlock> swBlock;
+
     /// flag if case breaks
     bool _break;
 

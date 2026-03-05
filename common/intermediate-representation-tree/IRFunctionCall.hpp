@@ -71,21 +71,16 @@ public:
     */
     size_t getArgumentCount() const noexcept;
 
-    /** 
-     * @brief prints formatted string of the function call node
-     * @note debugging purposes
-     * @param offset - indentation
-     * @returns void
-    */
-    void print(size_t offset) const override;
-
 private:
     /// name of the function being called
     std::string callName;
+
     /// vector of pointers to expressions representing arguments
     std::vector<std::unique_ptr<IRExpression>> arguments;
+
     /// vector of pointers to temporaries of the function call
     std::vector<std::unique_ptr<IRTemporary>> temporaries;
+    
 };
 
 #endif

@@ -80,21 +80,16 @@ public:
     */
     const std::vector<Types>& getTypes() const noexcept;
 
-    /** 
-     * @brief prints formatted string of the temporary node
-     * @note debugging purposes
-     * @param offset - indentation
-     * @returns void
-    */
-    void print(size_t offset) const override;
-
 private:
     /// vector of types of the temporaries
     std::vector<Types> types;
+    
     /// vector of names of the temporaries
     std::vector<std::string> tempNames;
+
     /// vector of pointers to expressions of the temporaries
     std::vector<std::unique_ptr<IRExpression>> temporaries;
+    
 };
 
 #endif

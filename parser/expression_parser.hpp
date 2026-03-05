@@ -60,11 +60,6 @@ public:
     */
     std::unique_ptr<ASTFunctionCall> functionCall();
 
-private:
-    /// reference to a token handler wrapped around the lexer
-    TokenConsumer& tokenConsumer;
-
-protected:
     /** 
      * @brief transforms rpn stack to a tree
      * @param rpn - reference to a rpn stack
@@ -133,6 +128,10 @@ protected:
         auto it = precedence.find(op);
         return it != precedence.end() ? it->second : 0;
     }
+
+private:
+    /// reference to a token handler wrapped around the lexer
+    TokenConsumer& tokenConsumer;
 
 };
 

@@ -60,6 +60,7 @@ private:
 
     /// maps function name to its exceptions
     std::unordered_map<std::string,std::vector<std::string>>& exceptions;
+
     /// mutex for concurrent access to exceptions
     std::mutex exceptionMtx;
 

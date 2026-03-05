@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <memory>
+#include <string>
 #include <unordered_set>
 
 #include "IRNode.hpp"
@@ -68,19 +69,13 @@ public:
     */
     const std::string getLinkedLibs() const noexcept;
 
-    /** 
-     * @brief prints formatted string of the program node
-     * @note debugging purposes
-     * @param offset - indentation
-     * @returns void
-    */
-    void print(size_t offset) const override;
-
 private:
     /// vector of pointers to functions of the program
     std::vector<std::unique_ptr<IRFunction>> functions;
+
     /// linked libraries
     std::unordered_set<std::string> linkedLibs;
+    
 };
 
 

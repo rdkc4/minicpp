@@ -47,18 +47,13 @@ public:
     */
     void setBinaryExpression(std::unique_ptr<IRExpression> lOp, std::unique_ptr<IRExpression> rOp, Operators _op);
 
-    /**
-     * @brief prints formatted string of the binary expression node
-     * @param offset - indentation
-     * @returns void
-    */
-    void print(size_t offset) const override;
-
 private:
     /// pointer to the left operand of the binary expression
     std::unique_ptr<IRExpression> leftOperand;
+
     /// pointer to the right operand of the binary expression
     std::unique_ptr<IRExpression> rightOperand;
+    
     /// operator of the binary expression
     Operators op;
 };

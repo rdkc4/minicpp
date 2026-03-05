@@ -12,8 +12,10 @@
 struct AnalyzerThreadContext {
     /// name of the function analyzed by the thread
     std::string functionName = "";
+
     /// pointer to the function scope manager
     ScopeManager* scopeManager = nullptr;
+    
     /// vector for exception messages
     std::vector<std::string> semanticErrors;
 

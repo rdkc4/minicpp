@@ -49,14 +49,6 @@ public:
     */
     size_t getArgumentCount() const noexcept;
 
-    /** 
-     * @brief prints function call node
-     * @note debugging purposes
-     * @param offset - indentation
-     * @returns void
-    */
-    void print(size_t offset) const override;
-
 private:
     /// vector of pointers to expressions that represent arguments
     std::vector<std::unique_ptr<ASTExpression>> arguments;

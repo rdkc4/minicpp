@@ -88,23 +88,19 @@ public:
     */
     bool hasTemporaries() const noexcept;
 
-    /**
-     * @brief prints formatted string of the for-statement node
-     * @note debugging purposes
-     * @param offset - indentation
-     * @returns void
-    */
-    void print(size_t offset) const override;
-
 private:
     /// pointer to the assignment statement of the initializer
     std::unique_ptr<IRAssignSt> initializer;
+
     /// pointer to the relational expression of the for-statement
     std::unique_ptr<IRExpression> condition;
+
     /// pointer to the assignment statement of the incrementer
     std::unique_ptr<IRAssignSt> incrementer;
+
     /// pointer to the statement of the for-statement
     std::unique_ptr<IRStatement> statement;
+    
     /// pointer to temporaries of the for-statement
     std::unique_ptr<IRTemporary> temporaries;
 };

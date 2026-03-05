@@ -50,8 +50,10 @@ public:
 private:
     /// number for the next label
     static std::atomic<size_t> labelNum;
+
     /// output file path (.s)
     const std::string outputPath;
+    
     /// code generator specialized for generating functions
     FunctionCodeGenerator funcGenerator;
 

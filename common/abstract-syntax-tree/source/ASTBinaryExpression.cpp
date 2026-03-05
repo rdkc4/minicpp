@@ -1,10 +1,5 @@
 #include "../ASTBinaryExpression.hpp"
 
-#include <memory>
-#include <string>
-#include <iostream>
-#include <format>
-
 ASTBinaryExpression::ASTBinaryExpression(const Token& token, ASTNodeType ntype, Types type, Operators op) : ASTExpression(token, ntype, type), op{ op } {}
 
 Operators ASTBinaryExpression::getOperator() const noexcept {
@@ -22,10 +17,4 @@ void ASTBinaryExpression::setOperands(std::unique_ptr<ASTExpression> lOp, std::u
 
 bool ASTBinaryExpression::initialized() const noexcept {
     return leftOperand != nullptr && rightOperand != nullptr;
-}
-
-void ASTBinaryExpression::print(size_t offset) const {
-    std::cout << std::format("{}|-> {}", std::string(offset * 2, ' '), toString());
-    leftOperand->print(offset + 1);
-    rightOperand->print(offset + 1);
 }

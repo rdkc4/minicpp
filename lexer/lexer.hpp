@@ -73,17 +73,22 @@ private:
     
     /// index of the current file
     size_t fileIndex;
+
     // length of the current file
     size_t fileLength;
+
     /// current position in the input
     size_t position;
+
     /// current line in the input
     size_t lineNumber;
+
     /// position at which previous line ended, used to determine the column of a token: column = position - prevLineLen
     size_t prevLineLen;
 
     /// index of a token that should be processed by the parser next
     size_t nextTokenIdx;
+    
     /// vector of lexical errors
     std::vector<std::string> exceptions;
 

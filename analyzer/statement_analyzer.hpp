@@ -39,12 +39,6 @@ public:
     */
     void checkStatement(const ASTStatement* _statement);
 
-protected:
-    /// reference to the global scope manager
-    ScopeManager& globalScopeManager;
-    /// analyzer specialized for the expression analysis
-    ExpressionAnalyzer expressionAnalyzer;
-
     /** 
      * @brief getter for the context of the function that owns statements
      * @return reference to a context of the analyzer thread
@@ -165,6 +159,14 @@ protected:
             }
         }
     }
+
+private:
+    /// reference to the global scope manager
+    ScopeManager& globalScopeManager;
+
+    /// analyzer specialized for the expression analysis
+    ExpressionAnalyzer expressionAnalyzer;
+
 };
 
 #endif

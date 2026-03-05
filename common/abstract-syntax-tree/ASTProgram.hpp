@@ -68,17 +68,10 @@ public:
     */
     void addDirective(std::unique_ptr<ASTDirective> directive);
 
-    /** 
-     * @brief prints program node
-     * @note debugging purposes
-     * @param offset - indentation
-     * @returns void
-    */
-    void print(size_t offset) const override;
-
 private:
     /// vector of pointers to functions of the program
     std::vector<std::unique_ptr<ASTFunction>> functions;
+    
     /// vector of pointers to directives of the program
     std::vector<std::unique_ptr<ASTDirective>> directives;
 

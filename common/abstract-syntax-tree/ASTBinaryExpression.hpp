@@ -68,19 +68,13 @@ public:
     */
     bool initialized() const noexcept;
 
-    /** 
-     * @brief prints binary expression node
-     * @note debugging purposes
-     * @param offset - indentation
-     * @returns void
-    */
-    void print(size_t offset) const override;
-
 private:
     /// pointer to the left operand of the binary expression
     std::unique_ptr<ASTExpression> leftOperand;
+
     /// pointer to the right operand of the binary expression
     std::unique_ptr<ASTExpression> rightOperand;
+
     /// operator of the binary expression
     Operators op;
 };

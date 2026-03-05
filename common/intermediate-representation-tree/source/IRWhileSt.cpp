@@ -1,10 +1,5 @@
 #include "../IRWhileSt.hpp"
 
-#include <memory>
-#include <iostream>
-#include <format>
-#include <string>
-
 IRWhileSt::IRWhileSt(IRNodeType ntype) : IRStatement(ntype) {}
 
 const IRExpression* IRWhileSt::getCondition() const noexcept {
@@ -27,13 +22,4 @@ const IRTemporary* IRWhileSt::getTemporaries() const noexcept {
 
 bool IRWhileSt::hasTemporaries() const noexcept {
     return temporaries != nullptr;
-}
-
-void IRWhileSt::print(size_t offset) const {
-    std::cout << std::format("{}|-> {}", std::string(offset*2, ' '), toString());
-    if(temporaries != nullptr){
-        temporaries->print(offset + 1);
-    }
-    condition->print(offset + 1);
-    statement->print(offset + 1);
 }

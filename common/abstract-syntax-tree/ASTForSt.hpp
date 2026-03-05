@@ -78,21 +78,16 @@ public:
     */
     bool hasIncrementer() const noexcept;
 
-    /** 
-     * @brief prints for statement node
-     * @note debugging purposes
-     * @param offset - indentation
-     * @returns void
-    */
-    void print(size_t offset) const override;
-
 private:
     /// pointer to the assignment statement of the initializer
     std::unique_ptr<ASTAssignSt> initializer;
+
     /// pointer to the relational expression of the for-statement
     std::unique_ptr<ASTExpression> condition;
+
     /// pointer to the assignment statement of the incrementer
     std::unique_ptr<ASTAssignSt> incrementer;
+
     /// pointer to the statement of the for-statement
     std::unique_ptr<ASTStatement> statement;
 

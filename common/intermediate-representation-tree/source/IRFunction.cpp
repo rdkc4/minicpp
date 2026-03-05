@@ -1,11 +1,5 @@
 #include "../IRFunction.hpp"
 
-#include <memory>
-#include <vector>
-#include <iostream>
-#include <string>
-#include <format>
-
 IRFunction::IRFunction(IRNodeType ntype, const std::string& funcName, Types type) : IRNode(ntype), functionName{ funcName }, requiredMemory{ "0" }, type{ type }, predefined{ false } {}
 
 const std::vector<std::unique_ptr<IRParameter>>& IRFunction::getParameters() const noexcept {
@@ -60,18 +54,4 @@ void IRFunction::setPredefined(bool isPredefined) noexcept {
 
 bool IRFunction::isPredefined() const noexcept {
     return predefined;
-}
-
-void IRFunction::print(size_t offset) const {
-    std::cout << std::format("{}|-> {} | {}", std::string(offset*2, ' '), functionName, toString());
-    
-    std::cout << std::format("{}|-> {}", std::string((offset+1)*2, ' '), "PARAMETERS\n");
-    for(const auto& parameter : parameters){
-        parameter->print(offset + 2);
-    }
-    
-    std::cout << std::format("{}|-> {}", std::string((offset+1)*2, ' '), "BODY\n");
-    for(const auto& statement : body){
-        statement->print(offset + 2);
-    }   
 }

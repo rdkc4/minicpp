@@ -29,14 +29,6 @@ public:
 
     void initFunctionCallSt(std::unique_ptr<ASTFunctionCall> funcCall);
 
-    /** 
-     * @brief prints function call statement node
-     * @note debugging purposes
-     * @param offset - indentation
-     * @returns void
-    */
-    void print(size_t offset) const override;
-
 private:
     /// pointer to the function call expression
     std::unique_ptr<ASTFunctionCall> functionCall;

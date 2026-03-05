@@ -26,12 +26,6 @@ public:
     */
     std::unique_ptr<ASTFunction> function();
 
-private:
-    /// parser specialized for statements
-    StatementParser stmtParser;
-    /// reference to a token handler wrapped around the lexer
-    TokenConsumer& tokenConsumer;
-
     /** 
      * @brief parses parameters of the function
      * @param _function - pointer to a function that owns parameters
@@ -47,6 +41,13 @@ private:
      * @returns void
     */
     void body(ASTFunction* _function);
+
+private:
+    /// parser specialized for statements
+    StatementParser stmtParser;
+
+    /// reference to a token handler wrapped around the lexer
+    TokenConsumer& tokenConsumer;
 
 };
 

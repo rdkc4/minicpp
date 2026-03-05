@@ -48,19 +48,13 @@ public:
     */
     void setType(Types t) noexcept;
 
-    /** 
-     * @brief prints formatted string of the parameter node
-     * @note debugging purposes
-     * @param offset - indentation
-     * @returns void
-    */
-    void print(size_t offset) const override;
-
 private:
     /// name of the parameter
     std::string parName;
+
     /// type of the parameter
     Types type;
+
 };
 
 

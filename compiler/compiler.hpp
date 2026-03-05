@@ -60,12 +60,18 @@ namespace Compiler {
 
     /** 
      * @brief performs code generation
-     * @param irProgram - reference to the pointer to the IRT program
+     * @param irProgram - const pointer to the IRT program
      * @param output - path of the output file
      * @returns CODEGEN_ERR if it fails to generate code, NO_ERR otherwise
     */
     ExitCode generateCode(const IRProgram* irProgram, const std::string_view output);
 
+    /**
+     * @brief translates assembly files into executable
+     * @param irProgram - const pointer to the irt program
+     * @param output - path of the output file
+     * @returns ASM_LINK_ERR if it fails to generate executable, NO_ERR otherwise
+    */
     ExitCode assembleAndLink(const IRProgram* irProgram, const std::string_view output);
 
     /** 

@@ -1,8 +1,6 @@
 #ifndef ASTNODE_HPP
 #define ASTNODE_HPP
 
-#include <string>
-
 #include "defs/ASTree_defs.hpp"
 #include "../token/token.hpp"
 
@@ -36,24 +34,10 @@ public:
     */
     ASTNodeType getNodeType() const noexcept;
 
-    /** 
-     * @brief helper for displaying the content of the node
-     * @note debugging purposes
-     * @returns formatted content of the node
-    */
-    const std::string toString() const;
-
-    /** 
-     * @brief prints ast node
-     * @note debugging purposes
-     * @param offset - indentation
-     * @returns void
-    */
-    virtual void print(size_t offset) const = 0;
-
 private:
     /// token describing the ast node
     Token token;
+    
     /// type of the ast node
     ASTNodeType nodeType;
 };

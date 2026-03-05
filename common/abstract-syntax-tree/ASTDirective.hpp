@@ -17,14 +17,6 @@ public:
     */
     ASTDirective(const Token token, ASTNodeType ntype);
 
-    /** 
-     * @brief prints directive node
-     * @note debugging purposes
-     * @param offset - indentation
-     * @returns void
-    */
-    void print(size_t offset) const override = 0;
-
 };
 
 #endif

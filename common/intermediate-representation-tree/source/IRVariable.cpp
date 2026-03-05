@@ -1,10 +1,5 @@
 #include "../IRVariable.hpp"
 
-#include <memory>
-#include <iostream>
-#include <format>
-#include <string>
-
 IRVariable::IRVariable(IRNodeType ntype, std::string_view varName, Types type) : IRStatement(ntype), varName{ varName }, value{ "0" }, type{ type } {}
 
 const IRExpression* IRVariable::getAssign() const noexcept {
@@ -50,14 +45,4 @@ const IRTemporary* IRVariable::getTemporaries() const noexcept {
 
 bool IRVariable::hasTemporaries() const noexcept {
     return temporaries != nullptr;
-}
-
-void IRVariable::print(size_t offset) const {
-    std::cout << std::format("{}|-> {} | {} | {}", std::string(offset*2, ' '), varName, value, toString());
-    if(hasAssign()){
-        if(temporaries != nullptr){
-            temporaries->print(offset + 1);
-        }
-        assignment->print(offset + 1);
-    }
 }

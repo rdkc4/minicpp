@@ -33,8 +33,10 @@ public:
 private:
     /// parser specialized for functions
     FunctionParser funcParser;
+
     /// parser specialized for directives
     DirectiveParser dirParser;
+    
     /// reference to a token handler wrapped around the lexer
     TokenConsumer& tokenConsumer;
 

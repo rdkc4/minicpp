@@ -1,11 +1,5 @@
 #include "../IRProgram.hpp"
 
-#include <vector>
-#include <memory>
-#include <string>
-#include <iostream>
-#include <format>
-
 #include "../../preprocessing/preprocessing_libraries.hpp"
 
 IRProgram::IRProgram(IRNodeType ntype) : IRNode(ntype) {}
@@ -41,11 +35,4 @@ const std::string IRProgram::getLinkedLibs() const noexcept {
     }
 
     return libs;
-}
-
-void IRProgram::print(size_t offset) const {
-    std::cout << std::format("{}|-> {}", std::string(offset*2, ' '), toString());
-    for(const auto& function : functions){
-        function->print(offset + 1);
-    }
 }

@@ -56,19 +56,13 @@ public:
     */
     bool hasTemporaries() const noexcept;
 
-    /**
-     * @brief prints formatted string of the assignment statement node
-     * @note debugging purposes
-     * @param offset - indentation
-     * @returns void
-    */
-    void print(size_t offset) const override;
-
 private:
     /// pointer to the id of the variable
     std::unique_ptr<IRId> variable;
+
     /// pointer to the expression assigned to the variable
     std::unique_ptr<IRExpression> exp;
+
     /// pointer to the temporaries of the assignment statement
     std::unique_ptr<IRTemporary> temporaries;
 };

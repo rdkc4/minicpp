@@ -39,14 +39,6 @@ public:
     */
     void eliminateDead(size_t startIdx);
 
-    /**
-     * @brief prints formatted string of the compound statement node
-     * @note debugging purposes
-     * @param offset - indentation
-     * @returns void
-    */
-    void print(size_t offset) const override;
-
 private:
     /// vector of pointers to statements of the compound statement
     std::vector<std::unique_ptr<IRStatement>> statements;

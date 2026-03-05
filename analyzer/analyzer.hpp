@@ -47,6 +47,7 @@ public:
 protected:
     /// reference to the global scope manager
     ScopeManager& globalScopeManager;
+    
     /// analyzer specialized for functions
     FunctionAnalyzer functionAnalyzer;
 

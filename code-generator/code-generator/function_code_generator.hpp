@@ -43,23 +43,25 @@ public:
     */
     void generateFunction(const IRFunction* _function);
 
-private:
-    /// thread local context of the function
-    static thread_local CodeGeneratorThreadContext codeGenContext;
-    /// code generator specialized for statements
-    StatementCodeGenerator stmtGenerator;
-
-    /// mutex for concurrent access to asmCode
-    std::mutex asmMtx;
-    /// maps functionName to its asm code
-    std::unordered_map<std::string, std::vector<std::string>>& asmCode;
-
     /** 
      * @brief generates the parameters of the function
      * @param _parameters - reference to a const vector of pointers to the parameters
      * @returns void
     */
     void generateParameter(const std::vector<std::unique_ptr<IRParameter>>& _parameters);
+
+private:
+    /// thread local context of the function
+    static thread_local CodeGeneratorThreadContext codeGenContext;
+
+    /// mutex for concurrent access to asmCode
+    std::mutex asmMtx;
+
+    /// code generator specialized for statements
+    StatementCodeGenerator stmtGenerator;
+
+    /// maps functionName to its asm code
+    std::unordered_map<std::string, std::vector<std::string>>& asmCode;
 
 };
 

@@ -48,17 +48,10 @@ public:
     */
     void setValue(const std::string& val);
 
-    /** 
-     * @brief prints formmatted string of the id node
-     * @note debugging purposes
-     * @param offset - indentation
-     * @returns void
-    */
-    void print(size_t offset) const override;
-
 private:
     /// name of the id
     std::string idName;
+    
     /// value of the id
     std::string value;
 };

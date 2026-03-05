@@ -1,9 +1,10 @@
 #ifndef ASTINCLUDE_HPP
 #define ASTINCLUDE_HPP
 
+#include <string>
+
 #include "ASTDirective.hpp"
 #include "defs/ASTree_defs.hpp"
-#include <string>
 
 /** 
  * @class ASTInclude
@@ -30,14 +31,6 @@ public:
      * @returns void 
     */
     void setLibName(const std::string _libName);
-
-    /** 
-     * @brief prints include directive node
-     * @note debugging purposes
-     * @param offset - indentation
-     * @returns void
-    */
-    void print(size_t offset) const override;
 
 private:
     /// name of the included library

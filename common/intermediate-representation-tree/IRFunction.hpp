@@ -110,27 +110,25 @@ public:
     */
     bool isPredefined() const noexcept;
 
-    /** 
-     * @brief prints formatted string of the function node
-     * @note debugging purposes
-     * @param offset - indentation
-     * @returns void
-    */
-    void print(size_t offset) const override;
-
 private:
     /// name of the function
     std::string functionName;
+
     /// memory required for the stack of the function
     std::string requiredMemory;
+
     /// return type of the function
     Types type;
+
     /// flag if function is predefined
     bool predefined;
+
     /// vector of pointers to parameters of the function
     std::vector<std::unique_ptr<IRParameter>> parameters;
+
     /// vector of pointers to statements of the body
     std::vector<std::unique_ptr<IRStatement>> body;
+    
 };
 
 #endif

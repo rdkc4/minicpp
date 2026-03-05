@@ -18,14 +18,6 @@ public:
 
     void setFunctionCallSt(std::unique_ptr<IRFunctionCall> call);
 
-    /** 
-     * @brief prints formatted string of the function-call statement node
-     * @note debugging purposes
-     * @param offset - indentation
-     * @returns void
-    */
-    void print(size_t offset) const override;
-
 private:
     std::unique_ptr<IRFunctionCall> functionCall; 
 };

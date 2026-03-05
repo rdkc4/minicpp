@@ -45,8 +45,10 @@ public:
 private:
     /// vector of preprocessed files containing the source code of each
     std::vector<std::string> preprocessed;
+
     /// unordered_set of included libraries
     std::unordered_set<std::string> includedLibraries;
+    
     /// errors of the preprocessing phase
     std::vector<std::string> preprocessErrors;
 

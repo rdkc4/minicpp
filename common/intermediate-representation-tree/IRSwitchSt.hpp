@@ -84,15 +84,16 @@ public:
     */
     size_t getCaseCount() const noexcept;
 
-    void print(size_t offset) const override;
-
 private:
     /// pointer to the id of the variable of the switch-statement
     std::unique_ptr<IRId> variable;
+
     /// vector of pointers to cases of the switch-statement
     std::vector<std::unique_ptr<IRCaseSt>> cases;
+
     /// pointer to default case of the switch-statement
     std::unique_ptr<IRDefaultSt> _default;
+    
 };
 
 

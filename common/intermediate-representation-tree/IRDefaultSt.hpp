@@ -35,13 +35,6 @@ public:
     */
     void setSwitchBlock(std::unique_ptr<IRSwitchBlock> block);
 
-    /**
-     * @brief prints formatted string of the default statement node
-     * @param offset - indentation
-     * @returns void
-    */
-    void print(size_t offset) const override;
-
 private:
     /// pointer to the switch-block of the default case
     std::unique_ptr<IRSwitchBlock> swBlock;

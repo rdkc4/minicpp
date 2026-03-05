@@ -1,11 +1,5 @@
 #include "../ASTIfSt.hpp"
 
-#include <memory>
-#include <vector>
-#include <string>
-#include <iostream>
-#include <format>
-
 ASTIfSt::ASTIfSt(const Token& token, ASTNodeType ntype) : ASTStatement(token, ntype) {}
 
 const std::vector<std::unique_ptr<ASTExpression>>& ASTIfSt::getConditions() const noexcept {
@@ -26,14 +20,4 @@ void ASTIfSt::addElse(std::unique_ptr<ASTStatement> statement){
 
 bool ASTIfSt::hasElse() const noexcept {
     return statements.size() > conditions.size();
-}
-
-void ASTIfSt::print(size_t offset) const {
-    std::cout << std::format("{}|-> {}", std::string(offset * 2, ' '), toString());
-    for(const auto& condition : conditions){
-        condition->print(offset + 1);
-    }
-    for(const auto& statement : statements){
-        statement->print(offset + 1);
-    }
 }

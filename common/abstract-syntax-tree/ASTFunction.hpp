@@ -76,21 +76,16 @@ public:
     */
     size_t getParameterCount() const noexcept;
 
-    /** 
-     * @brief prints function node
-     * @note debugging purposes
-     * @param offset - indentation
-     * @returns void
-    */
-    void print(size_t offset) const override;
-
 private:
     /// return type of the function
     Types type;
+
     /// flag if function is predefined
     bool predefined;
+
     /// vector of pointers to parameters of the function
     std::vector<std::unique_ptr<ASTParameter>> parameters;
+
     /// vector of pointers to statements of the body
     std::vector<std::unique_ptr<ASTStatement>> body;
 

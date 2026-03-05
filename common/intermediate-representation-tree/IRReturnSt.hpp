@@ -51,19 +51,13 @@ public:
     */
     bool hasTemporaries() const noexcept;
 
-    /** 
-     * @brief prints formatted string of the return statement node
-     * @note debugging purposes
-     * @param offset - indentation
-     * @returns void
-    */
-    void print(size_t offset) const override;
-
 private:
     /// pointer to the expression of the return statement
     std::unique_ptr<IRExpression> exp;
+
     /// pointer to the temporaries of the return statement
     std::unique_ptr<IRTemporary> temporaries;
+    
 };
 
 

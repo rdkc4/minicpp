@@ -81,21 +81,16 @@ public:
     */
     const std::tuple<const IRExpression*, const IRStatement*, const IRTemporary*> getIfAtN(size_t n) const noexcept;
 
-    /** 
-     * @brief prints formatted string of the if-statement node
-     * @note debugging purposes
-     * @param offset - indentation
-     * @returns void
-    */
-    void print(size_t offset) const override;
-
 private:
     /// vector of pointers to relational expressions of the if-statement
     std::vector<std::unique_ptr<IRExpression>> conditions;
+
     /// vector of pointers to statements of the if-statement
     std::vector<std::unique_ptr<IRStatement>> statements;
+
     /// vector of pointers to temporaries of the if-statement
     std::vector<std::unique_ptr<IRTemporary>> temporaries;
+    
 };
 
 

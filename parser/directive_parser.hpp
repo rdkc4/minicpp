@@ -25,15 +25,16 @@ public:
     */
     std::unique_ptr<ASTDirective> directive();
 
-private:
-    /// reference to a token handler wrapped around the lexer
-    TokenConsumer& tokenConsumer;
-
     /** 
      * @brief parses the include directive
      * @returns pointer to the include directive
     */
     std::unique_ptr<ASTInclude> include();
+
+private:
+    /// reference to a token handler wrapped around the lexer
+    TokenConsumer& tokenConsumer;
+
 };
 
 #endif

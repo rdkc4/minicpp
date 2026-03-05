@@ -1,12 +1,5 @@
 #include "../IRTemporary.hpp"
 
-#include <memory>
-#include <vector>
-#include <iostream>
-#include <string>
-#include <format>
-#include <utility>
-
 IRTemporary::IRTemporary(IRNodeType ntype) : IRNode(ntype) {}
 
 const std::vector<std::unique_ptr<IRExpression>>& IRTemporary::getTemporaries() const noexcept {
@@ -42,14 +35,4 @@ void IRTemporary::assignTempAtN(std::unique_ptr<IRExpression> tempVal, Types t, 
 
 const std::vector<Types>& IRTemporary::getTypes() const noexcept {
     return types;
-}
-
-void IRTemporary::print(size_t offset) const {
-    std::cout << std::format("{}|-> {}", std::string(offset*2, ' '), toString());
-    const size_t tempCount = temporaries.size();
-    for(size_t i = 0; i < tempCount; ++i){
-        std::cout << std::format("{}|-> {}\n", std::string((offset+1) * 2, ' '), tempNames[i]);
-        if(temporaries[i] != nullptr)
-            temporaries[i]->print(offset + 2);
-    }
 }

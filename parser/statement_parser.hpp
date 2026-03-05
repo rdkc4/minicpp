@@ -55,13 +55,6 @@ public:
     */
     std::unique_ptr<ASTStatement> statement();
 
-private:
-    /// parser specialized for expressions
-    ExpressionParser expParser;
-    /// reference to a token handler wrapped around the lexer
-    TokenConsumer& tokenConsumer;
-
-protected:
     /** 
      * @brief parses variable declaration
      * @details VARIABLE_DECL : TYPE ID (ASSIGN NUMERICAL_EXPRESSION)? SEMICOLON
@@ -168,6 +161,13 @@ protected:
      * @returns void
     */
     void _break();
+
+private:
+    /// parser specialized for expressions
+    ExpressionParser expParser;
+    
+    /// reference to a token handler wrapped around the lexer
+    TokenConsumer& tokenConsumer;
 
 };
 

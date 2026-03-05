@@ -68,6 +68,7 @@ public:
 private:
     /// table of active symbols
     SymbolTable& symbolTable;
+    
     /// stack of scopes
     std::stack<std::stack<std::string>> scope;
 

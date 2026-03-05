@@ -1,10 +1,5 @@
 #include "../ASTReturnSt.hpp"
 
-#include <memory>
-#include <string>
-#include <iostream>
-#include <format>
-
 ASTReturnSt::ASTReturnSt(const Token& token, ASTNodeType ntype) : ASTStatement(token, ntype) {}
 
 void ASTReturnSt::setExp(std::unique_ptr<ASTExpression> nexp){
@@ -13,11 +8,4 @@ void ASTReturnSt::setExp(std::unique_ptr<ASTExpression> nexp){
 
 bool ASTReturnSt::returns() const noexcept {
     return exp != nullptr;
-}
-
-void ASTReturnSt::print(size_t offset) const {
-    std::cout << std::format("{}|-> {}", std::string(offset * 2, ' '), toString());
-    if(returns()){
-        exp->print(offset + 1);
-    }
 }
