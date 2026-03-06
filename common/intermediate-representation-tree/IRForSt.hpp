@@ -54,7 +54,6 @@ public:
      * @param inc - pointer to the assignment statement
      * @param st - pointer to the statement
      * @param temp - pointer to the temporaries, default nullptr
-     * @returns void
     */
     void setForSt(std::unique_ptr<IRAssignSt> init, std::unique_ptr<IRExpression> cond, std::unique_ptr<IRAssignSt> inc, std::unique_ptr<IRStatement> st, std::unique_ptr<IRTemporary> temp = nullptr);
 

@@ -10,11 +10,18 @@
 #include "../function_analyzer.hpp"
 
 Analyzer::Analyzer(ScopeManager& scopeManager) 
-    : globalScopeManager{ scopeManager }, functionAnalyzer(scopeManager, semanticErrors, globalError) {}
+    : globalScopeManager{ scopeManager }, functionAnalyzer{ scopeManager, semanticErrors, globalError }, 
+        directiveAnalyzer{ semanticErrors, globalError } {
+
+    semanticErrors[globalError] = {};
+}
 
 void Analyzer::semanticCheck(const ASTProgram* _program){
     // global scope
     globalScopeManager.pushScope();
+
+    // check directives
+    directiveAnalyzer.checkDirectives(_program->getDirectives());
 
     // define all functions
     functionAnalyzer.checkFunctionSignatures(_program);

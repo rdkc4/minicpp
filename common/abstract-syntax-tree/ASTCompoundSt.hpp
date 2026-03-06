@@ -30,7 +30,6 @@ public:
     /** 
      * @brief adds new statement node to the vector of statements
      * @param statement - pointer to a statement node
-     * @returns void
     */
     void addStatement(std::unique_ptr<ASTStatement> statement);
 

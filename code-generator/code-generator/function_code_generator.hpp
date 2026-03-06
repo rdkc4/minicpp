@@ -32,21 +32,18 @@ public:
     /** 
      * @brief initializes the vector holding asm code for all functions
      * @param _root - const pointer to the irt program
-     * @returns void
     */
     void initFunctions(const IRProgram* _root);
 
     /** 
      * @brief generates the asm code of the function
      * @param _function - const pointer to the irt function
-     * @returns void
     */
     void generateFunction(const IRFunction* _function);
 
     /** 
      * @brief generates the parameters of the function
      * @param _parameters - reference to a const vector of pointers to the parameters
-     * @returns void
     */
     void generateParameter(const std::vector<std::unique_ptr<IRParameter>>& _parameters);
 

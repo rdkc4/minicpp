@@ -40,7 +40,6 @@ public:
      * @brief initializes do-while statement node
      * @param cond - pointer to a relational expression node
      * @param st - pointer to a statement node
-     * @returns void
     */
     void setDoWhile(std::unique_ptr<ASTExpression> cond, std::unique_ptr<ASTStatement> st);
 

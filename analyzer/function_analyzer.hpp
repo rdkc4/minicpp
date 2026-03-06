@@ -32,14 +32,12 @@ public:
     /** 
      * @brief semantic check for the signature of all functions of the program
      * @param _program - const pointer to a root of the ast
-     * @returns void 
     */
     void checkFunctionSignatures(const ASTProgram* _program);
 
     /** 
      * @brief semantic check of the single function
      * @param _function - const pointer to a function
-     * @returns void
     */
     void checkFunction(const ASTFunction* _function);
 
@@ -47,21 +45,18 @@ public:
      * @brief semantic check for the parameters of the current function
      * @param _parameters - const reference to a vector of pointers to parameters
      * @param functionName - name of the function that is currently being analyzed 
-     * @returns void
     */
     void checkParameter(const std::vector<std::unique_ptr<ASTParameter>>& _parameters, const std::string& functionName);
 
     /** 
      * @brief inserts parameters of the function into the symbol table
      * @param _parameters - const reference to a vector of pointers to parameters
-     * @returns void
     */
     void defineParameters(const std::vector<std::unique_ptr<ASTParameter>>& _parameters);
 
     /**
      * @brief semantic check for the body of the function
      * @param _body - const reference to a vector of pointers to statements inside of the body
-     * @returns void
     */
     void checkBody(const std::vector<std::unique_ptr<ASTStatement>>& _body);
 

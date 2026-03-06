@@ -40,21 +40,18 @@ public:
     /** 
      * @brief adds new parameter to parameters
      * @param parameter - parameter that is being added
-     * @returns void
     */
     void addParameter(std::unique_ptr<ASTParameter> parameter);
 
     /** 
      * @brief adds new statement to body
      * @param statement - pointer to a statement that is being added to body
-     * @returns void
     */
     void addStatement(std::unique_ptr<ASTStatement> statement);
 
     /** 
      * @brief sets predifined flag of a function
      * @param isPredefined - flag for predefined function
-     * @returns void;
     */
     void setPredefined(bool isPredefined) noexcept;
 

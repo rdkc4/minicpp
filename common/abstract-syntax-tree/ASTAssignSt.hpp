@@ -42,14 +42,12 @@ public:
     /** 
      * @brief initializes id sub-node
      * @param var - pointer to an id node
-     * @returns void
     */
     void setVariable(std::unique_ptr<ASTId> var);
 
     /** 
      * @brief initializes expression sub-node
      * @param nexp - pointer to an expression node
-     * @returns void
     */
     void setExp(std::unique_ptr<ASTExpression> nexp);
 

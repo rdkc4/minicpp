@@ -23,7 +23,6 @@ struct AnalyzerThreadContext {
      * @brief initializes the context of the thread
      * @param funcName - name of the function
      * @param scopeMng - pointer to the scope manager
-     * @returns void
     */
     void init(std::string_view funcName, ScopeManager* scopeMng){
         functionName = funcName;
@@ -32,7 +31,6 @@ struct AnalyzerThreadContext {
 
     /** 
      * @brief resets the context of the thread
-     * @returns void
     */
     void reset(){
         functionName = "";

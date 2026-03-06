@@ -40,7 +40,6 @@ public:
      * @param cond - pointer to the condition of the do-while statement node
      * @param st - pointer to the statement of the do-while statement node
      * @param temp - pointer to the temporaries of the do-while statement node, default nullptr
-     * @returns void
     */
     void setDoWhileSt(std::unique_ptr<IRExpression> cond, std::unique_ptr<IRStatement> st, std::unique_ptr<IRTemporary> temp = nullptr);
 

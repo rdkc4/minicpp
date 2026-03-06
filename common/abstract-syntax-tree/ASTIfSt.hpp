@@ -38,14 +38,12 @@ public:
      * @brief adds new if/else-if statement
      * @param condition - pointer to a relational expression
      * @param statement - pointer to a statement of if/else-if statement
-     * @returns void 
     */
     void addIf(std::unique_ptr<ASTExpression> condition, std::unique_ptr<ASTStatement> statement);
 
     /** 
      * @brief adds new else statement
      * @param statement - pointer to a statement of else statement
-     * @returns void
     */
     void addElse(std::unique_ptr<ASTStatement> statement);
 

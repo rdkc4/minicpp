@@ -20,7 +20,6 @@ public:
     /** 
      * @brief entry point for preprocessing of the source file
      * @param source - reference to a source code
-     * @returns void
     */
     void preprocess(const std::string& source);
 
@@ -56,7 +55,6 @@ private:
      * @brief handles the directive
      * @param source - reference to a source code
      * @param idx - current index in the source code
-     * @returns void
     */
     void handleDirective(const std::string& source, size_t& idx);
     
@@ -64,7 +62,6 @@ private:
      * @brief handles the include directive
      * @param source - reference to a source code
      * @param idx - current index in the source code
-     * @returns void
     */
     void handleInclude(const std::string& source, size_t& idx);
 

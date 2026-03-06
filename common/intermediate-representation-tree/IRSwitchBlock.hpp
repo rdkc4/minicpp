@@ -28,14 +28,12 @@ public:
     /** 
      * @brief adds new statement to switch block
      * @param statement - pointer to the statement
-     * @returns void
     */
     void addStatement(std::unique_ptr<IRStatement> statement);
 
     /**
      * @brief eliminates statements of the switch block that appear after the node that always returns
      * @param startIdx - index in the vector of statements where deletion starts
-     * @returns void
     */
     void eliminateDead(size_t startIdx);
 

@@ -78,6 +78,7 @@ SRCS = main.cpp \
 	analyzer/source/expression_analyzer.cpp \
 	analyzer/source/statement_analyzer.cpp \
 	analyzer/source/function_analyzer.cpp \
+	analyzer/source/directive_analyzer.cpp \
 	analyzer/source/analyzer.cpp \
 	optimization/source/dead_code.cpp \
 	optimization/source/stack_memory.cpp \

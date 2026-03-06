@@ -50,6 +50,8 @@ public:
      *
      * | DO_WHILE_STATEMENT
      *
+     * | FUNCTION_CALL_STATEMENT
+     *
      * | SWITCH_STATEMENT
      * @return pointer to the statement node
     */
@@ -158,7 +160,6 @@ public:
     /** 
      * @brief parses break statement
      * @details _BREAK : BREAK SEMICOLON
-     * @returns void
     */
     void _break();
 

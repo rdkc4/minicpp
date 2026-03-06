@@ -18,7 +18,6 @@ AnalyzerThreadContext& FunctionAnalyzer::getContext() noexcept {
 }
 
 void FunctionAnalyzer::checkFunctionSignatures(const ASTProgram* _program){
-    semanticErrors[globalError] = {};
     for(const auto& _function : _program->getFunctions()){
         Types returnType{ _function->getType() };
         const std::string& funcName = _function->getToken().value;

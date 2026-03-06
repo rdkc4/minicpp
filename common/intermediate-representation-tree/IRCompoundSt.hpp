@@ -28,14 +28,12 @@ public:
     /**
      * @brief adds new statement to the compound statement node
      * @param statement - pointer to a statement that is being added
-     * @returns void
     */
     void addStatement(std::unique_ptr<IRStatement> statement);
 
     /**
      * @brief eliminates statements of the compound statement that appear after the node that always returns
      * @param startIdx - index in the vector of statements where deletion starts
-     * @returns void
     */
     void eliminateDead(size_t startIdx);
 

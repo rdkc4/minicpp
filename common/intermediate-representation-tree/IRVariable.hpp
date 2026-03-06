@@ -34,7 +34,6 @@ public:
      * @brief assigns the value to the variable
      * @param assign - pointer to the expression
      * @param temp - pointer to the temporaries, default nullptr
-     * @returns void
     */
     void setAssign(std::unique_ptr<IRExpression> assign, std::unique_ptr<IRTemporary> temp = nullptr);
 
@@ -47,7 +46,6 @@ public:
     /** 
      * @brief initializes the name of the variable
      * @param var - reference to the name of the variable
-     * @returns void
     */
     void setVarName(const std::string& var);
 
@@ -60,7 +58,6 @@ public:
     /** 
      * @brief initializes the value of the variable
      * @param val - reference to a value of the variable as const string
-     * @returns void
     */
     void setValue(const std::string& val);
 
@@ -73,7 +70,6 @@ public:
     /** 
      * @brief initializes the type of the variable
      * @param t - type of the variable
-     * @returns void
     */
     void setType(Types t) noexcept;
 

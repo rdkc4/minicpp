@@ -31,7 +31,6 @@ public:
     /** 
      * @brief initializes the name of the id
      * @param _idName - name of the id
-     * @returns void
     */
     void setIdName(const std::string& _idName);
 
@@ -44,7 +43,6 @@ public:
     /** 
      * @brief initializes the value of the id
      * @param val - value of the id
-     * @returns void
     */
     void setValue(const std::string& val);
 

@@ -43,7 +43,6 @@ public:
      * @param lOp - pointer to the left operand
      * @param rOp - pointer to the right operand
      * @param _op - operator of the binary expression
-     * @returns void
     */
     void setBinaryExpression(std::unique_ptr<IRExpression> lOp, std::unique_ptr<IRExpression> rOp, Operators _op);
 

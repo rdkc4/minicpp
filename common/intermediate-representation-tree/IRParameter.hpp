@@ -31,7 +31,6 @@ public:
     /** 
      * @brief initializes the parameter's name
      * @param _parName - the name of the parameter
-     * @returns void
     */
     void setParName(const std::string& _parName);
 
@@ -44,7 +43,6 @@ public:
     /** 
      * @brief initializes the type of the parameter
      * @param t - type of the parameter
-     * @returns void
     */
     void setType(Types t) noexcept;
 

@@ -28,7 +28,6 @@ public:
     /**
      * @brief initializes the name of the included library
      * @param _libName - name of the included library
-     * @returns void 
     */
     void setLibName(const std::string _libName);
 

@@ -46,7 +46,6 @@ public:
      * @param var - pointer to the id of the variable
      * @param _exp - pointer to the expression
      * @param temp - pointer to the temporary (default nullptr)
-     * @returns void
     */
     void setAssignSt(std::unique_ptr<IRId> var, std::unique_ptr<IRExpression> _exp, std::unique_ptr<IRTemporary> temp = nullptr);
 

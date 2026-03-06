@@ -8,6 +8,7 @@
 #include "../common/abstract-syntax-tree/ASTProgram.hpp"
 #include "../symbol-handling/scope-manager/scope_manager.hpp"
 #include "function_analyzer.hpp"
+#include "directive_analyzer.hpp"
 
 /**
  * @class Analyzer
@@ -24,7 +25,6 @@ public:
     /** 
      * @brief entry point for the semantic check
      * @param _program - pointer to a root of the ast
-     * @returns void
     */
     void semanticCheck(const ASTProgram* _program);
 
@@ -51,6 +51,9 @@ protected:
     /// analyzer specialized for functions
     FunctionAnalyzer functionAnalyzer;
 
+    // analyzer specialized for directives
+    DirectiveAnalyzer directiveAnalyzer;
+
     /// maps functionName to its semantic errors
     mutable std::unordered_map<std::string, std::vector<std::string>> semanticErrors;
     
@@ -60,7 +63,6 @@ protected:
     /** 
      * @brief starts checking functions parallelly
      * @param _program - const pointer to a root of the ast
-     * @returns void
     */
     void startFunctionCheck(const ASTProgram* _program);
 };

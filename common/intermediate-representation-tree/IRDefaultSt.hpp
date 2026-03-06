@@ -31,7 +31,6 @@ public:
     /**
      * @brief initializes the default statement node
      * @param block - pointer to a switch block node
-     * @returns void
     */
     void setSwitchBlock(std::unique_ptr<IRSwitchBlock> block);
 

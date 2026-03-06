@@ -40,7 +40,6 @@ public:
      * @param lit - pointer to the literal
      * @param block - pointer to the switch block
      * @param hasBr - flag whether or not case statement has break
-     * @returns void
     */
     void setCase(std::unique_ptr<IRLiteral> lit, std::unique_ptr<IRSwitchBlock> block, bool hasBr);
 

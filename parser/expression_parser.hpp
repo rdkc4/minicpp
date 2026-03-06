@@ -89,7 +89,6 @@ public:
      * @brief parses argument of the function call
      * @param _functionCall - function call that owns arguments
      * @details (NUMERICAL_EXPRESSION (COMMA NUMERICAL_EXPRESSION)*)?
-     * @returns void
     */
     void argument(ASTFunctionCall* _functionCall);
 

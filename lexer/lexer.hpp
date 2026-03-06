@@ -20,13 +20,11 @@ public:
 
     /**
         * @brief translating input into a sequence of tokens
-        * @returns void 
     */
     void tokenize();
 
     /**
         * @brief increases nextTokenIdx
-        * @returns void
     */
     void next() noexcept;
 
@@ -92,14 +90,12 @@ protected:
 private:
     /**
         * @brief increases position for 1
-        * @returns void
     */
     void updatePosition() noexcept;
 
     /**
         * @brief increases the current position by a specified number of characters.
         * @param n - the number of characters by which to increment the position.
-        * @returns void
     */
     void updatePosition(size_t n) noexcept;
 
@@ -109,44 +105,37 @@ private:
         * increases lineNumber for 1
         *
         * sets prevLineLen to position
-        * @returns void
     */
     void updateLine() noexcept;
 
     /** 
         * @brief pushes keyword or id to tokens
-        * @returns void
     */
     void pushID();
 
     /** 
         * @brief pushes literal to tokens
         * @param sign - flag that tells if literal is signed or not, default false
-        * @returns void
     */
     void pushLiteral(bool sign = false);
 
     /** 
         * @brief pushes assignment to tokens
-        * @returns void
     */
     void pushAssignOperator();
 
     /** 
         * @brief pushes bitwise operator to tokens
-        * @returns void
     */
     void pushBitwiseOperator();
 
     /** 
         * @brief pushes arithmetic operator to tokens
-        * @returns void
     */
     void pushAritOperator();
 
     /** 
         * @brief pushes relational operator to tokens
-        * @returns void
     */
     void pushRelOperator();
 
@@ -189,13 +178,11 @@ private:
 
     /** 
         * @brief skips single line comment
-        * @returns void
     */
     void singleLineComment();
 
     /** 
         * @brief skips multi-line comment
-        * @returns void
     */
     void multiLineComment();
 

@@ -19,7 +19,6 @@ namespace Optimization {
         /** 
          * @brief reduces the number of statements in a function by eliminating the ones that appear after the node which always returns
          * @param _function - pointer to the irt function
-         * @returns void
         */
         void eliminateDeadCode(IRFunction* _function);
 

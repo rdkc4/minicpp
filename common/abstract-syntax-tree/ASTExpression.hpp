@@ -30,7 +30,6 @@ public:
     /** 
      * @brief initializes type of the expression node
      * @param t - type of the expression
-     * @returns void
     */
     void setType(Types t) noexcept;
 

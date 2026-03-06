@@ -6,11 +6,14 @@
 
 #include "../../common/preprocessing/preprocessing_libraries.hpp"
 
-void DirectiveAnalyzer::checkDirectives(std::vector<std::unique_ptr<ASTDirective>>& directives) {
+DirectiveAnalyzer::DirectiveAnalyzer(std::unordered_map<std::string, std::vector<std::string>>& semErrors, const std::string& err)
+    : semanticErrors{ semErrors }, globalError{ err } {}
+
+void DirectiveAnalyzer::checkDirectives(const std::vector<std::unique_ptr<ASTDirective>>& directives) {
     for(auto& directive : directives){
         switch(directive->getNodeType()){
             case ASTNodeType::INCLUDE:
-                checkInclude(static_cast<ASTInclude*>(directive.get()));
+                checkInclude(static_cast<const ASTInclude*>(directive.get()));
                 break;
             default:
                 std::unreachable();
@@ -18,9 +21,9 @@ void DirectiveAnalyzer::checkDirectives(std::vector<std::unique_ptr<ASTDirective
     }
 }
 
-void DirectiveAnalyzer::checkInclude(ASTInclude* _lib) {
+void DirectiveAnalyzer::checkInclude(const ASTInclude* _lib) {
     if(!std::filesystem::exists(Preprocessing::Libs::generateLibSourcePath(_lib->getLibName()))){
-        semanticErrors.push_back(
+        semanticErrors.at(globalError).push_back(
             std::format("Line {}, Column {}: SEMANTIC ERROR -> unknown library '{}'", 
                 _lib->getToken().line, _lib->getToken().column, _lib->getLibName())
         );

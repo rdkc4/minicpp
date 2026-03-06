@@ -39,7 +39,6 @@ public:
      * @param lit - pointer to a literal node
      * @param _swBlock - pointer to a switch block node
      * @param hasBr - flag if case has break
-     * @returns void
     */
     void setCase(std::unique_ptr<ASTLiteral> lit, std::unique_ptr<ASTSwitchBlock> _swBlock, bool hasBr);
 

@@ -50,7 +50,6 @@ public:
     /** 
      * @brief initializes operator
      * @param _op - operator of the binary expression
-     * @returns void
     */
     void setOperator(Operators _op) noexcept;
 
@@ -58,7 +57,6 @@ public:
      * @brief initializes operands
      * @param lOp - pointer to a left operand expression node
      * @param rOp - pointer to a right operand expression node
-     * @returns void 
     */
     void setOperands(std::unique_ptr<ASTExpression> lOp, std::unique_ptr<ASTExpression> rOp);
 

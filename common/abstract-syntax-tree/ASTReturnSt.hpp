@@ -34,7 +34,6 @@ public:
     /** 
      * @brief initializes the expression
      * @param nexp - pointer to the expression
-     * @returns void
     */
     void setExp(std::unique_ptr<ASTExpression> nexp);
 

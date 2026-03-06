@@ -49,28 +49,24 @@ public:
     /** 
      * @brief initializes symbol name
      * @param _name - name of the symbol
-     * @returns void
     */
     void setName(std::string_view _name);
 
     /** 
      * @brief initializes symbol kind
      * @param _kind - kind of the symbol
-     * @returns void
     */    
     void setKind(Kinds _kind) noexcept;
 
     /** 
      * @brief initializes symbol type
      * @param _type - type of the symbol
-     * @returns void
     */
     void setType(Types _type) noexcept;
 
     /** 
      * @brief initializes symbol parameters (if the symbol is a function)
      * @param _parameters - pointer to a vector of pointers to the parameters of the symbol
-     * @returns void
     */
     void setParameters(const std::vector<std::unique_ptr<ASTParameter>>* _parameters) noexcept;
 
@@ -84,10 +80,13 @@ public:
 private:
     /// name of the symbol
     std::string name;
+
     /// pointer to parameter node (only for functions)
     const std::vector<std::unique_ptr<ASTParameter>>* parameters;
+
     /// kind of the symbol
     Kinds kind;
+    
     /// type of the symbol
     Types type;
 

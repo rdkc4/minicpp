@@ -38,7 +38,6 @@ public:
     /** 
      * @brief allocates space for the functions in advance
      * @param n - number of functions
-     * @returns void
     */
     void resizeFunctions(size_t n);
 
@@ -46,7 +45,6 @@ public:
      * @brief initializes the function at the specified position
      * @param _function - pointer to the function
      * @param n - position of the function
-     * @returns void
     */
     void setFunctionAtN(std::unique_ptr<IRFunction> _function, size_t n);
 
@@ -59,7 +57,6 @@ public:
     /** 
      * @brief adds a new library to linking list
      * @param libName - name of the library
-     * @returns void
     */
     void addLinkedLibrary(const std::string& libName);
 

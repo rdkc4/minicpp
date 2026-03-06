@@ -30,7 +30,6 @@ public:
     /** 
      * @brief initializes the value of the literal
      * @param val - reference to a value
-     * @returns void
     */
     void setValue(const std::string& val);
 

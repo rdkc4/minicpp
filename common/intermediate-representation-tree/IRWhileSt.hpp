@@ -37,7 +37,6 @@ public:
      * @param cond - pointer to the relational expression
      * @param st - pointer to the statement
      * @param temp - pointer to the temporary, default nullptr
-     * @returns void
     */
     void setWhileSt(std::unique_ptr<IRExpression> cond, std::unique_ptr<IRStatement> st, std::unique_ptr<IRTemporary> temp = nullptr);
 

@@ -19,14 +19,12 @@ public:
     ScopeManager(SymbolTable& symTab);
 
     /** 
-     * @brief adding an empty stack when new scope is entered 
-     * @returns void
+     * @brief adding an empty stack when new scope is entered
     */
     void pushScope();
 
     /** 
      * @brief removing a stack when scope is exited and clearing symbols that are expired
-     * @returns void
     */
     void popScope();
 

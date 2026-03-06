@@ -32,7 +32,6 @@ public:
     /** 
      * @brief initializes the type of the variable
      * @param t - type of the variable
-     * @returns void
     */
     void setType(Types t) noexcept;
 
@@ -49,7 +48,6 @@ public:
     /** 
      * @brief initializes expression of the variable
      * @param assign - expression being assigned to the variable
-     * @returns void
     */
     void setAssign(std::unique_ptr<ASTExpression> assign);
 

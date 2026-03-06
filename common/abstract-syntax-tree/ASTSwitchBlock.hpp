@@ -30,7 +30,6 @@ public:
     /** 
      * @brief adds new statement
      * @param statement - pointer to a statement that is being added
-     * @returns void
     */
     void addStatement(std::unique_ptr<ASTStatement> statement);
 

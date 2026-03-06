@@ -21,14 +21,12 @@ public:
     /** 
      * @brief generates the asm code for the numerical expression
      * @param _numexp - const pointer to the irt numerical expression
-     * @returns void
     */
     void generateNumericalExpression(const IRExpression* _numexp);
 
     /** 
      * @brief generates the asm code for the relational expression
      * @param _relexp - const pointer to the irt relational expression (binary expression only at the moment)
-     * @returns void
     */
     void generateRelationalExpression(const IRExpression* _relexp);
 
@@ -49,28 +47,24 @@ public:
     /** 
      * @brief generates the asm code for assigning values to temporary variables
      * @param _temporary - const irt pointer to the irt temporary
-     * @returns void
     */
     void generateTemporaries(const IRTemporary* _temporary);
 
     /** 
      * @brief generates the asm code for the function call
      * @param _functionCall - const pointer to the irt function call
-     * @returns void
     */
     void generateFunctionCall(const IRFunctionCall* _functionCall);
 
     /** 
      * @brief generates the asm code for the arguments of the function call
      * @param _functionCall - const pointer to the irt function call
-     * @returns void
     */
     void generateArgument(const IRFunctionCall* _functionCall);
 
     /** 
      * @brief generates the asm code for removing arguments from the stack after function call is done
      * @param _arguments - number of arguments
-     * @returns void
     */
     void clearArguments(size_t _arguments);
 

@@ -39,7 +39,6 @@ public:
     /** 
      * @brief adds new argument
      * @param arg - pointer to the argument node
-     * @returns void
     */
     void addArgument(std::unique_ptr<ASTExpression> arg);
 

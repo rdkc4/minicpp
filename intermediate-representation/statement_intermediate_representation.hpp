@@ -83,7 +83,7 @@ public:
 
     /**
      * @brief turns ast function-call statement into irt function-call statement
-     * @param _return - const pointer to the ast function-call statement
+     * @param _call - const pointer to the ast function-call statement
      * @returns pointer to the irt function-call statement
     */
     std::unique_ptr<IRFunctionCallSt> functionCallStatement(const ASTFunctionCallSt* _call);

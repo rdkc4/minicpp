@@ -51,14 +51,12 @@ public:
      * @param cond - pointer to a relational expression of the if/else-if statement
      * @param statement - pointer to a statement of the if/else-if statement
      * @param temp - pointer to a temporary of the if/else-if statement, default nullptr
-     * @returns void
     */
     void addIf(std::unique_ptr<IRExpression> cond, std::unique_ptr<IRStatement> statement, std::unique_ptr<IRTemporary> temp = nullptr);
 
     /** 
      * @brief initializes else-statement
      * @param statement - pointer to a statement of the else-statement
-     * @returns void
     */
     void addElse(std::unique_ptr<IRStatement> statement);
 

@@ -48,7 +48,6 @@ public:
      * @note each argument may have temporaries
      * @param argument - argument of the function call
      * @param temp - temporaries of the argument, default nullptr
-     * @returns void
     */
     void addArgument(std::unique_ptr<IRExpression> argument, std::unique_ptr<IRTemporary> temp = nullptr);
 
@@ -61,7 +60,6 @@ public:
     /** 
      * @brief initializes the name of the called function
      * @param _callName - name of the function that is being called
-     * @returns void
     */
     void setCallName(const std::string& _callName);
 

@@ -37,7 +37,6 @@ public:
     /** 
      * @brief starts the code generation of the program
      * @param _root - const pointer to the irt program
-     * @returns void 
     */
     void generateCode(const IRProgram* _root);
 
@@ -63,7 +62,6 @@ private:
     /** 
      * @brief writes generated code into asm file
      * @param _root - const pointer to the root of the program
-     * @returns void
     */
     void writeCode(const IRProgram* _root);
 

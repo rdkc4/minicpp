@@ -34,7 +34,6 @@ public:
     /** 
      * @brief adds new parameter to the function
      * @param parameter - pointer to the parameter that is being added
-     * @returns void
     */
     void addParameter(std::unique_ptr<IRParameter> parameter);
 
@@ -47,7 +46,6 @@ public:
     /** 
      * @brief adds new statement to the body
      * @param statement - pointer to the statement that is being added
-     * @returns void
     */
     void addStatement(std::unique_ptr<IRStatement> statement);
 
@@ -60,7 +58,6 @@ public:
     /** 
      * @brief initializes function's name
      * @param funcName - name that is being assigned to the function
-     * @returns void
     */
     void setFunctionName(const std::string& funcName);
 
@@ -73,7 +70,6 @@ public:
     /** 
      * @brief initializes the return type of the function
      * @param t - return type of the function
-     * @returns void
     */
     void setType(Types t) noexcept;
 
@@ -86,21 +82,18 @@ public:
     /** 
      * @brief initializes the amount of bytes reserved for the stack
      * @param size - number of bytes reserved for the stack as string
-     * @returns void
     */
     void setRequiredMemory(const std::string& size);
 
     /**
      * @brief eliminates statements of the function's body that appear after the node that always returns
      * @param startIdx - index in the vector of statements where deletion starts
-     * @returns void
     */
     void eliminateDead(size_t startIdx);
 
     /** 
      * @brief sets predifined flag of a function
      * @param isPredefined - flag for predefined function
-     * @returns void;
     */
     void setPredefined(bool isPredefined) noexcept;
 

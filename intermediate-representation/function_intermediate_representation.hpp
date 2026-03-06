@@ -40,7 +40,6 @@ public:
      * @brief turns ast parameters into irt parameters
      * @param _irFunction - pointer to the irt function
      * @param _parameters - reference to a const vector of pointers to ast parameters
-     * @returns void
     */
     void parameter(IRFunction* _irFunction, const std::vector<std::unique_ptr<ASTParameter>>& _parameters);
 

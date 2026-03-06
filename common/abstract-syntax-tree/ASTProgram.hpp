@@ -57,14 +57,12 @@ public:
     /** 
      * @brief adds new function
      * @param function - pointer to a function that is being added
-     * @returns void
     */
     void addFunction(std::unique_ptr<ASTFunction> function);
 
     /**
      * @brief adds new directive
      * @param directive - pointer to a directive that is being added
-     * @returns void
     */
     void addDirective(std::unique_ptr<ASTDirective> directive);
 

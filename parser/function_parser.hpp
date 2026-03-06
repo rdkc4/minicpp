@@ -30,7 +30,6 @@ public:
      * @brief parses parameters of the function
      * @param _function - pointer to a function that owns parameters
      * @details PARAMETER : (TYPE ID (COMMA TYPE ID)*)?
-     * @returns void
     */
     void parameter(ASTFunction* _function);
 
@@ -38,7 +37,6 @@ public:
      * @brief parses body of the function
      * @param _function - pointer to a function that owns the body
      * @details BODY : LBRACKET (STATEMENT)? RBRACKET
-     * @returns void
     */
     void body(ASTFunction* _function);
 

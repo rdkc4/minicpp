@@ -75,7 +75,6 @@ public:
      * @brief turns arguments of the ast function call into arguments of the irt function call
      * @param _irFunctionCall - pointer to the irt function call
      * @param _functionCall - const pointer to the ast function call
-     * @returns void
     */
     void argument(IRFunctionCall* _irFunctionCall, const ASTFunctionCall* _functionCall);
 

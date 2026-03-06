@@ -29,7 +29,6 @@ public:
     /** 
      * @brief initializes type of the parameter
      * @param t - type of a parameter
-     * @returns void
     */
     void setType(Types t) noexcept;
 
