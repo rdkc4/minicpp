@@ -4,7 +4,7 @@
 
 SymbolTable::SymbolTable() = default;
 
-bool SymbolTable::lookupSymbol(const std::string& name, std::initializer_list<Kinds> kind) const {
+bool SymbolTable::lookupSymbol(const std::string& name, std::initializer_list<Kind> kind) const {
     auto it{ symbolTable.find(name) };
     if(it != symbolTable.end()){
         for(const auto& _kind : kind){

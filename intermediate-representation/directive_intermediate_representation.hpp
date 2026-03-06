@@ -1,9 +1,9 @@
 #ifndef DIRECTIVE_INTERMEDIATE_REPRESENTATION_HPP
 #define DIRECTIVE_INTERMEDIATE_REPRESENTATION_HPP
 
-#include "../common/abstract-syntax-tree/ASTProgram.hpp"
-#include "../common/abstract-syntax-tree/ASTInclude.hpp"
-#include "../common/intermediate-representation-tree/IRProgram.hpp"
+#include "../common/abstract-syntax-tree/ast_program.hpp"
+#include "../common/abstract-syntax-tree/ast_include_dir.hpp"
+#include "../common/intermediate-representation-tree/ir_program.hpp"
 
 /**
  * @class DirectiveIntermediateRepresentation
@@ -23,7 +23,7 @@ public:
      * @param irProgram - pointer to the irt program
      * @param lib - pointer to the data of the included library
     */
-    void include(IRProgram* irProgram, const ASTInclude* lib);
+    void include(IRProgram* irProgram, const ASTIncludeDir* lib);
 };
 
 #endif

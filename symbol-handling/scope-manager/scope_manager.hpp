@@ -54,7 +54,7 @@ public:
      * @param kind - list of kinds that symbol is allowed to have
      * @returns true if symbol of given name and kind exists, false otherwise
     */
-    bool lookupSymbol(const std::string& name, std::initializer_list<Kinds> kind) const;
+    bool lookupSymbol(const std::string& name, std::initializer_list<Kind> kind) const;
 
 private:
     /// table of active symbols

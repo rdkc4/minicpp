@@ -9,19 +9,19 @@ ExpressionParser::ExpressionParser(TokenConsumer& consumer) : tokenConsumer{ con
  * organized in a tree as reverse polish notation (RPN)
  * ast is built on the run (per subexpression)
 */
-std::unique_ptr<ASTExpression> ExpressionParser::numericalExpression(){
+std::unique_ptr<ASTExpr> ExpressionParser::numericalExpression(){
     // expression captures (subexpression) so there is no need to handle LPAREN and RPAREN
-    std::unique_ptr<ASTExpression> _expression = expression();
+    std::unique_ptr<ASTExpr> _expression = expression();
 
     // holding the expression
-    std::stack<std::unique_ptr<ASTExpression>> rpn;
+    std::stack<std::unique_ptr<ASTExpr>> rpn;
     // handling the order of the operators
-    std::stack<std::unique_ptr<ASTBinaryExpression>> weakOperators;
+    std::stack<std::unique_ptr<ASTBinaryExpr>> weakOperators;
     
     rpn.push(std::move(_expression));
     // if there are no operators, this part will be skipped and expression will be returned
     while(tokenConsumer.getToken().gtype == GeneralTokenType::OPERATOR){
-        std::unique_ptr<ASTBinaryExpression> _op{ _operator() };
+        std::unique_ptr<ASTBinaryExpr> _op{ _operator() };
 
         _expression = expression();
         rpn.push(std::move(_expression));
@@ -29,9 +29,9 @@ std::unique_ptr<ASTExpression> ExpressionParser::numericalExpression(){
         weakOperators.push(std::move(_op));
         // if stronger operator comes up next, weak operators still need to wait
         while(getPrecedence(weakOperators.top()->getToken().value) < getPrecedence(tokenConsumer.getToken().value)){
-            std::unique_ptr<ASTBinaryExpression> _nextOperator{ _operator() };
+            std::unique_ptr<ASTBinaryExpr> _nextOperator{ _operator() };
 
-            std::unique_ptr<ASTExpression> _nextExpression{ expression() };
+            std::unique_ptr<ASTExpr> _nextExpression{ expression() };
             rpn.push(std::move(_nextExpression));
             
             if(getPrecedence(_nextOperator->getToken().value) < getPrecedence(tokenConsumer.getToken().value)){
@@ -49,7 +49,7 @@ std::unique_ptr<ASTExpression> ExpressionParser::numericalExpression(){
         }
     }
 
-    std::unique_ptr<ASTExpression> _numericalExpRoot{ std::move(rpn.top()) };
+    std::unique_ptr<ASTExpr> _numericalExpRoot{ std::move(rpn.top()) };
     rpn.pop();
 
     return rpnToTree(rpn, _numericalExpRoot);
@@ -60,22 +60,22 @@ std::unique_ptr<ASTExpression> ExpressionParser::numericalExpression(){
  * child is not binary expression - leaf
  * if parent has children - subtree handled
 */
-std::unique_ptr<ASTExpression> ExpressionParser::rpnToTree(std::stack<std::unique_ptr<ASTExpression>>& rpn, std::unique_ptr<ASTExpression>& root) const {
+std::unique_ptr<ASTExpr> ExpressionParser::rpnToTree(std::stack<std::unique_ptr<ASTExpr>>& rpn, std::unique_ptr<ASTExpr>& root) const {
     if(root->getNodeType() == ASTNodeType::ID || root->getNodeType() == ASTNodeType::LITERAL || root->getNodeType() == ASTNodeType::FUNCTION_CALL){
         return std::move(root);
     }
-    else if(auto binExp = static_cast<ASTBinaryExpression*>(root.get())){
+    else if(auto binExp = static_cast<ASTBinaryExpr*>(root.get())){
         if(binExp->initialized()){
             return std::move(root);
         }
 
-        std::unique_ptr<ASTExpression> _rightSubtreeRoot = std::move(rpn.top());
+        std::unique_ptr<ASTExpr> _rightSubtreeRoot = std::move(rpn.top());
         rpn.pop();
-        std::unique_ptr<ASTExpression> _rightSubtree = rpnToTree(rpn,_rightSubtreeRoot);
+        std::unique_ptr<ASTExpr> _rightSubtree = rpnToTree(rpn,_rightSubtreeRoot);
 
-        std::unique_ptr<ASTExpression> _leftSubtreeRoot = std::move(rpn.top());
+        std::unique_ptr<ASTExpr> _leftSubtreeRoot = std::move(rpn.top());
         rpn.pop();
-        std::unique_ptr<ASTExpression> _leftSubtree = rpnToTree(rpn, _leftSubtreeRoot);
+        std::unique_ptr<ASTExpr> _leftSubtree = rpnToTree(rpn, _leftSubtreeRoot);
 
         binExp->setOperands(std::move(_leftSubtree), std::move(_rightSubtree));
     }
@@ -83,7 +83,7 @@ std::unique_ptr<ASTExpression> ExpressionParser::rpnToTree(std::stack<std::uniqu
     return std::move(root);
 }
 
-std::unique_ptr<ASTExpression> ExpressionParser::expression(){
+std::unique_ptr<ASTExpr> ExpressionParser::expression(){
     if(tokenConsumer.getToken().type == TokenType::_LITERAL){
         return literal();
     }
@@ -95,7 +95,7 @@ std::unique_ptr<ASTExpression> ExpressionParser::expression(){
     }
     else if(tokenConsumer.getToken().type == TokenType::_LPAREN){
         tokenConsumer.consume(TokenType::_LPAREN);
-        std::unique_ptr<ASTExpression> _numericalExp = numericalExpression();
+        std::unique_ptr<ASTExpr> _numericalExp = numericalExpression();
         tokenConsumer.consume(TokenType::_RPAREN);
         return _numericalExp;
     }
@@ -104,15 +104,15 @@ std::unique_ptr<ASTExpression> ExpressionParser::expression(){
             token.line, token.column, tokenTypeToString.at(token.type), token.value));
 }
 
-std::unique_ptr<ASTExpression> ExpressionParser::relationalExpression(){
-    std::unique_ptr<ASTExpression> _leftOperand = numericalExpression();
-    std::unique_ptr<ASTBinaryExpression> _relationalExpression = _operator(true);
+std::unique_ptr<ASTExpr> ExpressionParser::relationalExpression(){
+    std::unique_ptr<ASTExpr> _leftOperand = numericalExpression();
+    std::unique_ptr<ASTBinaryExpr> _relationalExpression = _operator(true);
     _relationalExpression->setOperands(std::move(_leftOperand), numericalExpression());
     return _relationalExpression;
 }
 
-std::unique_ptr<ASTFunctionCall> ExpressionParser::functionCall(){
-    std::unique_ptr<ASTFunctionCall> _functionCall = std::make_unique<ASTFunctionCall>(tokenConsumer.getToken(), ASTNodeType::FUNCTION_CALL);
+std::unique_ptr<ASTFunctionCallExpr> ExpressionParser::functionCall(){
+    std::unique_ptr<ASTFunctionCallExpr> _functionCall = std::make_unique<ASTFunctionCallExpr>(tokenConsumer.getToken(), ASTNodeType::FUNCTION_CALL);
     tokenConsumer.consume(TokenType::_ID);
     
     tokenConsumer.consume(TokenType::_LPAREN);
@@ -122,7 +122,7 @@ std::unique_ptr<ASTFunctionCall> ExpressionParser::functionCall(){
     return _functionCall;
 }
 
-void ExpressionParser::argument(ASTFunctionCall* _functionCall){
+void ExpressionParser::argument(ASTFunctionCallExpr* _functionCall){
     while(tokenConsumer.getToken().type != TokenType::_RPAREN){
         _functionCall->addArgument(numericalExpression());
         if(tokenConsumer.getToken().type == TokenType::_COMMA && tokenConsumer.peek().type != TokenType::_RPAREN){
@@ -134,24 +134,24 @@ void ExpressionParser::argument(ASTFunctionCall* _functionCall){
     }
 }
 
-std::unique_ptr<ASTId> ExpressionParser::id(){
+std::unique_ptr<ASTIdExpr> ExpressionParser::id(){
     const Token token{ tokenConsumer.getToken() };
     tokenConsumer.consume(TokenType::_ID);
 
-    return std::make_unique<ASTId>(token, ASTNodeType::ID);
+    return std::make_unique<ASTIdExpr>(token, ASTNodeType::ID);
 }
 
-std::unique_ptr<ASTLiteral> ExpressionParser::literal(){
+std::unique_ptr<ASTLiteralExpr> ExpressionParser::literal(){
     const Token token{ tokenConsumer.getToken() };
     tokenConsumer.consume(TokenType::_LITERAL);
     if(token.value.back() == 'u'){
-        return std::make_unique<ASTLiteral>(token, ASTNodeType::LITERAL, Types::UNSIGNED);
+        return std::make_unique<ASTLiteralExpr>(token, ASTNodeType::LITERAL, Type::UNSIGNED);
     }
-    return std::make_unique<ASTLiteral>(token, ASTNodeType::LITERAL, Types::INT);
+    return std::make_unique<ASTLiteralExpr>(token, ASTNodeType::LITERAL, Type::INT);
 }
 
-std::unique_ptr<ASTBinaryExpression> ExpressionParser::_operator(bool isRel){
-    std::unique_ptr<ASTBinaryExpression> _op =  std::make_unique<ASTBinaryExpression>(Token{ tokenConsumer.getToken() }, ASTNodeType::BINARY_EXPRESSION);
+std::unique_ptr<ASTBinaryExpr> ExpressionParser::_operator(bool isRel){
+    std::unique_ptr<ASTBinaryExpr> _op =  std::make_unique<ASTBinaryExpr>(Token{ tokenConsumer.getToken() }, ASTNodeType::BINARY_EXPRESSION);
     if(stringToOperator.find(tokenConsumer.getToken().value) != stringToOperator.end()){
         _op->setOperator(stringToOperator.at(tokenConsumer.getToken().value));
     }

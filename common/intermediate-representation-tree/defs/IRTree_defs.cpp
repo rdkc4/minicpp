@@ -1,6 +1,6 @@
 #include "IRTree_defs.hpp"
 
-const std::unordered_set<IRNodeType> irOperators {IRNodeType::ADD, IRNodeType::SUB, IRNodeType::DIV, IRNodeType::MUL, 
+const std::unordered_set<IRNodeType> irOperator {IRNodeType::ADD, IRNodeType::SUB, IRNodeType::DIV, IRNodeType::MUL, 
     IRNodeType::AND, IRNodeType::OR, IRNodeType::XOR, IRNodeType::SHL, IRNodeType::SAL, IRNodeType::SHR, IRNodeType::SAR
 };
 
@@ -65,20 +65,20 @@ const std::unordered_map<std::string, std::vector<IRNodeType>> stringToBitop {
     {">>", {IRNodeType::SAR, IRNodeType::SHR}}
 };
 
-const std::unordered_map<Operators, Operation> operatorToIRNodeType {
-    {Operators::ADD, {IRNodeType::ADD, IRNodeType::ADD}},
-    {Operators::SUB, {IRNodeType::SUB, IRNodeType::SUB}},
-    {Operators::MUL, {IRNodeType::MUL, IRNodeType::MUL}},
-    {Operators::DIV, {IRNodeType::DIV, IRNodeType::DIV}},
-    {Operators::ANDB, {IRNodeType::AND, IRNodeType::AND}},
-    {Operators::ORB, {IRNodeType::OR, IRNodeType::OR}},
-    {Operators::XOR, {IRNodeType::XOR, IRNodeType::XOR}},
-    {Operators::LSHIFT, {IRNodeType::SAL, IRNodeType::SHL}},
-    {Operators::RSHIFT, {IRNodeType::SAR, IRNodeType::SHR}},
-    {Operators::GREATER, {IRNodeType::JG, IRNodeType::JA}},
-    {Operators::LESS, {IRNodeType::JL, IRNodeType::JB}},
-    {Operators::GEQUAL, {IRNodeType::JGE, IRNodeType::JAE}},
-    {Operators::LEQUAL, {IRNodeType::JLE, IRNodeType::JBE}},
-    {Operators::EQUAL, {IRNodeType::JE, IRNodeType::JE}},
-    {Operators::NEQUAL, {IRNodeType::JNE, IRNodeType::JNE}}
+const std::unordered_map<Operator, Operation> operatorToIRNodeType {
+    {Operator::ADD, {IRNodeType::ADD, IRNodeType::ADD}},
+    {Operator::SUB, {IRNodeType::SUB, IRNodeType::SUB}},
+    {Operator::MUL, {IRNodeType::MUL, IRNodeType::MUL}},
+    {Operator::DIV, {IRNodeType::DIV, IRNodeType::DIV}},
+    {Operator::ANDB, {IRNodeType::AND, IRNodeType::AND}},
+    {Operator::ORB, {IRNodeType::OR, IRNodeType::OR}},
+    {Operator::XOR, {IRNodeType::XOR, IRNodeType::XOR}},
+    {Operator::LSHIFT, {IRNodeType::SAL, IRNodeType::SHL}},
+    {Operator::RSHIFT, {IRNodeType::SAR, IRNodeType::SHR}},
+    {Operator::GREATER, {IRNodeType::JG, IRNodeType::JA}},
+    {Operator::LESS, {IRNodeType::JL, IRNodeType::JB}},
+    {Operator::GEQUAL, {IRNodeType::JGE, IRNodeType::JAE}},
+    {Operator::LEQUAL, {IRNodeType::JLE, IRNodeType::JBE}},
+    {Operator::EQUAL, {IRNodeType::JE, IRNodeType::JE}},
+    {Operator::NEQUAL, {IRNodeType::JNE, IRNodeType::JNE}}
 };

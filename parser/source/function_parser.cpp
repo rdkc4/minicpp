@@ -3,7 +3,7 @@
 FunctionParser::FunctionParser(TokenConsumer& consumer) : stmtParser{ consumer }, tokenConsumer{ consumer } {}
 
 std::unique_ptr<ASTFunction> FunctionParser::function(){
-    Types type{ tokenTypeToType.find(tokenConsumer.getToken().type) != tokenTypeToType.end() ? tokenTypeToType.at(tokenConsumer.getToken().type) : Types::NO_TYPE };
+    Type type{ tokenTypeToType.find(tokenConsumer.getToken().type) != tokenTypeToType.end() ? tokenTypeToType.at(tokenConsumer.getToken().type) : Type::NO_TYPE };
     tokenConsumer.consume(GeneralTokenType::TYPE);
     const Token token{ tokenConsumer.getToken() };
     tokenConsumer.consume(TokenType::_ID);
@@ -26,7 +26,7 @@ std::unique_ptr<ASTFunction> FunctionParser::function(){
 
 void FunctionParser::parameter(ASTFunction* _function){
     while(tokenConsumer.getToken().gtype == GeneralTokenType::TYPE){
-        Types type{ tokenTypeToType.at(tokenConsumer.getToken().type) };
+        Type type{ tokenTypeToType.at(tokenConsumer.getToken().type) };
         tokenConsumer.consume(GeneralTokenType::TYPE);
         const Token token{ tokenConsumer.getToken() };
         tokenConsumer.consume(TokenType::_ID);

@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-#include "../common/abstract-syntax-tree/ASTProgram.hpp"
+#include "../common/abstract-syntax-tree/ast_program.hpp"
 #include "../symbol-handling/scope-manager/scope_manager.hpp"
 #include "function_analyzer.hpp"
 #include "directive_analyzer.hpp"

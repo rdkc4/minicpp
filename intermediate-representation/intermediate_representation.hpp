@@ -6,9 +6,9 @@
 #include <vector>
 #include <string>
 
-#include "../common/intermediate-representation-tree/IRProgram.hpp"
+#include "../common/intermediate-representation-tree/ir_program.hpp"
 
-#include "../common/abstract-syntax-tree/ASTProgram.hpp"
+#include "../common/abstract-syntax-tree/ast_program.hpp"
 #include "directive_intermediate_representation.hpp"
 #include "function_intermediate_representation.hpp"
 

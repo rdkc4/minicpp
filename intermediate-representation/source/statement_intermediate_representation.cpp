@@ -5,35 +5,35 @@
 
 StatementIntermediateRepresentation::StatementIntermediateRepresentation() = default;
 
-std::unique_ptr<IRStatement> StatementIntermediateRepresentation::statement(const ASTStatement* _statement){
+std::unique_ptr<IRStmt> StatementIntermediateRepresentation::statement(const ASTStmt* _statement){
     switch(_statement->getNodeType()){
         case ASTNodeType::VARIABLE:
-            return variable(static_cast<const ASTVariable*>(_statement));
+            return variable(static_cast<const ASTVariableDeclStmt*>(_statement));
         case ASTNodeType::IF_STATEMENT:
-            return ifStatement(static_cast<const ASTIfSt*>(_statement));
+            return ifStatement(static_cast<const ASTIfStmt*>(_statement));
         case ASTNodeType::COMPOUND_STATEMENT:
-            return compoundStatement(static_cast<const ASTCompoundSt*>(_statement));
+            return compoundStatement(static_cast<const ASTCompoundStmt*>(_statement));
         case ASTNodeType::ASSIGNMENT_STATEMENT:
-            return assignmentStatement(static_cast<const ASTAssignSt*>(_statement));
+            return assignmentStatement(static_cast<const ASTAssignStmt*>(_statement));
         case ASTNodeType::RETURN_STATEMENT:
-            return returnStatement(static_cast<const ASTReturnSt*>(_statement));
+            return returnStatement(static_cast<const ASTReturnStmt*>(_statement));
         case ASTNodeType::WHILE_STATEMENT:
-            return whileStatement(static_cast<const ASTWhileSt*>(_statement));
+            return whileStatement(static_cast<const ASTWhileStmt*>(_statement));
         case ASTNodeType::FOR_STATEMENT:
-            return forStatement(static_cast<const ASTForSt*>(_statement));
+            return forStatement(static_cast<const ASTForStmt*>(_statement));
         case ASTNodeType::DO_WHILE_STATEMENT:
-            return doWhileStatement(static_cast<const ASTDoWhileSt*>(_statement));
+            return doWhileStatement(static_cast<const ASTDoWhileStmt*>(_statement));
         case ASTNodeType::SWITCH_STATEMENT:
-            return switchStatement(static_cast<const ASTSwitchSt*>(_statement));
+            return switchStatement(static_cast<const ASTSwitchStmt*>(_statement));
         case ASTNodeType::FUNCTION_CALL_STATEMENT:
-            return functionCallStatement(static_cast<const ASTFunctionCallSt*>(_statement));
+            return functionCallStatement(static_cast<const ASTFunctionCallStmt*>(_statement));
         default:
             std::unreachable();
     }
 }
 
-std::unique_ptr<IRVariable> StatementIntermediateRepresentation::variable(const ASTVariable* _variable){
-    std::unique_ptr<IRVariable> _irVariable = std::make_unique<IRVariable>(IRNodeType::VARIABLE, _variable->getToken().value, _variable->getType());
+std::unique_ptr<IRVariableDeclStmt> StatementIntermediateRepresentation::variable(const ASTVariableDeclStmt* _variable){
+    std::unique_ptr<IRVariableDeclStmt> _irVariable = std::make_unique<IRVariableDeclStmt>(IRNodeType::VARIABLE, _variable->getToken().value, _variable->getType());
     if(_variable->hasAssign()){
         auto temps{ expIR.initiateTemporaries(_variable->getAssign()) };
         _irVariable->setAssign(expIR.numericalExpression(_variable->getAssign()), std::move(temps));
@@ -41,8 +41,8 @@ std::unique_ptr<IRVariable> StatementIntermediateRepresentation::variable(const 
     return _irVariable;
 }
 
-std::unique_ptr<IRIfSt> StatementIntermediateRepresentation::ifStatement(const ASTIfSt* _if){
-    std::unique_ptr<IRIfSt> _irIf = std::make_unique<IRIfSt>(IRNodeType::IF);
+std::unique_ptr<IRIfStmt> StatementIntermediateRepresentation::ifStatement(const ASTIfStmt* _if){
+    std::unique_ptr<IRIfStmt> _irIf = std::make_unique<IRIfStmt>(IRNodeType::IF);
     const auto& conditions = _if->getConditions();
     const auto& statements = _if->getStatements();
 
@@ -60,8 +60,8 @@ std::unique_ptr<IRIfSt> StatementIntermediateRepresentation::ifStatement(const A
     return _irIf;
 }
 
-std::unique_ptr<IRCompoundSt> StatementIntermediateRepresentation::compoundStatement(const ASTCompoundSt* _compound){
-    std::unique_ptr<IRCompoundSt> _irCompound = std::make_unique<IRCompoundSt>(IRNodeType::COMPOUND);
+std::unique_ptr<IRCompoundStmt> StatementIntermediateRepresentation::compoundStatement(const ASTCompoundStmt* _compound){
+    std::unique_ptr<IRCompoundStmt> _irCompound = std::make_unique<IRCompoundStmt>(IRNodeType::COMPOUND);
     for(const auto& _statement : _compound->getStatements()){
         _irCompound->addStatement(statement(_statement.get()));
 
@@ -73,8 +73,8 @@ std::unique_ptr<IRCompoundSt> StatementIntermediateRepresentation::compoundState
     return _irCompound;
 }
 
-std::unique_ptr<IRAssignSt> StatementIntermediateRepresentation::assignmentStatement(const ASTAssignSt* _assignment){
-    std::unique_ptr<IRAssignSt> _irAssignment = std::make_unique<IRAssignSt>(IRNodeType::ASSIGN);
+std::unique_ptr<IRAssignStmt> StatementIntermediateRepresentation::assignmentStatement(const ASTAssignStmt* _assignment){
+    std::unique_ptr<IRAssignStmt> _irAssignment = std::make_unique<IRAssignStmt>(IRNodeType::ASSIGN);
 
     // extracting function calls to temporary variables
     auto temps{ expIR.initiateTemporaries(_assignment->getExp()) };
@@ -83,8 +83,8 @@ std::unique_ptr<IRAssignSt> StatementIntermediateRepresentation::assignmentState
     return _irAssignment;
 }
 
-std::unique_ptr<IRReturnSt> StatementIntermediateRepresentation::returnStatement(const ASTReturnSt* _return){
-    std::unique_ptr<IRReturnSt> _irReturn = std::make_unique<IRReturnSt>(IRNodeType::RETURN);
+std::unique_ptr<IRReturnStmt> StatementIntermediateRepresentation::returnStatement(const ASTReturnStmt* _return){
+    std::unique_ptr<IRReturnStmt> _irReturn = std::make_unique<IRReturnStmt>(IRNodeType::RETURN);
     if(_return->returns()){
         // extracting function calls to temporary variables
         auto temps{ expIR.initiateTemporaries(_return->getExp()) };
@@ -94,27 +94,27 @@ std::unique_ptr<IRReturnSt> StatementIntermediateRepresentation::returnStatement
     return _irReturn;
 }
 
-std::unique_ptr<IRFunctionCallSt> StatementIntermediateRepresentation::functionCallStatement(const ASTFunctionCallSt* _call){
-    std::unique_ptr<IRFunctionCallSt> _irCall = std::make_unique<IRFunctionCallSt>(IRNodeType::CALL);
+std::unique_ptr<IRFunctionCallStmt> StatementIntermediateRepresentation::functionCallStatement(const ASTFunctionCallStmt* _call){
+    std::unique_ptr<IRFunctionCallStmt> _irCall = std::make_unique<IRFunctionCallStmt>(IRNodeType::CALL);
     _irCall->setFunctionCallSt(expIR.functionCall(_call->getFunctionCall()));
 
     return _irCall;
 }
 
-std::unique_ptr<IRWhileSt> StatementIntermediateRepresentation::whileStatement(const ASTWhileSt* _while){
-    std::unique_ptr<IRWhileSt> _irWhile = std::make_unique<IRWhileSt>(IRNodeType::WHILE);
+std::unique_ptr<IRWhileStmt> StatementIntermediateRepresentation::whileStatement(const ASTWhileStmt* _while){
+    std::unique_ptr<IRWhileStmt> _irWhile = std::make_unique<IRWhileStmt>(IRNodeType::WHILE);
     auto temps{ expIR.initiateTemporaries(_while->getCondition()) };
     _irWhile->setWhileSt(expIR.relationalExpression(_while->getCondition()), statement(_while->getStatement()), std::move(temps));
 
     return _irWhile;
 }
 
-std::unique_ptr<IRForSt> StatementIntermediateRepresentation::forStatement(const ASTForSt* _for){
-    std::unique_ptr<IRForSt> _irFor = std::make_unique<IRForSt>(IRNodeType::FOR);
+std::unique_ptr<IRForStmt> StatementIntermediateRepresentation::forStatement(const ASTForStmt* _for){
+    std::unique_ptr<IRForStmt> _irFor = std::make_unique<IRForStmt>(IRNodeType::FOR);
     
-    std::unique_ptr<IRAssignSt> init{ nullptr }, inc{ nullptr };
-    std::unique_ptr<IRExpression> condition{ nullptr };
-    std::unique_ptr<IRTemporary> temps{ nullptr };
+    std::unique_ptr<IRAssignStmt> init{ nullptr }, inc{ nullptr };
+    std::unique_ptr<IRExpr> condition{ nullptr };
+    std::unique_ptr<IRTemporaryExpr> temps{ nullptr };
 
     if(_for->hasInitializer()){
         init = assignmentStatement(_for->getInitializer());
@@ -132,16 +132,16 @@ std::unique_ptr<IRForSt> StatementIntermediateRepresentation::forStatement(const
     return _irFor;
 }
 
-std::unique_ptr<IRDoWhileSt> StatementIntermediateRepresentation::doWhileStatement(const ASTDoWhileSt* _dowhile){
-    std::unique_ptr<IRDoWhileSt> _irDowhile = std::make_unique<IRDoWhileSt>(IRNodeType::DO_WHILE);
+std::unique_ptr<IRDoWhileStmt> StatementIntermediateRepresentation::doWhileStatement(const ASTDoWhileStmt* _dowhile){
+    std::unique_ptr<IRDoWhileStmt> _irDowhile = std::make_unique<IRDoWhileStmt>(IRNodeType::DO_WHILE);
     auto temps{ expIR.initiateTemporaries(_dowhile->getCondition()) };
     _irDowhile->setDoWhileSt(expIR.relationalExpression(_dowhile->getCondition()), statement(_dowhile->getStatement()), std::move(temps));
 
     return _irDowhile;
 }
 
-std::unique_ptr<IRSwitchSt> StatementIntermediateRepresentation::switchStatement(const ASTSwitchSt* _switch){
-    std::unique_ptr<IRSwitchSt> _irSwitch = std::make_unique<IRSwitchSt>(IRNodeType::SWITCH);
+std::unique_ptr<IRSwitchStmt> StatementIntermediateRepresentation::switchStatement(const ASTSwitchStmt* _switch){
+    std::unique_ptr<IRSwitchStmt> _irSwitch = std::make_unique<IRSwitchStmt>(IRNodeType::SWITCH);
 
     _irSwitch->setVariable(expIR.id(_switch->getVariable()));
 
@@ -156,22 +156,22 @@ std::unique_ptr<IRSwitchSt> StatementIntermediateRepresentation::switchStatement
     return _irSwitch;
 }
 
-std::unique_ptr<IRCaseSt> StatementIntermediateRepresentation::_case(const ASTCaseSt* _astCase){
-    std::unique_ptr<IRCaseSt> _irCase = std::make_unique<IRCaseSt>(IRNodeType::CASE);
+std::unique_ptr<IRCaseStmt> StatementIntermediateRepresentation::_case(const ASTCaseStmt* _astCase){
+    std::unique_ptr<IRCaseStmt> _irCase = std::make_unique<IRCaseStmt>(IRNodeType::CASE);
     _irCase->setCase(expIR.literal(_astCase->getLiteral()), switchBlock(_astCase->getSwitchBlock()), _astCase->hasBreak());
 
     return _irCase;
 }
 
-std::unique_ptr<IRDefaultSt> StatementIntermediateRepresentation::_default(const ASTDefaultSt* _astDefault){
-    std::unique_ptr<IRDefaultSt> _irDefault = std::make_unique<IRDefaultSt>(IRNodeType::DEFAULT);
+std::unique_ptr<IRDefaultStmt> StatementIntermediateRepresentation::_default(const ASTDefaultStmt* _astDefault){
+    std::unique_ptr<IRDefaultStmt> _irDefault = std::make_unique<IRDefaultStmt>(IRNodeType::DEFAULT);
     _irDefault->setSwitchBlock(switchBlock(_astDefault->getSwitchBlock()));
 
     return _irDefault;
 }
 
-std::unique_ptr<IRSwitchBlock> StatementIntermediateRepresentation::switchBlock(const ASTSwitchBlock* _block){
-    std::unique_ptr<IRSwitchBlock> _irSwBlock = std::make_unique<IRSwitchBlock>(IRNodeType::SWITCH_BLOCK);
+std::unique_ptr<IRSwitchBlockStmt> StatementIntermediateRepresentation::switchBlock(const ASTSwitchBlockStmt* _block){
+    std::unique_ptr<IRSwitchBlockStmt> _irSwBlock = std::make_unique<IRSwitchBlockStmt>(IRNodeType::SWITCH_BLOCK);
     for(const auto& _statement : _block->getStatements()){
         _irSwBlock->addStatement(statement(_statement.get()));
 

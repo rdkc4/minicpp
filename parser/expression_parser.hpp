@@ -5,11 +5,11 @@
 #include <stack>
 #include <unordered_map>
 
-#include "../common/abstract-syntax-tree/ASTExpression.hpp"
-#include "../common/abstract-syntax-tree/ASTFunctionCall.hpp"
-#include "../common/abstract-syntax-tree/ASTLiteral.hpp"
-#include "../common/abstract-syntax-tree/ASTId.hpp"
-#include "../common/abstract-syntax-tree/ASTBinaryExpression.hpp"
+#include "../common/abstract-syntax-tree/ast_expr.hpp"
+#include "../common/abstract-syntax-tree/ast_function_call_expr.hpp"
+#include "../common/abstract-syntax-tree/ast_literal_expr.hpp"
+#include "../common/abstract-syntax-tree/ast_id_expr.hpp"
+#include "../common/abstract-syntax-tree/ast_binary_expr.hpp"
 
 #include "token_consumer.hpp"
 
@@ -30,35 +30,35 @@ public:
      * @details NUMERICAL_EXPRESSION : EXPRESSION (OPERATOR EXPRESSION)*
      * @returns pointer to an expression node
     */
-    std::unique_ptr<ASTExpression> numericalExpression();
+    std::unique_ptr<ASTExpr> numericalExpression();
 
     /** 
      * @brief parses relational expression
      * @details RELATIONAL EXPRESSION : NUMERICAL_EXPRESSION RELOP NUMERICAL_EXPRESSION
      * @returns pointer to an expression node
     */
-    std::unique_ptr<ASTExpression> relationalExpression();
+    std::unique_ptr<ASTExpr> relationalExpression();
 
     /** 
      * @brief parses id expression
      * @details ID : ID
      * @returns pointer to an id node
     */
-    std::unique_ptr<ASTId> id();
+    std::unique_ptr<ASTIdExpr> id();
 
     /** 
      * @brief parses literal expression
      * @details LITERAL : LITERAL(unsigned) | LITERAL(int)
      * @returns pointer to a literal node
     */
-    std::unique_ptr<ASTLiteral> literal();
+    std::unique_ptr<ASTLiteralExpr> literal();
 
     /** 
      * @brief parses function call
      * @details FUNCTION_CALL : ID LPAREN (ARGUMENT)? RPAREN
      * @returns pointer to a function call node
     */
-    std::unique_ptr<ASTFunctionCall> functionCall();
+    std::unique_ptr<ASTFunctionCallExpr> functionCall();
 
     /** 
      * @brief transforms rpn stack to a tree
@@ -66,7 +66,7 @@ public:
      * @param root - pointer to the root of the (sub)expression 
      * @returns pointer to the transformed expression node
     */
-    std::unique_ptr<ASTExpression> rpnToTree(std::stack<std::unique_ptr<ASTExpression>>& rpn, std::unique_ptr<ASTExpression>& root) const;
+    std::unique_ptr<ASTExpr> rpnToTree(std::stack<std::unique_ptr<ASTExpr>>& rpn, std::unique_ptr<ASTExpr>& root) const;
 
     /** 
      * @brief parses expression
@@ -83,21 +83,21 @@ public:
      * | LPAREN NUMERICAL_EXPRESSION RPAREN
      * @returns pointer to an expression node
     */
-    std::unique_ptr<ASTExpression> expression();
+    std::unique_ptr<ASTExpr> expression();
 
     /** 
      * @brief parses argument of the function call
      * @param _functionCall - function call that owns arguments
      * @details (NUMERICAL_EXPRESSION (COMMA NUMERICAL_EXPRESSION)*)?
     */
-    void argument(ASTFunctionCall* _functionCall);
+    void argument(ASTFunctionCallExpr* _functionCall);
 
     /** 
      * @brief parses the root of the binary expression node (only operator)
      * @param isRel - flag if operator is relational or not
      * @returns pointer to a binary expression node
     */
-    std::unique_ptr<ASTBinaryExpression> _operator(bool isRel = false);
+    std::unique_ptr<ASTBinaryExpr> _operator(bool isRel = false);
 
     /** 
      * @brief calculates the precedence of the operator

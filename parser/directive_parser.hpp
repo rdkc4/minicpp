@@ -4,8 +4,8 @@
 #include <memory>
 
 #include "token_consumer.hpp"
-#include "../common/abstract-syntax-tree/ASTDirective.hpp"
-#include "../common/abstract-syntax-tree/ASTInclude.hpp"
+#include "../common/abstract-syntax-tree/ast_dir.hpp"
+#include "../common/abstract-syntax-tree/ast_include_dir.hpp"
 
 /**
  * @class DirectiveParser
@@ -23,13 +23,13 @@ public:
      * @brief parses directives
      * @returns pointer to the directive
     */
-    std::unique_ptr<ASTDirective> directive();
+    std::unique_ptr<ASTDir> directive();
 
     /** 
      * @brief parses the include directive
      * @returns pointer to the include directive
     */
-    std::unique_ptr<ASTInclude> include();
+    std::unique_ptr<ASTIncludeDir> include();
 
 private:
     /// reference to a token handler wrapped around the lexer

@@ -6,8 +6,8 @@
 #include <vector>
 #include <string>
 
-#include "../common/abstract-syntax-tree/ASTFunction.hpp"
-#include "../common/intermediate-representation-tree/IRFunction.hpp"
+#include "../common/abstract-syntax-tree/ast_function.hpp"
+#include "../common/intermediate-representation-tree/ir_function.hpp"
 #include "defs/ir_defs.hpp"
 #include "statement_intermediate_representation.hpp"
 
@@ -48,7 +48,7 @@ public:
      * @param _irFunction - pointer to the irt function
      * @param _body - reference to a const vector of pointers to the statements of the ast body
     */
-    void body(IRFunction* _irFunction, const std::vector<std::unique_ptr<ASTStatement>>& _body);
+    void body(IRFunction* _irFunction, const std::vector<std::unique_ptr<ASTStmt>>& _body);
 
 private:
     /// thread local context of the function

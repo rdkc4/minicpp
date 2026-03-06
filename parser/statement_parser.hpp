@@ -3,17 +3,17 @@
 
 #include <memory>
 
-#include "../common/abstract-syntax-tree/ASTStatement.hpp"
-#include "../common/abstract-syntax-tree/ASTVariable.hpp"
-#include "../common/abstract-syntax-tree/ASTCompoundSt.hpp"
-#include "../common/abstract-syntax-tree/ASTAssignSt.hpp"
-#include "../common/abstract-syntax-tree/ASTReturnSt.hpp"
-#include "../common/abstract-syntax-tree/ASTIfSt.hpp"
-#include "../common/abstract-syntax-tree/ASTWhileSt.hpp"
-#include "../common/abstract-syntax-tree/ASTDoWhileSt.hpp"
-#include "../common/abstract-syntax-tree/ASTForSt.hpp"
-#include "../common/abstract-syntax-tree/ASTSwitchSt.hpp"
-#include "../common/abstract-syntax-tree/ASTFunctionCallSt.hpp"
+#include "../common/abstract-syntax-tree/ast_stmt.hpp"
+#include "../common/abstract-syntax-tree/ast_variable_decl_stmt.hpp"
+#include "../common/abstract-syntax-tree/ast_compound_stmt.hpp"
+#include "../common/abstract-syntax-tree/ast_assign_stmt.hpp"
+#include "../common/abstract-syntax-tree/ast_return_stmt.hpp"
+#include "../common/abstract-syntax-tree/ast_if_stmt.hpp"
+#include "../common/abstract-syntax-tree/ast_while_stmt.hpp"
+#include "../common/abstract-syntax-tree/ast_dowhile_stmt.hpp"
+#include "../common/abstract-syntax-tree/ast_for_stmt.hpp"
+#include "../common/abstract-syntax-tree/ast_switch_stmt.hpp"
+#include "../common/abstract-syntax-tree/ast_function_call_stmt.hpp"
 
 #include "expression_parser.hpp"
 #include "token_consumer.hpp"
@@ -55,21 +55,21 @@ public:
      * | SWITCH_STATEMENT
      * @return pointer to the statement node
     */
-    std::unique_ptr<ASTStatement> statement();
+    std::unique_ptr<ASTStmt> statement();
 
     /** 
      * @brief parses variable declaration
      * @details VARIABLE_DECL : TYPE ID (ASSIGN NUMERICAL_EXPRESSION)? SEMICOLON
      * @returns pointer to a variable declaration node
     */
-    std::unique_ptr<ASTVariable> variable();
+    std::unique_ptr<ASTVariableDeclStmt> variable();
 
     /** 
      * @brief parses compound statement
      * @details COMPOUND_STATEMENT : LBRACKET (STATEMENT)? RBRACKET
      * @returns pointer to a compound statement node
     */
-    std::unique_ptr<ASTCompoundSt> compoundStatement();
+    std::unique_ptr<ASTCompoundStmt> compoundStatement();
 
     /** 
      * @brief parses assignment statement
@@ -77,14 +77,14 @@ public:
      * @details ASSIGNMENT_STATEMENT : ID ASSIGN NUMERICAL_EXPRESSION SEMICOLON
      * @returns pointer to an assignment statement node
     */
-    std::unique_ptr<ASTAssignSt> assignmentStatement(bool expectsSemicolon = true);
+    std::unique_ptr<ASTAssignStmt> assignmentStatement(bool expectsSemicolon = true);
 
     /** 
      * @brief parses return statement
      * @details RETURN_STATEMENT : RETURN (NUMERICAL_EXPRESSION)? SEMICOLON
      * @returns pointer to a return statement node
     */
-    std::unique_ptr<ASTReturnSt> returnStatement();
+    std::unique_ptr<ASTReturnStmt> returnStatement();
 
     /** 
      * @brief parses if statement
@@ -99,63 +99,63 @@ public:
      * | IF_STATEMENT ELSE STATEMENT
      * @returns pointer to an if statement node
     */
-    std::unique_ptr<ASTIfSt> ifStatement();
+    std::unique_ptr<ASTIfStmt> ifStatement();
 
     /** 
      * @brief parses while statement
      * @details WHILE_STATEMENT : WHILE LPAREN RELATIONAL_EXPRESSION RPAREN STATEMENT
      * @returns pointer to a while statement node
     */
-    std::unique_ptr<ASTWhileSt> whileStatement();
+    std::unique_ptr<ASTWhileStmt> whileStatement();
 
     /** 
      * @brief parses for statement
      * @details FOR_STATEMENT : FOR LPAREN (ASSIGN_STATEMENT SEMICOLON)? (RELATIONAL_EXPRESSION SEMICOLON)? (ASSIGNMENT_STATEMENT)? RPAREN STATEMENT
      * @returns pointer to a for statement node
     */
-    std::unique_ptr<ASTForSt> forStatement();
+    std::unique_ptr<ASTForStmt> forStatement();
 
     /** 
      * @brief parses do-while statement
      * @details DO_WHILE_STATEMENT : DO STATEMENT WHILE LPAREN RELATIONAL_EXPRESSION RPAREN SEMICOLON
      * @returns pointer to a do-while statement node
     */
-    std::unique_ptr<ASTDoWhileSt> doWhileStatement();
+    std::unique_ptr<ASTDoWhileStmt> doWhileStatement();
 
     /** 
      * @brief parses function-call statement
      * @details FUNCTION_CALL_STATEMENT : FUNCTION_CALL SEMICOLON
      * @returns pointer to a function-call statement node
     */
-    std::unique_ptr<ASTFunctionCallSt> functionCallStatement();
+    std::unique_ptr<ASTFunctionCallStmt> functionCallStatement();
 
     /** 
      * @brief parses switch statement
      * @details SWITCH_STATEMENT : SWITCH LPAREN ID RPAREN LBRACKET (_CASE)+ (_DEFAULT)? RBRACKET
      * @returns pointer to a switch statement node
     */
-    std::unique_ptr<ASTSwitchSt> switchStatement();
+    std::unique_ptr<ASTSwitchStmt> switchStatement();
 
     /** 
      * @brief parses swtich-case block
      * @details SWITCH_CASE_BLOCK : (STATEMENT)*
      * @returns pointer to a switch-case block node
     */
-    std::unique_ptr<ASTSwitchBlock> switchCaseBlock();
+    std::unique_ptr<ASTSwitchBlockStmt> switchCaseBlock();
 
     /** 
      * @brief parses case of the switch statement
      * @details _CASE : CASE LITERAL COLON SWITCH_CASE_BLOCK (_BREAK)?
      * @returns pointer to a case statement node
     */
-    std::unique_ptr<ASTCaseSt> _case();
+    std::unique_ptr<ASTCaseStmt> _case();
 
     /** 
      * @brief parses default case of the switch statement
      * @details _DEFAULT : DEFAULT COLON SWITCH_CASE_BLOCK (_BREAK)?
      * @returns pointer to a default statement node
     */
-    std::unique_ptr<ASTDefaultSt> _default();
+    std::unique_ptr<ASTDefaultStmt> _default();
 
     /** 
      * @brief parses break statement

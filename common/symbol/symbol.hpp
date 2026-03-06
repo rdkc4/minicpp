@@ -5,7 +5,7 @@
 #include <vector>
 #include <memory>
 
-#include "../abstract-syntax-tree/ASTParameter.hpp"
+#include "../abstract-syntax-tree/ast_parameter.hpp"
 #include "../defs/defs.hpp"
 
 /** 
@@ -20,7 +20,7 @@ public:
      * @param kind - kind of the symbol, default NO_KIND
      * @param type - type of the symbol, default NO_TYPE
     */
-    Symbol(std::string_view name, Kinds kind = Kinds::NO_KIND, Types type = Types::NO_TYPE);
+    Symbol(std::string_view name, Kind kind = Kind::NO_KIND, Type type = Type::NO_TYPE);
 
     /** 
      * @brief getter for the name of the symbol
@@ -32,13 +32,13 @@ public:
      * @brief getter for the kind of the symbol
      * @returns kind of the symbol
     */
-    Kinds getKind() const noexcept;
+    Kind getKind() const noexcept;
 
     /** 
      * @brief getter for the type of the symbol
      * @returns type of the symbol
     */
-    Types getType() const noexcept;
+    Type getType() const noexcept;
 
     /** 
      * @brief getter for the parameters (if symbol is a function)
@@ -56,13 +56,13 @@ public:
      * @brief initializes symbol kind
      * @param _kind - kind of the symbol
     */    
-    void setKind(Kinds _kind) noexcept;
+    void setKind(Kind _kind) noexcept;
 
     /** 
      * @brief initializes symbol type
      * @param _type - type of the symbol
     */
-    void setType(Types _type) noexcept;
+    void setType(Type _type) noexcept;
 
     /** 
      * @brief initializes symbol parameters (if the symbol is a function)
@@ -85,10 +85,10 @@ private:
     const std::vector<std::unique_ptr<ASTParameter>>* parameters;
 
     /// kind of the symbol
-    Kinds kind;
+    Kind kind;
     
     /// type of the symbol
-    Types type;
+    Type type;
 
 };
 

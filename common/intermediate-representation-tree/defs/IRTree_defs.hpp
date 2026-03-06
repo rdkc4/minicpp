@@ -36,11 +36,11 @@ struct Operation {
      * @param type - type of the operands
      * @returns irt node type specialized for the type
     */
-    constexpr IRNodeType getOperation(Types type) const noexcept {
+    constexpr IRNodeType getOperation(Type type) const noexcept {
         switch(type){
-            case Types::INT:
+            case Type::INT:
                 return _int;
-            case Types::UNSIGNED:
+            case Type::UNSIGNED:
                 return _unsigned;
             default:
                 return IRNodeType::NONE;
@@ -61,6 +61,6 @@ extern const std::unordered_map<std::string, IRNodeType> stringToArop;
 extern const std::unordered_map<std::string, std::vector<IRNodeType>> stringToBitop;
 
 /// maps the operators to the operation
-extern const std::unordered_map<Operators, Operation> operatorToIRNodeType;
+extern const std::unordered_map<Operator, Operation> operatorToIRNodeType;
 
 #endif
