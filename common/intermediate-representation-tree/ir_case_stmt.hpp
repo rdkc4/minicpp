@@ -6,7 +6,7 @@
 #include "ir_stmt.hpp"
 #include "ir_literal_expr.hpp"
 #include "ir_switch_block_stmt.hpp"
-#include "defs/IRTree_defs.hpp"
+#include "defs/ir_defs.hpp"
 
 /**
  * @class IRCaseStmt

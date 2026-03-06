@@ -8,7 +8,7 @@
 #include "ir_node.hpp"
 #include "ir_parameter.hpp"
 #include "ir_stmt.hpp"
-#include "defs/IRTree_defs.hpp"
+#include "defs/ir_defs.hpp"
 #include "../defs/defs.hpp"
 
 /**

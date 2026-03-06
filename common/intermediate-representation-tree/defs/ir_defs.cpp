@@ -1,4 +1,4 @@
-#include "IRTree_defs.hpp"
+#include "ir_defs.hpp"
 
 const std::unordered_set<IRNodeType> irOperator {IRNodeType::ADD, IRNodeType::SUB, IRNodeType::DIV, IRNodeType::MUL, 
     IRNodeType::AND, IRNodeType::OR, IRNodeType::XOR, IRNodeType::SHL, IRNodeType::SAL, IRNodeType::SHR, IRNodeType::SAR

@@ -25,15 +25,21 @@ public:
 
     /** 
      * @brief getter for a literal node
-     * @returns const pointer to a literal node
+     * @returns pointer or const pointer to a literal node
     */
-    const ASTLiteralExpr* getLiteral() const noexcept;
+    template<typename Self>
+    decltype(auto) getLiteral(this Self&& self) noexcept {
+        return std::forward<Self>(self).literal.get();
+    }
 
     /** 
      * @brief getter for switch block node
-     * @returns const pointer to a switch block node
+     * @returns pointer or const pointer to a switch block node
     */
-    const ASTSwitchBlockStmt* getSwitchBlock() const noexcept;
+    template<typename Self>
+    decltype(auto) getSwitchBlock(this Self&& self) noexcept {
+        return std::forward<Self>(self).swBlock.get();
+    }
 
     /** 
      * @brief initializes case node

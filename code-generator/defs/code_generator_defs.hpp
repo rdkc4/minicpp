@@ -5,7 +5,7 @@
 #include <vector>
 #include <string>
 
-#include "../../common/intermediate-representation-tree/defs/IRTree_defs.hpp"
+#include "../../common/intermediate-representation-tree/defs/ir_defs.hpp"
 
 /// translates jump ir node types into strings
 extern const std::unordered_map<IRNodeType, std::string> nodeToJMP;

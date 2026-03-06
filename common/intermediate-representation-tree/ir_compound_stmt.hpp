@@ -5,7 +5,7 @@
 #include <vector>
 
 #include "ir_stmt.hpp"
-#include "defs/IRTree_defs.hpp"
+#include "defs/ir_defs.hpp"
 
 /**
  * @class IRCompoundStmt

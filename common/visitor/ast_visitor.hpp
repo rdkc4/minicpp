@@ -30,46 +30,45 @@ public:
 
     virtual void visit(ASTProgram* program) = 0;
 
-    virtual void visit(ASTIncludeDir* statement) = 0;
+    virtual void visit(ASTIncludeDir* lib) = 0;
 
     virtual void visit(ASTFunction* function) = 0;
 
-    virtual void visit(ASTParameter* statement) = 0;
+    virtual void visit(ASTParameter* parameter) = 0;
 
-    virtual void visit(ASTVariableDeclStmt* statement) = 0;
+    virtual void visit(ASTVariableDeclStmt* variableDecl) = 0;
 
-    virtual void visit(ASTAssignStmt* statement) = 0;
+    virtual void visit(ASTAssignStmt* assignStmt) = 0;
 
-    virtual void visit(ASTCompoundStmt* statement) = 0;
+    virtual void visit(ASTCompoundStmt* compoundStmt) = 0;
 
-    virtual void visit(ASTForStmt* statement) = 0;
+    virtual void visit(ASTForStmt* forStmt) = 0;
 
-    virtual void visit(ASTFunctionCallStmt* statement) = 0;
+    virtual void visit(ASTFunctionCallStmt* callStmt) = 0;
 
-    virtual void visit(ASTIfStmt* statement) = 0;
+    virtual void visit(ASTIfStmt* ifStmt) = 0;
 
-    virtual void visit(ASTReturnStmt* statement) = 0;
+    virtual void visit(ASTReturnStmt* returnStmt) = 0;
 
-    virtual void visit(ASTWhileStmt* statement) = 0;
+    virtual void visit(ASTWhileStmt* whileStmt) = 0;
 
-    virtual void visit(ASTDoWhileStmt* statement) = 0;
+    virtual void visit(ASTDoWhileStmt* dowhileStmt) = 0;
     
-    virtual void visit(ASTSwitchStmt* statement) = 0;
+    virtual void visit(ASTSwitchStmt* switchStmt) = 0;
 
-    virtual void visit(ASTCaseStmt* statement) = 0;
+    virtual void visit(ASTCaseStmt* caseStmt) = 0;
 
-    virtual void visit(ASTDefaultStmt* statement) = 0;
+    virtual void visit(ASTDefaultStmt* defaultStmt) = 0;
     
-    virtual void visit(ASTSwitchBlockStmt* statement) = 0;
+    virtual void visit(ASTSwitchBlockStmt* switchBlockStmt) = 0;
 
-    virtual void visit(ASTBinaryExpr* statement) = 0;
+    virtual void visit(ASTBinaryExpr* binaryExpr) = 0;
 
-    virtual void visit(ASTFunctionCallExpr* statement) = 0;
+    virtual void visit(ASTFunctionCallExpr* callExpr) = 0;
 
-    virtual void visit(ASTIdExpr* statement) = 0;
+    virtual void visit(ASTIdExpr* idExpr) = 0;
 
-    virtual void visit(ASTLiteralExpr* statement) = 0;
-
+    virtual void visit(ASTLiteralExpr* literalExpr) = 0;
 
 };
 

@@ -48,9 +48,12 @@ public:
 
     /** 
      * @brief getter for the default statement of the switch statement
-     * @returns const pointer to a default statement
+     * @returns pointer or const pointer to a default statement
     */
-    const ASTDefaultStmt* getDefault() const noexcept;
+    template<typename Self>
+    decltype(auto) getDefault(this Self&& self) noexcept {
+        return std::forward<Self>(self)._default.get();
+    }
 
     /** 
      * @brief adds new case

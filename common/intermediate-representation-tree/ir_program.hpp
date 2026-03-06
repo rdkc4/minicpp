@@ -8,7 +8,7 @@
 
 #include "ir_node.hpp"
 #include "ir_function.hpp"
-#include "defs/IRTree_defs.hpp"
+#include "defs/ir_defs.hpp"
 
 /** 
  * @class IRProgram

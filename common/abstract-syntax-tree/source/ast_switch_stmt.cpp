@@ -10,10 +10,6 @@ const std::vector<std::unique_ptr<ASTCaseStmt>>& ASTSwitchStmt::getCases() const
     return cases;
 }
 
-const ASTDefaultStmt* ASTSwitchStmt::getDefault() const noexcept {
-    return _default.get();
-}
-
 void ASTSwitchStmt::addCase(std::unique_ptr<ASTCaseStmt> _case){
     cases.push_back(std::move(_case));
 }

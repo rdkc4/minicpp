@@ -5,7 +5,7 @@
 #include <string_view>
 
 #include "ir_node.hpp"
-#include "defs/IRTree_defs.hpp"
+#include "defs/ir_defs.hpp"
 #include "../defs/defs.hpp"
 
 /** 

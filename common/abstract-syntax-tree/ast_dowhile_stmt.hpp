@@ -33,9 +33,12 @@ public:
 
     /**
      * @brief getter for statement node
-     * @returns const pointer to a statement node 
+     * @returns pointer or const pointer to a statement node 
     */
-    const ASTStmt* getStatement() const noexcept;
+    template<typename Self>
+    decltype(auto) getStatement(this Self&& self) noexcept {
+        return std::forward<Self>(self).statement.get();
+    }
 
     /** 
      * @brief initializes do-while statement node

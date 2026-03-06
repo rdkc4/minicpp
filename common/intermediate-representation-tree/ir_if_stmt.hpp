@@ -8,7 +8,7 @@
 #include "ir_stmt.hpp"
 #include "ir_expr.hpp"
 #include "ir_temporary_expr.hpp"
-#include "defs/IRTree_defs.hpp"
+#include "defs/ir_defs.hpp"
 
 /** 
  * @class IRIfStmt

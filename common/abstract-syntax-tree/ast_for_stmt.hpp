@@ -26,9 +26,12 @@ public:
     /** 
      * @brief getter for initializer
      * @warning nullable
-     * @returns const pointer to an assignment statement
+     * @returns pointer or const pointer to an assignment statement
     */
-    const ASTAssignStmt* getInitializer() const noexcept;
+    template<typename Self>
+    decltype(auto) getInitializer(this Self&& self) noexcept {
+        return std::forward<Self>(self).initializer.get();
+    }
 
     /** 
      * @brief getter for condition 
@@ -45,13 +48,19 @@ public:
      * @warning nullable
      * @returns pointer or const pointer to assignment statement
     */
-    const ASTAssignStmt* getIncrementer() const noexcept;
+    template<typename Self>
+    decltype(auto) getIncrementer(this Self&& self) noexcept {
+        return std::forward<Self>(self).incrementer.get();
+    }
     
     /** 
      * @brief getter for statement
-     * @returns const pointer to a statement
+     * @returns pointer or const pointer to a statement
     */
-    const ASTStmt* getStatement() const noexcept;
+    template<typename Self>
+    decltype(auto) getStatement(this Self&& self) noexcept {
+        return std::forward<Self>(self).statement.get();
+    }
 
     /** 
      * @brief initializes for statement node

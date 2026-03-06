@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include "defs/IRTree_defs.hpp"
+#include "defs/ir_defs.hpp"
 
 /** 
  * @class IRNode

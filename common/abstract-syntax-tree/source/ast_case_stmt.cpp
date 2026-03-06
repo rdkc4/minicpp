@@ -2,14 +2,6 @@
 
 ASTCaseStmt::ASTCaseStmt(const Token& token, ASTNodeType ntype) : ASTStmt(token, ntype) {}
 
-const ASTLiteralExpr* ASTCaseStmt::getLiteral() const noexcept {
-    return literal.get();
-}
-
-const ASTSwitchBlockStmt* ASTCaseStmt::getSwitchBlock() const noexcept {
-    return swBlock.get();
-}
-
 void ASTCaseStmt::setCase(std::unique_ptr<ASTLiteralExpr> lit, std::unique_ptr<ASTSwitchBlockStmt> _swBlock, bool hasBr){
     literal = std::move(lit);
     swBlock = std::move(_swBlock);
