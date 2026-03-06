@@ -51,6 +51,7 @@ private:
     /// intermediate representation specialized for directives
     DirectiveIntermediateRepresentation dirIR;
 
+protected:
     /// maps function name to its exceptions
     std::unordered_map<std::string,std::vector<std::string>> exceptions;
 };

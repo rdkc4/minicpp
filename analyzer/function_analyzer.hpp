@@ -88,14 +88,15 @@ private:
     /// mutex for the concurrent access to semantic errors map
     mutable std::mutex exceptionMtx;
 
+    /// analyzer specialized for statements
+    StatementAnalyzer statementAnalyzer;
+
+protected:
     /// maps function name to its semantic errors
     std::unordered_map<std::string, std::vector<std::string>>& semanticErrors;
 
     /// label of the global scope errors
-    const std::string& globalError;
-
-    /// analyzer specialized for statements
-    StatementAnalyzer statementAnalyzer;
+    const std::string globalError;
 
 };
 

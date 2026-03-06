@@ -77,12 +77,12 @@ namespace Compiler {
     /** 
      * @brief performs compilation of the code
      *
-     * preprocessing -> lexer -> parser -> analyzer -> intermediate-representation -> code-generation -> link
+     * preprocessing -> lexer -> parser -> analyzer -> intermediate-representation -> code-generation -> asm + link
      * @param input - source code
      * @param output - path of the output file
      * @returns exit code depending on the result of the compilation
     */
-    ExitCode compile(const std::string& input, std::string_view output);
+    ExitCode compile(const std::string& input, std::string_view output, bool performAsmAndLink = true);
 };
 
 #endif

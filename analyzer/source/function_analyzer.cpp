@@ -9,7 +9,7 @@
 #include "../../common/abstract-syntax-tree/ASTCompoundSt.hpp"
 
 FunctionAnalyzer::FunctionAnalyzer(ScopeManager& scopeManager, std::unordered_map<std::string, std::vector<std::string>>& semErrors, const std::string& err)
-    : globalScopeManager{ scopeManager }, semanticErrors{ semErrors }, globalError{ err }, statementAnalyzer{ scopeManager } {}
+    : globalScopeManager{ scopeManager }, statementAnalyzer{ scopeManager }, semanticErrors{ semErrors }, globalError{ err } {}
 
 thread_local AnalyzerThreadContext FunctionAnalyzer::analyzerContext;
 

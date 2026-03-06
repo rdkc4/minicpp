@@ -109,7 +109,7 @@ Compiler::ExitCode Compiler::assembleAndLink(const IRProgram* irProgram, const s
     return Compiler::ExitCode::NO_ERR;
 }
 
-Compiler::ExitCode Compiler::compile(const std::string& input, std::string_view output) {
+Compiler::ExitCode Compiler::compile(const std::string& input, std::string_view output, bool performAsmAndLink) {
     auto preprocessResult = preprocess(std::string{ input });
     if(preprocessResult.first != Compiler::ExitCode::NO_ERR){
         return preprocessResult.first;
@@ -144,6 +144,10 @@ Compiler::ExitCode Compiler::compile(const std::string& input, std::string_view 
     if(result != Compiler::ExitCode::NO_ERR){
         return result;
     }
+    
+    if(performAsmAndLink){
+        result = assembleAndLink(irProgram.get(), output);
+    }
 
-    return assembleAndLink(irProgram.get(), output);
+    return result;
 }

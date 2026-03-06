@@ -6,7 +6,7 @@
 
 class LexerTest : public Lexer {
     public:
-        LexerTest(std::string_view input) : Lexer{ input } {}
+        LexerTest(std::vector<std::string>& input) : Lexer{ input } {}
 
         const Token& at(size_t i) const{
             assert(i < tokens.size());

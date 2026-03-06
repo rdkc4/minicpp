@@ -5,7 +5,8 @@
 #include "../parser-test/parser_test.hpp"
 
 TEST(AnalyzerTest, SemanticCheck){
-    LexerTest lexer{"int fun(){ return 1; } int main(){ return fun();}"};
+    std::vector<std::string> input{"int fun(){ return 1; } int main(){ return fun();}"};
+    LexerTest lexer{ input };
     lexer.tokenize();
 
     TokenConsumer tokenConsumer { lexer };
@@ -21,7 +22,8 @@ TEST(AnalyzerTest, SemanticCheck){
 }
 
 TEST(AnalyzerTest, SemanticCheckInvalidFunctionCallThrows){
-    LexerTest lexer{"int fun(){ return 1; } int main(){ return fun(1);}"};
+    std::vector<std::string> input{"int fun(){ return 1; } int main(){ return fun(1);}"};
+    LexerTest lexer{ input };
     lexer.tokenize();
 
     TokenConsumer tokenConsumer { lexer };
@@ -38,7 +40,8 @@ TEST(AnalyzerTest, SemanticCheckInvalidFunctionCallThrows){
 }
 
 TEST(AnalyzerTest, SemanticCheckTypeMismatchThrows){
-    LexerTest lexer{"int fun(){ return 1u; } int main(){ return fun();}"};
+    std::vector<std::string> input{"int fun(){ return 1u; } int main(){ return fun();}"};
+    LexerTest lexer{ input };
     lexer.tokenize();
 
     TokenConsumer tokenConsumer { lexer };
@@ -54,7 +57,8 @@ TEST(AnalyzerTest, SemanticCheckTypeMismatchThrows){
 }
 
 TEST(AnalyzerTest, SemanticCheckNoMainThrows){
-    LexerTest lexer{"int fun(){ return 1; } int abc(){ return fun();}"};
+    std::vector<std::string> input{"int fun(){ return 1; } int abc(){ return fun();}"};
+    LexerTest lexer{ input };
     lexer.tokenize();
 
     TokenConsumer tokenConsumer { lexer };
@@ -70,7 +74,8 @@ TEST(AnalyzerTest, SemanticCheckNoMainThrows){
 }
 
 TEST(AnalyzerTest, CheckFunctionSignatures){
-    LexerTest lexer{"int rectArea(int x, int y){ return x * y; } int sq(int x){ return x * x; }"};
+    std::vector<std::string> input{"int rectArea(int x, int y){ return x * y; } int sq(int x){ return x * x; }"};
+    LexerTest lexer{ input };
     lexer.tokenize();
 
     TokenConsumer tokenConsumer { lexer };
@@ -83,7 +88,7 @@ TEST(AnalyzerTest, CheckFunctionSignatures){
     std::unordered_map<std::string, std::vector<std::string>> semErrors = {};
     FunctionAnalyzerTest analyzer(scopeManager, semErrors, "__global");
 
-    analyzer.testCheckFunctionSignatures(_program.get());
+    analyzer.checkFunctionSignatures(_program.get());
     ASSERT_TRUE(analyzer.getErrors("rectArea").empty());
     ASSERT_TRUE(analyzer.getErrors("sq").empty());
 
@@ -91,7 +96,8 @@ TEST(AnalyzerTest, CheckFunctionSignatures){
 }
 
 TEST(AnalyzerTest, CheckFunctionSignaturesFunctionRedefError){
-    LexerTest lexer{"int rectArea(int x, int y){ return x * y; } int rectArea(int x){ return x * x; }"};
+    std::vector<std::string> input{"int rectArea(int x, int y){ return x * y; } int rectArea(int x){ return x * x; }"};
+    LexerTest lexer{ input };
     lexer.tokenize();
 
     TokenConsumer tokenConsumer { lexer };
@@ -104,7 +110,7 @@ TEST(AnalyzerTest, CheckFunctionSignaturesFunctionRedefError){
     std::unordered_map<std::string, std::vector<std::string>> semErrors = {};
     FunctionAnalyzerTest analyzer(scopeManager, semErrors, "__global");
 
-    analyzer.testCheckFunctionSignatures(_program.get());
+    analyzer.checkFunctionSignatures(_program.get());
     ASSERT_FALSE(analyzer.getErrors(analyzer.getGlobalErrLabel()).empty());
     ASSERT_TRUE(analyzer.getErrors(analyzer.getGlobalErrLabel())[0].contains("redefined"));
 
@@ -112,7 +118,8 @@ TEST(AnalyzerTest, CheckFunctionSignaturesFunctionRedefError){
 }
 
 TEST(AnalyzerTest, CheckFunctionSignaturesParameterRedefError){
-    LexerTest lexer{"int rectArea(int x, int x){ return x * x; } int main(){ return x * x; }"};
+    std::vector<std::string> input{"int rectArea(int x, int x){ return x * x; } int main(){ return x * x; }"};
+    LexerTest lexer{ input };
     lexer.tokenize();
 
     TokenConsumer tokenConsumer { lexer };
@@ -125,7 +132,7 @@ TEST(AnalyzerTest, CheckFunctionSignaturesParameterRedefError){
     std::unordered_map<std::string, std::vector<std::string>> semErrors = {};
     FunctionAnalyzerTest analyzer(scopeManager, semErrors, "__global");
 
-    analyzer.testCheckFunctionSignatures(_program.get());
+    analyzer.checkFunctionSignatures(_program.get());
     ASSERT_FALSE(analyzer.getErrors("rectArea").empty());
     ASSERT_TRUE(analyzer.getErrors("rectArea")[0].contains("redefined"));
 
@@ -133,7 +140,8 @@ TEST(AnalyzerTest, CheckFunctionSignaturesParameterRedefError){
 }
 
 TEST(AnalyzerTest, CheckFunctionSignaturesMainParamsError){
-    LexerTest lexer{"int main(int x){ return 0; }"};
+    std::vector<std::string> input{"int main(int x){ return 0; }"};
+    LexerTest lexer{ input };
     lexer.tokenize();
 
     TokenConsumer tokenConsumer { lexer };
@@ -146,7 +154,7 @@ TEST(AnalyzerTest, CheckFunctionSignaturesMainParamsError){
     std::unordered_map<std::string, std::vector<std::string>> semErrors = {};
     FunctionAnalyzerTest analyzer(scopeManager, semErrors, "__global");
 
-    analyzer.testCheckFunctionSignatures(_program.get());
+    analyzer.checkFunctionSignatures(_program.get());
     ASSERT_FALSE(analyzer.getErrors("main").empty());
     ASSERT_TRUE(analyzer.getErrors("main")[0].contains("parameter"));
 
@@ -154,12 +162,13 @@ TEST(AnalyzerTest, CheckFunctionSignaturesMainParamsError){
 }
 
 TEST(AnalyzerTest, CheckFunction){
-    LexerTest lexer{"int fun(){ return 1; }"};
+    std::vector<std::string> input{"int fun(){ return 1; }"};
+    LexerTest lexer{ input };
     lexer.tokenize();
 
     TokenConsumer tokenConsumer { lexer };
     FunctionParserTest parser{ tokenConsumer };
-    auto _function = parser.testFunction();
+    auto _function = parser.function();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
@@ -168,18 +177,19 @@ TEST(AnalyzerTest, CheckFunction){
     std::unordered_map<std::string, std::vector<std::string>> semErrors = {{"fun", {}}};
     FunctionAnalyzerTest analyzer(scopeManager, semErrors, "__global");
 
-    analyzer.testCheckFunction(_function.get());
+    analyzer.checkFunction(_function.get());
     ASSERT_TRUE(analyzer.getErrors("fun").empty());
     scopeManager.popScope();
 }
 
 TEST(AnalyzerTest, CheckFunctionNotAllIfPathsReturnError){
-    LexerTest lexer{"int fun(int x){ if(x > 0) return 1; }"};
+    std::vector<std::string> input{"int fun(int x){ if(x > 0) return 1; }"};
+    LexerTest lexer{ input };
     lexer.tokenize();
 
     TokenConsumer tokenConsumer { lexer };
     FunctionParserTest parser{ tokenConsumer };
-    auto _function = parser.testFunction();
+    auto _function = parser.function();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
@@ -188,19 +198,20 @@ TEST(AnalyzerTest, CheckFunctionNotAllIfPathsReturnError){
     std::unordered_map<std::string, std::vector<std::string>> semErrors = {{"fun", {}}};
     FunctionAnalyzerTest analyzer(scopeManager, semErrors, "__global");
 
-    analyzer.testCheckFunction(_function.get());
+    analyzer.checkFunction(_function.get());
     ASSERT_FALSE(analyzer.getErrors("fun").empty());
     ASSERT_TRUE(analyzer.getErrors("fun")[0].contains("not all paths return"));
     scopeManager.popScope();
 }
 
 TEST(AnalyzerTest, CheckFunctionNotAllSwitchPathsReturnError){
-    LexerTest lexer{"int fun(int x){ switch(x){ case 0: return 0; case 1: return 1; } }"};
+    std::vector<std::string> input{"int fun(int x){ switch(x){ case 0: return 0; case 1: return 1; } }"};
+    LexerTest lexer{ input };
     lexer.tokenize();
 
     TokenConsumer tokenConsumer { lexer };
     FunctionParserTest parser{ tokenConsumer };
-    auto _function = parser.testFunction();
+    auto _function = parser.function();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
@@ -209,19 +220,20 @@ TEST(AnalyzerTest, CheckFunctionNotAllSwitchPathsReturnError){
     std::unordered_map<std::string, std::vector<std::string>> semErrors = {{"fun", {}}};
     FunctionAnalyzerTest analyzer(scopeManager, semErrors, "__global");
 
-    analyzer.testCheckFunction(_function.get());
+    analyzer.checkFunction(_function.get());
     ASSERT_FALSE(analyzer.getErrors("fun").empty());
     ASSERT_TRUE(analyzer.getErrors("fun")[0].contains("not all paths return"));
     scopeManager.popScope();
 }
 
 TEST(AnalyzerTest, CheckFunctionParameterRedefError){
-    LexerTest lexer{"int fun(int x){ int x = 1; return 0; }"};
+    std::vector<std::string> input{"int fun(int x){ int x = 1; return 0; }"};
+    LexerTest lexer{ input };
     lexer.tokenize();
 
     TokenConsumer tokenConsumer { lexer };
     FunctionParserTest parser{ tokenConsumer };
-    auto _function = parser.testFunction();
+    auto _function = parser.function();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
@@ -230,19 +242,20 @@ TEST(AnalyzerTest, CheckFunctionParameterRedefError){
     std::unordered_map<std::string, std::vector<std::string>> semErrors = {{"fun", {}}};
     FunctionAnalyzerTest analyzer(scopeManager, semErrors, "__global");
 
-    analyzer.testCheckFunction(_function.get());
+    analyzer.checkFunction(_function.get());
     ASSERT_FALSE(analyzer.getErrors("fun").empty());
     ASSERT_TRUE(analyzer.getErrors("fun")[0].contains("redefined"));
     scopeManager.popScope();
 }
 
 TEST(AnalyzerTest, CheckFunctionVoidReturnsTypeError){
-    LexerTest lexer{"void fun(){ return 1; }"};
+    std::vector<std::string> input{"void fun(){ return 1; }"};
+    LexerTest lexer{ input };
     lexer.tokenize();
 
     TokenConsumer tokenConsumer { lexer };
     FunctionParserTest parser{ tokenConsumer };
-    auto _function = parser.testFunction();
+    auto _function = parser.function();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
@@ -251,19 +264,20 @@ TEST(AnalyzerTest, CheckFunctionVoidReturnsTypeError){
     std::unordered_map<std::string, std::vector<std::string>> semErrors = {{"fun", {}}};
     FunctionAnalyzerTest analyzer(scopeManager, semErrors, "__global");
 
-    analyzer.testCheckFunction(_function.get());
+    analyzer.checkFunction(_function.get());
     ASSERT_FALSE(analyzer.getErrors("fun").empty());
     ASSERT_TRUE(analyzer.getErrors("fun")[0].contains("type mismatch"));
     scopeManager.popScope();
 }
 
 TEST(AnalyzerTest, CheckFunctionVoidTypeMismatchError){
-    LexerTest lexer{"int fun(){ return 1u; }"};
+    std::vector<std::string> input{"int fun(){ return 1u; }"};
+    LexerTest lexer{ input };
     lexer.tokenize();
 
     TokenConsumer tokenConsumer { lexer };
     FunctionParserTest parser{ tokenConsumer };
-    auto _function = parser.testFunction();
+    auto _function = parser.function();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
@@ -272,19 +286,20 @@ TEST(AnalyzerTest, CheckFunctionVoidTypeMismatchError){
     std::unordered_map<std::string, std::vector<std::string>> semErrors = {{"fun", {}}};
     FunctionAnalyzerTest analyzer(scopeManager, semErrors, "__global");
 
-    analyzer.testCheckFunction(_function.get());
+    analyzer.checkFunction(_function.get());
     ASSERT_FALSE(analyzer.getErrors("fun").empty());
     ASSERT_TRUE(analyzer.getErrors("fun")[0].contains("type mismatch"));
     scopeManager.popScope();
 }
 
 TEST(AnalyzerTest, CheckVariable){
-    LexerTest lexer{"int x = 3;"};
+    std::vector<std::string> input{"int x = 3;"};
+    LexerTest lexer{ input };
     lexer.tokenize();
 
     TokenConsumer tokenConsumer { lexer };
     StatementParserTest parser{ tokenConsumer };
-    auto _variable = parser.testVariable();
+    auto _variable = parser.variable();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
@@ -293,7 +308,7 @@ TEST(AnalyzerTest, CheckVariable){
     analyzer.getContext().init("tmp", &scopeManager);
     analyzer.getContext().scopeManager->pushScope();
 
-    analyzer.testCheckVariable(_variable.get());
+    analyzer.checkVariable(_variable.get());
     ASSERT_TRUE(analyzer.getContext().semanticErrors.empty());
     ASSERT_TRUE(scopeManager.lookupSymbol("x", {Kinds::VAR}));
     
@@ -302,12 +317,13 @@ TEST(AnalyzerTest, CheckVariable){
 }
 
 TEST(AnalyzerTest, CheckVariableExitedScope){
-    LexerTest lexer{"{ { int x = 3; } int x = 5; }"};
+    std::vector<std::string> input{"{ { int x = 3; } int x = 5; }"};
+    LexerTest lexer{ input };
     lexer.tokenize();
 
     TokenConsumer tokenConsumer { lexer };
     StatementParserTest parser{ tokenConsumer };
-    auto _compound = parser.testCompoundStatement();
+    auto _compound = parser.compoundStatement();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
@@ -315,18 +331,19 @@ TEST(AnalyzerTest, CheckVariableExitedScope){
     
     analyzer.getContext().init("tmp", &scopeManager);
 
-    analyzer.testCheckCompoundStatement(_compound.get());
+    analyzer.checkCompoundStatement(_compound.get());
     ASSERT_TRUE(analyzer.getContext().semanticErrors.empty());
     analyzer.getContext().reset();
 }
 
 TEST(AnalyzerTest, CheckVariableRedefError){
-    LexerTest lexer{"int x = 5;"};
+    std::vector<std::string> input{"int x = 5;"};
+    LexerTest lexer{ input };
     lexer.tokenize();
 
     TokenConsumer tokenConsumer { lexer };
     StatementParserTest parser{ tokenConsumer };
-    auto _variable = parser.testVariable();
+    auto _variable = parser.variable();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
@@ -336,7 +353,7 @@ TEST(AnalyzerTest, CheckVariableRedefError){
     analyzer.getContext().scopeManager->pushScope();
     analyzer.getContext().scopeManager->pushSymbol(Symbol{"x", Kinds::VAR, Types::INT});
 
-    analyzer.testCheckVariable(_variable.get());
+    analyzer.checkVariable(_variable.get());
     ASSERT_FALSE(analyzer.getContext().semanticErrors.empty());
     ASSERT_TRUE(analyzer.getContext().semanticErrors[0].contains("redefined"));
     
@@ -345,12 +362,13 @@ TEST(AnalyzerTest, CheckVariableRedefError){
 }
 
 TEST(AnalyzerTest, CheckVariableTypeMismatchError){
-    LexerTest lexer{"int x = 5u;"};
+    std::vector<std::string> input{"int x = 5u;"};
+    LexerTest lexer{ input };
     lexer.tokenize();
 
     TokenConsumer tokenConsumer { lexer };
     StatementParserTest parser{ tokenConsumer };
-    auto _variable = parser.testVariable();
+    auto _variable = parser.variable();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
@@ -359,7 +377,7 @@ TEST(AnalyzerTest, CheckVariableTypeMismatchError){
     analyzer.getContext().init("tmp", &scopeManager);
     analyzer.getContext().scopeManager->pushScope();
 
-    analyzer.testCheckVariable(_variable.get());
+    analyzer.checkVariable(_variable.get());
     ASSERT_FALSE(analyzer.getContext().semanticErrors.empty());
     ASSERT_TRUE(analyzer.getContext().semanticErrors[0].contains("type mismatch"));
     
@@ -368,12 +386,13 @@ TEST(AnalyzerTest, CheckVariableTypeMismatchError){
 }
 
 TEST(AnalyzerTest, CheckVariableAutoType){
-    LexerTest lexer{"auto x = 5u;"};
+    std::vector<std::string> input{"auto x = 5u;"};
+    LexerTest lexer{ input };
     lexer.tokenize();
 
     TokenConsumer tokenConsumer { lexer };
     StatementParserTest parser{ tokenConsumer };
-    auto _variable = parser.testVariable();
+    auto _variable = parser.variable();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
@@ -382,7 +401,7 @@ TEST(AnalyzerTest, CheckVariableAutoType){
     analyzer.getContext().init("tmp", &scopeManager);
     analyzer.getContext().scopeManager->pushScope();
 
-    analyzer.testCheckVariable(_variable.get());
+    analyzer.checkVariable(_variable.get());
     ASSERT_TRUE(analyzer.getContext().semanticErrors.empty());
     ASSERT_TRUE(analyzer.getContext().scopeManager->lookupSymbol("x", {Kinds::VAR}));
     ASSERT_EQ(analyzer.getContext().scopeManager->getSymbol("x").getType(), Types::UNSIGNED);
@@ -392,12 +411,13 @@ TEST(AnalyzerTest, CheckVariableAutoType){
 }
 
 TEST(AnalyzerTest, CheckVariableAutoError){
-    LexerTest lexer{"auto x;"};
+    std::vector<std::string> input{"auto x;"};
+    LexerTest lexer{ input };
     lexer.tokenize();
 
     TokenConsumer tokenConsumer { lexer };
     StatementParserTest parser{ tokenConsumer };
-    auto _variable = parser.testVariable();
+    auto _variable = parser.variable();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
@@ -406,7 +426,7 @@ TEST(AnalyzerTest, CheckVariableAutoError){
     analyzer.getContext().init("tmp", &scopeManager);
     analyzer.getContext().scopeManager->pushScope();
 
-    analyzer.testCheckVariable(_variable.get());
+    analyzer.checkVariable(_variable.get());
     ASSERT_FALSE(analyzer.getContext().semanticErrors.empty());
     ASSERT_TRUE(analyzer.getContext().semanticErrors[0].contains("deduction"));
     
@@ -415,12 +435,13 @@ TEST(AnalyzerTest, CheckVariableAutoError){
 }
 
 TEST(AnalyzerTest, CheckVariableUndefinedVariableError){
-    LexerTest lexer{"int x = y;"};
+    std::vector<std::string> input{"int x = y;"};
+    LexerTest lexer{ input };
     lexer.tokenize();
 
     TokenConsumer tokenConsumer { lexer };
     StatementParserTest parser{ tokenConsumer };
-    auto _variable = parser.testVariable();
+    auto _variable = parser.variable();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
@@ -429,7 +450,7 @@ TEST(AnalyzerTest, CheckVariableUndefinedVariableError){
     analyzer.getContext().init("tmp", &scopeManager);
     analyzer.getContext().scopeManager->pushScope();
 
-    analyzer.testCheckVariable(_variable.get());
+    analyzer.checkVariable(_variable.get());
     ASSERT_FALSE(analyzer.getContext().semanticErrors.empty());
     ASSERT_TRUE(analyzer.getContext().semanticErrors[0].contains("undefined"));
     
@@ -438,12 +459,13 @@ TEST(AnalyzerTest, CheckVariableUndefinedVariableError){
 }
 
 TEST(AnalyzerTest, ForStatement){
-    LexerTest lexer{"for(i = 0; i < 2; i = i + 1) i = i + 1;"};
+    std::vector<std::string> input{"for(i = 0; i < 2; i = i + 1) i = i + 1;"};
+    LexerTest lexer{ input };
     lexer.tokenize();
 
     TokenConsumer tokenConsumer { lexer };
     StatementParserTest parser{ tokenConsumer };
-    auto _for = parser.testForStatement();
+    auto _for = parser.forStatement();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
@@ -453,7 +475,7 @@ TEST(AnalyzerTest, ForStatement){
     analyzer.getContext().scopeManager->pushScope();
     analyzer.getContext().scopeManager->pushSymbol(Symbol{"i", Kinds::VAR, Types::INT}); // initialize i;
 
-    analyzer.testCheckForStatement(_for.get());
+    analyzer.checkForStatement(_for.get());
     ASSERT_TRUE(analyzer.getContext().semanticErrors.empty());
 
     analyzer.getContext().scopeManager->popScope();
@@ -461,12 +483,13 @@ TEST(AnalyzerTest, ForStatement){
 }
 
 TEST(AnalyzerTest, ForStatementUndefVarError){
-    LexerTest lexer{"for(i = 0; i < 10; i = i + 1) i = i + 1;"};
+    std::vector<std::string> input{"for(i = 0; i < 10; i = i + 1) i = i + 1;"};
+    LexerTest lexer{ input };
     lexer.tokenize();
 
     TokenConsumer tokenConsumer { lexer };
     StatementParserTest parser{ tokenConsumer };
-    auto _for = parser.testForStatement();
+    auto _for = parser.forStatement();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
@@ -475,7 +498,7 @@ TEST(AnalyzerTest, ForStatementUndefVarError){
     analyzer.getContext().init("tmp", &scopeManager);
     analyzer.getContext().scopeManager->pushScope();
 
-    analyzer.testCheckForStatement(_for.get());
+    analyzer.checkForStatement(_for.get());
     ASSERT_FALSE(analyzer.getContext().semanticErrors.empty());
     ASSERT_TRUE(analyzer.getContext().semanticErrors[0].contains("undefined"));
     
@@ -484,12 +507,13 @@ TEST(AnalyzerTest, ForStatementUndefVarError){
 }
 
 TEST(AnalyzerTest, ForStatementTypeMismatchError){
-    LexerTest lexer{"for(i = 0u; i < 10; i = i + 1) i = i + 1;"};
+    std::vector<std::string> input{"for(i = 0u; i < 10; i = i + 1) i = i + 1;"};
+    LexerTest lexer{ input };
     lexer.tokenize();
 
     TokenConsumer tokenConsumer { lexer };
     StatementParserTest parser{ tokenConsumer };
-    auto _for = parser.testForStatement();
+    auto _for = parser.forStatement();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
@@ -499,7 +523,7 @@ TEST(AnalyzerTest, ForStatementTypeMismatchError){
     analyzer.getContext().scopeManager->pushScope();
     analyzer.getContext().scopeManager->pushSymbol(Symbol{"i", Kinds::VAR, Types::INT}); // initialize i;
 
-    analyzer.testCheckForStatement(_for.get());
+    analyzer.checkForStatement(_for.get());
     ASSERT_FALSE(analyzer.getContext().semanticErrors.empty());
     ASSERT_TRUE(analyzer.getContext().semanticErrors[0].contains("type mismatch"));
     
@@ -508,12 +532,13 @@ TEST(AnalyzerTest, ForStatementTypeMismatchError){
 }
 
 TEST(AnalyzerTest, SwitchStatement){
-    LexerTest lexer{"switch(x){ case 1: break; default: break; }"};
+    std::vector<std::string> input{"switch(x){ case 1: break; default: break; }"};
+    LexerTest lexer{ input };
     lexer.tokenize();
 
     TokenConsumer tokenConsumer { lexer };
     StatementParserTest parser{ tokenConsumer };
-    auto _switch = parser.testSwitchStatement();
+    auto _switch = parser.switchStatement();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
@@ -523,7 +548,7 @@ TEST(AnalyzerTest, SwitchStatement){
     analyzer.getContext().scopeManager->pushScope();
     analyzer.getContext().scopeManager->pushSymbol(Symbol{"x", Kinds::VAR, Types::INT}); // initialize x;
 
-    analyzer.testCheckSwitchStatement(_switch.get());
+    analyzer.checkSwitchStatement(_switch.get());
     ASSERT_TRUE(analyzer.getContext().semanticErrors.empty());
     
     analyzer.getContext().scopeManager->popScope();   
@@ -531,12 +556,13 @@ TEST(AnalyzerTest, SwitchStatement){
 }
 
 TEST(AnalyzerTest, SwitchStatementTypeMismatchError){
-    LexerTest lexer{"switch(x){ case 1u: break; default: break; }"};
+    std::vector<std::string> input{"switch(x){ case 1u: break; default: break; }"};
+    LexerTest lexer{ input };
     lexer.tokenize();
 
     TokenConsumer tokenConsumer { lexer };
     StatementParserTest parser{ tokenConsumer };
-    auto _switch = parser.testSwitchStatement();
+    auto _switch = parser.switchStatement();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
@@ -546,7 +572,7 @@ TEST(AnalyzerTest, SwitchStatementTypeMismatchError){
     analyzer.getContext().scopeManager->pushScope();
     analyzer.getContext().scopeManager->pushSymbol(Symbol{"x", Kinds::VAR, Types::INT}); // initialize x;
 
-    analyzer.testCheckSwitchStatement(_switch.get());
+    analyzer.checkSwitchStatement(_switch.get());
     ASSERT_FALSE(analyzer.getContext().semanticErrors.empty());
     ASSERT_TRUE(analyzer.getContext().semanticErrors[0].contains("type mismatch"));
     
@@ -555,12 +581,13 @@ TEST(AnalyzerTest, SwitchStatementTypeMismatchError){
 }
 
 TEST(AnalyzerTest, SwitchStatementCaseDuplicateError){
-    LexerTest lexer{"switch(x){ case 1: break; case 1: break; }"};
+    std::vector<std::string> input{"switch(x){ case 1: break; case 1: break; }"};
+    LexerTest lexer{ input };
     lexer.tokenize();
 
     TokenConsumer tokenConsumer { lexer };
     StatementParserTest parser{ tokenConsumer };
-    auto _switch = parser.testSwitchStatement();
+    auto _switch = parser.switchStatement();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
@@ -570,7 +597,7 @@ TEST(AnalyzerTest, SwitchStatementCaseDuplicateError){
     analyzer.getContext().scopeManager->pushScope();
     analyzer.getContext().scopeManager->pushSymbol(Symbol{"x", Kinds::VAR, Types::INT}); // initialize x;
 
-    analyzer.testCheckSwitchStatement(_switch.get());
+    analyzer.checkSwitchStatement(_switch.get());
     ASSERT_FALSE(analyzer.getContext().semanticErrors.empty());
     ASSERT_TRUE(analyzer.getContext().semanticErrors[0].contains("duplicate case"));
     
