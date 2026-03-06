@@ -1,10 +1,5 @@
 #include "../ASTForSt.hpp"
 
-#include <memory>
-#include <string>
-#include <iostream>
-#include <format>
-
 ASTForSt::ASTForSt(const Token& token, ASTNodeType ntype) : ASTStatement(token, ntype) {}
 
 const ASTAssignSt* ASTForSt::getInitializer() const noexcept {
@@ -36,15 +31,4 @@ bool ASTForSt::hasCondition() const noexcept {
 
 bool ASTForSt::hasIncrementer() const noexcept {
     return incrementer != nullptr;
-}
-
-void ASTForSt::print(size_t offset) const {
-    std::cout << std::format("{}|-> {}", std::string(offset * 2, ' '), toString());
-    if(initializer != nullptr)
-        initializer->print(offset + 1);
-    if(condition != nullptr)
-        condition->print(offset + 1);
-    if(incrementer != nullptr)
-        incrementer->print(offset + 1);
-    statement->print(offset + 1);
 }

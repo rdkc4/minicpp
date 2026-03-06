@@ -12,12 +12,16 @@
 struct Token{
     /// literal value of the token
     std::string value;
+
     /// line where token was found
     size_t line;
+
     /// column where token ends
     size_t column;
+
     /// type of a token
     TokenType type;
+    
     /// general type of a token
     GeneralTokenType gtype;
 

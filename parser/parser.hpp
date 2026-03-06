@@ -5,6 +5,7 @@
 
 #include "../common/abstract-syntax-tree/ASTProgram.hpp"
 
+#include "directive_parser.hpp"
 #include "function_parser.hpp"
 #include "token_consumer.hpp"
 
@@ -32,6 +33,10 @@ public:
 private:
     /// parser specialized for functions
     FunctionParser funcParser;
+
+    /// parser specialized for directives
+    DirectiveParser dirParser;
+    
     /// reference to a token handler wrapped around the lexer
     TokenConsumer& tokenConsumer;
 

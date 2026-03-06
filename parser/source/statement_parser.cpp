@@ -1,6 +1,8 @@
 #include "../statement_parser.hpp"
 #include "../token_consumer.hpp"
 
+#include <format>
+
 StatementParser::StatementParser(TokenConsumer& consumer) : expParser{ consumer }, tokenConsumer{ consumer } {}
 
 std::unique_ptr<ASTStatement> StatementParser::statement(){
@@ -12,10 +14,7 @@ std::unique_ptr<ASTStatement> StatementParser::statement(){
     }
 
     auto token = tokenConsumer.getToken();
-    if(token.type == TokenType::_PRINTF){
-        return printfStatement();
-    }
-    else if(token.type == TokenType::_RETURN)
+    if(token.type == TokenType::_RETURN)
         return returnStatement();
     else if(token.type == TokenType::_IF)
         return ifStatement();
@@ -29,6 +28,8 @@ std::unique_ptr<ASTStatement> StatementParser::statement(){
         return doWhileStatement();
     else if(token.type == TokenType::_SWITCH)
         return switchStatement();
+    else if(token.type == TokenType::_ID && tokenConsumer.peek().type == TokenType::_LPAREN)
+        return functionCallStatement();
     
     throw std::runtime_error(std::format("Line {}, Column {}: SYNTAX ERROR -> near '{}'",
         token.line, token.column, token.value));
@@ -47,19 +48,6 @@ std::unique_ptr<ASTVariable> StatementParser::variable(){
     tokenConsumer.consume(TokenType::_SEMICOLON);
 
     return _variable;
-}
-
-std::unique_ptr<ASTPrintfSt> StatementParser::printfStatement(){
-    std::unique_ptr<ASTPrintfSt> _printf = 
-        std::make_unique<ASTPrintfSt>(Token{"printf_statement", tokenConsumer.getToken().line, tokenConsumer.getToken().column}, ASTNodeType::PRINTF);
-
-    tokenConsumer.consume(TokenType::_PRINTF);
-    tokenConsumer.consume(TokenType::_LPAREN);
-    _printf->setExp(expParser.numericalExpression());
-    tokenConsumer.consume(TokenType::_RPAREN);
-    tokenConsumer.consume(TokenType::_SEMICOLON);
-
-    return _printf;
 }
 
 std::unique_ptr<ASTCompoundSt> StatementParser::compoundStatement(){
@@ -193,6 +181,14 @@ std::unique_ptr<ASTDoWhileSt> StatementParser::doWhileStatement(){
 
     tokenConsumer.consume(TokenType::_SEMICOLON);
     return _dowhile;
+}
+
+std::unique_ptr<ASTFunctionCallSt> StatementParser::functionCallStatement(){
+    std::unique_ptr<ASTFunctionCallSt> _funcCall = std::make_unique<ASTFunctionCallSt>(Token{"fcall_statement", tokenConsumer.getToken().line, tokenConsumer.getToken().column}, ASTNodeType::FUNCTION_CALL_STATEMENT);
+    _funcCall->initFunctionCallSt(expParser.functionCall());
+    tokenConsumer.consume(TokenType::_SEMICOLON);
+
+    return _funcCall;
 }
 
 std::unique_ptr<ASTSwitchSt> StatementParser::switchStatement(){

@@ -47,8 +47,7 @@ const std::unordered_map<IRNodeType, std::string> irNodeToString {
     {IRNodeType::JBE, "jbe"},
     {IRNodeType::JE, "je"},
     {IRNodeType::JNE, "jne"},
-    {IRNodeType::TEMPORARY, "TMP"},
-    {IRNodeType::PRINTF, "printf"}
+    {IRNodeType::TEMPORARY, "TMP"}
 };
 
 const std::unordered_map<std::string, IRNodeType> stringToArop {

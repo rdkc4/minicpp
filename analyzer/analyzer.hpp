@@ -8,6 +8,7 @@
 #include "../common/abstract-syntax-tree/ASTProgram.hpp"
 #include "../symbol-handling/scope-manager/scope_manager.hpp"
 #include "function_analyzer.hpp"
+#include "directive_analyzer.hpp"
 
 /**
  * @class Analyzer
@@ -24,7 +25,6 @@ public:
     /** 
      * @brief entry point for the semantic check
      * @param _program - pointer to a root of the ast
-     * @returns void
     */
     void semanticCheck(const ASTProgram* _program);
 
@@ -37,29 +37,32 @@ public:
     bool hasSemanticError(const ASTProgram* _program) const noexcept;
 
     /** 
-     * @brief displays semantic errors
+     * @brief getter for the semantic errors
      * @param _program - const pointer to a root of the ast
      * @note _program is needed to obtain name of all functions
-     * @returns void
+     * @returns semantic errors merged into a string 
     */
-    void showSemanticErrors(const ASTProgram* _program) const;
+    std::string getSemanticErrors(const ASTProgram* _program) const noexcept;
 
 protected:
     /// reference to the global scope manager
     ScopeManager& globalScopeManager;
+    
     /// analyzer specialized for functions
     FunctionAnalyzer functionAnalyzer;
+
+    // analyzer specialized for directives
+    DirectiveAnalyzer directiveAnalyzer;
 
     /// maps functionName to its semantic errors
     mutable std::unordered_map<std::string, std::vector<std::string>> semanticErrors;
     
     /// identifier for signature errors
-    static constexpr std::string globalError{ "__global" };
+    static inline std::string globalError{ "__global" };
 
     /** 
      * @brief starts checking functions parallelly
      * @param _program - const pointer to a root of the ast
-     * @returns void
     */
     void startFunctionCheck(const ASTProgram* _program);
 };

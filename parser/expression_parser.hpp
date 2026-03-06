@@ -53,11 +53,13 @@ public:
     */
     std::unique_ptr<ASTLiteral> literal();
 
-private:
-    /// reference to a token handler wrapped around the lexer
-    TokenConsumer& tokenConsumer;
+    /** 
+     * @brief parses function call
+     * @details FUNCTION_CALL : ID LPAREN (ARGUMENT)? RPAREN
+     * @returns pointer to a function call node
+    */
+    std::unique_ptr<ASTFunctionCall> functionCall();
 
-protected:
     /** 
      * @brief transforms rpn stack to a tree
      * @param rpn - reference to a rpn stack
@@ -84,17 +86,9 @@ protected:
     std::unique_ptr<ASTExpression> expression();
 
     /** 
-     * @brief parses function call
-     * @details FUNCTION_CALL : ID LPAREN (ARGUMENT)? RPAREN
-     * @returns pointer to a function call node
-    */
-    std::unique_ptr<ASTFunctionCall> functionCall();
-
-    /** 
      * @brief parses argument of the function call
      * @param _functionCall - function call that owns arguments
      * @details (NUMERICAL_EXPRESSION (COMMA NUMERICAL_EXPRESSION)*)?
-     * @returns void
     */
     void argument(ASTFunctionCall* _functionCall);
 
@@ -133,6 +127,10 @@ protected:
         auto it = precedence.find(op);
         return it != precedence.end() ? it->second : 0;
     }
+
+private:
+    /// reference to a token handler wrapped around the lexer
+    TokenConsumer& tokenConsumer;
 
 };
 

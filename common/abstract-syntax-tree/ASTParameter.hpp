@@ -29,17 +29,9 @@ public:
     /** 
      * @brief initializes type of the parameter
      * @param t - type of a parameter
-     * @returns void
     */
     void setType(Types t) noexcept;
 
-    /** 
-     * @brief prints parameter node
-     * @note debugging purposes
-     * @param offset - indentation
-     * @returns void
-    */
-    void print(size_t offset) const override;
 
 private:
     /// type of the parameter

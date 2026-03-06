@@ -32,61 +32,31 @@ public:
     /** 
      * @brief semantic check for the signature of all functions of the program
      * @param _program - const pointer to a root of the ast
-     * @returns void 
     */
     void checkFunctionSignatures(const ASTProgram* _program);
 
     /** 
      * @brief semantic check of the single function
      * @param _function - const pointer to a function
-     * @returns void
     */
     void checkFunction(const ASTFunction* _function);
-
-    /** 
-     * @brief getter for the context of the function that is analyzed by the current thread
-     * @returns reference to a context of the analyzer thread
-    */
-    static AnalyzerThreadContext& getContext() noexcept;
-
-protected:
-    /// thread local context of the analyzer
-    static thread_local AnalyzerThreadContext analyzerContext;
-
-    /// reference to the global scope manager
-    ScopeManager& globalScopeManager;
-
-    /// mutex for the concurrent access to semantic errors map
-    mutable std::mutex exceptionMtx;
-
-    /// maps function name to its semantic errors
-    std::unordered_map<std::string, std::vector<std::string>>& semanticErrors;
-
-    /// label of the global scope errors
-    const std::string& globalError;
-
-    /// analyzer specialized for statements
-    StatementAnalyzer statementAnalyzer;
 
     /** 
      * @brief semantic check for the parameters of the current function
      * @param _parameters - const reference to a vector of pointers to parameters
      * @param functionName - name of the function that is currently being analyzed 
-     * @returns void
     */
     void checkParameter(const std::vector<std::unique_ptr<ASTParameter>>& _parameters, const std::string& functionName);
 
     /** 
      * @brief inserts parameters of the function into the symbol table
      * @param _parameters - const reference to a vector of pointers to parameters
-     * @returns void
     */
     void defineParameters(const std::vector<std::unique_ptr<ASTParameter>>& _parameters);
 
     /**
      * @brief semantic check for the body of the function
      * @param _body - const reference to a vector of pointers to statements inside of the body
-     * @returns void
     */
     void checkBody(const std::vector<std::unique_ptr<ASTStatement>>& _body);
 
@@ -96,6 +66,33 @@ protected:
      * @returns true if function always returns, false otherwise
     */
     bool alwaysReturns(const ASTNode* _construct) const noexcept;
+
+    /** 
+     * @brief getter for the context of the function that is analyzed by the current thread
+     * @returns reference to a context of the analyzer thread
+    */
+    static AnalyzerThreadContext& getContext() noexcept;
+
+private:
+    /// thread local context of the analyzer
+    static thread_local AnalyzerThreadContext analyzerContext;
+
+    /// reference to the global scope manager
+    ScopeManager& globalScopeManager;
+
+    /// mutex for the concurrent access to semantic errors map
+    mutable std::mutex exceptionMtx;
+
+    /// analyzer specialized for statements
+    StatementAnalyzer statementAnalyzer;
+
+protected:
+    /// maps function name to its semantic errors
+    std::unordered_map<std::string, std::vector<std::string>>& semanticErrors;
+
+    /// label of the global scope errors
+    const std::string globalError;
+
 };
 
 #endif

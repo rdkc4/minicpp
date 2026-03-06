@@ -9,6 +9,7 @@
 #include "../common/intermediate-representation-tree/IRProgram.hpp"
 
 #include "../common/abstract-syntax-tree/ASTProgram.hpp"
+#include "directive_intermediate_representation.hpp"
 #include "function_intermediate_representation.hpp"
 
 /**
@@ -37,15 +38,20 @@ public:
     bool hasErrors(const IRProgram* _program) const noexcept;
 
     /**
-     * @brief displays all ir errors
+     * @brief getter for the ir errors
      * @param _program - pointer to the root of the irt program
-     * @returns void
+     * @returns errors merged into a string
     */
-    void showErrors(const IRProgram* _program) const;
+    std::string getErrors(const IRProgram* _program) const noexcept;
 
-protected:
+private:
     /// intermediate representation specialized for functions
     FunctionIntermediateRepresentation funcIR;
+
+    /// intermediate representation specialized for directives
+    DirectiveIntermediateRepresentation dirIR;
+
+protected:
     /// maps function name to its exceptions
     std::unordered_map<std::string,std::vector<std::string>> exceptions;
 };

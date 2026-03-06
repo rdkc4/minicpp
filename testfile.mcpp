@@ -1,3 +1,5 @@
+#include:libio
+
 int fib(int n){
     if(n == 0) return 0;
     else if(n == 1) return 1;
@@ -21,12 +23,12 @@ int fun(int y, int z){
 int main(){
     int y = 10;
     auto x = fib(y);
-    printf(x);
+    print_i(x);
     int i;
     int j;
     unsigned z = 5u;
     unsigned k = 3u & 5u + (z * 2u) / 3u | 2u ^ 11u;
-    printf(k);
+    print_u(k);
 
     for(i = 0; i < 10; i = i + 1){
         j = j + 2;
@@ -37,7 +39,7 @@ int main(){
     }while(j >= 10);
 
     x = fun(i, j); //this is single-line comment
-    printf(x);
+    print_i(x);
 
     {
         int abc = 3;
@@ -46,13 +48,13 @@ int main(){
     int abc = 1;
 
     x = (x << 1) - j/2;
-    printf(x);
+    print_i(x);
     /*
         this is
         multi-line
         comment
     */
     int tmp = fib(y + abc);
-    printf(tmp);
+    print_i(tmp);
     return tmp;
 }

@@ -5,7 +5,6 @@
 
 #include "../common/abstract-syntax-tree/ASTStatement.hpp"
 #include "../common/abstract-syntax-tree/ASTVariable.hpp"
-#include "../common/abstract-syntax-tree/ASTPrintfSt.hpp"
 #include "../common/abstract-syntax-tree/ASTIfSt.hpp"
 #include "../common/abstract-syntax-tree/ASTCompoundSt.hpp"
 #include "../common/abstract-syntax-tree/ASTAssignSt.hpp"
@@ -14,10 +13,10 @@
 #include "../common/abstract-syntax-tree/ASTForSt.hpp"
 #include "../common/abstract-syntax-tree/ASTDoWhileSt.hpp"
 #include "../common/abstract-syntax-tree/ASTSwitchSt.hpp"
+#include "../common/abstract-syntax-tree/ASTFunctionCallSt.hpp"
 
 #include "../common/intermediate-representation-tree/IRStatement.hpp"
 #include "../common/intermediate-representation-tree/IRVariable.hpp"
-#include "../common/intermediate-representation-tree/IRPrintfSt.hpp"
 #include "../common/intermediate-representation-tree/IRIfSt.hpp"
 #include "../common/intermediate-representation-tree/IRCompoundSt.hpp"
 #include "../common/intermediate-representation-tree/IRAssignSt.hpp"
@@ -26,6 +25,7 @@
 #include "../common/intermediate-representation-tree/IRForSt.hpp"
 #include "../common/intermediate-representation-tree/IRDoWhileSt.hpp"
 #include "../common/intermediate-representation-tree/IRSwitchSt.hpp"
+#include "../common/intermediate-representation-tree/IRFunctionCallSt.hpp"
 #include "expression_intermediate_representation.hpp"
 
 /**
@@ -46,23 +46,12 @@ public:
     */
     std::unique_ptr<IRStatement> statement(const ASTStatement* _statement);
     
-protected:
-    /// intermediate representation specialized for expressions
-    ExpressionIntermediateRepresentation expIR;
-
     /**
      * @brief turns ast variable declaration into irt variable declaration
      * @param _variable - const pointer to the ast variable declaration
      * @returns irt pointer to the variable declaratiom
     */
     std::unique_ptr<IRVariable> variable(const ASTVariable* _variable);
-
-    /**
-     * @brief turns ast printf statement into irt printf statement
-     * @param _printf - const pointer to the ast printf statement
-     * @returns pointer to the irt printf statement
-    */
-    std::unique_ptr<IRPrintfSt> printfStatement(const ASTPrintfSt* _printf);
 
     /**
      * @brief turns ast if-statement into irt if-statement
@@ -91,6 +80,13 @@ protected:
      * @returns pointer to the irt return statement
     */
     std::unique_ptr<IRReturnSt> returnStatement(const ASTReturnSt* _return);
+
+    /**
+     * @brief turns ast function-call statement into irt function-call statement
+     * @param _call - const pointer to the ast function-call statement
+     * @returns pointer to the irt function-call statement
+    */
+    std::unique_ptr<IRFunctionCallSt> functionCallStatement(const ASTFunctionCallSt* _call);
 
     /**
      * @brief turns ast while-statement into irt while-statement
@@ -140,6 +136,11 @@ protected:
      * @returns pointer to the irt switch-block
     */
     std::unique_ptr<IRSwitchBlock> switchBlock(const ASTSwitchBlock* _block);
+
+private:
+    /// intermediate representation specialized for expressions
+    ExpressionIntermediateRepresentation expIR;
+
 };
 
 #endif

@@ -22,8 +22,9 @@ int main(int argc, char** argv){
 
     std::stringstream input;
     input << inputFileStream.rdbuf();
+    inputFileStream.close();
 
-    std::string output{ argc == 3 ? argv[2] : "output.s" };
+    std::string output{ argc == 3 ? argv[2] : "output" };
 
     auto start{ std::chrono::high_resolution_clock::now() };
 
@@ -33,9 +34,9 @@ int main(int argc, char** argv){
     auto duration{ std::chrono::duration_cast<std::chrono::milliseconds>(end - start) };
 
     if(ret != Compiler::ExitCode::NO_ERR){
-        std::cerr << "\nProgram failed to compile!\n";
+        std::cerr << "Program failed to compile!\n";
     }
-    std::cout << std::format("\nCompilation time: {}ms\n", duration.count());
+    std::cout << std::format("Compilation time: {}ms\n", duration.count());
 
     return 0;
 }

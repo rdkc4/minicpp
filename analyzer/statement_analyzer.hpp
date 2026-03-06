@@ -3,10 +3,10 @@
 
 #include <unordered_set>
 #include <string>
+#include <format>
 
 #include "../common/abstract-syntax-tree/ASTStatement.hpp"
 #include "../common/abstract-syntax-tree/ASTVariable.hpp"
-#include "../common/abstract-syntax-tree/ASTPrintfSt.hpp"
 #include "../common/abstract-syntax-tree/ASTIfSt.hpp"
 #include "../common/abstract-syntax-tree/ASTWhileSt.hpp"
 #include "../common/abstract-syntax-tree/ASTForSt.hpp"
@@ -15,6 +15,7 @@
 #include "../common/abstract-syntax-tree/ASTCompoundSt.hpp"
 #include "../common/abstract-syntax-tree/ASTAssignSt.hpp"
 #include "../common/abstract-syntax-tree/ASTReturnSt.hpp"
+#include "../common/abstract-syntax-tree/ASTFunctionCallSt.hpp"
 #include "../symbol-handling/scope-manager/scope_manager.hpp"
 #include "defs/analyzer_defs.hpp"
 #include "expression_analyzer.hpp"
@@ -34,15 +35,8 @@ public:
     /** 
      * @brief semantic check for any ast statement
      * @param _statement - const pointer to a statement node
-     * @returns void
     */
     void checkStatement(const ASTStatement* _statement);
-
-protected:
-    /// reference to the global scope manager
-    ScopeManager& globalScopeManager;
-    /// analyzer specialized for the expression analysis
-    ExpressionAnalyzer expressionAnalyzer;
 
     /** 
      * @brief getter for the context of the function that owns statements
@@ -53,77 +47,66 @@ protected:
     /** 
      * @brief semantic check for variable declaration
      * @param _variable - const pointer to a variable node
-     * @returns void
     */
     void checkVariable(const ASTVariable* _variable);
 
     /** 
-     * @brief semantic check for printf statement
-     * @param _printf - const pointer to a printf statement node
-     * @returns void
-    */
-    void checkPrintfStatement(const ASTPrintfSt* _printf);
-
-    /** 
      * @brief semantic check for if-statement
      * @param _if - const pointer to an if-statement node
-     * @returns void
     */
     void checkIfStatement(const ASTIfSt* _if);
 
     /** 
      * @brief semantic check for while-statement
      * @param _while - const pointer to a while-statement node
-     * @returns void
     */
     void checkWhileStatement(const ASTWhileSt* _while);
 
     /** 
      * @brief semantic check for for-statement
      * @param _for - const pointer to a for-statement node
-     * @returns void
     */
     void checkForStatement(const ASTForSt* _for);
 
     /** 
      * @brief semantic check for do-while-statement
      * @param _dowhile - const pointer to a do-while-statement node
-     * @returns void
     */
     void checkDoWhileStatement(const ASTDoWhileSt* _dowhile);
 
     /** 
      * @brief semantic check for compound-statement
      * @param _compound - const pointer to a compound-statement node
-     * @returns void
     */
     void checkCompoundStatement(const ASTCompoundSt* _compound);
 
     /** 
      * @brief semantic check for assignment-statement
      * @param _assignment - const pointer to an assignment-statement node
-     * @returns void
     */
     void checkAssignmentStatement(const ASTAssignSt* _assignment);
 
     /** 
      * @brief semantic check for return-statement
      * @param _return - const pointer to a return-statement node
-     * @returns void
     */
     void checkReturnStatement(const ASTReturnSt* _return);
 
     /** 
+     * @brief semantic check for function-call-statement
+     * @param _call - const pointer to a function-call-statement node
+    */
+    void checkFunctionCallStatement(const ASTFunctionCallSt* _call);
+
+    /** 
      * @brief semantic check for switch-statement
      * @param _switch - const pointer to a switch-statement node
-     * @returns void
     */
     void checkSwitchStatement(const ASTSwitchSt* _switch);
 
     /** 
      * @brief semantic check for the cases of the switch-statement
      * @param _switch - const pointer to a switch-statement node
-     * @returns void
     */
     template<typename T>
     void checkSwitchStatementCases(const ASTSwitchSt* _switch){
@@ -164,6 +147,14 @@ protected:
             }
         }
     }
+
+private:
+    /// reference to the global scope manager
+    ScopeManager& globalScopeManager;
+
+    /// analyzer specialized for the expression analysis
+    ExpressionAnalyzer expressionAnalyzer;
+
 };
 
 #endif

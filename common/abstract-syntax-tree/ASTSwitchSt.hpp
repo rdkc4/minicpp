@@ -36,7 +36,6 @@ public:
     /** 
      * @brief initializes id of a variable
      * @param var - pointer to id of a variable
-     * @returns void
     */
     void setVariable(std::unique_ptr<ASTId> var);
 
@@ -55,14 +54,12 @@ public:
     /** 
      * @brief adds new case
      * @param _case - pointer to a case that is being added
-     * @returns void
     */
     void addCase(std::unique_ptr<ASTCaseSt> _case);
 
     /** 
      * @brief adds default statement
      * @param _swDefault - pointer to a default statement
-     * @returns void
     */
     void setDefault(std::unique_ptr<ASTDefaultSt> _swDefault);
 
@@ -72,19 +69,13 @@ public:
     */
     bool hasDefault() const noexcept;
 
-    /** 
-     * @brief prints switch statement node
-     * @note debugging purposes
-     * @param offset - indentation
-     * @returns void
-    */
-    void print(size_t offset) const override;
-
 private:
     /// pointer to id of the variable of the switch-statement
     std::unique_ptr<ASTId> variable;
+
     /// vector of pointer to cases of the switch-statement
     std::vector<std::unique_ptr<ASTCaseSt>> cases;
+    
     /// pointer to the default case of the switch-statement
     std::unique_ptr<ASTDefaultSt> _default;
 

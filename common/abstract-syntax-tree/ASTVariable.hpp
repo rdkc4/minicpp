@@ -32,7 +32,6 @@ public:
     /** 
      * @brief initializes the type of the variable
      * @param t - type of the variable
-     * @returns void
     */
     void setType(Types t) noexcept;
 
@@ -49,7 +48,6 @@ public:
     /** 
      * @brief initializes expression of the variable
      * @param assign - expression being assigned to the variable
-     * @returns void
     */
     void setAssign(std::unique_ptr<ASTExpression> assign);
 
@@ -59,17 +57,10 @@ public:
     */
     bool hasAssign() const noexcept;
 
-    /** 
-     * @brief prints variable node
-     * @note debugging purposes
-     * @param offset - indentation
-     * @returns void
-    */
-    void print(size_t offset) const override;
-
 private:
     /// type of the variable
     Types type;
+    
     /// pointer to the expression assigned to the variable
     std::unique_ptr<ASTExpression> assignment;
 

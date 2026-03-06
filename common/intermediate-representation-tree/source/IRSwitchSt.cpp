@@ -1,11 +1,5 @@
 #include "../IRSwitchSt.hpp"
 
-#include <memory>
-#include <vector>
-#include <string>
-#include <format>
-#include <iostream>
-
 IRSwitchSt::IRSwitchSt(IRNodeType ntype) : IRStatement(ntype) {}
 
 const IRId* IRSwitchSt::getVariable() const noexcept {
@@ -38,18 +32,4 @@ bool IRSwitchSt::hasDefault() const noexcept {
 
 size_t IRSwitchSt::getCaseCount() const noexcept {
     return cases.size();
-}
-
-void IRSwitchSt::print(size_t offset) const {
-    std::cout << std::format("{}|-> {}", std::string(offset*2, ' '), toString());
-
-    variable->print(offset + 1);
-    
-    for(const auto& _case : cases){
-        _case->print(offset + 1);
-    }
-    
-    if(hasDefault()){
-        _default->print(offset + 1);
-    }
 }

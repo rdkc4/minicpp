@@ -2,17 +2,14 @@
 #include "../function_analyzer.hpp"
 
 #include <format>
+#include <utility>
 
 StatementAnalyzer::StatementAnalyzer(ScopeManager& scopeManager) : globalScopeManager{ scopeManager }, expressionAnalyzer{ scopeManager } {}
 
 void StatementAnalyzer::checkStatement(const ASTStatement* _statement){
-    AnalyzerThreadContext& analyzerContext = getContext();
     switch(_statement->getNodeType()){
         case ASTNodeType::VARIABLE:
             checkVariable(static_cast<const ASTVariable*>(_statement));
-            break;
-        case ASTNodeType::PRINTF:
-            checkPrintfStatement(static_cast<const ASTPrintfSt*>(_statement));
             break;
         case ASTNodeType::IF_STATEMENT:
             checkIfStatement(static_cast<const ASTIfSt*>(_statement));
@@ -38,11 +35,11 @@ void StatementAnalyzer::checkStatement(const ASTStatement* _statement){
         case ASTNodeType::SWITCH_STATEMENT:
             checkSwitchStatement(static_cast<const ASTSwitchSt*>(_statement));
             break;
+        case ASTNodeType::FUNCTION_CALL_STATEMENT:
+            checkFunctionCallStatement(static_cast<const ASTFunctionCallSt*>(_statement));
+            break;
         default:
-            analyzerContext.semanticErrors.push_back(
-                std::format("Line {}, Column {}: SYNTAX ERROR -> expected 'STATEMENT' got '{}'",
-                    _statement->getToken().line, _statement->getToken().column, astNodeTypeToString.at(_statement->getNodeType()))
-            );
+            std::unreachable();
     }
 }
 
@@ -93,10 +90,6 @@ void StatementAnalyzer::checkVariable(const ASTVariable* _variable){
             analyzerContext.scopeManager->getSymbol(_variable->getToken().value).setType(rtype);
         }
     }
-}
-
-void StatementAnalyzer::checkPrintfStatement(const ASTPrintfSt* _printf){
-    expressionAnalyzer.checkNumericalExpression(_printf->getExp());
 }
 
 void StatementAnalyzer::checkIfStatement(const ASTIfSt* _if){
@@ -189,6 +182,10 @@ void StatementAnalyzer::checkReturnStatement(const ASTReturnSt* _return){
                 _return->getToken().line, _return->getToken().column, typeToString.at(expectedReturnType), analyzerContext.functionName, typeToString.at(returnType))
         );
     }
+}
+
+void StatementAnalyzer::checkFunctionCallStatement(const ASTFunctionCallSt* _call){
+    expressionAnalyzer.checkFunctionCall(_call->getFunctionCall());
 }
 
 void StatementAnalyzer::checkSwitchStatement(const ASTSwitchSt* _switch){

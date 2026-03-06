@@ -31,7 +31,6 @@ public:
     /** 
      * @brief initializes the name of the id
      * @param _idName - name of the id
-     * @returns void
     */
     void setIdName(const std::string& _idName);
 
@@ -44,21 +43,13 @@ public:
     /** 
      * @brief initializes the value of the id
      * @param val - value of the id
-     * @returns void
     */
     void setValue(const std::string& val);
-
-    /** 
-     * @brief prints formmatted string of the id node
-     * @note debugging purposes
-     * @param offset - indentation
-     * @returns void
-    */
-    void print(size_t offset) const override;
 
 private:
     /// name of the id
     std::string idName;
+    
     /// value of the id
     std::string value;
 };

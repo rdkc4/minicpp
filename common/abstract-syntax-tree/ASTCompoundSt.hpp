@@ -30,17 +30,8 @@ public:
     /** 
      * @brief adds new statement node to the vector of statements
      * @param statement - pointer to a statement node
-     * @returns void
     */
     void addStatement(std::unique_ptr<ASTStatement> statement);
-
-    /** 
-     * @brief prints compound statement node
-     * @note debugging purposes
-     * @param offset - indentation
-     * @returns void
-    */
-    void print(size_t offset) const override;
 
 private:
     /// vector of pointers to statements of the compound statement

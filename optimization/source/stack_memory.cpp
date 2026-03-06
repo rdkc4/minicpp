@@ -33,8 +33,6 @@ size_t Optimization::StackMemory::computeStackMemory(const IRStatement* _stmt){
             return computeStackMemory(static_cast<const IRWhileSt*>(_stmt));
         case  IRNodeType::DO_WHILE:
             return computeStackMemory(static_cast<const IRDoWhileSt*>(_stmt));
-        case  IRNodeType::PRINTF:
-            return computeStackMemory(static_cast<const IRPrintfSt*>(_stmt));
         case  IRNodeType::ASSIGN:
             return computeStackMemory(static_cast<const IRAssignSt*>(_stmt));
         case  IRNodeType::RETURN:
@@ -97,13 +95,6 @@ size_t Optimization::StackMemory::computeStackMemory(const IRDoWhileSt* _dowhile
         variableCount += computeStackMemory(_dowhile->getTemporaries());
     }
     return variableCount;
-}
-
-size_t Optimization::StackMemory::computeStackMemory(const IRPrintfSt* _printf){
-    if(_printf->hasTemporaries()){
-        return computeStackMemory(_printf->getTemporaries());
-    }
-    return 0;
 }
 
 size_t Optimization::StackMemory::computeStackMemory(const IRAssignSt* _assign){

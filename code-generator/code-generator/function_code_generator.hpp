@@ -5,7 +5,6 @@
 #include <memory>
 #include <unordered_map>
 #include <string>
-#include <atomic>
 
 #include "../../common/intermediate-representation-tree/IRProgram.hpp"
 #include "../../common/intermediate-representation-tree/IRFunction.hpp"
@@ -31,51 +30,35 @@ public:
     static CodeGeneratorThreadContext& getContext() noexcept;
 
     /** 
-     * @brief updates flag, whether or not printf function should be generated
-     * @param _prints - flag if program prints or not
-     * @returns void
-    */
-    static void updatePrints(bool _prints) noexcept;
-
-    /** 
-     * @brief checks whether program prints or not
-     * @returns true if program prints, false otherwise 
-    */
-    bool hasPrint() const noexcept;
-
-    /** 
      * @brief initializes the vector holding asm code for all functions
      * @param _root - const pointer to the irt program
-     * @returns void
     */
     void initFunctions(const IRProgram* _root);
 
     /** 
      * @brief generates the asm code of the function
      * @param _function - const pointer to the irt function
-     * @returns void
     */
     void generateFunction(const IRFunction* _function);
-
-private:
-    /// thread local context of the function
-    static thread_local CodeGeneratorThreadContext codeGenContext;
-    /// flag whether or not program prints
-    static std::atomic<bool> prints;
-    /// code generator specialized for statements
-    StatementCodeGenerator stmtGenerator;
-
-    /// mutex for concurrent access to asmCode
-    std::mutex asmMtx;
-    /// maps functionName to its asm code
-    std::unordered_map<std::string, std::vector<std::string>>& asmCode;
 
     /** 
      * @brief generates the parameters of the function
      * @param _parameters - reference to a const vector of pointers to the parameters
-     * @returns void
     */
     void generateParameter(const std::vector<std::unique_ptr<IRParameter>>& _parameters);
+
+private:
+    /// thread local context of the function
+    static thread_local CodeGeneratorThreadContext codeGenContext;
+
+    /// mutex for concurrent access to asmCode
+    std::mutex asmMtx;
+
+    /// code generator specialized for statements
+    StatementCodeGenerator stmtGenerator;
+
+    /// maps functionName to its asm code
+    std::unordered_map<std::string, std::vector<std::string>>& asmCode;
 
 };
 

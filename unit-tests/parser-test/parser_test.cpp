@@ -5,7 +5,8 @@
 #include "../parser-test/parser_test.hpp"
 
 TEST(ParserTest, ParseProgramSuccessful){
-    LexerTest lexer{ "int fun(){ return 123; } int main(){ int a = 1 + 2; return a; }"};
+    std::vector<std::string> input{"int fun(){ return 123; } int main(){ int a = 1 + 2; return a; }"};
+    LexerTest lexer{ input };
     lexer.tokenize();
     TokenConsumer tokenConsumer { lexer };
     ParserTest parser{ tokenConsumer };
@@ -19,7 +20,8 @@ TEST(ParserTest, ParseProgramSuccessful){
 }
 
 TEST(ParserTest, ParseProgramThrows){
-    LexerTest lexer{ "main(){ int a = 1 + 2; return a; }"};
+    std::vector<std::string> input{"main(){ int a = 1 + 2; return a; }"};
+    LexerTest lexer{ input };
     lexer.tokenize();
     TokenConsumer tokenConsumer { lexer };
     ParserTest parser{ tokenConsumer };
@@ -29,7 +31,8 @@ TEST(ParserTest, ParseProgramThrows){
 }
 
 TEST(ParserTest, FunctionMultipleParams){
-    LexerTest lexer{ "int rectArea(int a, int b){ return a * b; }"};
+    std::vector<std::string> input{"int rectArea(int a, int b){ return a * b; }"};
+    LexerTest lexer{ input };
     lexer.tokenize();
     TokenConsumer tokenConsumer { lexer };
     FunctionParserTest parser{ tokenConsumer };
@@ -37,13 +40,14 @@ TEST(ParserTest, FunctionMultipleParams){
     size_t expectedParamCount = 2;
 
     std::unique_ptr<ASTFunction> _function;
-    ASSERT_NO_THROW(_function = parser.testFunction());
+    ASSERT_NO_THROW(_function = parser.function());
     ASSERT_EQ(_function->getNodeType(), ASTNodeType::FUNCTION);
     ASSERT_EQ(_function->getParameterCount(), expectedParamCount);
 }
 
 TEST(ParserTest, FunctionSingleParam){
-    LexerTest lexer{ "int sq(int a){ return a * a; }"};
+    std::vector<std::string> input{"int sq(int a){ return a * a; }"};
+    LexerTest lexer{ input };
     lexer.tokenize();
     TokenConsumer tokenConsumer { lexer };
     FunctionParserTest parser{ tokenConsumer };
@@ -51,13 +55,14 @@ TEST(ParserTest, FunctionSingleParam){
     size_t expectedParamCount = 1;
 
     std::unique_ptr<ASTFunction> _function;
-    ASSERT_NO_THROW(_function = parser.testFunction());
+    ASSERT_NO_THROW(_function = parser.function());
     ASSERT_EQ(_function->getNodeType(), ASTNodeType::FUNCTION);
     ASSERT_EQ(_function->getParameterCount(), expectedParamCount);
 }
 
 TEST(ParserTest, FunctionNoParams){
-    LexerTest lexer{ "int main(){ return 0; }"};
+    std::vector<std::string> input{"int main(){ return 0; }"};
+    LexerTest lexer{ input };
     lexer.tokenize();
     TokenConsumer tokenConsumer { lexer };
     FunctionParserTest parser{ tokenConsumer };
@@ -65,60 +70,52 @@ TEST(ParserTest, FunctionNoParams){
     size_t expectedParamCount = 0;
 
     std::unique_ptr<ASTFunction> _function;
-    ASSERT_NO_THROW(_function = parser.testFunction());
+    ASSERT_NO_THROW(_function = parser.function());
     ASSERT_EQ(_function->getNodeType(), ASTNodeType::FUNCTION);
     ASSERT_EQ(_function->getParameterCount(), expectedParamCount);
 }
 
 TEST(ParserTest, FunctionNoBodyThrows){
-    LexerTest lexer{ "int main() return 0;"};
+    std::vector<std::string> input{"int main() return 0;"};
+    LexerTest lexer{ { input } };
     lexer.tokenize();
     TokenConsumer tokenConsumer { lexer };
     FunctionParserTest parser{ tokenConsumer };
 
     std::unique_ptr<ASTFunction> _function;
-    ASSERT_THROW(_function = parser.testFunction(), std::runtime_error);
+    ASSERT_THROW(_function = parser.function(), std::runtime_error);
 }
 
 TEST(ParserTest, VariableDirectInit){
-    LexerTest lexer{ "int x = a + fun(b,c);"};
+    std::vector<std::string> input{"int x = a + fun(b,c);"};
+    LexerTest lexer{ input };
     lexer.tokenize();
     TokenConsumer tokenConsumer { lexer };
     StatementParserTest parser{ tokenConsumer };
 
     std::unique_ptr<ASTVariable> _variable;
-    ASSERT_NO_THROW(_variable = parser.testVariable());
+    ASSERT_NO_THROW(_variable = parser.variable());
     ASSERT_EQ(_variable->getNodeType(), ASTNodeType::VARIABLE);
     ASSERT_TRUE(_variable->hasAssign());
 }
 
 TEST(ParserTest, VariableNoInit){
-    LexerTest lexer{ "int x;"};
+    std::vector<std::string> input{"int x;"};
+    LexerTest lexer{ input };
     lexer.tokenize();
     TokenConsumer tokenConsumer { lexer };
     StatementParserTest parser{ tokenConsumer };
 
 
     std::unique_ptr<ASTVariable> _variable;
-    ASSERT_NO_THROW(_variable = parser.testVariable());
+    ASSERT_NO_THROW(_variable = parser.variable());
     ASSERT_EQ(_variable->getNodeType(), ASTNodeType::VARIABLE);
     ASSERT_FALSE(_variable->hasAssign());
 }
 
-TEST(ParserTest, PrintfStatement){
-    LexerTest lexer{ "printf(x + y);"};
-    lexer.tokenize();
-    TokenConsumer tokenConsumer { lexer };
-    StatementParserTest parser{ tokenConsumer };
-
-
-    std::unique_ptr<ASTPrintfSt> _printf;
-    ASSERT_NO_THROW(_printf = parser.testPrintfStatement());
-    ASSERT_EQ(_printf->getNodeType(), ASTNodeType::PRINTF);
-}
-
 TEST(ParserTest, EmptyCompoundStatement){
-    LexerTest lexer{ "{}"};
+    std::vector<std::string> input{"{}"};
+    LexerTest lexer{ input };
     lexer.tokenize();
     TokenConsumer tokenConsumer { lexer };
     StatementParserTest parser{ tokenConsumer };
@@ -126,13 +123,14 @@ TEST(ParserTest, EmptyCompoundStatement){
     const size_t expectedChildrenSize = 0;
 
     std::unique_ptr<ASTCompoundSt> _compound;
-    ASSERT_NO_THROW(_compound = parser.testCompoundStatement());
+    ASSERT_NO_THROW(_compound = parser.compoundStatement());
     ASSERT_EQ(_compound->getNodeType(), ASTNodeType::COMPOUND_STATEMENT);
     ASSERT_EQ(_compound->getStatements().size(), expectedChildrenSize);
 }
 
 TEST(ParserTest, CompoundStatement){
-    LexerTest lexer{ "{ int x = 3; printf(x); }"};
+    std::vector<std::string> input{"{ int x = 3; int y = x; }"};
+    LexerTest lexer{ input };
     lexer.tokenize();
     TokenConsumer tokenConsumer { lexer };
     StatementParserTest parser{ tokenConsumer };
@@ -140,49 +138,53 @@ TEST(ParserTest, CompoundStatement){
     const size_t expectedChildrenSize = 2;
 
     std::unique_ptr<ASTCompoundSt> _compound;
-    ASSERT_NO_THROW(_compound = parser.testCompoundStatement());
+    ASSERT_NO_THROW(_compound = parser.compoundStatement());
     ASSERT_EQ(_compound->getNodeType(), ASTNodeType::COMPOUND_STATEMENT);
     ASSERT_EQ(_compound->getStatements().size(), expectedChildrenSize);
 }
 
 TEST(ParserTest, AssignmentStatement){
-    LexerTest lexer{ "x = 123u;"};
+    std::vector<std::string> input{"x = 123u;"};
+    LexerTest lexer{ input };
     lexer.tokenize();
     TokenConsumer tokenConsumer { lexer };
     StatementParserTest parser{ tokenConsumer };
 
     std::unique_ptr<ASTAssignSt> _assignment;
-    ASSERT_NO_THROW(_assignment = parser.testAssignmentStatement());
+    ASSERT_NO_THROW(_assignment = parser.assignmentStatement());
     ASSERT_EQ(_assignment->getNodeType(), ASTNodeType::ASSIGNMENT_STATEMENT);
     ASSERT_TRUE(_assignment->getExp()->getNodeType() == ASTNodeType::LITERAL);
 }
 
 TEST(ParserTest, ReturnStatementVoid){
-    LexerTest lexer{ "return;"};
+    std::vector<std::string> input{"return;"};
+    LexerTest lexer{ input };
     lexer.tokenize();
     TokenConsumer tokenConsumer { lexer };
     StatementParserTest parser{ tokenConsumer };
 
     std::unique_ptr<ASTReturnSt> _return;
-    ASSERT_NO_THROW(_return = parser.testReturnStatement());
+    ASSERT_NO_THROW(_return = parser.returnStatement());
     ASSERT_EQ(_return->getNodeType(), ASTNodeType::RETURN_STATEMENT);
     ASSERT_FALSE(_return->returns());
 }
 
 TEST(ParserTest, ReturnStatement){
-    LexerTest lexer{ "return fun(1, 2);"};
+    std::vector<std::string> input{"return fun(1, 2);"};
+    LexerTest lexer{ input };
     lexer.tokenize();
     TokenConsumer tokenConsumer { lexer };
     StatementParserTest parser{ tokenConsumer };
 
     std::unique_ptr<ASTReturnSt> _return;
-    ASSERT_NO_THROW(_return = parser.testReturnStatement());
+    ASSERT_NO_THROW(_return = parser.returnStatement());
     ASSERT_EQ(_return->getNodeType(), ASTNodeType::RETURN_STATEMENT);
     ASSERT_TRUE(_return->returns());
 }
 
 TEST(ParserTest, IfStatementOnlyIf){
-    LexerTest lexer{ "if(a > b) return a;"};
+    std::vector<std::string> input{"if(a > b) return a;"};
+    LexerTest lexer{ input };
     lexer.tokenize();
     TokenConsumer tokenConsumer { lexer };
     StatementParserTest parser{ tokenConsumer };
@@ -190,14 +192,15 @@ TEST(ParserTest, IfStatementOnlyIf){
     const size_t expectedConditionCount = 1;
 
     std::unique_ptr<ASTIfSt> _if;
-    ASSERT_NO_THROW(_if = parser.testIfStatement());
+    ASSERT_NO_THROW(_if = parser.ifStatement());
     ASSERT_EQ(_if->getNodeType(), ASTNodeType::IF_STATEMENT);
     ASSERT_EQ(_if->getConditions().size(), expectedConditionCount);
     ASSERT_FALSE(_if->hasElse());
 }
 
 TEST(ParserTest, IfStatementIfElse){
-    LexerTest lexer{ "if(a > b) return a; else return b;"};
+    std::vector<std::string> input{"if(a > b) return a; else return b;"};
+    LexerTest lexer{ input };
     lexer.tokenize();
     TokenConsumer tokenConsumer { lexer };
     StatementParserTest parser{ tokenConsumer };
@@ -205,14 +208,15 @@ TEST(ParserTest, IfStatementIfElse){
     const size_t expectedStatementCount = 2;
 
     std::unique_ptr<ASTIfSt> _if;
-    ASSERT_NO_THROW(_if = parser.testIfStatement());
+    ASSERT_NO_THROW(_if = parser.ifStatement());
     ASSERT_EQ(_if->getNodeType(), ASTNodeType::IF_STATEMENT);
     ASSERT_EQ(_if->getStatements().size(), expectedStatementCount);
     ASSERT_TRUE(_if->hasElse());
 }
 
 TEST(ParserTest, IfStatementIfElseif){
-    LexerTest lexer{ "if(a > b) return a; else if(a == b) return b;"};
+    std::vector<std::string> input{"if(a > b) return a; else if(a == b) return b;"};
+    LexerTest lexer{ input };
     lexer.tokenize();
     TokenConsumer tokenConsumer { lexer };
     StatementParserTest parser{ tokenConsumer };
@@ -220,13 +224,14 @@ TEST(ParserTest, IfStatementIfElseif){
     const size_t expectedConditionCount = 2;
 
     std::unique_ptr<ASTIfSt> _if;
-    ASSERT_NO_THROW(_if = parser.testIfStatement());
+    ASSERT_NO_THROW(_if = parser.ifStatement());
     ASSERT_EQ(_if->getNodeType(), ASTNodeType::IF_STATEMENT);
     ASSERT_EQ(_if->getConditions().size(), expectedConditionCount);
 }
 
 TEST(ParserTest, IfStatementIfElseifElse){
-    LexerTest lexer{ "if(a > b) return a; else if(a == b) return 0; else return b;"};
+    std::vector<std::string> input{"if(a > b) return a; else if(a == b) return 0; else return b;"};
+    LexerTest lexer{ input };
     lexer.tokenize();
     TokenConsumer tokenConsumer { lexer };
     StatementParserTest parser{ tokenConsumer };
@@ -234,31 +239,33 @@ TEST(ParserTest, IfStatementIfElseifElse){
     const size_t expectedStatementCount = 3;
 
     std::unique_ptr<ASTIfSt> _if;
-    ASSERT_NO_THROW(_if = parser.testIfStatement());
+    ASSERT_NO_THROW(_if = parser.ifStatement());
     ASSERT_EQ(_if->getNodeType(), ASTNodeType::IF_STATEMENT);
     ASSERT_EQ(_if->getStatements().size(), expectedStatementCount);
     ASSERT_TRUE(_if->hasElse());
 }
 
 TEST(ParserTest, WhileStatement){
-    LexerTest lexer{ "while(a > b) b = b + 1;"};
+    std::vector<std::string> input{"while(a > b) b = b + 1;"};
+    LexerTest lexer{ input };
     lexer.tokenize();
     TokenConsumer tokenConsumer { lexer };
     StatementParserTest parser{ tokenConsumer };
 
     std::unique_ptr<ASTWhileSt> _while;
-    ASSERT_NO_THROW(_while = parser.testWhileStatement());
+    ASSERT_NO_THROW(_while = parser.whileStatement());
     ASSERT_EQ(_while->getNodeType(), ASTNodeType::WHILE_STATEMENT);
 }
 
 TEST(ParserTest, ForStatement){
-    LexerTest lexer{ "for(i = 0; i < 5; i = i + 1) printf(i);"};
+    std::vector<std::string> input{"for(i = 0; i < 5; i = i + 1) i = i + 1;"};
+    LexerTest lexer{ input };
     lexer.tokenize();
     TokenConsumer tokenConsumer { lexer };
     StatementParserTest parser{ tokenConsumer };
 
     std::unique_ptr<ASTForSt> _for;
-    ASSERT_NO_THROW(_for = parser.testForStatement());
+    ASSERT_NO_THROW(_for = parser.forStatement());
     ASSERT_EQ(_for->getNodeType(), ASTNodeType::FOR_STATEMENT);
     ASSERT_TRUE(_for->hasInitializer());
     ASSERT_TRUE(_for->hasCondition());
@@ -266,18 +273,20 @@ TEST(ParserTest, ForStatement){
 }
 
 TEST(ParserTest, DoWhileStatement){
-    LexerTest lexer{ "do x = x + 1; while(x < 10);"};
+    std::vector<std::string> input{"do x = x + 1; while(x < 10);"};
+    LexerTest lexer{ input };
     lexer.tokenize();
     TokenConsumer tokenConsumer { lexer };
     StatementParserTest parser{ tokenConsumer };
 
     std::unique_ptr<ASTDoWhileSt> _dowhile;
-    ASSERT_NO_THROW(_dowhile = parser.testDoWhileStatement());
+    ASSERT_NO_THROW(_dowhile = parser.doWhileStatement());
     ASSERT_EQ(_dowhile->getNodeType(), ASTNodeType::DO_WHILE_STATEMENT);
 }
 
 TEST(ParserTest, SwitchStatement){
-    LexerTest lexer{ "switch(x){ case 1: break; default: return 1; }"};
+    std::vector<std::string> input{"switch(x){ case 1: break; default: return 1; }"};
+    LexerTest lexer{ input };
     lexer.tokenize();
     TokenConsumer tokenConsumer { lexer };
     StatementParserTest parser{ tokenConsumer };
@@ -285,14 +294,15 @@ TEST(ParserTest, SwitchStatement){
     const size_t expectedCaseCount = 1;
 
     std::unique_ptr<ASTSwitchSt> _switch;
-    ASSERT_NO_THROW(_switch = parser.testSwitchStatement());
+    ASSERT_NO_THROW(_switch = parser.switchStatement());
     ASSERT_EQ(_switch->getNodeType(), ASTNodeType::SWITCH_STATEMENT);
     ASSERT_EQ(_switch->getCases().size(), expectedCaseCount);
     ASSERT_TRUE(_switch->hasDefault());  
 }
 
 TEST(ParserTest, SwitchStatementNoDefault){
-    LexerTest lexer{ "switch(x){ case 1: break; }"};
+    std::vector<std::string> input{"switch(x){ case 1: break; }"};
+    LexerTest lexer{ input };
     lexer.tokenize();
     TokenConsumer tokenConsumer { lexer };
     StatementParserTest parser{ tokenConsumer };
@@ -300,61 +310,66 @@ TEST(ParserTest, SwitchStatementNoDefault){
     const size_t expectedCaseCount = 1;
 
     std::unique_ptr<ASTSwitchSt> _switch;
-    ASSERT_NO_THROW(_switch = parser.testSwitchStatement());
+    ASSERT_NO_THROW(_switch = parser.switchStatement());
     ASSERT_EQ(_switch->getNodeType(), ASTNodeType::SWITCH_STATEMENT);
     ASSERT_EQ(_switch->getCases().size(), expectedCaseCount);
     ASSERT_FALSE(_switch->hasDefault());   
 }
 
 TEST(ParserTest, SwitchStatementNoCaseThrows){
-    LexerTest lexer{ "switch(x){ default: return 1; }"};
+    std::vector<std::string> input{"switch(x){ default: return 1; }"};
+    LexerTest lexer{ input };
     lexer.tokenize();
     TokenConsumer tokenConsumer { lexer };
     StatementParserTest parser{ tokenConsumer };
 
     std::unique_ptr<ASTSwitchSt> _switch;
-    ASSERT_THROW(_switch = parser.testSwitchStatement(), std::runtime_error);
+    ASSERT_THROW(_switch = parser.switchStatement(), std::runtime_error);
 }
 
 TEST(ParserTest, NumericalExpression){
-    LexerTest lexer{ "1 + 2"};
+    std::vector<std::string> input{"1 + 2"};
+    LexerTest lexer{ input };
     lexer.tokenize();
     TokenConsumer tokenConsumer { lexer };
     ExpressionParserTest parser{ tokenConsumer };
 
     std::unique_ptr<ASTExpression> _numexp;
-    ASSERT_NO_THROW(_numexp = parser.testNumericalExpression());
+    ASSERT_NO_THROW(_numexp = parser.numericalExpression());
     ASSERT_EQ(_numexp->getNodeType(), ASTNodeType::BINARY_EXPRESSION);
     ASSERT_EQ(static_cast<ASTBinaryExpression*>(_numexp.get())->getOperator(), Operators::ADD);
 }
 
 TEST(ParserTest, RelationalExpression){
-    LexerTest lexer{ "1 + 2 > a + b"};
+    std::vector<std::string> input{"1 + 2 > a + b"};
+    LexerTest lexer{ input };
     lexer.tokenize();
     TokenConsumer tokenConsumer { lexer };
     ExpressionParserTest parser{ tokenConsumer };
 
     std::unique_ptr<ASTExpression> _relexp;
-    ASSERT_NO_THROW(_relexp = parser.testRelationalExpression());
+    ASSERT_NO_THROW(_relexp = parser.relationalExpression());
     ASSERT_EQ(_relexp->getNodeType(), ASTNodeType::BINARY_EXPRESSION);
     ASSERT_EQ(static_cast<ASTBinaryExpression*>(_relexp.get())->getOperator(), Operators::GREATER);
 }
 
 TEST(ParserTest, FunctionCallNoArgs){
-    LexerTest lexer{ "fun()"};
+    std::vector<std::string> input{"fun()"};
+    LexerTest lexer{ input };
     lexer.tokenize();
     TokenConsumer tokenConsumer { lexer };
     ExpressionParserTest parser{ tokenConsumer };
 
     std::unique_ptr<ASTFunctionCall> _functionCall;
-    ASSERT_NO_THROW(_functionCall = parser.testFunctionCall());
+    ASSERT_NO_THROW(_functionCall = parser.functionCall());
     ASSERT_EQ(_functionCall->getNodeType(), ASTNodeType::FUNCTION_CALL);
     ASSERT_TRUE(_functionCall->getArgumentCount() == 0);
     ASSERT_EQ(_functionCall->getToken().value, "fun");
 }
 
 TEST(ParserTest, FunctionCallSingleArg){
-    LexerTest lexer{ "fun(x)"};
+    std::vector<std::string> input{"fun(x)"};
+    LexerTest lexer{ input };
     lexer.tokenize();
     TokenConsumer tokenConsumer { lexer };
     ExpressionParserTest parser{ tokenConsumer };
@@ -362,14 +377,15 @@ TEST(ParserTest, FunctionCallSingleArg){
     const size_t expectedArgumentCount = 1;
 
     std::unique_ptr<ASTFunctionCall> _functionCall;
-    ASSERT_NO_THROW(_functionCall = parser.testFunctionCall());
+    ASSERT_NO_THROW(_functionCall = parser.functionCall());
     ASSERT_EQ(_functionCall->getNodeType(), ASTNodeType::FUNCTION_CALL);
     ASSERT_EQ(_functionCall->getArgumentCount(), expectedArgumentCount);
     ASSERT_EQ(_functionCall->getToken().value, "fun");
 }
 
 TEST(ParserTest, FunctionCallMultipleArgs){
-    LexerTest lexer{ "fun(x, y)"};
+    std::vector<std::string> input{"fun(x, y)"};
+    LexerTest lexer{ input };
     lexer.tokenize();
     TokenConsumer tokenConsumer { lexer };
     ExpressionParserTest parser{ tokenConsumer };
@@ -377,18 +393,19 @@ TEST(ParserTest, FunctionCallMultipleArgs){
     const size_t expectedArgumentCount = 2;
 
     std::unique_ptr<ASTFunctionCall> _functionCall;
-    ASSERT_NO_THROW(_functionCall = parser.testFunctionCall());
+    ASSERT_NO_THROW(_functionCall = parser.functionCall());
     ASSERT_EQ(_functionCall->getNodeType(), ASTNodeType::FUNCTION_CALL);
     ASSERT_EQ(_functionCall->getArgumentCount(), expectedArgumentCount);
     ASSERT_EQ(_functionCall->getToken().value, "fun");
 }
 
 TEST(ParserTest, FunctionCallInvalidArgs){
-    LexerTest lexer{ "fun(x y)"};
+    std::vector<std::string> input{"fun(x y)"};
+    LexerTest lexer{ input };
     lexer.tokenize();
     TokenConsumer tokenConsumer { lexer };
     ExpressionParserTest parser{ tokenConsumer };
 
     std::unique_ptr<ASTFunctionCall> _functionCall;
-    ASSERT_THROW(_functionCall = parser.testFunctionCall(), std::runtime_error);
+    ASSERT_THROW(_functionCall = parser.functionCall(), std::runtime_error);
 }

@@ -8,7 +8,6 @@
 #include "../common/intermediate-representation-tree/IRForSt.hpp"
 #include "../common/intermediate-representation-tree/IRWhileSt.hpp"
 #include "../common/intermediate-representation-tree/IRDoWhileSt.hpp"
-#include "../common/intermediate-representation-tree/IRPrintfSt.hpp"
 #include "../common/intermediate-representation-tree/IRAssignSt.hpp"
 #include "../common/intermediate-representation-tree/IRReturnSt.hpp"
 #include "../common/intermediate-representation-tree/IRSwitchSt.hpp"
@@ -87,13 +86,6 @@ namespace Optimization {
          * @returns number of local variables in a do-while statement
         */
         size_t computeStackMemory(const IRDoWhileSt* _dowhile);
-
-        /** 
-         * @brief calculates the number of temporary variables in a printf statement
-         * @param _printf - const pointer to the irt printf statement
-         * @returns number of temporary variables in a printf statement
-        */
-        size_t computeStackMemory(const IRPrintfSt* _printf);
 
         /** 
          * @brief calculates the number of temporary variables in an assignment statement

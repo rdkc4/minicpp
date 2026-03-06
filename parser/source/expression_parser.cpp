@@ -1,6 +1,8 @@
 #include "../expression_parser.hpp"
 #include "../token_consumer.hpp"
 
+#include <format>
+
 ExpressionParser::ExpressionParser(TokenConsumer& consumer) : tokenConsumer{ consumer } {}
 
 /** 

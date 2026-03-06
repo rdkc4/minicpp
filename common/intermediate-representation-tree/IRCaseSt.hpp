@@ -40,7 +40,6 @@ public:
      * @param lit - pointer to the literal
      * @param block - pointer to the switch block
      * @param hasBr - flag whether or not case statement has break
-     * @returns void
     */
     void setCase(std::unique_ptr<IRLiteral> lit, std::unique_ptr<IRSwitchBlock> block, bool hasBr);
 
@@ -50,19 +49,13 @@ public:
     */
     bool hasBreak() const noexcept;
 
-    /**
-     * @brief prints formatted string of the case statement node
-     * @note debugging purposes
-     * @param offset - indentation
-     * @returns void
-    */
-    void print(size_t offset) const override;
-
 private:
     /// pointer to the literal of the case
     std::unique_ptr<IRLiteral> literal;
+
     /// pointer to the switch-block of the case
     std::unique_ptr<IRSwitchBlock> swBlock;
+
     /// flag if case breaks
     bool breaks;
 };

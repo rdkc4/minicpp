@@ -28,7 +28,6 @@ namespace AsmGenerator {
          * @param r - right operand
          * @param ext - extension for the mov instruction
          * @details movext l, r
-         * @returns void
         */
         void genMov(std::vector<std::string>& asmCode, std::string_view l, std::string_view r, std::string_view ext = "");
 
@@ -38,7 +37,6 @@ namespace AsmGenerator {
          * @param l - left operand
          * @param r - right operand
          * @details cmp l, r
-         * @returns void
         */
         void genCmp(std::vector<std::string>& asmCode, std::string_view l, std::string_view r);
 
@@ -49,7 +47,6 @@ namespace AsmGenerator {
          * @param l - left operand
          * @param r - right operand (optional)
          * @details op l (, r)
-         * @returns void
         */
         void genOperation(std::vector<std::string>& asmCode, std::string_view op, std::string_view l, std::string_view r = "");
 
@@ -58,7 +55,6 @@ namespace AsmGenerator {
          * @param asmCode - reference to a vector that contains asm code of the current function
          * @param label - name of the label
          * @details label:
-         * @returns void
         */
         void genLabel(std::vector<std::string>& asmCode, std::string_view label);
 
@@ -66,7 +62,6 @@ namespace AsmGenerator {
          * @brief generates the ret instruction
          * @param asmCode - reference to a vector that contains asm code of the current function
          * @details ret
-         * @returns void
         */
         void genRet(std::vector<std::string>& asmCode);
 
@@ -76,7 +71,6 @@ namespace AsmGenerator {
          * @param jmp - jump command
          * @param label - label to jump to
          * @details jmp label
-         * @returns void
         */
         void genJmp(std::vector<std::string>& asmCode, std::string_view jmp, std::string_view label);
 
@@ -93,7 +87,6 @@ namespace AsmGenerator {
          * @param asmCode - reference to a vector that contains asm code of the current function
          * @param r - operand pushed to stack
          * @details push r
-         * @returns void
         */
         void genPush(std::vector<std::string>& asmCode, std::string_view r);
 
@@ -102,7 +95,6 @@ namespace AsmGenerator {
          * @param asmCode - reference to a vector that contains asm code of the current function
          * @param r - operand where the value from the stack is popped
          * @details pop r
-         * @returns void
         */
         void genPop(std::vector<std::string>& asmCode, std::string_view r);
 
@@ -114,7 +106,6 @@ namespace AsmGenerator {
          * push %rbp
          *
          * mov %rsp, %rbp
-         * @returns void
         */
         void genFuncPrologue(std::vector<std::string>& asmCode);
 
@@ -126,7 +117,6 @@ namespace AsmGenerator {
          * mov %rbp, %rsp
          *
          * pop %rbp
-         * @returns void
         */
         void genFuncEpilogue(std::vector<std::string>& asmCode);
 
@@ -140,14 +130,12 @@ namespace AsmGenerator {
          * movq $60, %rax 
          *
          * syscall
-         * @returns void
         */
         void genExit(std::vector<std::string>& asmCode);
 
         /** 
          * @brief generates the new line
          * @param asmCode - reference to a vector that contains asm code of the current function
-         * @returns void
         */
         void genNewLine(std::vector<std::string>& asmCode);
 

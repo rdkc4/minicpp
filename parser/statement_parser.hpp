@@ -5,7 +5,6 @@
 
 #include "../common/abstract-syntax-tree/ASTStatement.hpp"
 #include "../common/abstract-syntax-tree/ASTVariable.hpp"
-#include "../common/abstract-syntax-tree/ASTPrintfSt.hpp"
 #include "../common/abstract-syntax-tree/ASTCompoundSt.hpp"
 #include "../common/abstract-syntax-tree/ASTAssignSt.hpp"
 #include "../common/abstract-syntax-tree/ASTReturnSt.hpp"
@@ -14,6 +13,7 @@
 #include "../common/abstract-syntax-tree/ASTDoWhileSt.hpp"
 #include "../common/abstract-syntax-tree/ASTForSt.hpp"
 #include "../common/abstract-syntax-tree/ASTSwitchSt.hpp"
+#include "../common/abstract-syntax-tree/ASTFunctionCallSt.hpp"
 
 #include "expression_parser.hpp"
 #include "token_consumer.hpp"
@@ -40,8 +40,6 @@ public:
      *
      * | RETURN_STATEMENT
      *
-     * | PRINTF_STATEMENT
-     *
      * | IF_STATEMENT
      *
      * | COMPOUND_STATEMENT
@@ -52,31 +50,19 @@ public:
      *
      * | DO_WHILE_STATEMENT
      *
+     * | FUNCTION_CALL_STATEMENT
+     *
      * | SWITCH_STATEMENT
      * @return pointer to the statement node
     */
     std::unique_ptr<ASTStatement> statement();
 
-private:
-    /// parser specialized for expressions
-    ExpressionParser expParser;
-    /// reference to a token handler wrapped around the lexer
-    TokenConsumer& tokenConsumer;
-
-protected:
     /** 
      * @brief parses variable declaration
      * @details VARIABLE_DECL : TYPE ID (ASSIGN NUMERICAL_EXPRESSION)? SEMICOLON
      * @returns pointer to a variable declaration node
     */
     std::unique_ptr<ASTVariable> variable();
-
-    /** 
-     * @brief parses printf statement
-     * @details PRINTF_STATEMENT: PRINTF LPAREN NUMERICAL_EXPRESSION RPAREN SEMICOLON;
-     * @returns pointer to a printf statement node
-    */
-    std::unique_ptr<ASTPrintfSt> printfStatement();
 
     /** 
      * @brief parses compound statement
@@ -137,6 +123,13 @@ protected:
     std::unique_ptr<ASTDoWhileSt> doWhileStatement();
 
     /** 
+     * @brief parses function-call statement
+     * @details FUNCTION_CALL_STATEMENT : FUNCTION_CALL SEMICOLON
+     * @returns pointer to a function-call statement node
+    */
+    std::unique_ptr<ASTFunctionCallSt> functionCallStatement();
+
+    /** 
      * @brief parses switch statement
      * @details SWITCH_STATEMENT : SWITCH LPAREN ID RPAREN LBRACKET (_CASE)+ (_DEFAULT)? RBRACKET
      * @returns pointer to a switch statement node
@@ -167,9 +160,15 @@ protected:
     /** 
      * @brief parses break statement
      * @details _BREAK : BREAK SEMICOLON
-     * @returns void
     */
     void _break();
+
+private:
+    /// parser specialized for expressions
+    ExpressionParser expParser;
+    
+    /// reference to a token handler wrapped around the lexer
+    TokenConsumer& tokenConsumer;
 
 };
 

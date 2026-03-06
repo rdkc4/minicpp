@@ -50,7 +50,6 @@ public:
     /** 
      * @brief initializes operator
      * @param _op - operator of the binary expression
-     * @returns void
     */
     void setOperator(Operators _op) noexcept;
 
@@ -58,7 +57,6 @@ public:
      * @brief initializes operands
      * @param lOp - pointer to a left operand expression node
      * @param rOp - pointer to a right operand expression node
-     * @returns void 
     */
     void setOperands(std::unique_ptr<ASTExpression> lOp, std::unique_ptr<ASTExpression> rOp);
 
@@ -68,19 +66,13 @@ public:
     */
     bool initialized() const noexcept;
 
-    /** 
-     * @brief prints binary expression node
-     * @note debugging purposes
-     * @param offset - indentation
-     * @returns void
-    */
-    void print(size_t offset) const override;
-
 private:
     /// pointer to the left operand of the binary expression
     std::unique_ptr<ASTExpression> leftOperand;
+
     /// pointer to the right operand of the binary expression
     std::unique_ptr<ASTExpression> rightOperand;
+
     /// operator of the binary expression
     Operators op;
 };

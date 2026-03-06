@@ -2,7 +2,6 @@
 #define LEXER_HPP
 
 #include <string>
-#include <string_view>
 #include <vector>
 
 #include "../common/token/token.hpp"
@@ -17,17 +16,15 @@ public:
      * @brief Creates the instance of the lexer
      * @param input - source code that needs to be tokenized
     */
-    Lexer(std::string_view input);
+    Lexer(const std::vector<std::string>& input);
 
     /**
         * @brief translating input into a sequence of tokens
-        * @returns void 
     */
     void tokenize();
 
     /**
         * @brief increases nextTokenIdx
-        * @returns void
     */
     void next() noexcept;
 
@@ -56,33 +53,35 @@ public:
     bool hasLexicalErrors() const noexcept;
 
     /**
-        * @brief prints all lexical errors
-        * @returns void
+        * @brief getter for the lexical errors
+        * @returns lexical errors merged into a string
     */
-    void showLexicalErrors() const; 
-    
-    /** 
-        * @brief prints all tokens
-        * @note debugging purposes
-        * @returns void
-    */
-    void printTokens() const noexcept;
+    std::string getLexicalErrors() const noexcept;
 
 private:
-    /// raw text that needs to be tokenized
-    std::string input;
+    /// code that needs to be tokenized
+    const std::vector<std::string>& input;
     
+    /// index of the current file
+    size_t fileIndex;
+
+    // length of the current file
+    size_t fileLength;
+
     /// current position in the input
     size_t position;
+
     /// current line in the input
     size_t lineNumber;
+
     /// position at which previous line ended, used to determine the column of a token: column = position - prevLineLen
     size_t prevLineLen;
 
     /// index of a token that should be processed by the parser next
     size_t nextTokenIdx;
+    
     /// vector of lexical errors
-    std::vector<std::string> exceptions;
+    std::vector<std::string> lexicalErrors;
 
 protected:
     /// vector of tokens generated from the input
@@ -91,14 +90,12 @@ protected:
 private:
     /**
         * @brief increases position for 1
-        * @returns void
     */
     void updatePosition() noexcept;
 
     /**
         * @brief increases the current position by a specified number of characters.
         * @param n - the number of characters by which to increment the position.
-        * @returns void
     */
     void updatePosition(size_t n) noexcept;
 
@@ -108,44 +105,37 @@ private:
         * increases lineNumber for 1
         *
         * sets prevLineLen to position
-        * @returns void
     */
     void updateLine() noexcept;
 
     /** 
         * @brief pushes keyword or id to tokens
-        * @returns void
     */
     void pushID();
 
     /** 
         * @brief pushes literal to tokens
         * @param sign - flag that tells if literal is signed or not, default false
-        * @returns void
     */
     void pushLiteral(bool sign = false);
 
     /** 
         * @brief pushes assignment to tokens
-        * @returns void
     */
     void pushAssignOperator();
 
     /** 
         * @brief pushes bitwise operator to tokens
-        * @returns void
     */
     void pushBitwiseOperator();
 
     /** 
         * @brief pushes arithmetic operator to tokens
-        * @returns void
     */
     void pushAritOperator();
 
     /** 
         * @brief pushes relational operator to tokens
-        * @returns void
     */
     void pushRelOperator();
 
@@ -188,13 +178,11 @@ private:
 
     /** 
         * @brief skips single line comment
-        * @returns void
     */
     void singleLineComment();
 
     /** 
         * @brief skips multi-line comment
-        * @returns void
     */
     void multiLineComment();
 

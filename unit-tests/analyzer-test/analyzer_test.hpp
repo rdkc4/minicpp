@@ -19,7 +19,7 @@ class AnalyzerTest : public Analyzer {
             return globalError;
         }
 
-        const std::vector<std::string>& getErrors(const std::string& func) const noexcept{
+        const std::vector<std::string>& getErrors(const std::string& func) const noexcept {
             assert(semanticErrors.find(func) != semanticErrors.end());
             return semanticErrors.at(func);
         }
@@ -29,14 +29,6 @@ class FunctionAnalyzerTest : public FunctionAnalyzer {
 public:
     FunctionAnalyzerTest(ScopeManager& scopeManager, std::unordered_map<std::string, std::vector<std::string>>& semErrors, const std::string& err) 
         : FunctionAnalyzer(scopeManager, semErrors, err) {}
-
-    void testCheckFunctionSignatures(const ASTProgram* _program){
-        checkFunctionSignatures(_program);
-    }
-
-    void testCheckFunction(const ASTFunction* _function){
-        checkFunction(_function);
-    }
 
     std::vector<std::string>& getErrors(const std::string& funcName){
         assert(semanticErrors.contains(funcName));
@@ -56,29 +48,13 @@ class StatementAnalyzerTest : public StatementAnalyzer {
 public:
     StatementAnalyzerTest(ScopeManager& scopeManager) : StatementAnalyzer(scopeManager) {}
 
-    void testCheckVariable(const ASTVariable* _variable){
-        checkVariable(_variable);
-    } 
-
-    void testCheckCompoundStatement(const ASTCompoundSt* _compound){
-        checkCompoundStatement(_compound);
-    }
-
-    void testCheckForStatement(const ASTForSt* _for){
-        checkForStatement(_for);
-    }
-
-    void testCheckSwitchStatement(const ASTSwitchSt* _switch){
-        checkSwitchStatement(_switch);
-    }
-
     AnalyzerThreadContext& getContext() noexcept {
         return FunctionAnalyzer::getContext();
     }
 };
 
 class ExpressionAnalyzerTest : public ExpressionAnalyzer {
-
+    ExpressionAnalyzerTest(ScopeManager& scopeManager) : ExpressionAnalyzer(scopeManager) {}
 };
 
 #endif

@@ -34,7 +34,6 @@ public:
     /** 
      * @brief initializes the expression
      * @param nexp - pointer to the expression
-     * @returns void
     */
     void setExp(std::unique_ptr<ASTExpression> nexp);
 
@@ -43,14 +42,6 @@ public:
      * @returns false if it returns void, true otherwise
     */
     bool returns() const noexcept;
-
-    /** 
-     * @brief prints return statement node
-     * @note debugging purposes
-     * @param offset - indentation
-     * @returns void
-    */
-    void print(size_t offset) const override;
 
 private:
     /// pointer to the expression of the return statement

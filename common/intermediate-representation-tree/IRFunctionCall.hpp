@@ -48,7 +48,6 @@ public:
      * @note each argument may have temporaries
      * @param argument - argument of the function call
      * @param temp - temporaries of the argument, default nullptr
-     * @returns void
     */
     void addArgument(std::unique_ptr<IRExpression> argument, std::unique_ptr<IRTemporary> temp = nullptr);
 
@@ -61,7 +60,6 @@ public:
     /** 
      * @brief initializes the name of the called function
      * @param _callName - name of the function that is being called
-     * @returns void
     */
     void setCallName(const std::string& _callName);
 
@@ -71,21 +69,16 @@ public:
     */
     size_t getArgumentCount() const noexcept;
 
-    /** 
-     * @brief prints formatted string of the function call node
-     * @note debugging purposes
-     * @param offset - indentation
-     * @returns void
-    */
-    void print(size_t offset) const override;
-
 private:
     /// name of the function being called
     std::string callName;
+
     /// vector of pointers to expressions representing arguments
     std::vector<std::unique_ptr<IRExpression>> arguments;
+
     /// vector of pointers to temporaries of the function call
     std::vector<std::unique_ptr<IRTemporary>> temporaries;
+    
 };
 
 #endif

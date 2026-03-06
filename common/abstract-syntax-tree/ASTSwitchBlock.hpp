@@ -30,17 +30,8 @@ public:
     /** 
      * @brief adds new statement
      * @param statement - pointer to a statement that is being added
-     * @returns void
     */
     void addStatement(std::unique_ptr<ASTStatement> statement);
-
-    /** 
-     * @brief prints switch block node
-     * @note debugging purposes
-     * @param offset - indentation
-     * @returns void
-    */
-    void print(size_t offset) const override;
 
 private:
     /// vector of pointers to statements of the switch-block

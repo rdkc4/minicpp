@@ -2,6 +2,8 @@
 #include "../function_code_generator.hpp"
 #include "../code_generator.hpp"
 
+#include <format>
+
 #include "../../asm-generator/asm_instruction_generator.hpp"
 
 StatementCodeGenerator::StatementCodeGenerator() = default;
@@ -10,9 +12,6 @@ void StatementCodeGenerator::generateStatement(const IRStatement* _statement){
     switch(_statement->getNodeType()){
         case IRNodeType::VARIABLE:
             generateVariable(static_cast<const IRVariable*>(_statement));
-            break;
-        case IRNodeType::PRINTF:
-            generatePrintfStatement(static_cast<const IRPrintfSt*>(_statement));
             break;
         case IRNodeType::IF:
             generateIfStatement(static_cast<const IRIfSt*>(_statement));
@@ -38,6 +37,9 @@ void StatementCodeGenerator::generateStatement(const IRStatement* _statement){
         case IRNodeType::SWITCH:
             generateSwitchStatement(static_cast<const IRSwitchSt*>(_statement));
             break;
+        case IRNodeType::CALL:
+            generateFunctionCallStatement(static_cast<const IRFunctionCallSt*>(_statement));
+            return;
         default:
             return;
     }
@@ -67,21 +69,6 @@ void StatementCodeGenerator::generateVariable(const IRVariable* _variable){
         // default value 
         AsmGenerator::Instruction::genMov(codeGenContext.asmCode, "$0", codeGenContext.variableMap.at(_variable->getVarName()), "q");
     }
-}
-
-void StatementCodeGenerator::generatePrintfStatement(const IRPrintfSt* _printf){
-    FunctionCodeGenerator::updatePrints(true);
-
-    // preventing register corruption when function call occurs
-    if(_printf->hasTemporaries()){
-        exprGenerator.generateTemporaries(_printf->getTemporaries());
-    }
-    exprGenerator.generateNumericalExpression(_printf->getExp());
-
-    auto& codeGenContext = FunctionCodeGenerator::getContext();
-    codeGenContext.freeGpReg();
-    AsmGenerator::Instruction::genMov(codeGenContext.asmCode, gpRegisters.at(codeGenContext.gpFreeRegPos), "%rax", "q");
-    AsmGenerator::Instruction::genCall(codeGenContext.asmCode, "_printf");
 }
 
 void StatementCodeGenerator::generateIfStatement(const IRIfSt* _if){
@@ -247,6 +234,10 @@ void StatementCodeGenerator::generateReturnStatement(const IRReturnSt* _return){
         AsmGenerator::Instruction::genOperation(codeGenContext.asmCode, "xor", "%rax", "%rax");
     }
     AsmGenerator::Instruction::genJmp(codeGenContext.asmCode, "jmp", std::format("{}_end", codeGenContext.functionName));
+}
+
+void StatementCodeGenerator::generateFunctionCallStatement(const IRFunctionCallSt* _call){
+    exprGenerator.generateFunctionCall(_call->getFunctionCall());
 }
 
 void StatementCodeGenerator::generateSwitchStatement(const IRSwitchSt* _switch){

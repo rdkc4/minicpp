@@ -18,14 +18,19 @@ std::unique_ptr<IRFunction> FunctionIntermediateRepresentation::function(const A
     irContext.init();
 
     parameter(_irFunction.get(), _function->getParameters());
-    body(_irFunction.get(), _function->getBody());
+    if(_function->isPredefined()){
+        _irFunction->setPredefined(true);
+    }
+    else {
+        body(_irFunction.get(), _function->getBody());
 
-    Optimization::DeadCode::eliminateDeadCode(_irFunction.get());
+        Optimization::DeadCode::eliminateDeadCode(_irFunction.get());
 
-    // bytes allocated for local variables
-    size_t requiredMemory = Optimization::StackMemory::computeStackMemory(_irFunction.get());
-    std::string varCountStr{ std::to_string(requiredMemory) };
-    _irFunction->setRequiredMemory(varCountStr);
+        // bytes allocated for local variables
+        size_t requiredMemory = Optimization::StackMemory::computeStackMemory(_irFunction.get());
+        std::string varCountStr{ std::to_string(requiredMemory) };
+        _irFunction->setRequiredMemory(varCountStr);
+    }
 
     {
         // pairing function name with its errors

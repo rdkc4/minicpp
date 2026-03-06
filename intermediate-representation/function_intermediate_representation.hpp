@@ -36,23 +36,10 @@ public:
     */
     std::unique_ptr<IRFunction> function(const ASTFunction* _function);
 
-private:
-    /// thread local context of the function
-    static thread_local IRThreadContext irContext;
-    
-    /// intermediate representation specialized for statements
-    StatementIntermediateRepresentation stmtIR;
-
-    /// maps function name to its exceptions
-    std::unordered_map<std::string,std::vector<std::string>>& exceptions;
-    /// mutex for concurrent access to exceptions
-    std::mutex exceptionMtx;
-
     /**
      * @brief turns ast parameters into irt parameters
      * @param _irFunction - pointer to the irt function
      * @param _parameters - reference to a const vector of pointers to ast parameters
-     * @returns void
     */
     void parameter(IRFunction* _irFunction, const std::vector<std::unique_ptr<ASTParameter>>& _parameters);
 
@@ -62,6 +49,20 @@ private:
      * @param _body - reference to a const vector of pointers to the statements of the ast body
     */
     void body(IRFunction* _irFunction, const std::vector<std::unique_ptr<ASTStatement>>& _body);
+
+private:
+    /// thread local context of the function
+    static thread_local IRThreadContext irContext;
+    
+    /// intermediate representation specialized for statements
+    StatementIntermediateRepresentation stmtIR;
+
+    /// maps function name to its exceptions
+    std::unordered_map<std::string,std::vector<std::string>>& exceptions;
+
+    /// mutex for concurrent access to exceptions
+    std::mutex exceptionMtx;
+
 };
 
 #endif

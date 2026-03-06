@@ -30,17 +30,8 @@ public:
     /** 
      * @brief initializes the value of the literal
      * @param val - reference to a value
-     * @returns void
     */
     void setValue(const std::string& val);
-
-    /** 
-     * @brief prints formatted string of the literal node
-     * @note debugging purposes
-     * @param offset - indentation
-     * @returns void
-    */
-    void print(size_t offset) const override;
 
 private:
     /// value of the literal

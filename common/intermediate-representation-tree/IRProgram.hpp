@@ -3,6 +3,8 @@
 
 #include <vector>
 #include <memory>
+#include <string>
+#include <unordered_set>
 
 #include "IRNode.hpp"
 #include "IRFunction.hpp"
@@ -36,7 +38,6 @@ public:
     /** 
      * @brief allocates space for the functions in advance
      * @param n - number of functions
-     * @returns void
     */
     void resizeFunctions(size_t n);
 
@@ -44,7 +45,6 @@ public:
      * @brief initializes the function at the specified position
      * @param _function - pointer to the function
      * @param n - position of the function
-     * @returns void
     */
     void setFunctionAtN(std::unique_ptr<IRFunction> _function, size_t n);
 
@@ -55,16 +55,24 @@ public:
     size_t getFunctionCount() const noexcept;
 
     /** 
-     * @brief prints formatted string of the program node
-     * @note debugging purposes
-     * @param offset - indentation
-     * @returns void
+     * @brief adds a new library to linking list
+     * @param libName - name of the library
     */
-    void print(size_t offset) const override;
+    void addLinkedLibrary(const std::string& libName);
+
+    /** 
+     * @brief getter for the linked libraries
+     * @returns linked libraries separated by ' '
+    */
+    const std::string getLinkedLibs() const noexcept;
 
 private:
     /// vector of pointers to functions of the program
     std::vector<std::unique_ptr<IRFunction>> functions;
+
+    /// linked libraries
+    std::unordered_set<std::string> linkedLibs;
+    
 };
 
 

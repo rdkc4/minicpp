@@ -43,22 +43,13 @@ public:
     /** 
      * @brief removes symbol from symbol table
      * @param name - name of the symbol that should be deleted
-     * @returns void
     */
     void deleteSymbol(const std::string& name);
 
     /** 
      * @brief removes all symbols from the symbol table
-     * @returns void
     */
     void clearSymbols() noexcept;
-
-    /** 
-     * @brief prints all symbols from the symbol table
-     * @note debugging purposes
-     * @returns void
-    */
-    void printSymbolTable() const;
 
 private:
     /// mapping symbol name to symbol

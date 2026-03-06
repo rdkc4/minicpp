@@ -1,6 +1,7 @@
 #include "../statement_intermediate_representation.hpp"
 
 #include <cassert>
+#include <utility>
 
 StatementIntermediateRepresentation::StatementIntermediateRepresentation() = default;
 
@@ -8,8 +9,6 @@ std::unique_ptr<IRStatement> StatementIntermediateRepresentation::statement(cons
     switch(_statement->getNodeType()){
         case ASTNodeType::VARIABLE:
             return variable(static_cast<const ASTVariable*>(_statement));
-        case ASTNodeType::PRINTF:
-            return printfStatement(static_cast<const ASTPrintfSt*>(_statement));
         case ASTNodeType::IF_STATEMENT:
             return ifStatement(static_cast<const ASTIfSt*>(_statement));
         case ASTNodeType::COMPOUND_STATEMENT:
@@ -26,8 +25,10 @@ std::unique_ptr<IRStatement> StatementIntermediateRepresentation::statement(cons
             return doWhileStatement(static_cast<const ASTDoWhileSt*>(_statement));
         case ASTNodeType::SWITCH_STATEMENT:
             return switchStatement(static_cast<const ASTSwitchSt*>(_statement));
+        case ASTNodeType::FUNCTION_CALL_STATEMENT:
+            return functionCallStatement(static_cast<const ASTFunctionCallSt*>(_statement));
         default:
-            assert(false && "unreachable");
+            std::unreachable();
     }
 }
 
@@ -38,16 +39,6 @@ std::unique_ptr<IRVariable> StatementIntermediateRepresentation::variable(const 
         _irVariable->setAssign(expIR.numericalExpression(_variable->getAssign()), std::move(temps));
     }
     return _irVariable;
-}
-
-std::unique_ptr<IRPrintfSt> StatementIntermediateRepresentation::printfStatement(const ASTPrintfSt* _printf){
-    std::unique_ptr<IRPrintfSt> _irPrintf = std::make_unique<IRPrintfSt>(IRNodeType::PRINTF);
-
-    // extracting function calls to temporary variables
-    auto temps{ expIR.initiateTemporaries(_printf->getExp()) };
-    _irPrintf->setExp(expIR.numericalExpression(_printf->getExp()), std::move(temps));
-
-    return _irPrintf;
 }
 
 std::unique_ptr<IRIfSt> StatementIntermediateRepresentation::ifStatement(const ASTIfSt* _if){
@@ -101,6 +92,13 @@ std::unique_ptr<IRReturnSt> StatementIntermediateRepresentation::returnStatement
         _irReturn->setExp(expIR.numericalExpression(_return->getExp()), std::move(temps));
     }
     return _irReturn;
+}
+
+std::unique_ptr<IRFunctionCallSt> StatementIntermediateRepresentation::functionCallStatement(const ASTFunctionCallSt* _call){
+    std::unique_ptr<IRFunctionCallSt> _irCall = std::make_unique<IRFunctionCallSt>(IRNodeType::CALL);
+    _irCall->setFunctionCallSt(expIR.functionCall(_call->getFunctionCall()));
+
+    return _irCall;
 }
 
 std::unique_ptr<IRWhileSt> StatementIntermediateRepresentation::whileStatement(const ASTWhileSt* _while){

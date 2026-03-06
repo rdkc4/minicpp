@@ -38,14 +38,12 @@ public:
      * @brief adds new if/else-if statement
      * @param condition - pointer to a relational expression
      * @param statement - pointer to a statement of if/else-if statement
-     * @returns void 
     */
     void addIf(std::unique_ptr<ASTExpression> condition, std::unique_ptr<ASTStatement> statement);
 
     /** 
      * @brief adds new else statement
      * @param statement - pointer to a statement of else statement
-     * @returns void
     */
     void addElse(std::unique_ptr<ASTStatement> statement);
 
@@ -55,17 +53,10 @@ public:
     */
     bool hasElse() const noexcept;
 
-    /** 
-     * @brief prints if statement node
-     * @note debugging purposes
-     * @param offset - indentation
-     * @returns void
-    */
-    void print(size_t offset) const override;
-
 private:
     /// vector of pointers to relational expressions of the if-statement
     std::vector<std::unique_ptr<ASTExpression>> conditions;
+    
     /// vector of pointers to statements of the if-statement
     std::vector<std::unique_ptr<ASTStatement>> statements;
 

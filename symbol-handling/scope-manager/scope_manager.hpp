@@ -19,14 +19,12 @@ public:
     ScopeManager(SymbolTable& symTab);
 
     /** 
-     * @brief adding an empty stack when new scope is entered 
-     * @returns void
+     * @brief adding an empty stack when new scope is entered
     */
     void pushScope();
 
     /** 
      * @brief removing a stack when scope is exited and clearing symbols that are expired
-     * @returns void
     */
     void popScope();
 
@@ -58,16 +56,10 @@ public:
     */
     bool lookupSymbol(const std::string& name, std::initializer_list<Kinds> kind) const;
 
-    /** 
-     * @brief prints all symbols from the symbol table
-     * @note debugging purposes
-     * @returns void
-    */
-    void printSymbolTable() const;
-
 private:
     /// table of active symbols
     SymbolTable& symbolTable;
+    
     /// stack of scopes
     std::stack<std::stack<std::string>> scope;
 

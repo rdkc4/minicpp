@@ -1,10 +1,13 @@
 #include "compiler.hpp"
 
+#include <cstdlib>
 #include <iostream>
 #include <format>
 #include <memory>
 #include <cassert>
+#include <string_view>
 
+#include "../preprocessor/preprocessor.hpp"
 #include "../lexer/lexer.hpp"
 #include "../parser/parser.hpp"
 #include "../symbol-handling/scope-manager/scope_manager.hpp"
@@ -12,10 +15,23 @@
 #include "../intermediate-representation/intermediate_representation.hpp"
 #include "../code-generator/code-generator/code_generator.hpp"
 
+const std::pair<Compiler::ExitCode, std::vector<std::string>> Compiler::preprocess(const std::string& source) {
+    Preprocessor preprocessor;
+    preprocessor.preprocess(source);
+
+    if(preprocessor.hasErrors()){
+        std::cerr << preprocessor.getPreprocessErrors();
+        return { Compiler::ExitCode::PREPROCESS_ERR, preprocessor.getPreprocessed() };
+    }
+
+    return { Compiler::ExitCode::NO_ERR, preprocessor.getPreprocessed() };
+}
+
 Compiler::ExitCode Compiler::lexicalAnalysis(Lexer& lexer){
     lexer.tokenize();
+    
     if(lexer.hasLexicalErrors()){
-        lexer.showLexicalErrors();
+        std::cerr << lexer.getLexicalErrors();
         return Compiler::ExitCode::LEXICAL_ERR;
     }
 
@@ -44,7 +60,7 @@ Compiler::ExitCode Compiler::semanticAnalysis(std::unique_ptr<ASTProgram>& astPr
     analyzer.semanticCheck(astProgram.get());
 
     if(analyzer.hasSemanticError(astProgram.get())){
-        analyzer.showSemanticErrors(astProgram.get());
+        std::cerr << analyzer.getSemanticErrors(astProgram.get());
         return Compiler::ExitCode::SEMANTIC_ERR;
     }
 
@@ -54,20 +70,23 @@ Compiler::ExitCode Compiler::semanticAnalysis(std::unique_ptr<ASTProgram>& astPr
 Compiler::ExitCode Compiler::transformASTToIRT(std::unique_ptr<ASTProgram>& astProgram, std::unique_ptr<IRProgram>& irProgram){
         IntermediateRepresentation intermediateRepresentation{};
         irProgram = intermediateRepresentation.formIR(astProgram.get());
+
         if(intermediateRepresentation.hasErrors(irProgram.get())){
-            intermediateRepresentation.showErrors(irProgram.get());
+            std::cerr << intermediateRepresentation.getErrors(irProgram.get());
             return Compiler::ExitCode::IR_ERR;
         }
+        std::cout << irProgram->getLinkedLibs() << "\n";
 
         return Compiler::ExitCode::NO_ERR;
 }
 
-Compiler::ExitCode Compiler::generateCode(std::unique_ptr<IRProgram>& irProgram, const std::string_view output){
-    CodeGenerator codeGenerator{ std::string{ output } };
+Compiler::ExitCode Compiler::generateCode(const IRProgram* irProgram, const std::string_view output){
+    std::string outputFilePath = std::string{ output } + ".s";
+    CodeGenerator codeGenerator{ std::string{ outputFilePath } };
     try{
-        codeGenerator.generateCode(irProgram.get());
+        codeGenerator.generateCode(irProgram);
         if(!codeGenerator.successful()){
-            std::cerr << std::format("Unable to open '{}'", output);
+            std::cerr << std::format("Unable to open '{}'", outputFilePath);
             return Compiler::ExitCode::CODEGEN_ERR;
         }
     }
@@ -79,8 +98,23 @@ Compiler::ExitCode Compiler::generateCode(std::unique_ptr<IRProgram>& irProgram,
     return Compiler::ExitCode::NO_ERR;
 }
 
-Compiler::ExitCode Compiler::compile(std::string_view input, std::string_view output) {
-    Lexer lexer{ input };
+Compiler::ExitCode Compiler::assembleAndLink(const IRProgram* irProgram, const std::string_view output){
+    std::string cmd = std::format("clang {}.s{} -o {} -nostdlib", output, irProgram->getLinkedLibs(), output);
+
+    int result = std::system(cmd.c_str());
+    if(result != 0){
+        std::cerr << "Error: compilation/linking failed\n";
+        return Compiler::ExitCode::ASM_LINK_ERR;
+    }
+    return Compiler::ExitCode::NO_ERR;
+}
+
+Compiler::ExitCode Compiler::compile(const std::string& input, std::string_view output, bool performAsmAndLink) {
+    auto preprocessResult = preprocess(std::string{ input });
+    if(preprocessResult.first != Compiler::ExitCode::NO_ERR){
+        return preprocessResult.first;
+    }
+    Lexer lexer{ preprocessResult.second };
 
     Compiler::ExitCode result;
 
@@ -94,7 +128,6 @@ Compiler::ExitCode Compiler::compile(std::string_view input, std::string_view ou
     if(result != Compiler::ExitCode::NO_ERR){
         return result;
     }
-    //astProgram->print(1);
 
     result = semanticAnalysis(astProgram);
     if(result != Compiler::ExitCode::NO_ERR){
@@ -106,7 +139,15 @@ Compiler::ExitCode Compiler::compile(std::string_view input, std::string_view ou
     if(result != Compiler::ExitCode::NO_ERR){
         return result;
     }
-    //irProgram->print(1);
 
-    return generateCode(irProgram, output);
+    result = generateCode(irProgram.get(), output);
+    if(result != Compiler::ExitCode::NO_ERR){
+        return result;
+    }
+    
+    if(performAsmAndLink){
+        result = assembleAndLink(irProgram.get(), output);
+    }
+
+    return result;
 }

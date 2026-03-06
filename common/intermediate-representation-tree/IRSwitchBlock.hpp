@@ -28,28 +28,19 @@ public:
     /** 
      * @brief adds new statement to switch block
      * @param statement - pointer to the statement
-     * @returns void
     */
     void addStatement(std::unique_ptr<IRStatement> statement);
 
     /**
      * @brief eliminates statements of the switch block that appear after the node that always returns
      * @param startIdx - index in the vector of statements where deletion starts
-     * @returns void
     */
     void eliminateDead(size_t startIdx);
-
-    /** 
-     * @brief prints formatted string of the switch block node
-     * @note debugging purposes
-     * @param offset - indentation
-     * @returns void
-    */
-    void print(size_t offset) const override;
 
 private:
     /// vector of pointers to statements of the switch-block
     std::vector<std::unique_ptr<IRStatement>> statements;
+    
 };
 
 #endif

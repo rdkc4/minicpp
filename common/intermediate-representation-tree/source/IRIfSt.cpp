@@ -1,12 +1,5 @@
 #include "../IRIfSt.hpp"
 
-#include <vector>
-#include <memory>
-#include <iostream>
-#include <format>
-#include <tuple>
-#include <string>
-
 IRIfSt::IRIfSt(IRNodeType ntype) : IRStatement(ntype) {}
 
 const std::vector<std::unique_ptr<IRExpression>>& IRIfSt::getConditions() const noexcept {
@@ -45,19 +38,4 @@ const IRStatement* IRIfSt::getElseStatement() const noexcept {
 
 const std::tuple<const IRExpression*, const IRStatement*, const IRTemporary*> IRIfSt::getIfAtN(size_t n) const noexcept {
     return {conditions[n].get(), statements[n].get(), temporaries[n].get() };
-}
-
-void IRIfSt::print(size_t offset) const {
-    std::cout << std::format("{}|-> {}", std::string(offset*2, ' '), toString());
-    const size_t ifCount = conditions.size(); 
-    for(size_t i = 0; i < ifCount; ++i){
-        if(temporaries[i] != nullptr){
-            temporaries[i]->print(offset + 1);
-        }
-        conditions[i]->print(offset + 1);
-        statements[i]->print(offset + 1);
-    }
-    if(hasElse()){
-        statements.back()->print(offset + 1);
-    }
 }

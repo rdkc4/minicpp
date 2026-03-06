@@ -64,7 +64,6 @@ public:
     */
     std::unique_ptr<IRTemporary> initiateTemporaries(const ASTExpression* _numexp);
 
-private:
     /**
      * @brief turns ast function call into irt function call
      * @param _functionCall - const pointer to the ast function call
@@ -76,7 +75,6 @@ private:
      * @brief turns arguments of the ast function call into arguments of the irt function call
      * @param _irFunctionCall - pointer to the irt function call
      * @param _functionCall - const pointer to the ast function call
-     * @returns void
     */
     void argument(IRFunctionCall* _irFunctionCall, const ASTFunctionCall* _functionCall);
 
@@ -122,13 +120,12 @@ private:
         }
     }
     
-    // reducing the depth of the tree if both operands are literals
     /**
      * @brief merges literals of the expression
      * @note reduces the depth of the expression subtree when all children are literals
      * @param leftOperand - const pointer to the irt numerical expression
      * @param rightOperand - const pointer to the irt numerical expression
-     * @binExp - const pointer to the ast binary expression, contains operation
+     * @param binExp - const pointer to the ast binary expression, contains operation
      * @returns result of the merge operation
     */
     template<typename T>

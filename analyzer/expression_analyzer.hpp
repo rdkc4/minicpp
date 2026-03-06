@@ -22,7 +22,6 @@ public:
     /** 
      * @brief determines the type of the expression node
      * @param _numexp - pointer to an ast expression
-     * @returns void
     */
     void checkNumericalExpression(ASTExpression* _numexp);
 
@@ -43,34 +42,30 @@ public:
     /** 
      * @brief semantic check of the literal node
      * @param _literal - pointer to a literal node
-     * @returns void
     */
     void checkLiteral(const ASTLiteral* _literal) const;
-
-private:
-    /// reference to the global scope manager
-    ScopeManager& globalScopeManager;
 
     /** 
      * @brief semantic check of the relational expression
      * @param _relexp - pointer to a relational expression
-     * @returns void
     */
     void checkRelationalExpression(ASTExpression* _relexp);
 
     /** 
      * @brief semantic check of the function call
      * @param _functionCall - pointer to an ast function-call node
-     * @returns void
     */
     void checkFunctionCall(ASTFunctionCall* _functionCall);
 
     /** 
      * @brief semantic check of the arguments of the function call
      * @param _functionCall - const pointer to an ast function-call node
-     * @returns void
     */
     void checkArgument(const ASTFunctionCall* _functionCall);
+
+private:
+    /// reference to the global scope manager
+    ScopeManager& globalScopeManager;
 };
 
 #endif

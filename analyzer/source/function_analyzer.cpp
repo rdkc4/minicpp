@@ -9,7 +9,7 @@
 #include "../../common/abstract-syntax-tree/ASTCompoundSt.hpp"
 
 FunctionAnalyzer::FunctionAnalyzer(ScopeManager& scopeManager, std::unordered_map<std::string, std::vector<std::string>>& semErrors, const std::string& err)
-    : globalScopeManager{ scopeManager }, semanticErrors{ semErrors }, globalError{ err }, statementAnalyzer{ scopeManager } {}
+    : globalScopeManager{ scopeManager }, statementAnalyzer{ scopeManager }, semanticErrors{ semErrors }, globalError{ err } {}
 
 thread_local AnalyzerThreadContext FunctionAnalyzer::analyzerContext;
 
@@ -18,7 +18,6 @@ AnalyzerThreadContext& FunctionAnalyzer::getContext() noexcept {
 }
 
 void FunctionAnalyzer::checkFunctionSignatures(const ASTProgram* _program){
-    semanticErrors[globalError] = {};
     for(const auto& _function : _program->getFunctions()){
         Types returnType{ _function->getType() };
         const std::string& funcName = _function->getToken().value;
@@ -66,7 +65,9 @@ void FunctionAnalyzer::checkFunction(const ASTFunction* _function){
     // function scope
     analyzerContext.scopeManager->pushScope();
     defineParameters(_function->getParameters());
-    checkBody(_function->getBody());
+    if(!_function->isPredefined()){
+        checkBody(_function->getBody());
+    }
     analyzerContext.scopeManager->popScope();
     
     // function return type check

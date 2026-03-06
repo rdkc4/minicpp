@@ -40,16 +40,20 @@ public:
     /** 
      * @brief adds new parameter to parameters
      * @param parameter - parameter that is being added
-     * @returns void
     */
     void addParameter(std::unique_ptr<ASTParameter> parameter);
 
     /** 
      * @brief adds new statement to body
      * @param statement - pointer to a statement that is being added to body
-     * @returns void
     */
     void addStatement(std::unique_ptr<ASTStatement> statement);
+
+    /** 
+     * @brief sets predifined flag of a function
+     * @param isPredefined - flag for predefined function
+    */
+    void setPredefined(bool isPredefined) noexcept;
 
     /** 
      * @brief getter for return type
@@ -58,24 +62,27 @@ public:
     Types getType() const noexcept;
 
     /** 
+     * @brief checks if function is predifined
+     * @returns true if function is predefined, false otherwise
+    */
+    bool isPredefined() const noexcept;
+
+    /** 
      * @brief getter for the amount of parameters
      * @returns number of parameters
     */
     size_t getParameterCount() const noexcept;
 
-    /** 
-     * @brief prints function node
-     * @note debugging purposes
-     * @param offset - indentation
-     * @returns void
-    */
-    void print(size_t offset) const override;
-
 private:
     /// return type of the function
     Types type;
+
+    /// flag if function is predefined
+    bool predefined;
+
     /// vector of pointers to parameters of the function
     std::vector<std::unique_ptr<ASTParameter>> parameters;
+
     /// vector of pointers to statements of the body
     std::vector<std::unique_ptr<ASTStatement>> body;
 

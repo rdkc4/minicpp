@@ -6,7 +6,8 @@
 #include "lexer_test.hpp"
 
 TEST(LexerTest, TokenizationOfAssignmentStatement){
-    LexerTest lexer{ "int x = -1 + 2 << 3u;" };
+    std::vector<std::string> input{"int x = -1 + 2 << 3u;"};
+    LexerTest lexer{ input };
     lexer.tokenize();
 
     std::vector<std::pair<TokenType, std::string>> expectedTokens{ {TokenType::_INT, "int"}, {TokenType::_ID, "x"}, 
@@ -24,7 +25,8 @@ TEST(LexerTest, TokenizationOfAssignmentStatement){
 }
 
 TEST(LexerTest, TokenizationOfIfStatement){
-    LexerTest lexer{ "if(a > b){return a;}" };
+    std::vector<std::string> input{"if(a > b){return a;}"};
+    LexerTest lexer{ input };
     lexer.tokenize();
 
     std::vector<std::pair<TokenType, std::string>> expectedTokens{ {TokenType::_IF, "if"}, {TokenType::_LPAREN, "("}, 
@@ -43,7 +45,8 @@ TEST(LexerTest, TokenizationOfIfStatement){
 }
 
 TEST(LexerTest, EmptyInput){
-    LexerTest lexer{""};
+    std::vector<std::string> input{""};
+    LexerTest lexer{ input };
     lexer.tokenize();
 
     ASSERT_EQ(lexer.tokensSize(), 1);
@@ -51,7 +54,8 @@ TEST(LexerTest, EmptyInput){
 }
 
 TEST(LexerTest, OnlySingleLineComment){
-    LexerTest lexer{"//this is a comment"};
+    std::vector<std::string> input{"//this is a comment"};
+    LexerTest lexer{ input };
     lexer.tokenize();
 
     ASSERT_EQ(lexer.tokensSize(), 1);
@@ -59,7 +63,8 @@ TEST(LexerTest, OnlySingleLineComment){
 }
 
 TEST(LexerTest, OnlyMultiLineComment){
-    LexerTest lexer{"/*this is a comment\n a multi line comment\n */"};
+    std::vector<std::string> input{"/*this is a comment\n a multi line comment\n */"};
+    LexerTest lexer{ input };
     lexer.tokenize();
 
     ASSERT_EQ(lexer.tokensSize(), 1);
@@ -67,13 +72,15 @@ TEST(LexerTest, OnlyMultiLineComment){
 }
 
 TEST(LexerTest, ThrowsOnInvalidTokens){
-    LexerTest lexer{ "int x. = 123;"};
+    std::vector<std::string> input{"int x. = 123;"};
+    LexerTest lexer{ input };
     lexer.tokenize();
     ASSERT_TRUE(lexer.hasLexicalErrors());
 }
 
 TEST(LexerTest, ThrowsOnInvalidMultiLineComment){
-    LexerTest lexer{ "/* int x = 3;"};
+    std::vector<std::string> input{"/* int x = 3;"};
+    LexerTest lexer{ input };
     lexer.tokenize();
     ASSERT_TRUE(lexer.hasLexicalErrors());
 }

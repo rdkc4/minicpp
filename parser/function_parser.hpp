@@ -26,17 +26,10 @@ public:
     */
     std::unique_ptr<ASTFunction> function();
 
-private:
-    /// parser specialized for statements
-    StatementParser stmtParser;
-    /// reference to a token handler wrapped around the lexer
-    TokenConsumer& tokenConsumer;
-
     /** 
      * @brief parses parameters of the function
      * @param _function - pointer to a function that owns parameters
      * @details PARAMETER : (TYPE ID (COMMA TYPE ID)*)?
-     * @returns void
     */
     void parameter(ASTFunction* _function);
 
@@ -44,9 +37,15 @@ private:
      * @brief parses body of the function
      * @param _function - pointer to a function that owns the body
      * @details BODY : LBRACKET (STATEMENT)? RBRACKET
-     * @returns void
     */
     void body(ASTFunction* _function);
+
+private:
+    /// parser specialized for statements
+    StatementParser stmtParser;
+
+    /// reference to a token handler wrapped around the lexer
+    TokenConsumer& tokenConsumer;
 
 };
 

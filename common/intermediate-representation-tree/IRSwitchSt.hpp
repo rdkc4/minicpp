@@ -31,7 +31,6 @@ public:
     /** 
      * @brief initializes the variable of the switch statement
      * @param var - pointer to the id
-     * @returns void
     */
     void setVariable(std::unique_ptr<IRId> var);
 
@@ -51,7 +50,6 @@ public:
     /** 
      * @brief adds new case to the switch statement
      * @param _case - pointer to the case
-     * @returns void
     */
     void addCase(std::unique_ptr<IRCaseSt> _case);
 
@@ -67,7 +65,6 @@ public:
     /** 
      * @brief initializes the default case of the switch statement
      * @param _swDefault - pointer to the default case
-     * @returns void
     */
     void setDefault(std::unique_ptr<IRDefaultSt> _swDefault);
 
@@ -84,15 +81,16 @@ public:
     */
     size_t getCaseCount() const noexcept;
 
-    void print(size_t offset) const override;
-
 private:
     /// pointer to the id of the variable of the switch-statement
     std::unique_ptr<IRId> variable;
+
     /// vector of pointers to cases of the switch-statement
     std::vector<std::unique_ptr<IRCaseSt>> cases;
+
     /// pointer to default case of the switch-statement
     std::unique_ptr<IRDefaultSt> _default;
+    
 };
 
 

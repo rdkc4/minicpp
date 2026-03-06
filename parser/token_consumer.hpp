@@ -22,7 +22,6 @@ public:
     
     /** 
      * @brief moving on to the next token
-     * @returns void
     */
     void next() noexcept;
 
@@ -36,7 +35,6 @@ public:
      * @brief compares current token's type to expected
      * @throws if token types don't match
      * @param expectedType - token type that is expected to appear next
-     * @returns void
     */
     void consume(TokenType expectedType);
 
@@ -44,7 +42,6 @@ public:
      * @brief compares current token's general type to expected
      * @throws if token general types don't match
      * @param expectedGType - general token type that is expected to appear next
-     * @returns void
     */
     void consume(GeneralTokenType expectedGType);
 

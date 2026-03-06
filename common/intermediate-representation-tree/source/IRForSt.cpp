@@ -1,10 +1,5 @@
 #include "../IRForSt.hpp"
 
-#include <memory>
-#include <iostream>
-#include <string>
-#include <format>
-
 IRForSt::IRForSt(IRNodeType ntype) : IRStatement(ntype) {}
 
 const IRAssignSt* IRForSt::getInitializer() const noexcept {
@@ -49,21 +44,4 @@ const IRTemporary* IRForSt::getTemporaries() const noexcept {
 
 bool IRForSt::hasTemporaries() const noexcept {
     return temporaries != nullptr;
-}
-
-void IRForSt::print(size_t offset) const {
-    std::cout << std::format("{}|-> {}", std::string(offset*2, ' '), toString());
-    if(temporaries != nullptr){
-        temporaries->print(offset + 1);
-    }
-    if(hasInitializer()){
-        initializer->print(offset + 1);
-    }
-    if(hasCondition()){
-        condition->print(offset + 1);
-    }
-    if(hasIncrementer()){
-        incrementer->print(offset + 1);
-    }
-    statement->print(offset + 1);
 }

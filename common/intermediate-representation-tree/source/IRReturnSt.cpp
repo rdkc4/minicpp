@@ -1,10 +1,5 @@
 #include "../IRReturnSt.hpp"
 
-#include <memory>
-#include <iostream>
-#include <format>
-#include <string>
-
 IRReturnSt::IRReturnSt(IRNodeType ntype) : IRStatement(ntype) {}
 
 const IRExpression* IRReturnSt::getExp() const noexcept {
@@ -26,14 +21,4 @@ bool IRReturnSt::returns() const noexcept {
 
 bool IRReturnSt::hasTemporaries() const noexcept {
     return temporaries != nullptr;
-}
-
-void IRReturnSt::print(size_t offset) const {
-    std::cout << std::format("{}|-> {}", std::string(offset*2, ' '), toString());
-    if(temporaries != nullptr){
-        temporaries->print(offset + 1);
-    }
-    if(returns()){
-        exp->print(offset + 1);
-    }
 }

@@ -34,7 +34,6 @@ public:
     /** 
      * @brief adds new parameter to the function
      * @param parameter - pointer to the parameter that is being added
-     * @returns void
     */
     void addParameter(std::unique_ptr<IRParameter> parameter);
 
@@ -47,7 +46,6 @@ public:
     /** 
      * @brief adds new statement to the body
      * @param statement - pointer to the statement that is being added
-     * @returns void
     */
     void addStatement(std::unique_ptr<IRStatement> statement);
 
@@ -60,7 +58,6 @@ public:
     /** 
      * @brief initializes function's name
      * @param funcName - name that is being assigned to the function
-     * @returns void
     */
     void setFunctionName(const std::string& funcName);
 
@@ -73,7 +70,6 @@ public:
     /** 
      * @brief initializes the return type of the function
      * @param t - return type of the function
-     * @returns void
     */
     void setType(Types t) noexcept;
 
@@ -86,36 +82,46 @@ public:
     /** 
      * @brief initializes the amount of bytes reserved for the stack
      * @param size - number of bytes reserved for the stack as string
-     * @returns void
     */
     void setRequiredMemory(const std::string& size);
 
     /**
      * @brief eliminates statements of the function's body that appear after the node that always returns
      * @param startIdx - index in the vector of statements where deletion starts
-     * @returns void
     */
     void eliminateDead(size_t startIdx);
 
     /** 
-     * @brief prints formatted string of the function node
-     * @note debugging purposes
-     * @param offset - indentation
-     * @returns void
+     * @brief sets predifined flag of a function
+     * @param isPredefined - flag for predefined function
     */
-    void print(size_t offset) const override;
+    void setPredefined(bool isPredefined) noexcept;
+
+    /** 
+     * @brief checks if function is predifined
+     * @returns true if function is predefined, false otherwise
+    */
+    bool isPredefined() const noexcept;
 
 private:
     /// name of the function
     std::string functionName;
+
     /// memory required for the stack of the function
     std::string requiredMemory;
+
     /// return type of the function
     Types type;
+
+    /// flag if function is predefined
+    bool predefined;
+
     /// vector of pointers to parameters of the function
     std::vector<std::unique_ptr<IRParameter>> parameters;
+
     /// vector of pointers to statements of the body
     std::vector<std::unique_ptr<IRStatement>> body;
+    
 };
 
 #endif
