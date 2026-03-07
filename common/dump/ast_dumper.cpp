@@ -1,4 +1,4 @@
-#include "../ast_dumper.hpp"
+#include "ast_dumper.hpp"
 
 ASTDumper::ASTDumper(std::ostream& out) : out{ out } {}
 
