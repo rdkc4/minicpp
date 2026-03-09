@@ -10,6 +10,7 @@
 #include "ir_expr.hpp"
 #include "defs/ir_defs.hpp"
 #include "../defs/defs.hpp"
+#include "../visitor/ir_visitor.hpp"
 
 /** 
  * @class IRTemporaryExpr
@@ -77,6 +78,8 @@ public:
      * @returns reference to a const vector of types of the temporaries
     */
     const std::vector<Type>& getTypes() const noexcept;
+
+    void accept(IRVisitor& visitor) override;
 
 private:
     /// vector of types of the temporaries

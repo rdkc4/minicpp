@@ -6,6 +6,7 @@
 #include "ir_stmt.hpp"
 #include "ir_switch_block_stmt.hpp"
 #include "defs/ir_defs.hpp"
+#include "../visitor/ir_visitor.hpp"
 
 /**
  * @class IRDefaultStmt
@@ -33,6 +34,8 @@ public:
      * @param block - pointer to a switch block node
     */
     void setSwitchBlock(std::unique_ptr<IRSwitchBlockStmt> block);
+
+    void accept(IRVisitor& visitor) override;
 
 private:
     /// pointer to the switch-block of the default case

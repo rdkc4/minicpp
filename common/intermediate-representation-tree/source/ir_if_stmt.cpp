@@ -39,3 +39,7 @@ const IRStmt* IRIfStmt::getElseStatement() const noexcept {
 const std::tuple<const IRExpr*, const IRStmt*, const IRTemporaryExpr*> IRIfStmt::getIfAtN(size_t n) const noexcept {
     return {conditions[n].get(), statements[n].get(), temporaries[n].get() };
 }
+
+void IRIfStmt::accept(IRVisitor& visitor){
+    visitor.visit(this);
+}

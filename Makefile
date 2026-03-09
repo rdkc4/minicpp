@@ -39,6 +39,7 @@ SRCS = main.cpp \
 	common/abstract-syntax-tree/source/ast_function.cpp \
 	common/abstract-syntax-tree/source/ast_program.cpp \
 	common/dump/ast_dumper.cpp \
+	common/dump/ir_dumper.cpp \
 	common/symbol/symbol.cpp \
 	common/intermediate-representation-tree/defs/ir_defs.cpp \
 	common/intermediate-representation-tree/source/ir_node.cpp \

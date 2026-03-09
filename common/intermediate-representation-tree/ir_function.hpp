@@ -10,6 +10,7 @@
 #include "ir_stmt.hpp"
 #include "defs/ir_defs.hpp"
 #include "../defs/defs.hpp"
+#include "../visitor/ir_visitor.hpp"
 
 /**
  * @class IRFunction
@@ -102,6 +103,8 @@ public:
      * @returns true if function is predefined, false otherwise
     */
     bool isPredefined() const noexcept;
+
+    void accept(IRVisitor& visitor) override;
 
 private:
     /// name of the function

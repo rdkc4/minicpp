@@ -36,3 +36,7 @@ void IRTemporaryExpr::assignTempAtN(std::unique_ptr<IRExpr> tempVal, Type t, siz
 const std::vector<Type>& IRTemporaryExpr::getTypes() const noexcept {
     return types;
 }
+
+void IRTemporaryExpr::accept(IRVisitor& visitor){
+    visitor.visit(this);
+}

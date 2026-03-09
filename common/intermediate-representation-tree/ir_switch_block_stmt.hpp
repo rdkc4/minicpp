@@ -6,6 +6,7 @@
 
 #include "ir_stmt.hpp"
 #include "defs/ir_defs.hpp"
+#include "../visitor/ir_visitor.hpp"
 
 /** 
  * @class IRSwitchBlockStmt
@@ -36,6 +37,8 @@ public:
      * @param startIdx - index in the vector of statements where deletion starts
     */
     void eliminateDead(size_t startIdx);
+
+    void accept(IRVisitor& visitor) override;
 
 private:
     /// vector of pointers to statements of the switch-block

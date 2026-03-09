@@ -28,11 +28,15 @@ void IRProgram::addLinkedLibrary(const std::string& libName) {
     linkedLibs.insert(Preprocessing::Libs::generateLibObjPath(libName));
 }
 
-const std::string IRProgram::getLinkedLibs() const noexcept {
+std::string IRProgram::getLinkedLibs() const noexcept {
     std::string libs{};
     for(const auto& lib : linkedLibs) {
         libs += " " + lib;
     }
 
     return libs;
+}
+
+void IRProgram::accept(IRVisitor& visitor){
+    visitor.visit(this);
 }

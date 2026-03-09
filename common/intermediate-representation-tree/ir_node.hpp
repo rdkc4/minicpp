@@ -1,9 +1,8 @@
 #ifndef IR_NODE_HPP
 #define IR_NODE_HPP
 
-#include <string>
-
 #include "defs/ir_defs.hpp"
+#include "../visitor/ir_visitor.hpp"
 
 /** 
  * @class IRNode
@@ -27,6 +26,8 @@ public:
      * @returns type of the node
     */
     IRNodeType getNodeType() const noexcept;
+
+    virtual void accept(IRVisitor& visitor) = 0;
 
 private:
     /// type of the irt node

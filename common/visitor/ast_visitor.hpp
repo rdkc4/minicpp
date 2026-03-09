@@ -26,6 +26,7 @@ class ASTLiteralExpr;
 class ASTVisitor {
 public:
     ASTVisitor() = default;
+    
     virtual ~ASTVisitor() = default;
 
     virtual void visit(ASTProgram* program) = 0;

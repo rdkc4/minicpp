@@ -2,10 +2,6 @@
 
 IRSwitchStmt::IRSwitchStmt(IRNodeType ntype) : IRStmt(ntype) {}
 
-const IRIdExpr* IRSwitchStmt::getVariable() const noexcept {
-    return variable.get();
-}
-
 void IRSwitchStmt::setVariable(std::unique_ptr<IRIdExpr> var){
     variable = std::move(var);
 }
@@ -32,4 +28,8 @@ bool IRSwitchStmt::hasDefault() const noexcept {
 
 size_t IRSwitchStmt::getCaseCount() const noexcept {
     return cases.size();
+}
+
+void IRSwitchStmt::accept(IRVisitor& visitor){
+    visitor.visit(this);
 }

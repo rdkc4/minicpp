@@ -3,6 +3,7 @@
 
 #include "ir_node.hpp"
 #include "defs/ir_defs.hpp"
+#include "../visitor/ir_visitor.hpp"
 
 /** 
  * @class IRStmt
@@ -18,6 +19,8 @@ public:
     */
     IRStmt(IRNodeType ntype);
     
+    virtual void accept(IRVisitor& visitor) = 0;
+
 };
 
 #endif

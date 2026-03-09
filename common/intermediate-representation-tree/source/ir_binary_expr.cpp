@@ -2,14 +2,6 @@
 
 IRBinaryExpr::IRBinaryExpr(IRNodeType ntype, Type type) : IRExpr(ntype, type) {}
 
-const IRExpr* IRBinaryExpr::getLeftOperand() const noexcept {
-    return leftOperand.get();
-}
-
-const IRExpr* IRBinaryExpr::getRightOperand() const noexcept {
-    return rightOperand.get();
-}
-
 Operator IRBinaryExpr::getOperator() const noexcept {
     return op;
 }
@@ -18,4 +10,8 @@ void IRBinaryExpr::setBinaryExpression(std::unique_ptr<IRExpr> lOp, std::unique_
     leftOperand = std::move(lOp);
     rightOperand = std::move(rOp);
     op = _op;
+}
+
+void IRBinaryExpr::accept(IRVisitor& visitor){
+    visitor.visit(this);
 }

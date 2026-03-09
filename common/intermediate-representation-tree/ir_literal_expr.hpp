@@ -6,6 +6,7 @@
 #include "ir_expr.hpp"
 #include "defs/ir_defs.hpp"
 #include "../defs/defs.hpp"
+#include "../visitor/ir_visitor.hpp"
 
 /** 
  * @class IRLiteralExpr
@@ -32,6 +33,8 @@ public:
      * @param val - reference to a value
     */
     void setValue(const std::string& val);
+
+    void accept(IRVisitor& visitor) override;
 
 private:
     /// value of the literal

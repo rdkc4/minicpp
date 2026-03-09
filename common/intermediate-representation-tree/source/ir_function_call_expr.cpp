@@ -30,3 +30,7 @@ void IRFunctionCallExpr::setCallName(const std::string& _callName){
 size_t IRFunctionCallExpr::getArgumentCount() const noexcept {
     return arguments.size();
 }
+
+void IRFunctionCallExpr::accept(IRVisitor& visitor){
+    visitor.visit(this);
+}

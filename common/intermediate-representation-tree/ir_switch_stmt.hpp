@@ -9,6 +9,7 @@
 #include "ir_case_stmt.hpp"
 #include "ir_default_stmt.hpp"
 #include "defs/ir_defs.hpp"
+#include "../visitor/ir_visitor.hpp"
 
 /** 
  * @class IRSwitchStmt
@@ -24,9 +25,12 @@ public:
 
     /** 
      * @brief getter for the variable of the switch statement
-     * @returns const pointer to the id of the switch statement
+     * @returns pointer or const pointer to the id of the switch statement
     */
-    const IRIdExpr* getVariable() const noexcept;
+    template<typename Self>
+    decltype(auto) getVariable(this Self&& self) noexcept {
+        return std::forward<Self>(self).variable.get();
+    }
 
     /** 
      * @brief initializes the variable of the switch statement
@@ -80,6 +84,8 @@ public:
      * @note default case is not included
     */
     size_t getCaseCount() const noexcept;
+
+    void accept(IRVisitor& visitor) override;
 
 private:
     /// pointer to the id of the variable of the switch-statement

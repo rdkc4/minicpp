@@ -4,6 +4,7 @@
 #include "ir_node.hpp"
 #include "defs/ir_defs.hpp"
 #include "../defs/defs.hpp"
+#include "../visitor/ir_visitor.hpp"
 
 /**
  * @class IRExpr
@@ -31,6 +32,8 @@ public:
      * @param t - type of the expression
     */
     void setType(Type t) noexcept;
+
+    virtual void accept(IRVisitor& visitor) = 0;
 
 private:
     /// type of the expression

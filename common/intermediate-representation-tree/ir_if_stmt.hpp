@@ -9,6 +9,7 @@
 #include "ir_expr.hpp"
 #include "ir_temporary_expr.hpp"
 #include "defs/ir_defs.hpp"
+#include "../visitor/ir_visitor.hpp"
 
 /** 
  * @class IRIfStmt
@@ -68,7 +69,7 @@ public:
 
     /** 
      * @brief getter for the statement of the else-statement
-     * @returns const reference to a statement of the else-statement
+     * @returns const pointer to a statement of the else-statement
     */
     const IRStmt* getElseStatement() const noexcept;
 
@@ -78,6 +79,8 @@ public:
      * @returns const tuple of pointers to condition, statement and temporary
     */
     const std::tuple<const IRExpr*, const IRStmt*, const IRTemporaryExpr*> getIfAtN(size_t n) const noexcept;
+
+    void accept(IRVisitor& visitor) override;
 
 private:
     /// vector of pointers to relational expressions of the if-statement

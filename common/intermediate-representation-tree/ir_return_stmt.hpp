@@ -7,6 +7,7 @@
 #include "ir_expr.hpp"
 #include "ir_temporary_expr.hpp"
 #include "defs/ir_defs.hpp"
+#include "../visitor/ir_visitor.hpp"
 
 /** 
  * @class IRReturnStmt
@@ -22,9 +23,12 @@ public:
 
     /** 
      * @brief getter for the expression of the return statement
-     * @returns const pointer to the expression
+     * @returns pointer or const pointer to the expression
     */
-    const IRExpr* getExp() const noexcept;
+    template<typename Self>
+    decltype(auto) getExp(this Self&& self) noexcept {
+        return std::forward<Self>(self).exp.get();
+    }
 
     /** 
      * @brief initializes the expression of the return statement
@@ -35,9 +39,12 @@ public:
 
     /** 
      * @brief getter for the temporaries
-     * @returns const pointer to the temporary
+     * @returns pointer or const pointer to the temporary
     */
-    const IRTemporaryExpr* getTemporaries() const noexcept;
+    template<typename Self>
+    decltype(auto) getTemporaries(this Self&& self) noexcept {
+        return std::forward<Self>(self).temporaries.get();
+    }
 
     /** 
      * @brief checks if return-statement returns value
@@ -50,6 +57,8 @@ public:
      * @returns true if return statement has temporaries, false otherwise
     */
     bool hasTemporaries() const noexcept;
+
+    void accept(IRVisitor& visitor) override;
 
 private:
     /// pointer to the expression of the return statement

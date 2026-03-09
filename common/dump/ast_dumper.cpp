@@ -1,6 +1,6 @@
 #include "ast_dumper.hpp"
 
-ASTDumper::ASTDumper(std::ostream& out) : out{ out } {}
+ASTDumper::ASTDumper(std::ostream& out) : out{ out }, indent{ 0 } {}
 
 void ASTDumper::visit(ASTProgram* program){
     dumpNode(program);
@@ -176,6 +176,9 @@ void ASTDumper::visit(ASTCaseStmt* caseStmt){
     ++indent;
     caseStmt->getLiteral()->accept(*this);
     caseStmt->getSwitchBlock()->accept(*this);
+    if(caseStmt->hasBreak()){
+        dumpNode("BREAK");
+    }
     --indent;
 }
 

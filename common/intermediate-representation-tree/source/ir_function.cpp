@@ -55,3 +55,7 @@ void IRFunction::setPredefined(bool isPredefined) noexcept {
 bool IRFunction::isPredefined() const noexcept {
     return predefined;
 }
+
+void IRFunction::accept(IRVisitor& visitor){
+    visitor.visit(this);
+}

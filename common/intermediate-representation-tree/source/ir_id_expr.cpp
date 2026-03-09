@@ -17,3 +17,7 @@ const std::string& IRIdExpr::getValue() const noexcept {
 void IRIdExpr::setValue(const std::string& val){
     value = val;
 }
+
+void IRIdExpr::accept(IRVisitor& visitor){
+    visitor.visit(this);
+}

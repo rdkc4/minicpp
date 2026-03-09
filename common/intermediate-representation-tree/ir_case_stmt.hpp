@@ -7,6 +7,7 @@
 #include "ir_literal_expr.hpp"
 #include "ir_switch_block_stmt.hpp"
 #include "defs/ir_defs.hpp"
+#include "../visitor/ir_visitor.hpp"
 
 /**
  * @class IRCaseStmt
@@ -22,9 +23,12 @@ public:
 
     /**
      * @brief getter for the literal of the case
-     * @returns const pointer to the literal
+     * @returns pointer or const pointer to the literal
     */
-    const IRLiteralExpr* getLiteral() const noexcept;
+    template<typename Self>
+    decltype(auto) getLiteral(this Self&& self) noexcept {
+        return std::forward<Self>(self).literal.get();
+    }
 
     /**
      * @brief getter for the switch block of the case statement
@@ -48,6 +52,8 @@ public:
      * @returns true if case has break statement, false otherwise
     */
     bool hasBreak() const noexcept;
+
+    void accept(IRVisitor& visitor) override;
 
 private:
     /// pointer to the literal of the case

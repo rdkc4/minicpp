@@ -31,6 +31,8 @@
 class ASTDumper final : public ASTVisitor {
 public:
     ASTDumper(std::ostream& out);
+    
+    ~ASTDumper() = default;
 
     void visit(ASTProgram* program) override;
 
@@ -77,7 +79,7 @@ public:
 private:
     std::ostream& out;
 
-    int indent = 0;
+    int indent;
 
     void dumpIndent();
 

@@ -17,3 +17,7 @@ Type IRParameter::getType() const noexcept {
 void IRParameter::setType(Type t) noexcept {
     type = t;
 }
+
+void IRParameter::accept(IRVisitor& visitor){
+    visitor.visit(this);
+}

@@ -9,6 +9,7 @@
 #include "ir_temporary_expr.hpp"
 #include "defs/ir_defs.hpp"
 #include "../defs/defs.hpp"
+#include "../visitor/ir_visitor.hpp"
 
 /** 
  * @class IRFunctionCallExpr
@@ -68,6 +69,8 @@ public:
      * @returns number of arguments of the function call
     */
     size_t getArgumentCount() const noexcept;
+
+    void accept(IRVisitor& visitor) override;
 
 private:
     /// name of the function being called

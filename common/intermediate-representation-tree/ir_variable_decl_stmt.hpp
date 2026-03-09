@@ -9,6 +9,7 @@
 #include "ir_temporary_expr.hpp"
 #include "defs/ir_defs.hpp"
 #include "../defs/defs.hpp"
+#include "../visitor/ir_visitor.hpp"
 
 /** 
  * @class IRVariableDeclStmt
@@ -26,9 +27,12 @@ public:
 
     /** 
      * @brief getter for the value assigned to the variable
-     * @returns const pointer to the expression
+     * @returns pointer or const pointer to the expression
     */
-    const IRExpr* getAssign() const noexcept;
+    template<typename Self>
+    decltype(auto) getAssign(this Self&& self) noexcept {
+        return std::forward<Self>(self).assignment.get();
+    }
 
     /** 
      * @brief assigns the value to the variable
@@ -81,15 +85,20 @@ public:
 
     /** 
      * @brief getter for the temporaries of the variable
-     * @returns const pointer to the temporary
+     * @returns pointer or const pointer to the temporary
     */
-    const IRTemporaryExpr* getTemporaries() const noexcept;
+    template<typename Self>
+    decltype(auto) getTemporaries(this Self&& self) noexcept {
+        return std::forward<Self>(self).temporaries.get();
+    }
 
     /** 
      * @brief checks if variable has temporaries
      * @returns true if variable has temporaries, false otherwise
     */
     bool hasTemporaries() const noexcept;
+
+    void accept(IRVisitor& visitor) override;
 
 private:
     /// name of the variable

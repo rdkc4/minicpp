@@ -7,6 +7,7 @@
 #include "ir_expr.hpp"
 #include "ir_temporary_expr.hpp"
 #include "defs/ir_defs.hpp"
+#include "../visitor/ir_visitor.hpp"
 
 /**
  * @class IRDoWhileStmt
@@ -22,9 +23,12 @@ public:
 
     /**
      * @brief getter for the condition of the do-while statement
-     * @returns const pointer to the relational expression
+     * @returns pointer or const pointer to the relational expression
     */
-    const IRExpr* getCondition() const noexcept;
+    template<typename Self>
+    decltype(auto) getCondition(this Self&& self) noexcept {
+        return std::forward<Self>(self).condition.get();
+    }
 
     /**
      * @brief getter for the statement node of the do-while statement
@@ -45,15 +49,20 @@ public:
 
     /**
      * @brief getter for the temporaries of the do-while statement node
-     * @returns const pointer to the temporaries node
+     * @returns pointer or const pointer to the temporaries node
     */
-    const IRTemporaryExpr* getTemporaries() const noexcept;
+    template<typename Self>
+    decltype(auto) getTemporaries(this Self&& self) noexcept {
+        return std::forward<Self>(self).temporaries.get();
+    }
 
     /**
      * @brief checks if the do-while statement has any temporaries
      * @returns true if do-while statement hasbtemporaries, false otherwise
     */
     bool hasTemporaries() const noexcept;
+
+    void accept(IRVisitor& visitor) override;
 
 private:
     /// pointer to the relational expression of the do-while statement

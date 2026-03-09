@@ -15,3 +15,7 @@ void IRCompoundStmt::eliminateDead(size_t startIdx){
         statements.erase(statements.begin() + startIdx, statements.end());
     }
 }
+
+void IRCompoundStmt::accept(IRVisitor& visitor){
+    visitor.visit(this);
+}

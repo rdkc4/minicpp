@@ -7,6 +7,7 @@
 #include "ir_expr.hpp"
 #include "ir_temporary_expr.hpp"
 #include "defs/ir_defs.hpp"
+#include "../visitor/ir_visitor.hpp"
 
 /** 
  * @class IRWhileStmt
@@ -22,15 +23,21 @@ public:
 
     /** 
      * @brief getter for the condition of the while statement
-     * @returns const pointer to relational expression
+     * @returns pointer or const pointer to relational expression
     */
-    const IRExpr* getCondition() const noexcept;
+    template<typename Self>
+    decltype(auto) getCondition(this Self&& self) noexcept {
+        return std::forward<Self>(self).condition.get();
+    }
 
     /** 
      * @brief getter for the statement of the while statement
-     * @returns const pointer to the statement
+     * @returns pointer or const pointer to the statement
     */
-    const IRStmt* getStatement() const noexcept;
+    template<typename Self>
+    decltype(auto) getStatement(this Self&& self) noexcept {
+        return std::forward<Self>(self).statement.get();
+    }
 
     /** 
      * @brief initializes the while statement
@@ -42,15 +49,20 @@ public:
 
     /** 
      * @brief getter for the temporaries
-     * @returns const pointer to the temporary
+     * @returns pointer or const pointer to the temporary
     */
-    const IRTemporaryExpr* getTemporaries() const noexcept;
+    template<typename Self>
+    decltype(auto) getTemporaries(this Self&& self) noexcept {
+        return std::forward<Self>(self).temporaries.get();
+    }
 
     /** 
      * @brief checks if the while statement has temporaries
      * @returns true if while statement has temporaries, false otherwise
     */
     bool hasTemporaries() const noexcept;
+
+    void accept(IRVisitor& visitor) override;
 
 private:
     /// pointer to the relational expression of the while-statement

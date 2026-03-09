@@ -8,6 +8,7 @@
 #include "ir_temporary_expr.hpp"
 #include "ir_id_expr.hpp"
 #include "defs/ir_defs.hpp"
+#include "../visitor/ir_visitor.hpp"
 
 /**
  * @class IRAssignStmt
@@ -23,23 +24,31 @@ public:
 
     /**
      * @brief getter for the id of the variable of the assignment statement
-     * @returns const pointer to the id node
+     * @returns pointer or const pointer to the id node
     */
-    const IRIdExpr* getVariable() const noexcept;
+    template<typename Self>
+    decltype(auto) getVariable(this Self&& self) noexcept {
+        return std::forward<Self>(self).variable.get();
+    }
 
     /**
      * @brief getter for the expression that is being assigned to variable
-     * @warning nullable
-     * @returns const pointer to the expression node
+     * @returns pointer or const pointer to the expression node
     */
-    const IRExpr* getExp() const noexcept;
+    template<typename Self>
+    decltype(auto) getExp(this Self&& self) noexcept {
+        return std::forward<Self>(self).exp.get();
+    }
 
     /**
      * @brief getter for the temporary variables of the assignment statement
      * @warning nullable
      * @returns const pointer to the temporary node
     */
-    const IRTemporaryExpr* getTemporaries() const noexcept;
+    template<typename Self>
+    decltype(auto) getTemporaries(this Self&& self) noexcept {
+        return std::forward<Self>(self).temporaries.get();
+    }
 
     /**
      * @brief initializes assignment statement
@@ -54,6 +63,8 @@ public:
      * @returns true if there are temporaries, false otherwise
     */
     bool hasTemporaries() const noexcept;
+
+    void accept(IRVisitor& visitor) override;
 
 private:
     /// pointer to the id of the variable

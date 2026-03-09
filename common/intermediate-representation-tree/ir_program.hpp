@@ -9,6 +9,7 @@
 #include "ir_node.hpp"
 #include "ir_function.hpp"
 #include "defs/ir_defs.hpp"
+#include "../visitor/ir_visitor.hpp"
 
 /** 
  * @class IRProgram
@@ -64,7 +65,9 @@ public:
      * @brief getter for the linked libraries
      * @returns linked libraries separated by ' '
     */
-    const std::string getLinkedLibs() const noexcept;
+    std::string getLinkedLibs() const noexcept;
+    
+    void accept(IRVisitor& visitor) override;
 
 private:
     /// vector of pointers to functions of the program

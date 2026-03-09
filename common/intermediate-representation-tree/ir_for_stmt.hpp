@@ -7,6 +7,7 @@
 #include "ir_expr.hpp"
 #include "ir_assign_stmt.hpp"
 #include "defs/ir_defs.hpp"
+#include "../visitor/ir_visitor.hpp"
 
 /**
  * @class IRForStmt
@@ -23,29 +24,41 @@ public:
     /**
      * @brief getter for the initializer of the for-statement node
      * @warning nullable
-     * @returns const pointer to the assignment statement
+     * @returns pointer const pointer to the assignment statement
     */
-    const IRAssignStmt* getInitializer() const noexcept;
+    template<typename Self>
+    decltype(auto) getInitializer(this Self&& self) noexcept {
+        return std::forward<Self>(self).initializer.get();
+    }
 
     /**
      * @brief getter for the condition of the for-statement node
      * @warning nullable
-     * @returns const pointer to the relational expression
+     * @returns pointer const pointer to the relational expression
     */
-    const IRExpr* getCondition() const noexcept;
+    template<typename Self>
+    decltype(auto) getCondition(this Self&& self) noexcept {
+        return std::forward<Self>(self).condition.get();
+    }
 
     /**
      * @brief getter for the incrementer of the for-statement node
      * @warning nullable
-     * @returns const pointer to the assignment statement
+     * @returns pointer or const pointer to the assignment statement
     */
-    const IRAssignStmt* getIncrementer() const noexcept;
+    template<typename Self>
+    decltype(auto) getIncrementer(this Self&& self) noexcept {
+        return std::forward<Self>(self).incrementer.get();
+    }
 
     /**
      * @brief getter for the statement of the for-statement node
-     * @returns pointer to the statement
+     * @returns pointer or const pointer to the statement
     */
-    const IRStmt* getStatement() const noexcept;
+    template<typename Self>
+    decltype(auto) getStatement(this Self&& self) noexcept {
+        return std::forward<Self>(self).statement.get();
+    }
 
     /**
      * @brief initializes the for-statement node
@@ -77,15 +90,20 @@ public:
 
     /**
      * @brief getter for the temporaries of the for-statement
-     * @returns const pointer to the temporaries
+     * @returns pointer or const pointer to the temporaries
     */
-    const IRTemporaryExpr* getTemporaries() const noexcept;
+    template<typename Self>
+    decltype(auto) getTemporaries(this Self&& self) noexcept {
+        return std::forward<Self>(self).temporaries.get();
+    }
 
     /**
      * @brief checks if for-statement has temporaries
      * @returns true if temporaries are not nullptr, false otherwise
     */
     bool hasTemporaries() const noexcept;
+
+    void accept(IRVisitor& visitor) override;
 
 private:
     /// pointer to the assignment statement of the initializer

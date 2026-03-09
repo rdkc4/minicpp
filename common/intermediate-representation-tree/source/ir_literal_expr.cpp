@@ -9,3 +9,7 @@ const std::string& IRLiteralExpr::getValue() const noexcept {
 void IRLiteralExpr::setValue(const std::string& val){
     value = val;
 }
+
+void IRLiteralExpr::accept(IRVisitor& visitor){
+    visitor.visit(this);
+}

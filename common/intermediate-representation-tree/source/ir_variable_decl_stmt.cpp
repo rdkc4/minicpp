@@ -1,10 +1,7 @@
 #include "../ir_variable_decl_stmt.hpp"
 
-IRVariableDeclStmt::IRVariableDeclStmt(IRNodeType ntype, std::string_view varName, Type type) : IRStmt(ntype), varName{ varName }, value{ "0" }, type{ type } {}
-
-const IRExpr* IRVariableDeclStmt::getAssign() const noexcept {
-    return assignment.get();
-}
+IRVariableDeclStmt::IRVariableDeclStmt(IRNodeType ntype, std::string_view varName, Type type) 
+    : IRStmt(ntype), varName{ varName }, value{ "0" }, type{ type } {}
 
 void IRVariableDeclStmt::setAssign(std::unique_ptr<IRExpr> assign, std::unique_ptr<IRTemporaryExpr> temp){
     assignment = std::move(assign);
@@ -39,10 +36,10 @@ bool IRVariableDeclStmt::hasAssign() const noexcept {
     return assignment != nullptr;
 }
 
-const IRTemporaryExpr* IRVariableDeclStmt::getTemporaries() const noexcept {
-    return temporaries.get();
-}
-
 bool IRVariableDeclStmt::hasTemporaries() const noexcept {
     return temporaries != nullptr;
+}
+
+void IRVariableDeclStmt::accept(IRVisitor& visitor){
+    visitor.visit(this);
 }

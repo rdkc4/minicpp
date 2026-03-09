@@ -7,6 +7,7 @@
 #include "ir_node.hpp"
 #include "defs/ir_defs.hpp"
 #include "../defs/defs.hpp"
+#include "../visitor/ir_visitor.hpp"
 
 /** 
  * @class IRParameter
@@ -45,6 +46,8 @@ public:
      * @param t - type of the parameter
     */
     void setType(Type t) noexcept;
+
+    void accept(IRVisitor& visitor) override;
 
 private:
     /// name of the parameter

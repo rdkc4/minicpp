@@ -5,6 +5,7 @@
 
 #include "ir_stmt.hpp"
 #include "ir_function_call_expr.hpp"
+#include "../visitor/ir_visitor.hpp"
 
 class IRFunctionCallStmt : public IRStmt {
 public:
@@ -14,9 +15,14 @@ public:
     */
     IRFunctionCallStmt(IRNodeType ntype);
 
-    const IRFunctionCallExpr* getFunctionCall() const noexcept;
+    template<typename Self>
+    decltype(auto) getFunctionCall(this Self&& self) noexcept {
+        return std::forward<Self>(self).functionCall.get();
+    }
 
     void setFunctionCallSt(std::unique_ptr<IRFunctionCallExpr> call);
+
+    void accept(IRVisitor& visitor) override;
 
 private:
     std::unique_ptr<IRFunctionCallExpr> functionCall; 

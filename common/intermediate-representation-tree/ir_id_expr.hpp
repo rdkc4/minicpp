@@ -7,6 +7,7 @@
 #include "ir_expr.hpp"
 #include "defs/ir_defs.hpp"
 #include "../defs/defs.hpp"
+#include "../visitor/ir_visitor.hpp"
 
 /**
  * @class IRIdExpr
@@ -45,6 +46,8 @@ public:
      * @param val - value of the id
     */
     void setValue(const std::string& val);
+
+    void accept(IRVisitor& visitor) override;
 
 private:
     /// name of the id
