@@ -2,17 +2,17 @@
 
 #include <format>
 
-Symbol::Symbol(std::string_view name, Kinds kind, Types type) : name{ name }, parameters{ nullptr }, kind{ kind }, type{ type } {}
+Symbol::Symbol(std::string_view name, Kind kind, Type type) : name{ name }, parameters{ nullptr }, kind{ kind }, type{ type } {}
 
 const std::string& Symbol::getName() const noexcept {
     return name;
 }
 
-Kinds Symbol::getKind() const noexcept {
+Kind Symbol::getKind() const noexcept {
     return kind;
 }
 
-Types Symbol::getType() const noexcept {
+Type Symbol::getType() const noexcept {
     return type;
 }
 
@@ -24,11 +24,11 @@ void Symbol::setName(std::string_view _name){
     name = _name;
 }
 
-void Symbol::setKind(Kinds _kind) noexcept {
+void Symbol::setKind(Kind _kind) noexcept {
     kind = _kind;
 }
 
-void Symbol::setType(Types _type) noexcept {
+void Symbol::setType(Type _type) noexcept {
     type = _type;
 }
 

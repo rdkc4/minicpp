@@ -5,7 +5,7 @@
 
 DirectiveParser::DirectiveParser(TokenConsumer& tokenConsumer) : tokenConsumer{ tokenConsumer } {}
 
-std::unique_ptr<ASTDirective> DirectiveParser::directive() {
+std::unique_ptr<ASTDir> DirectiveParser::directive() {
     tokenConsumer.consume(TokenType::_HASH);
     auto token = tokenConsumer.getToken();
 
@@ -17,8 +17,8 @@ std::unique_ptr<ASTDirective> DirectiveParser::directive() {
         token.line, token.column, token.value));
 }
 
-std::unique_ptr<ASTInclude> DirectiveParser::include() {
-    std::unique_ptr<ASTInclude> _include = std::make_unique<ASTInclude>(Token{ tokenConsumer.getToken() }, ASTNodeType::INCLUDE);
+std::unique_ptr<ASTIncludeDir> DirectiveParser::include() {
+    std::unique_ptr<ASTIncludeDir> _include = std::make_unique<ASTIncludeDir>(Token{ tokenConsumer.getToken() }, ASTNodeType::INCLUDE);
 
     tokenConsumer.consume(TokenType::_INCLUDE);
     tokenConsumer.consume(TokenType::_COLON);

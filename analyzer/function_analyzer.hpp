@@ -8,10 +8,10 @@
 #include <memory>
 
 #include "../symbol-handling/scope-manager/scope_manager.hpp"
-#include "../common/abstract-syntax-tree/ASTProgram.hpp"
-#include "../common/abstract-syntax-tree/ASTFunction.hpp"
-#include "../common/abstract-syntax-tree/ASTStatement.hpp"
-#include "../common/abstract-syntax-tree/ASTParameter.hpp"
+#include "../common/abstract-syntax-tree/ast_program.hpp"
+#include "../common/abstract-syntax-tree/ast_function.hpp"
+#include "../common/abstract-syntax-tree/ast_stmt.hpp"
+#include "../common/abstract-syntax-tree/ast_parameter.hpp"
 #include "defs/analyzer_defs.hpp"
 #include "statement_analyzer.hpp"
 
@@ -58,7 +58,7 @@ public:
      * @brief semantic check for the body of the function
      * @param _body - const reference to a vector of pointers to statements inside of the body
     */
-    void checkBody(const std::vector<std::unique_ptr<ASTStatement>>& _body);
+    void checkBody(const std::vector<std::unique_ptr<ASTStmt>>& _body);
 
     /** 
      * @brief check if the non-void function always returns

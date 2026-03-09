@@ -6,7 +6,7 @@ void DirectiveIntermediateRepresentation::directive(IRProgram* irProgram, const 
     for(const auto& dir : astProgram->getDirectives()){
         switch(dir->getNodeType()){
             case ASTNodeType::INCLUDE:
-                include(irProgram, static_cast<const ASTInclude*>(dir.get()));
+                include(irProgram, static_cast<const ASTIncludeDir*>(dir.get()));
                 break;
             default:
                 std::unreachable();
@@ -14,6 +14,6 @@ void DirectiveIntermediateRepresentation::directive(IRProgram* irProgram, const 
     }
 }
 
-void DirectiveIntermediateRepresentation::include(IRProgram* irProgram, const ASTInclude* lib){
+void DirectiveIntermediateRepresentation::include(IRProgram* irProgram, const ASTIncludeDir* lib){
     irProgram->addLinkedLibrary(lib->getLibName());
 }

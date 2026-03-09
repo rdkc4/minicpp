@@ -7,8 +7,8 @@
 #include <string>
 
 #include "../lexer/lexer.hpp"
-#include "../common/abstract-syntax-tree/ASTProgram.hpp"
-#include "../common/intermediate-representation-tree/IRProgram.hpp"
+#include "../common/abstract-syntax-tree/ast_program.hpp"
+#include "../common/intermediate-representation-tree/ir_program.hpp"
 
 /** 
  * @namespace Compiler

@@ -8,44 +8,44 @@
 
 StatementCodeGenerator::StatementCodeGenerator() = default;
 
-void StatementCodeGenerator::generateStatement(const IRStatement* _statement){
+void StatementCodeGenerator::generateStatement(const IRStmt* _statement){
     switch(_statement->getNodeType()){
         case IRNodeType::VARIABLE:
-            generateVariable(static_cast<const IRVariable*>(_statement));
+            generateVariable(static_cast<const IRVariableDeclStmt*>(_statement));
             break;
         case IRNodeType::IF:
-            generateIfStatement(static_cast<const IRIfSt*>(_statement));
+            generateIfStatement(static_cast<const IRIfStmt*>(_statement));
             break;
         case IRNodeType::COMPOUND:
-            generateCompoundStatement(static_cast<const IRCompoundSt*>(_statement));
+            generateCompoundStatement(static_cast<const IRCompoundStmt*>(_statement));
             break;
         case IRNodeType::ASSIGN:
-            generateAssignmentStatement(static_cast<const IRAssignSt*>(_statement));
+            generateAssignmentStatement(static_cast<const IRAssignStmt*>(_statement));
             break;
         case IRNodeType::RETURN:
-            generateReturnStatement(static_cast<const IRReturnSt*>(_statement));
+            generateReturnStatement(static_cast<const IRReturnStmt*>(_statement));
             break;
         case IRNodeType::WHILE:
-            generateWhileStatement(static_cast<const IRWhileSt*>(_statement));
+            generateWhileStatement(static_cast<const IRWhileStmt*>(_statement));
             break;
         case IRNodeType::FOR:
-            generateForStatement(static_cast<const IRForSt*>(_statement));
+            generateForStatement(static_cast<const IRForStmt*>(_statement));
             break;
         case IRNodeType::DO_WHILE:
-            generateDoWhileStatement(static_cast<const IRDoWhileSt*>(_statement));
+            generateDoWhileStatement(static_cast<const IRDoWhileStmt*>(_statement));
             break;
         case IRNodeType::SWITCH:
-            generateSwitchStatement(static_cast<const IRSwitchSt*>(_statement));
+            generateSwitchStatement(static_cast<const IRSwitchStmt*>(_statement));
             break;
         case IRNodeType::CALL:
-            generateFunctionCallStatement(static_cast<const IRFunctionCallSt*>(_statement));
+            generateFunctionCallStatement(static_cast<const IRFunctionCallStmt*>(_statement));
             return;
         default:
             return;
     }
 }
 
-void StatementCodeGenerator::generateVariable(const IRVariable* _variable){
+void StatementCodeGenerator::generateVariable(const IRVariableDeclStmt* _variable){
     auto& codeGenContext = FunctionCodeGenerator::getContext();
     // mapping local variable to address relative to %rbp (-n(%rbp))
     // if not successful it means that variable with the given name existed but went out of scope, so it overwrites it with new memory location
@@ -71,7 +71,7 @@ void StatementCodeGenerator::generateVariable(const IRVariable* _variable){
     }
 }
 
-void StatementCodeGenerator::generateIfStatement(const IRIfSt* _if){
+void StatementCodeGenerator::generateIfStatement(const IRIfStmt* _if){
     size_t labNum{ CodeGenerator::getNextLabelNum() };
 
     size_t size{ _if->getConditionCount() };
@@ -134,7 +134,7 @@ void StatementCodeGenerator::generateIfStatement(const IRIfSt* _if){
     AsmGenerator::Instruction::genLabel(codeGenContext.asmCode, std::format("_if{}_end", labNum));
 }
 
-void StatementCodeGenerator::generateWhileStatement(const IRWhileSt* _while){
+void StatementCodeGenerator::generateWhileStatement(const IRWhileStmt* _while){
     size_t labNum{ CodeGenerator::getNextLabelNum() };
 
     auto& codeGenContext = FunctionCodeGenerator::getContext();
@@ -151,7 +151,7 @@ void StatementCodeGenerator::generateWhileStatement(const IRWhileSt* _while){
     AsmGenerator::Instruction::genLabel(codeGenContext.asmCode, std::format("_while{}_end", labNum));
 }
 
-void StatementCodeGenerator::generateForStatement(const IRForSt* _for){
+void StatementCodeGenerator::generateForStatement(const IRForStmt* _for){
     size_t labNum{ CodeGenerator::getNextLabelNum() };
 
     auto& codeGenContext = FunctionCodeGenerator::getContext();
@@ -183,7 +183,7 @@ void StatementCodeGenerator::generateForStatement(const IRForSt* _for){
     AsmGenerator::Instruction::genLabel(codeGenContext.asmCode, std::format("_for{}_end", labNum));
 }
 
-void StatementCodeGenerator::generateDoWhileStatement(const IRDoWhileSt* _dowhile){
+void StatementCodeGenerator::generateDoWhileStatement(const IRDoWhileStmt* _dowhile){
     size_t labNum{ CodeGenerator::getNextLabelNum() };
     auto& codeGenContext = FunctionCodeGenerator::getContext();
 
@@ -198,14 +198,14 @@ void StatementCodeGenerator::generateDoWhileStatement(const IRDoWhileSt* _dowhil
     AsmGenerator::Instruction::genJmp(codeGenContext.asmCode, nodeToJMP.at(_dowhile->getCondition()->getNodeType()), std::format("_do_while{}", labNum));
 }
 
-void StatementCodeGenerator::generateCompoundStatement(const IRCompoundSt* _compound){
+void StatementCodeGenerator::generateCompoundStatement(const IRCompoundStmt* _compound){
     for(const auto& _statement : _compound->getStatements()){
         generateStatement(_statement.get());
     }
 }
 
 // evaluating rvalue
-void StatementCodeGenerator::generateAssignmentStatement(const IRAssignSt* _assignment){
+void StatementCodeGenerator::generateAssignmentStatement(const IRAssignStmt* _assignment){
     // preventing register corruption when function call occurs
     if(_assignment->hasTemporaries()){
         exprGenerator.generateTemporaries(_assignment->getTemporaries());
@@ -218,7 +218,7 @@ void StatementCodeGenerator::generateAssignmentStatement(const IRAssignSt* _assi
 }
 
 // return value ends up in %rax
-void StatementCodeGenerator::generateReturnStatement(const IRReturnSt* _return){
+void StatementCodeGenerator::generateReturnStatement(const IRReturnStmt* _return){
     auto& codeGenContext = FunctionCodeGenerator::getContext();
     if(_return->returns()){
         // preventing register corruption when function call occurs
@@ -236,11 +236,11 @@ void StatementCodeGenerator::generateReturnStatement(const IRReturnSt* _return){
     AsmGenerator::Instruction::genJmp(codeGenContext.asmCode, "jmp", std::format("{}_end", codeGenContext.functionName));
 }
 
-void StatementCodeGenerator::generateFunctionCallStatement(const IRFunctionCallSt* _call){
+void StatementCodeGenerator::generateFunctionCallStatement(const IRFunctionCallStmt* _call){
     exprGenerator.generateFunctionCall(_call->getFunctionCall());
 }
 
-void StatementCodeGenerator::generateSwitchStatement(const IRSwitchSt* _switch){
+void StatementCodeGenerator::generateSwitchStatement(const IRSwitchStmt* _switch){
     size_t labNum{ CodeGenerator::getNextLabelNum() };
     auto& codeGenContext = FunctionCodeGenerator::getContext();
 
@@ -251,7 +251,7 @@ void StatementCodeGenerator::generateSwitchStatement(const IRSwitchSt* _switch){
     
     // cases
     for(size_t i = 0; i < size; i++){
-        const IRCaseSt* _case = _switch->getCaseAtN(i);
+        const IRCaseStmt* _case = _switch->getCaseAtN(i);
 
         AsmGenerator::Instruction::genLabel(codeGenContext.asmCode, std::format("_switch{}_case{}", labNum, i));
         AsmGenerator::Instruction::genMov(codeGenContext.asmCode, codeGenContext.variableMap.at(var), "%rcx", "q");

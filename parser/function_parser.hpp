@@ -3,7 +3,7 @@
 
 #include <memory>
 
-#include "../common/abstract-syntax-tree/ASTFunction.hpp"
+#include "../common/abstract-syntax-tree/ast_function.hpp"
 #include "statement_parser.hpp"
 #include "token_consumer.hpp"
 

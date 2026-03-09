@@ -7,7 +7,7 @@
 #include <thread>
 #include <latch>
 
-#include "../../common/abstract-syntax-tree/ASTInclude.hpp"
+#include "../../common/abstract-syntax-tree/ast_include_dir.hpp"
 #include "../../thread-pool/thread_pool.hpp"
 
 IntermediateRepresentation::IntermediateRepresentation() : funcIR{ exceptions } {}
@@ -38,7 +38,7 @@ std::unique_ptr<IRProgram> IntermediateRepresentation::formIR(const ASTProgram* 
 
     for(const auto& dir : _program->getDirectives()) {
         if(dir->getNodeType() == ASTNodeType::INCLUDE){
-            _irProgram->addLinkedLibrary(static_cast<const ASTInclude*>(dir.get())->getLibName());
+            _irProgram->addLinkedLibrary(static_cast<const ASTIncludeDir*>(dir.get())->getLibName());
         }
     }
 

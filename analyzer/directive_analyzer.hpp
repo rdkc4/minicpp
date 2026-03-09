@@ -6,8 +6,8 @@
 #include <string>
 #include <unordered_map>
 
-#include "../common/abstract-syntax-tree/ASTDirective.hpp"
-#include "../common/abstract-syntax-tree/ASTInclude.hpp"
+#include "../common/abstract-syntax-tree/ast_dir.hpp"
+#include "../common/abstract-syntax-tree/ast_include_dir.hpp"
 
 /**
  * @class DirectiveAnalyzer
@@ -27,13 +27,13 @@ public:
      * @brief checks the directives of the program
      * @param directives - const reference to a vector of pointers to ast directives
     */
-    void checkDirectives(const std::vector<std::unique_ptr<ASTDirective>>& directives);
+    void checkDirectives(const std::vector<std::unique_ptr<ASTDir>>& directives);
 
     /**
      * @brief checks the included library
      * @param lib - const pointer to the included library
     */
-    void checkInclude(const ASTInclude* lib);
+    void checkInclude(const ASTIncludeDir* lib);
 
 private:
     /// maps functionName to its semantic errors

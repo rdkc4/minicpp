@@ -1,0 +1,33 @@
+#include "ast_defs.hpp"
+
+const std::unordered_map<ASTNodeType, std::string> astNodeTypeToString {
+    {ASTNodeType::PROGRAM, "PROGRAM"},
+    {ASTNodeType::FUNCTION, "FUNCTION"},
+    {ASTNodeType::PARAMETER, "PARAMETER"},
+    {ASTNodeType::BODY, "BODY"},
+    {ASTNodeType::VARIABLE, "VARIABLE_DECL_STMT"},
+    {ASTNodeType::SWITCH_BLOCK, "SWITCH_BLOCK_STMT"},
+    {ASTNodeType::STATEMENT, "STMT"},
+    {ASTNodeType::COMPOUND_STATEMENT, "COMPOUND_STMT"},
+    {ASTNodeType::ASSIGNMENT_STATEMENT, "ASSIGN_STMT"},
+    {ASTNodeType::RETURN_STATEMENT, "RETURN_STMT"},
+    {ASTNodeType::IF_STATEMENT, "IF_STMT"},
+    {ASTNodeType::WHILE_STATEMENT, "WHILE_STMT"},
+    {ASTNodeType::FOR_STATEMENT, "FOR_STMT"},
+    {ASTNodeType::DO_WHILE_STATEMENT, "DO_WHILE_STMT"},
+    {ASTNodeType::FUNCTION_CALL_STATEMENT, "FUNCTION_CALL_STMT"},
+    {ASTNodeType::SWITCH_STATEMENT, "SWITCH_STMT"},
+    {ASTNodeType::CASE, "CASE_STMT"},
+    {ASTNodeType::DEFAULT, "DEFAULT_STMT"},
+    {ASTNodeType::BREAK, "BREAK"},
+    {ASTNodeType::NUMERICAL_EXPRESSION, "NUMERICAL_EXPR"},
+    {ASTNodeType::EXPRESSION, "EXPR"},
+    {ASTNodeType::RELATIONAL_EXPRESSION, "RELATIONAL_EXPR"},
+    {ASTNodeType::BINARY_EXPRESSION, "BINARY_EXPR"},
+    {ASTNodeType::FUNCTION_CALL, "FUNCTION_CALL_EXPR"},
+    {ASTNodeType::ARGUMENT, "ARGUMENT"},
+    {ASTNodeType::LITERAL, "LITERAL_EXPR"},
+    {ASTNodeType::ID, "ID_EXPR"},
+    {ASTNodeType::DIRECTIVE, "DIR"},
+    {ASTNodeType::INCLUDE, "INCLUDE_DIR"}
+};

@@ -3,7 +3,7 @@
 
 #include <memory>
 
-#include "../common/abstract-syntax-tree/ASTProgram.hpp"
+#include "../common/abstract-syntax-tree/ast_program.hpp"
 
 #include "directive_parser.hpp"
 #include "function_parser.hpp"

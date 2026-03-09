@@ -93,7 +93,7 @@ TEST(ParserTest, VariableDirectInit){
     TokenConsumer tokenConsumer { lexer };
     StatementParserTest parser{ tokenConsumer };
 
-    std::unique_ptr<ASTVariable> _variable;
+    std::unique_ptr<ASTVariableDeclStmt> _variable;
     ASSERT_NO_THROW(_variable = parser.variable());
     ASSERT_EQ(_variable->getNodeType(), ASTNodeType::VARIABLE);
     ASSERT_TRUE(_variable->hasAssign());
@@ -107,7 +107,7 @@ TEST(ParserTest, VariableNoInit){
     StatementParserTest parser{ tokenConsumer };
 
 
-    std::unique_ptr<ASTVariable> _variable;
+    std::unique_ptr<ASTVariableDeclStmt> _variable;
     ASSERT_NO_THROW(_variable = parser.variable());
     ASSERT_EQ(_variable->getNodeType(), ASTNodeType::VARIABLE);
     ASSERT_FALSE(_variable->hasAssign());
@@ -122,7 +122,7 @@ TEST(ParserTest, EmptyCompoundStatement){
 
     const size_t expectedChildrenSize = 0;
 
-    std::unique_ptr<ASTCompoundSt> _compound;
+    std::unique_ptr<ASTCompoundStmt> _compound;
     ASSERT_NO_THROW(_compound = parser.compoundStatement());
     ASSERT_EQ(_compound->getNodeType(), ASTNodeType::COMPOUND_STATEMENT);
     ASSERT_EQ(_compound->getStatements().size(), expectedChildrenSize);
@@ -137,7 +137,7 @@ TEST(ParserTest, CompoundStatement){
 
     const size_t expectedChildrenSize = 2;
 
-    std::unique_ptr<ASTCompoundSt> _compound;
+    std::unique_ptr<ASTCompoundStmt> _compound;
     ASSERT_NO_THROW(_compound = parser.compoundStatement());
     ASSERT_EQ(_compound->getNodeType(), ASTNodeType::COMPOUND_STATEMENT);
     ASSERT_EQ(_compound->getStatements().size(), expectedChildrenSize);
@@ -150,7 +150,7 @@ TEST(ParserTest, AssignmentStatement){
     TokenConsumer tokenConsumer { lexer };
     StatementParserTest parser{ tokenConsumer };
 
-    std::unique_ptr<ASTAssignSt> _assignment;
+    std::unique_ptr<ASTAssignStmt> _assignment;
     ASSERT_NO_THROW(_assignment = parser.assignmentStatement());
     ASSERT_EQ(_assignment->getNodeType(), ASTNodeType::ASSIGNMENT_STATEMENT);
     ASSERT_TRUE(_assignment->getExp()->getNodeType() == ASTNodeType::LITERAL);
@@ -163,7 +163,7 @@ TEST(ParserTest, ReturnStatementVoid){
     TokenConsumer tokenConsumer { lexer };
     StatementParserTest parser{ tokenConsumer };
 
-    std::unique_ptr<ASTReturnSt> _return;
+    std::unique_ptr<ASTReturnStmt> _return;
     ASSERT_NO_THROW(_return = parser.returnStatement());
     ASSERT_EQ(_return->getNodeType(), ASTNodeType::RETURN_STATEMENT);
     ASSERT_FALSE(_return->returns());
@@ -176,7 +176,7 @@ TEST(ParserTest, ReturnStatement){
     TokenConsumer tokenConsumer { lexer };
     StatementParserTest parser{ tokenConsumer };
 
-    std::unique_ptr<ASTReturnSt> _return;
+    std::unique_ptr<ASTReturnStmt> _return;
     ASSERT_NO_THROW(_return = parser.returnStatement());
     ASSERT_EQ(_return->getNodeType(), ASTNodeType::RETURN_STATEMENT);
     ASSERT_TRUE(_return->returns());
@@ -191,7 +191,7 @@ TEST(ParserTest, IfStatementOnlyIf){
 
     const size_t expectedConditionCount = 1;
 
-    std::unique_ptr<ASTIfSt> _if;
+    std::unique_ptr<ASTIfStmt> _if;
     ASSERT_NO_THROW(_if = parser.ifStatement());
     ASSERT_EQ(_if->getNodeType(), ASTNodeType::IF_STATEMENT);
     ASSERT_EQ(_if->getConditions().size(), expectedConditionCount);
@@ -207,7 +207,7 @@ TEST(ParserTest, IfStatementIfElse){
 
     const size_t expectedStatementCount = 2;
 
-    std::unique_ptr<ASTIfSt> _if;
+    std::unique_ptr<ASTIfStmt> _if;
     ASSERT_NO_THROW(_if = parser.ifStatement());
     ASSERT_EQ(_if->getNodeType(), ASTNodeType::IF_STATEMENT);
     ASSERT_EQ(_if->getStatements().size(), expectedStatementCount);
@@ -223,7 +223,7 @@ TEST(ParserTest, IfStatementIfElseif){
 
     const size_t expectedConditionCount = 2;
 
-    std::unique_ptr<ASTIfSt> _if;
+    std::unique_ptr<ASTIfStmt> _if;
     ASSERT_NO_THROW(_if = parser.ifStatement());
     ASSERT_EQ(_if->getNodeType(), ASTNodeType::IF_STATEMENT);
     ASSERT_EQ(_if->getConditions().size(), expectedConditionCount);
@@ -238,7 +238,7 @@ TEST(ParserTest, IfStatementIfElseifElse){
 
     const size_t expectedStatementCount = 3;
 
-    std::unique_ptr<ASTIfSt> _if;
+    std::unique_ptr<ASTIfStmt> _if;
     ASSERT_NO_THROW(_if = parser.ifStatement());
     ASSERT_EQ(_if->getNodeType(), ASTNodeType::IF_STATEMENT);
     ASSERT_EQ(_if->getStatements().size(), expectedStatementCount);
@@ -252,7 +252,7 @@ TEST(ParserTest, WhileStatement){
     TokenConsumer tokenConsumer { lexer };
     StatementParserTest parser{ tokenConsumer };
 
-    std::unique_ptr<ASTWhileSt> _while;
+    std::unique_ptr<ASTWhileStmt> _while;
     ASSERT_NO_THROW(_while = parser.whileStatement());
     ASSERT_EQ(_while->getNodeType(), ASTNodeType::WHILE_STATEMENT);
 }
@@ -264,7 +264,7 @@ TEST(ParserTest, ForStatement){
     TokenConsumer tokenConsumer { lexer };
     StatementParserTest parser{ tokenConsumer };
 
-    std::unique_ptr<ASTForSt> _for;
+    std::unique_ptr<ASTForStmt> _for;
     ASSERT_NO_THROW(_for = parser.forStatement());
     ASSERT_EQ(_for->getNodeType(), ASTNodeType::FOR_STATEMENT);
     ASSERT_TRUE(_for->hasInitializer());
@@ -279,7 +279,7 @@ TEST(ParserTest, DoWhileStatement){
     TokenConsumer tokenConsumer { lexer };
     StatementParserTest parser{ tokenConsumer };
 
-    std::unique_ptr<ASTDoWhileSt> _dowhile;
+    std::unique_ptr<ASTDoWhileStmt> _dowhile;
     ASSERT_NO_THROW(_dowhile = parser.doWhileStatement());
     ASSERT_EQ(_dowhile->getNodeType(), ASTNodeType::DO_WHILE_STATEMENT);
 }
@@ -293,7 +293,7 @@ TEST(ParserTest, SwitchStatement){
 
     const size_t expectedCaseCount = 1;
 
-    std::unique_ptr<ASTSwitchSt> _switch;
+    std::unique_ptr<ASTSwitchStmt> _switch;
     ASSERT_NO_THROW(_switch = parser.switchStatement());
     ASSERT_EQ(_switch->getNodeType(), ASTNodeType::SWITCH_STATEMENT);
     ASSERT_EQ(_switch->getCases().size(), expectedCaseCount);
@@ -309,7 +309,7 @@ TEST(ParserTest, SwitchStatementNoDefault){
 
     const size_t expectedCaseCount = 1;
 
-    std::unique_ptr<ASTSwitchSt> _switch;
+    std::unique_ptr<ASTSwitchStmt> _switch;
     ASSERT_NO_THROW(_switch = parser.switchStatement());
     ASSERT_EQ(_switch->getNodeType(), ASTNodeType::SWITCH_STATEMENT);
     ASSERT_EQ(_switch->getCases().size(), expectedCaseCount);
@@ -323,7 +323,7 @@ TEST(ParserTest, SwitchStatementNoCaseThrows){
     TokenConsumer tokenConsumer { lexer };
     StatementParserTest parser{ tokenConsumer };
 
-    std::unique_ptr<ASTSwitchSt> _switch;
+    std::unique_ptr<ASTSwitchStmt> _switch;
     ASSERT_THROW(_switch = parser.switchStatement(), std::runtime_error);
 }
 
@@ -334,10 +334,10 @@ TEST(ParserTest, NumericalExpression){
     TokenConsumer tokenConsumer { lexer };
     ExpressionParserTest parser{ tokenConsumer };
 
-    std::unique_ptr<ASTExpression> _numexp;
+    std::unique_ptr<ASTExpr> _numexp;
     ASSERT_NO_THROW(_numexp = parser.numericalExpression());
     ASSERT_EQ(_numexp->getNodeType(), ASTNodeType::BINARY_EXPRESSION);
-    ASSERT_EQ(static_cast<ASTBinaryExpression*>(_numexp.get())->getOperator(), Operators::ADD);
+    ASSERT_EQ(static_cast<ASTBinaryExpr*>(_numexp.get())->getOperator(), Operator::ADD);
 }
 
 TEST(ParserTest, RelationalExpression){
@@ -347,10 +347,10 @@ TEST(ParserTest, RelationalExpression){
     TokenConsumer tokenConsumer { lexer };
     ExpressionParserTest parser{ tokenConsumer };
 
-    std::unique_ptr<ASTExpression> _relexp;
+    std::unique_ptr<ASTExpr> _relexp;
     ASSERT_NO_THROW(_relexp = parser.relationalExpression());
     ASSERT_EQ(_relexp->getNodeType(), ASTNodeType::BINARY_EXPRESSION);
-    ASSERT_EQ(static_cast<ASTBinaryExpression*>(_relexp.get())->getOperator(), Operators::GREATER);
+    ASSERT_EQ(static_cast<ASTBinaryExpr*>(_relexp.get())->getOperator(), Operator::GREATER);
 }
 
 TEST(ParserTest, FunctionCallNoArgs){
@@ -360,7 +360,7 @@ TEST(ParserTest, FunctionCallNoArgs){
     TokenConsumer tokenConsumer { lexer };
     ExpressionParserTest parser{ tokenConsumer };
 
-    std::unique_ptr<ASTFunctionCall> _functionCall;
+    std::unique_ptr<ASTFunctionCallExpr> _functionCall;
     ASSERT_NO_THROW(_functionCall = parser.functionCall());
     ASSERT_EQ(_functionCall->getNodeType(), ASTNodeType::FUNCTION_CALL);
     ASSERT_TRUE(_functionCall->getArgumentCount() == 0);
@@ -376,7 +376,7 @@ TEST(ParserTest, FunctionCallSingleArg){
 
     const size_t expectedArgumentCount = 1;
 
-    std::unique_ptr<ASTFunctionCall> _functionCall;
+    std::unique_ptr<ASTFunctionCallExpr> _functionCall;
     ASSERT_NO_THROW(_functionCall = parser.functionCall());
     ASSERT_EQ(_functionCall->getNodeType(), ASTNodeType::FUNCTION_CALL);
     ASSERT_EQ(_functionCall->getArgumentCount(), expectedArgumentCount);
@@ -392,7 +392,7 @@ TEST(ParserTest, FunctionCallMultipleArgs){
 
     const size_t expectedArgumentCount = 2;
 
-    std::unique_ptr<ASTFunctionCall> _functionCall;
+    std::unique_ptr<ASTFunctionCallExpr> _functionCall;
     ASSERT_NO_THROW(_functionCall = parser.functionCall());
     ASSERT_EQ(_functionCall->getNodeType(), ASTNodeType::FUNCTION_CALL);
     ASSERT_EQ(_functionCall->getArgumentCount(), expectedArgumentCount);
@@ -406,6 +406,6 @@ TEST(ParserTest, FunctionCallInvalidArgs){
     TokenConsumer tokenConsumer { lexer };
     ExpressionParserTest parser{ tokenConsumer };
 
-    std::unique_ptr<ASTFunctionCall> _functionCall;
+    std::unique_ptr<ASTFunctionCallExpr> _functionCall;
     ASSERT_THROW(_functionCall = parser.functionCall(), std::runtime_error);
 }

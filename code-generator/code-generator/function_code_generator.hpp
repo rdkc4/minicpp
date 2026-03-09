@@ -6,8 +6,8 @@
 #include <unordered_map>
 #include <string>
 
-#include "../../common/intermediate-representation-tree/IRProgram.hpp"
-#include "../../common/intermediate-representation-tree/IRFunction.hpp"
+#include "../../common/intermediate-representation-tree/ir_program.hpp"
+#include "../../common/intermediate-representation-tree/ir_function.hpp"
 #include "../defs/code_generator_defs.hpp"
 #include "statement_code_generator.hpp"
 

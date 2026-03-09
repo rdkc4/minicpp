@@ -4,32 +4,32 @@
 #include <format>
 
 #include "../../asm-generator/asm_instruction_generator.hpp"
-#include "../../../common/intermediate-representation-tree/IRBinaryExpression.hpp"
+#include "../../../common/intermediate-representation-tree/ir_binary_expr.hpp"
 
 ExpressionCodeGenerator::ExpressionCodeGenerator() = default;
 
 // evaluating equations using general-purpose registers r(8-15) and stack (if necessary)
-void ExpressionCodeGenerator::generateNumericalExpression(const IRExpression* _numexp){
+void ExpressionCodeGenerator::generateNumericalExpression(const IRExpr* _numexp){
     auto& codeGenContext = FunctionCodeGenerator::getContext();
     if(_numexp->getNodeType() == IRNodeType::ID){
         if(codeGenContext.gpFreeRegPos < gpRegisters.size()){
-            AsmGenerator::Instruction::genMov(codeGenContext.asmCode, generateID(static_cast<const IRId*>(_numexp)), gpRegisters.at(codeGenContext.gpFreeRegPos), "q");
+            AsmGenerator::Instruction::genMov(codeGenContext.asmCode, generateID(static_cast<const IRIdExpr*>(_numexp)), gpRegisters.at(codeGenContext.gpFreeRegPos), "q");
         }
         else{
-            AsmGenerator::Instruction::genPush(codeGenContext.asmCode, generateID(static_cast<const IRId*>(_numexp)));
+            AsmGenerator::Instruction::genPush(codeGenContext.asmCode, generateID(static_cast<const IRIdExpr*>(_numexp)));
         }
         codeGenContext.takeGpReg();
     }
     else if(_numexp->getNodeType() == IRNodeType::LITERAL){
         if(codeGenContext.gpFreeRegPos < gpRegisters.size()){
-            AsmGenerator::Instruction::genMov(codeGenContext.asmCode, generateLiteral(static_cast<const IRLiteral*>(_numexp)), gpRegisters.at(codeGenContext.gpFreeRegPos), "q");
+            AsmGenerator::Instruction::genMov(codeGenContext.asmCode, generateLiteral(static_cast<const IRLiteralExpr*>(_numexp)), gpRegisters.at(codeGenContext.gpFreeRegPos), "q");
         }
         else{
-            AsmGenerator::Instruction::genPush(codeGenContext.asmCode, generateLiteral(static_cast<const IRLiteral*>(_numexp)));
+            AsmGenerator::Instruction::genPush(codeGenContext.asmCode, generateLiteral(static_cast<const IRLiteralExpr*>(_numexp)));
         }
         codeGenContext.takeGpReg();
     }else if (_numexp->getNodeType() == IRNodeType::CALL){
-        generateFunctionCall(static_cast<const IRFunctionCall*>(_numexp));
+        generateFunctionCall(static_cast<const IRFunctionCallExpr*>(_numexp));
         if(codeGenContext.gpFreeRegPos < gpRegisters.size()){
             AsmGenerator::Instruction::genMov(codeGenContext.asmCode, "%rax", gpRegisters.at(codeGenContext.gpFreeRegPos), "q");
         }
@@ -42,7 +42,7 @@ void ExpressionCodeGenerator::generateNumericalExpression(const IRExpression* _n
         std::string lreg{};
         std::string rreg{};
 
-        const auto _binExp = static_cast<const IRBinaryExpression*>(_numexp);
+        const auto _binExp = static_cast<const IRBinaryExpr*>(_numexp);
         
         generateNumericalExpression(_binExp->getLeftOperand());
         generateNumericalExpression(_binExp->getRightOperand());
@@ -68,7 +68,7 @@ void ExpressionCodeGenerator::generateNumericalExpression(const IRExpression* _n
         if(nodeType == IRNodeType::MUL || nodeType == IRNodeType::DIV){ // result of MUL || DIV is in RDX:RAX
             AsmGenerator::Instruction::genOperation(codeGenContext.asmCode, "xor", "%rdx", "%rdx");
             AsmGenerator::Instruction::genMov(codeGenContext.asmCode, rreg, "%rax", "q");
-            if(_numexp->getType() == Types::INT){
+            if(_numexp->getType() == Type::INT){
                 AsmGenerator::Instruction::genOperation(codeGenContext.asmCode, std::format("i{}", irNodeToString.at(nodeType)), lreg);
             }
             else{
@@ -93,8 +93,8 @@ void ExpressionCodeGenerator::generateNumericalExpression(const IRExpression* _n
     }
 }
 
-void ExpressionCodeGenerator::generateRelationalExpression(const IRExpression* _relexp){
-    const auto _binExp = static_cast<const IRBinaryExpression*>(_relexp);
+void ExpressionCodeGenerator::generateRelationalExpression(const IRExpr* _relexp){
+    const auto _binExp = static_cast<const IRBinaryExpr*>(_relexp);
     generateNumericalExpression(_binExp->getLeftOperand());
     generateNumericalExpression(_binExp->getRightOperand());
     
@@ -106,19 +106,19 @@ void ExpressionCodeGenerator::generateRelationalExpression(const IRExpression* _
     AsmGenerator::Instruction::genCmp(codeGenContext.asmCode, lreg, rreg);
 }
 
-const std::string& ExpressionCodeGenerator::generateID(const IRId* _id) const {
+const std::string& ExpressionCodeGenerator::generateID(const IRIdExpr* _id) const {
     return FunctionCodeGenerator::getContext().variableMap.at(_id->getIdName()); // returns address from variable map
 }
 
-std::string ExpressionCodeGenerator::generateLiteral(const IRLiteral* _literal) const {
+std::string ExpressionCodeGenerator::generateLiteral(const IRLiteralExpr* _literal) const {
     std::string val{ _literal->getValue() };
-    if(_literal->getType() == Types::UNSIGNED){
+    if(_literal->getType() == Type::UNSIGNED){
         val.pop_back();
     }
     return std::format("${}", val);
 }
 
-void ExpressionCodeGenerator::generateFunctionCall(const IRFunctionCall* _functionCall){
+void ExpressionCodeGenerator::generateFunctionCall(const IRFunctionCallExpr* _functionCall){
     auto& codeGenContext = FunctionCodeGenerator::getContext();
     // push arguments to stack
     generateArgument(_functionCall);
@@ -129,7 +129,7 @@ void ExpressionCodeGenerator::generateFunctionCall(const IRFunctionCall* _functi
     clearArguments(_functionCall->getArgumentCount());
 }
 
-void ExpressionCodeGenerator::generateArgument(const IRFunctionCall* _functionCall){
+void ExpressionCodeGenerator::generateArgument(const IRFunctionCallExpr* _functionCall){
     auto& codeGenContext = FunctionCodeGenerator::getContext();
     // evaluating temporaries
     for(const auto& temp : _functionCall->getTemporaries()){
@@ -153,13 +153,13 @@ void ExpressionCodeGenerator::clearArguments(size_t argCount){
     AsmGenerator::Instruction::genOperation(codeGenContext.asmCode, "add", std::format("${}", argCount * AsmGenerator::Instruction::regSize), "%rsp");
 }
 
-void ExpressionCodeGenerator::generateTemporaries(const IRTemporary* _temporary){
+void ExpressionCodeGenerator::generateTemporaries(const IRTemporaryExpr* _temporary){
     for(size_t i = 0; i < _temporary->getTemporaries().size(); ++i){
         auto& codeGenContext = FunctionCodeGenerator::getContext();
         const auto temp = _temporary->getExpressionAtN(i);
 
         if(temp->getNodeType() == IRNodeType::CALL){
-            for(const auto& _temp : static_cast<const IRFunctionCall*>(temp)->getTemporaries()){
+            for(const auto& _temp : static_cast<const IRFunctionCallExpr*>(temp)->getTemporaries()){
                 if(_temp != nullptr){
                     generateTemporaries(_temp.get());
                 }

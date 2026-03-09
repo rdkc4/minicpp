@@ -8,22 +8,22 @@
 #include "../token/defs/token_defs.hpp"
 
 /** 
- * @enum Types
+ * @enum Type
  * @brief types supported by the compiler
 */
-enum class Types{NO_TYPE, INT, UNSIGNED, VOID, AUTO};
+enum class Type{NO_TYPE, INT, UNSIGNED, VOID, AUTO};
 
 /** 
- * @enum Kinds
+ * @enum Kind
  * @brief kinds of symbols
 */
-enum class Kinds{NO_KIND, LIT, FUN, VAR, PAR};
+enum class Kind{NO_KIND, LIT, FUN, VAR, PAR};
 
 /** 
- * @enum Operators
+ * @enum Operator
  * @brief operators supported by the compiler
 */
-enum class Operators{NO_OP, ADD, SUB, MUL, DIV, ANDB, ORB, XOR, LSHIFT, RSHIFT, GREATER, LESS, LEQUAL, GEQUAL, EQUAL, NEQUAL};
+enum class Operator{NO_OP, ADD, SUB, MUL, DIV, ANDB, ORB, XOR, LSHIFT, RSHIFT, GREATER, LESS, LEQUAL, GEQUAL, EQUAL, NEQUAL};
 
 /// set of relational operators as strings
 extern const std::unordered_set<std::string> relationalOperators;
@@ -35,18 +35,18 @@ extern const std::unordered_set<std::string> arithmeticOperators;
 extern const std::unordered_set<std::string> bitwiseOperators;
 
 /// maps string to an operator
-extern const std::unordered_map<std::string, Operators> stringToOperator;
+extern const std::unordered_map<std::string, Operator> stringToOperator;
 
 /// maps type to a string
-extern const std::unordered_map<Types, std::string> typeToString;
+extern const std::unordered_map<Type, std::string> typeToString;
 
 /// maps token type to a type
-extern const std::unordered_map<TokenType, Types> tokenTypeToType;
+extern const std::unordered_map<TokenType, Type> tokenTypeToType;
 
 /// maps kind to a string
-extern const std::unordered_map<Kinds, std::string> kindToString;
+extern const std::unordered_map<Kind, std::string> kindToString;
 
 /// maps operator to a string
-extern const std::unordered_map<Operators, std::string> operatorToString;
+extern const std::unordered_map<Operator, std::string> operatorToString;
 
 #endif

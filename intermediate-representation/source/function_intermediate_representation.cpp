@@ -49,7 +49,7 @@ void FunctionIntermediateRepresentation::parameter(IRFunction* _irFunction, cons
     }
 }
 
-void FunctionIntermediateRepresentation::body(IRFunction* _irFunction, const std::vector<std::unique_ptr<ASTStatement>>& _body){
+void FunctionIntermediateRepresentation::body(IRFunction* _irFunction, const std::vector<std::unique_ptr<ASTStmt>>& _body){
     for(const auto& _statement : _body){
         _irFunction->addStatement(stmtIR.statement(_statement.get()));
 

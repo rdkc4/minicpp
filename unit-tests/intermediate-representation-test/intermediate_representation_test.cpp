@@ -121,10 +121,10 @@ TEST(IRTest, CompoundStatementDeadCodeElimination){
 
     TokenConsumer tokenConsumer { lexer };
     StatementParserTest parser{ tokenConsumer };
-    std::unique_ptr<ASTCompoundSt> _astCompound = parser.compoundStatement();
+    std::unique_ptr<ASTCompoundStmt> _astCompound = parser.compoundStatement();
 
     StatementIntermediateRepresentationTest intermediateRepresentation;
-    std::unique_ptr<IRCompoundSt> _irCompound = intermediateRepresentation.compoundStatement(_astCompound.get());
+    std::unique_ptr<IRCompoundStmt> _irCompound = intermediateRepresentation.compoundStatement(_astCompound.get());
 
     const size_t expectedStmtCount = 1;
 
@@ -139,7 +139,7 @@ TEST(IRTest, AssignmentStatementGeneratesTemporaries){
 
     TokenConsumer tokenConsumer { lexer };
     StatementParserTest parser{ tokenConsumer };
-    std::unique_ptr<ASTAssignSt> _astAssign = parser.assignmentStatement();
+    std::unique_ptr<ASTAssignStmt> _astAssign = parser.assignmentStatement();
 
     StatementIntermediateRepresentationTest intermediateRepresentation;
 
@@ -147,7 +147,7 @@ TEST(IRTest, AssignmentStatementGeneratesTemporaries){
     context.init();
     const size_t expectedTemporariesCount = 2;
 
-    std::unique_ptr<IRAssignSt> _irAssign = intermediateRepresentation.assignmentStatement(_astAssign.get());
+    std::unique_ptr<IRAssignStmt> _irAssign = intermediateRepresentation.assignmentStatement(_astAssign.get());
     ASSERT_TRUE(_irAssign->getNodeType() == IRNodeType::ASSIGN);
     ASSERT_TRUE(context.temporaries == expectedTemporariesCount);
 
@@ -161,10 +161,10 @@ TEST(IRTest, SwitchCaseDeadCodeElimination){
 
     TokenConsumer tokenConsumer { lexer };
     StatementParserTest parser{ tokenConsumer };
-    std::unique_ptr<ASTSwitchSt> _astSwitch = parser.switchStatement();
+    std::unique_ptr<ASTSwitchStmt> _astSwitch = parser.switchStatement();
 
     StatementIntermediateRepresentationTest intermediateRepresentation;
-    std::unique_ptr<IRSwitchSt> _irSwitch = intermediateRepresentation.switchStatement(_astSwitch.get());
+    std::unique_ptr<IRSwitchStmt> _irSwitch = intermediateRepresentation.switchStatement(_astSwitch.get());
     const size_t expectedStmtCount = 1;
 
     ASSERT_TRUE(_irSwitch->getNodeType() == IRNodeType::SWITCH);
@@ -179,11 +179,11 @@ TEST(IRTest, NumExpConstantFolding){
 
     TokenConsumer tokenConsumer { lexer };
     ExpressionParserTest parser{ tokenConsumer };
-    std::unique_ptr<ASTExpression> _astExp = parser.numericalExpression();
+    std::unique_ptr<ASTExpr> _astExp = parser.numericalExpression();
 
     ExpressionIntermediateRepresentationTest intermediateRepresentation;
-    std::unique_ptr<IRExpression> _irExp = intermediateRepresentation.numericalExpression(_astExp.get());
+    std::unique_ptr<IRExpr> _irExp = intermediateRepresentation.numericalExpression(_astExp.get());
 
     ASSERT_TRUE(_irExp->getNodeType() == IRNodeType::LITERAL);
-    ASSERT_EQ(static_cast<IRLiteral*>(_irExp.get())->getValue(), "6");
+    ASSERT_EQ(static_cast<IRLiteralExpr*>(_irExp.get())->getValue(), "6");
 }

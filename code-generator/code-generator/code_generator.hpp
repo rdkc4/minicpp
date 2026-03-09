@@ -4,7 +4,7 @@
 #include <string>
 #include <unordered_map>
 
-#include "../../common/intermediate-representation-tree/IRProgram.hpp"
+#include "../../common/intermediate-representation-tree/ir_program.hpp"
 #include "function_code_generator.hpp"
 
 /** 

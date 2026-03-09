@@ -36,19 +36,19 @@ namespace Optimization {
          * @returns result of the merge operation
         */
         template<typename T>
-        MergeResult<T> mergeValues(T l, T r, Operators op, size_t line, size_t column){
+        MergeResult<T> mergeValues(T l, T r, Operator op, size_t line, size_t column){
             MergeResult<T> constFold;
             switch(op){
-                case Operators::ADD:
+                case Operator::ADD:
                     constFold.result = l + r;
                     return constFold;
-                case Operators::SUB:
+                case Operator::SUB:
                     constFold.result = l - r;
                     return constFold;
-                case Operators::MUL:
+                case Operator::MUL:
                     constFold.result = l * r;
                     return constFold;
-                case Operators::DIV:
+                case Operator::DIV:
                     if(r == 0){
                         constFold.result = 0;
                         constFold.error = std::format("Line {}, Column {}: SEMANTIC ERROR -> division by ZERO", line, column);
@@ -56,37 +56,37 @@ namespace Optimization {
                     }
                     constFold.result = l / r;
                     return constFold;
-                case Operators::ANDB:
+                case Operator::ANDB:
                     constFold.result = l & r;
                     return constFold;
-                case Operators::ORB:
+                case Operator::ORB:
                     constFold.result = l | r;
                     return constFold;
-                case Operators::XOR:
+                case Operator::XOR:
                     constFold.result = l ^ r;
                     return constFold;
-                case Operators::LSHIFT:
+                case Operator::LSHIFT:
                     constFold.result = l << r;
                     return constFold;
-                case Operators::RSHIFT:
+                case Operator::RSHIFT:
                     constFold.result = l >> r;
                     return constFold;
-                case Operators::GREATER:
+                case Operator::GREATER:
                     constFold.result = static_cast<T>(l > r);
                     return constFold;
-                case Operators::LESS:
+                case Operator::LESS:
                     constFold.result = static_cast<T>(l < r);
                     return constFold;
-                case Operators::GEQUAL:
+                case Operator::GEQUAL:
                     constFold.result = static_cast<T>(l >= r);
                     return constFold;
-                case Operators::LEQUAL:
+                case Operator::LEQUAL:
                     constFold.result = static_cast<T>(l <= r);
                     return constFold;
-                case Operators::EQUAL:
+                case Operator::EQUAL:
                     constFold.result = static_cast<T>(l == r);
                     return constFold;
-                case Operators::NEQUAL:
+                case Operator::NEQUAL:
                     constFold.result = static_cast<T>(l != r);
                     return constFold;
                 default:
