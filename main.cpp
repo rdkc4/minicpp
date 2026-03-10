@@ -1,42 +1,34 @@
 #include <chrono>
-#include <fstream>
+#include <exception>
 #include <iostream>
 #include <format>
-#include <sstream>
 
 #include "compiler/compiler.hpp"
 
 int main(int argc, char** argv){
-    if(argc < 2 || argc > 3) {
-        std::cerr << std::format("Usage: {} <source-file> (<output-file>)\n", argv[0]);
+    try {
+        Compiler::CompileOptions options{ Compiler::parseOptions(argc, argv) };
+        auto start{ std::chrono::high_resolution_clock::now() };
+
+        Compiler::ExitCode ret{ Compiler::compile(options) };
+
+        if(ret != Compiler::ExitCode::NO_ERR){
+            std::cerr << "Program failed to compile!\n";
+            return 1;
+        }
+
+        auto duration{ 
+            std::chrono::duration_cast<std::chrono::milliseconds>(
+                std::chrono::high_resolution_clock::now() - start
+            )
+        };
+
+        std::cout << std::format("Compilation time: {}ms\n", duration.count());
+        return 0;
+
+    }
+    catch(const std::exception& e){
+        std::cerr << std::format("error: {}\n", e.what());
         return 1;
     }
-
-    std::string inputFile = argv[1];
-    std::ifstream inputFileStream(inputFile);
-
-    if(!inputFileStream.is_open()){
-        std::cerr << std::format("Failed to open file \"{}\"\n", inputFile);
-        return 2;
-    }
-
-    std::stringstream input;
-    input << inputFileStream.rdbuf();
-    inputFileStream.close();
-
-    std::string output{ argc == 3 ? argv[2] : "output" };
-
-    auto start{ std::chrono::high_resolution_clock::now() };
-
-    auto ret{ Compiler::compile(input.str(), output) };
-
-    auto end{ std::chrono::high_resolution_clock::now() };
-    auto duration{ std::chrono::duration_cast<std::chrono::milliseconds>(end - start) };
-
-    if(ret != Compiler::ExitCode::NO_ERR){
-        std::cerr << "Program failed to compile!\n";
-    }
-    std::cout << std::format("Compilation time: {}ms\n", duration.count());
-
-    return 0;
 }

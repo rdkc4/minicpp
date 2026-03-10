@@ -2,9 +2,11 @@
 #define COMPILER_HPP
 
 #include <memory>
+#include <ostream>
 #include <string_view>
 #include <vector>
 #include <string>
+#include <iostream>
 
 #include "../lexer/lexer.hpp"
 #include "../common/abstract-syntax-tree/ast_program.hpp"
@@ -21,12 +23,75 @@ namespace Compiler {
     */
     enum class ExitCode { NO_ERR, PREPROCESS_ERR, LEXICAL_ERR, SYNTAX_ERR, SEMANTIC_ERR, IR_ERR, CODEGEN_ERR, ASM_LINK_ERR };
 
+    /**
+     * @struct CompileOptions
+     * @brief structure containing the compile options
+    */
+    struct CompileOptions {
+        /// flag if compiler should dump ast structure
+        bool dumpAST = false;
+
+        /// flag if compiler should dump ir structure
+        bool dumpIR = false;
+
+        /// flag if .s file should be compiled into executable
+        bool stopAfterAssembly = false;
+
+        /// relative path to input file, .mcpp extension
+        std::string input;
+
+        /// relative path for the output (optional), no extension
+        std::string output = "output";
+    };
+
+    /**
+     * @brief parses arguments into compiler options
+     * @param argc - number of args
+     * @param argv - pointer to the first argument
+     * @returns compile options
+     * @details
+     * 
+     * CLI: ./minicpp <input> [--dump-ast --dump-ir -s] [-o <output>]
+     *
+     * <input> - path to input file, mandatory .mcpp extension
+     * 
+     * Options:
+     *
+     * --dump-ast - dumps the structure of the ast
+     *
+     * --dump-ir - dumps the structure of the ir
+     *
+     * -s - stops after generating .s file
+     *
+     * -o <output> - path to output file
+    */
+    CompileOptions parseOptions(int argc, char** argv);
+
+    /**
+     * @struct PreprocessResult
+     * @brief result of the preprocessing
+    */
+    struct PreprocessResult {
+        /// exit code after preprocessing, NO_ERR or PREPROCESS_ERR
+        ExitCode exitCode;
+
+        /// preprocessed source code
+        std::vector<std::string> source;
+    };
+
+    /**
+     * @brief reads the source code from the input file
+     * @param input - path to input file
+     * @returns source code
+    */
+    std::string readSourceCode(const std::string& input);
+
     /** 
      * @brief preprocesses the source code
      * @param source - source code
      * @return pair (ExitCode, vector of preprocessed files), ExitCode is NO_ERR if preprocessing succeeded, PREPROCESS_ERR if it failed
     */
-    const std::pair<ExitCode, std::vector<std::string>> preprocess(const std::string& source);
+    const PreprocessResult preprocess(const std::string& source);
 
     /** 
      * @brief performs lexical analysis of the code
@@ -82,7 +147,21 @@ namespace Compiler {
      * @param output - path of the output file
      * @returns exit code depending on the result of the compilation
     */
-    ExitCode compile(const std::string& input, std::string_view output, bool performAsmAndLink = true);
+    ExitCode compile(CompileOptions options);
+
+    /**
+     * @brief dumps the structure of the ast program
+     * @param program - const pointer to the ast program
+     * @param out - output stream, defaults to std::cout
+    */
+    void dumpAST(ASTProgram* program, std::ostream& out = std::cout);
+
+    /**
+     * @brief dumps the structure of the ir
+     * @param program - const pointer to the ir program
+     * @param out - output stream, defaults to std::cout
+    */
+    void dumpIR(IRProgram* program, std::ostream& out = std::cout);
 };
 
 #endif

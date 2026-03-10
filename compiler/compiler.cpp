@@ -1,11 +1,11 @@
 #include "compiler.hpp"
 
 #include <cstdlib>
-#include <iostream>
 #include <format>
-#include <memory>
 #include <cassert>
-#include <string_view>
+#include <stdexcept>
+#include <filesystem>
+#include <fstream>
 
 #include "../preprocessor/preprocessor.hpp"
 #include "../lexer/lexer.hpp"
@@ -14,17 +14,78 @@
 #include "../analyzer/analyzer.hpp"
 #include "../intermediate-representation/intermediate_representation.hpp"
 #include "../code-generator/code-generator/code_generator.hpp"
+#include "../common/dump/ast_dumper.hpp"
+#include "../common/dump/ir_dumper.hpp"
 
-const std::pair<Compiler::ExitCode, std::vector<std::string>> Compiler::preprocess(const std::string& source) {
+Compiler::CompileOptions Compiler::parseOptions(int argc, char** argv){
+    Compiler::CompileOptions options;
+    for(int i = 1; i < argc; ++i){
+        std::string arg = argv[i];
+
+        if(arg == "--dump-ast"){
+            options.dumpAST = true;
+        }
+        else if(arg == "--dump-ir"){
+            options.dumpIR = true;
+        }
+        else if(arg == "-o"){
+            if(i + 1 >= argc){
+                throw std::runtime_error("-o requires argument");
+            }
+            options.output = argv[++i];
+        }
+        else if(arg == "-s"){
+            options.stopAfterAssembly = true;
+        }
+        else if (arg.starts_with("-")){
+            throw std::runtime_error(std::format("Unknown compiler flag: {}", arg));
+        }
+        else if(options.input.empty()){
+            options.input = arg;
+        }
+        else {
+            throw std::runtime_error(std::format("Unexpected argument: {}", arg));
+        }
+    }
+
+    if(options.input.empty()){
+        throw std::runtime_error("Missing input file");
+    }
+
+    if(std::filesystem::path(options.input).extension() != ".mcpp"){
+        throw std::runtime_error("Input file must have .mcpp extension");
+    }
+
+    return options;
+}
+
+std::string Compiler::readSourceCode(const std::string& input){
+    std::ifstream inputStream{ input };
+
+    if(!inputStream.is_open()){
+        throw std::runtime_error(std::format("Failed to open file '{}'", input));
+    }
+
+    std::stringstream sourceCode;
+    sourceCode << inputStream.rdbuf();
+    inputStream.close();
+
+    return sourceCode.str();
+}
+
+const Compiler::PreprocessResult Compiler::preprocess(const std::string& source) {
     Preprocessor preprocessor;
     preprocessor.preprocess(source);
 
-    if(preprocessor.hasErrors()){
+    bool isInvalid = preprocessor.hasErrors();
+    if(isInvalid){
         std::cerr << preprocessor.getPreprocessErrors();
-        return { Compiler::ExitCode::PREPROCESS_ERR, preprocessor.getPreprocessed() };
     }
-
-    return { Compiler::ExitCode::NO_ERR, preprocessor.getPreprocessed() };
+    
+    return {
+        .exitCode = isInvalid ? Compiler::ExitCode::PREPROCESS_ERR : Compiler::ExitCode::NO_ERR,
+        .source = preprocessor.getPreprocessed()
+    };
 }
 
 Compiler::ExitCode Compiler::lexicalAnalysis(Lexer& lexer){
@@ -109,15 +170,17 @@ Compiler::ExitCode Compiler::assembleAndLink(const IRProgram* irProgram, const s
     return Compiler::ExitCode::NO_ERR;
 }
 
-Compiler::ExitCode Compiler::compile(const std::string& input, std::string_view output, bool performAsmAndLink) {
-    auto preprocessResult = preprocess(std::string{ input });
-    if(preprocessResult.first != Compiler::ExitCode::NO_ERR){
-        return preprocessResult.first;
+Compiler::ExitCode Compiler::compile(Compiler::CompileOptions options) {
+    std::string source = readSourceCode(options.input);
+
+    Compiler::PreprocessResult preprocessResult{ preprocess(source) };
+    if(preprocessResult.exitCode != Compiler::ExitCode::NO_ERR){
+        return preprocessResult.exitCode;
     }
-    Lexer lexer{ preprocessResult.second };
 
     Compiler::ExitCode result;
 
+    Lexer lexer{ preprocessResult.source };
     result = lexicalAnalysis(lexer);
     if(result != Compiler::ExitCode::NO_ERR){
         return result;
@@ -127,6 +190,10 @@ Compiler::ExitCode Compiler::compile(const std::string& input, std::string_view 
     result = syntaxAnalysis(lexer, astProgram);
     if(result != Compiler::ExitCode::NO_ERR){
         return result;
+    }
+
+    if(options.dumpAST){
+        dumpAST(astProgram.get());
     }
 
     result = semanticAnalysis(astProgram);
@@ -140,14 +207,28 @@ Compiler::ExitCode Compiler::compile(const std::string& input, std::string_view 
         return result;
     }
 
-    result = generateCode(irProgram.get(), output);
+    if(options.dumpIR){
+        dumpIR(irProgram.get());
+    }
+
+    result = generateCode(irProgram.get(), options.output);
     if(result != Compiler::ExitCode::NO_ERR){
         return result;
     }
     
-    if(performAsmAndLink){
-        result = assembleAndLink(irProgram.get(), output);
+    if(!options.stopAfterAssembly){
+        result = assembleAndLink(irProgram.get(), options.output);
     }
 
     return result;
+}
+
+void Compiler::dumpAST(ASTProgram* program, std::ostream& out){
+    ASTDumper dump{out};
+    program->accept(dump);
+}
+
+void Compiler::dumpIR(IRProgram* program, std::ostream& out){
+    IRDumper dump{out};
+    program->accept(dump);
 }

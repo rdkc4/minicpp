@@ -1,19 +1,21 @@
 #include <gtest/gtest.h>
 #include <cstdlib>
-#include <filesystem>
 #include <format>
 
 #include "../../compiler/compiler.hpp"
+#include "../test-utils/test_utils.hpp"
 
 #if defined(__x86_64__) && defined(__clang__)
 
 TEST(CodeGenTest, ReturnsNumExp){
-    std::vector<std::string> ext = {".s", ".o", ""};
+    std::vector<std::string> ext = {".mcpp", ".s", ".o", ""};
 
-    const std::string input{"int main(){ return 1 + 2 * 3 - 4 / 2; }"};
+    const std::string input{"tmp1.mcpp"};
     const std::string output{ "tmp1" };
+
+    __test__writeSourceToFile("int main(){ return 1 + 2 * 3 - 4 / 2; }", input);
     
-    Compiler::compile(input, output);
+    Compiler::compile({.input = input, .output = output});
 
     std::string cmd = std::format("clang {}.s -o {} -nostdlib", output, output);
     int assembleAndLink = system(cmd.c_str());
@@ -28,17 +30,19 @@ TEST(CodeGenTest, ReturnsNumExp){
 
     // cleanup files
     for(const auto& e : ext){
-        std::filesystem::remove(std::format("{}{}", output, e));
+        __test__removeFile(std::format("{}{}", output, e));
     }
 }
 
 TEST(CodeGenTest, ReturnsFuncCall){
-    std::vector<std::string> ext = {".s", ".o", ""};
-
-    const std::string input{"int sq(int x){ return x * x; } int main(){ return sq(5); }"};
-    const std::string output{ "tmp2" };
+    std::vector<std::string> ext = {".mcpp", ".s", ".o", ""};
     
-    Compiler::compile(input, output);
+    const std::string input{"tmp2.mcpp"};
+    const std::string output{ "tmp2" };
+
+    __test__writeSourceToFile("int sq(int x){ return x * x; } int main(){ return sq(5); }", input);
+    
+    Compiler::compile({.input = input, .output = output});
 
     std::string cmd = std::format("clang {}.s -o {} -nostdlib", output, output);
     int assembleAndLink = system(cmd.c_str());
@@ -53,17 +57,19 @@ TEST(CodeGenTest, ReturnsFuncCall){
 
     // cleanup files
     for(const auto& e : ext){
-        std::filesystem::remove(std::format("{}{}", output, e));
+        __test__removeFile(std::format("{}{}", output, e));
     }
 }
 
 TEST(CodeGenTest, ReturnsRecursiveFuncCall){
-    std::vector<std::string> ext = {".s", ".o", ""};
+    std::vector<std::string> ext = {".mcpp", ".s", ".o", ""};
 
-    const std::string input{"int fib(int n){ if(n == 0) return 0; else if(n == 1) return 1; else return fib(n-1) + fib(n-2); } int main(){ return fib(6); }"};
+    const std::string input{"tmp3.mcpp"};
     const std::string output{ "tmp3" };
-    
-    Compiler::compile(input, output);
+
+    __test__writeSourceToFile("int fib(int n){ if(n == 0) return 0; else if(n == 1) return 1; else return fib(n-1) + fib(n-2); } int main(){ return fib(6); }", input);
+
+    Compiler::compile({.input = input, .output = output});
 
     std::string cmd = std::format("clang {}.s -o {} -nostdlib", output, output);
     int assembleAndLink = system(cmd.c_str());
@@ -78,17 +84,19 @@ TEST(CodeGenTest, ReturnsRecursiveFuncCall){
 
     // cleanup files
     for(const auto& e : ext){
-        std::filesystem::remove(std::format("{}{}", output, e));
+        __test__removeFile(std::format("{}{}", output, e));
     }
 }
 
 TEST(CodeGenTest, SwitchStatementCase){
-    std::vector<std::string> ext = {".s", ".o", ""};
-
-    const std::string input{"int main(){ int x = 5; switch(x){ case 1: return 3; case 3: return 2; case 5: return 1; default: return 0; } }"};
-    const std::string output{ "tmp4" };
+    std::vector<std::string> ext = {".mcpp", ".s", ".o", ""};
     
-    Compiler::compile(input, output);
+    const std::string input{"tmp4.mcpp"};
+    const std::string output{ "tmp4" };
+
+    __test__writeSourceToFile("int main(){ int x = 5; switch(x){ case 1: return 3; case 3: return 2; case 5: return 1; default: return 0; } }", input);
+
+    Compiler::compile({.input = input, .output = output});
 
     std::string cmd = std::format("clang {}.s -o {} -nostdlib", output, output);
     int assembleAndLink = system(cmd.c_str());
@@ -103,17 +111,19 @@ TEST(CodeGenTest, SwitchStatementCase){
 
     // cleanup files
     for(const auto& e : ext){
-        std::filesystem::remove(std::format("{}{}", output, e));
+        __test__removeFile(std::format("{}{}", output, e));
     }
 }
 
 TEST(CodeGenTest, SwitchStatementDefault){
-    std::vector<std::string> ext = {".s", ".o", ""};
-
-    const std::string input{"int main(){ int x = 5; switch(x){ case 1: return 3; case 3: return 2; default: return 0; } }"};
-    const std::string output{ "tmp5" };
+    std::vector<std::string> ext = {".mcpp", ".s", ".o", ""};
     
-    Compiler::compile(input, output);
+    const std::string input{"tmp5.mcpp"};
+    const std::string output{ "tmp5" };
+
+    __test__writeSourceToFile("int main(){ int x = 5; switch(x){ case 1: return 3; case 3: return 2; default: return 0; } }", input);
+
+    Compiler::compile({.input = input, .output = output});
 
     std::string cmd = std::format("clang {}.s -o {} -nostdlib", output, output);
     int assembleAndLink = system(cmd.c_str());
@@ -128,17 +138,19 @@ TEST(CodeGenTest, SwitchStatementDefault){
 
     // cleanup files
     for(const auto& e : ext){
-        std::filesystem::remove(std::format("{}{}", output, e));
+        __test__removeFile(std::format("{}{}", output, e));
     }
 }
 
 TEST(CodeGenTest, WhileStatement){
-    std::vector<std::string> ext = {".s", ".o", ""};
-
-    const std::string input{"int main(){ int x = 5; while(x > 0) x = x - 1; return x; }"};
-    const std::string output{ "tmp6" };
+    std::vector<std::string> ext = {".mcpp", ".s", ".o", ""};
     
-    Compiler::compile(input, output);
+    const std::string input{"tmp6.mcpp"};
+    const std::string output{ "tmp6" };
+
+    __test__writeSourceToFile("int main(){ int x = 5; while(x > 0) x = x - 1; return x; }", input);
+
+    Compiler::compile({.input = input, .output = output});
 
     std::string cmd = std::format("clang {}.s -o {} -nostdlib", output, output);
     int assembleAndLink = system(cmd.c_str());
@@ -153,17 +165,19 @@ TEST(CodeGenTest, WhileStatement){
 
     // cleanup files
     for(const auto& e : ext){
-        std::filesystem::remove(std::format("{}{}", output, e));
+        __test__removeFile(std::format("{}{}", output, e));
     }
 }
 
 TEST(CodeGenTest, DoWhileStatement){
-    std::vector<std::string> ext = {".s", ".o", ""};
-
-    const std::string input{"int main(){ int x = 5; do{ x = x + 3; }while(x < 10); return x; }"};
-    const std::string output{ "tmp7" };
+    std::vector<std::string> ext = {".mcpp", ".s", ".o", ""};
     
-    Compiler::compile(input, output);
+    const std::string input{"tmp7.mcpp"};
+    const std::string output{ "tmp7" };
+
+    __test__writeSourceToFile("int main(){ int x = 5; do{ x = x + 3; }while(x < 10); return x; }", input);
+
+    Compiler::compile({.input = input, .output = output});
 
     std::string cmd = std::format("clang {}.s -o {} -nostdlib", output, output);
     int assembleAndLink = system(cmd.c_str());
@@ -178,17 +192,19 @@ TEST(CodeGenTest, DoWhileStatement){
 
     // cleanup files
     for(const auto& e : ext){
-        std::filesystem::remove(std::format("{}{}", output, e));
+        __test__removeFile(std::format("{}{}", output, e));
     }
 }
 
 TEST(CodeGenTest, ForStatement){
-    std::vector<std::string> ext = {".s", ".o", ""};
-
-    const std::string input{"int main(){ int x = 5; int i; for(i = 0; i < 10; i = i + 1) x = x + 1; return x; }"};
-    const std::string output{ "tmp8" };
+    std::vector<std::string> ext = {".mcpp", ".s", ".o", ""};
     
-    Compiler::compile(input, output);
+    const std::string input{"tmp8.mcpp"};
+    const std::string output{ "tmp8" };
+
+    __test__writeSourceToFile("int main(){ int x = 5; int i; for(i = 0; i < 10; i = i + 1) x = x + 1; return x; }", input);
+
+    Compiler::compile({.input = input, .output = output});
 
     std::string cmd = std::format("clang {}.s -o {} -nostdlib", output, output);
     int assembleAndLink = system(cmd.c_str());
@@ -203,7 +219,7 @@ TEST(CodeGenTest, ForStatement){
 
     // cleanup files
     for(const auto& e : ext){
-        std::filesystem::remove(std::format("{}{}", output, e));
+        __test__removeFile(std::format("{}{}", output, e));
     }
 }
 
