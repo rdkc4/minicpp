@@ -28,8 +28,16 @@ public:
         return std::forward<Self>(self).functionCall.get();
     }
 
+    /**
+     * @brief initializes the function call statement
+     * @param funcCall - pointer to a function call expression
+    */
     void initFunctionCallSt(std::unique_ptr<ASTFunctionCallExpr> funcCall);
 
+    /**
+     * @brief accepts the ast visitor
+     * @param visitor - reference to an ast visitor
+    */
     void accept(ASTVisitor& visitor) override;
 
 private:

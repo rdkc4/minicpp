@@ -38,6 +38,10 @@ public:
     */
     void eliminateDead(size_t startIdx);
 
+    /**
+     * @brief accepts the ir visitor
+     * @param visitor - reference to an ir visitor
+    */
     void accept(IRVisitor& visitor) override;
 
 private:

@@ -73,6 +73,10 @@ public:
     */
     bool hasDefault() const noexcept;
 
+    /**
+     * @brief accepts the ast visitor
+     * @param visitor - reference to an ast visitor
+    */
     void accept(ASTVisitor& visitor) override;
 
 private:

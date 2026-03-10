@@ -67,6 +67,10 @@ public:
     */
     void addDirective(std::unique_ptr<ASTDir> directive);
 
+    /**
+     * @brief accepts the ast visitor
+     * @param visitor - reference to an ast visitor
+    */
     void accept(ASTVisitor& visitor) override;
 
 private:

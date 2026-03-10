@@ -32,6 +32,10 @@ public:
     */
     void setLibName(const std::string _libName);
 
+    /**
+     * @brief accepts the ast visitor
+     * @param visitor - reference to an ast visitor
+    */
     void accept(ASTVisitor& visitor) override;
 
 private:

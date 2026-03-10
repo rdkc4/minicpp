@@ -47,6 +47,10 @@ public:
     */
     void setDoWhile(std::unique_ptr<ASTExpr> cond, std::unique_ptr<ASTStmt> st);
 
+    /**
+     * @brief accepts the ast visitor
+     * @param visitor - reference to an ast visitor
+    */
     void accept(ASTVisitor& visitor) override;
 
 private:

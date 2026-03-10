@@ -10,15 +10,6 @@
 /** 
  * @class CodeGenerator
  * @brief generates the code for the x86-64 asm
- * @details
- *
- * $ as -o output.o output.s
- *
- * $ ld -o output output.o
- *
- * $ ./output
- *
- * $ echo $? - prints return value
 */
 class CodeGenerator {
 public:

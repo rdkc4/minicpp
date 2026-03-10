@@ -53,6 +53,10 @@ public:
     */
     void setBinaryExpression(std::unique_ptr<IRExpr> lOp, std::unique_ptr<IRExpr> rOp, Operator _op);
 
+    /**
+     * @brief accepts the ir visitor
+     * @param visitor - reference to an ir visitor
+    */
     void accept(IRVisitor& visitor) override;
 
 private:

@@ -21,6 +21,10 @@ public:
     */
     ASTIdExpr(const Token token, ASTNodeType ntype, Type type = Type::NO_TYPE);
 
+    /**
+     * @brief accepts the ast visitor
+     * @param visitor - reference to an ast visitor
+    */
     void accept(ASTVisitor& visitor) override;
 
 };

@@ -34,6 +34,10 @@ public:
     */
     void addStatement(std::unique_ptr<ASTStmt> statement);
 
+    /**
+     * @brief accepts the ast visitor
+     * @param visitor - reference to an ast visitor
+    */
     void accept(ASTVisitor& visitor) override;
 
 private:

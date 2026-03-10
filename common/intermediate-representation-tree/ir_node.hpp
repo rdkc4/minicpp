@@ -27,6 +27,10 @@ public:
     */
     IRNodeType getNodeType() const noexcept;
 
+    /**
+     * @brief accepts the ir visitor
+     * @param visitor - reference to an ir visitor
+    */
     virtual void accept(IRVisitor& visitor) = 0;
 
 private:

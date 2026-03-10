@@ -38,6 +38,10 @@ public:
     */
     void setDefault(std::unique_ptr<ASTSwitchBlockStmt> _swBlock);
 
+    /**
+     * @brief accepts the ast visitor
+     * @param visitor - reference to an ast visitor
+    */
     void accept(ASTVisitor& visitor) override;
 
 private:

@@ -51,6 +51,10 @@ public:
     */
     void setExp(std::unique_ptr<ASTExpr> nexp);
 
+    /**
+     * @brief accepts the ast visitor
+     * @param visitor - reference to an ast visitor
+    */
     void accept(ASTVisitor& visitor) override;
 
 private:

@@ -53,6 +53,10 @@ public:
     */
     bool hasBreak() const noexcept;
 
+    /**
+     * @brief accepts the ir visitor
+     * @param visitor - reference to an ir visitor
+    */
     void accept(IRVisitor& visitor) override;
 
 private:

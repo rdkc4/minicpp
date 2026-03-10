@@ -34,6 +34,10 @@ public:
     */
     void setType(Type t) noexcept;
 
+    /**
+     * @brief accepts the ast visitor
+     * @param visitor - reference to an ast visitor
+    */
     virtual void accept(ASTVisitor& visitor) = 0;
 
 private:

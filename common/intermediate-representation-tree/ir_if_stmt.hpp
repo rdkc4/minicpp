@@ -80,6 +80,10 @@ public:
     */
     const std::tuple<const IRExpr*, const IRStmt*, const IRTemporaryExpr*> getIfAtN(size_t n) const noexcept;
 
+    /**
+     * @brief accepts the ir visitor
+     * @param visitor - reference to an ir visitor
+    */
     void accept(IRVisitor& visitor) override;
 
 private:
