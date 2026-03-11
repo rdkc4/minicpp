@@ -10,7 +10,7 @@ std::unique_ptr<ASTFunction> FunctionParser::parseFunction(){
     std::unique_ptr<ASTFunction> function = std::make_unique<ASTFunction>(token, ASTNodeType::FUNCTION, type);
 
     tokenConsumer.consume(TokenType::_LPAREN);
-    parseParameter(function.get());
+    parseParameters(function.get());
     tokenConsumer.consume(TokenType::_RPAREN);
 
     if(tokenConsumer.getToken().type == TokenType::_SEMICOLON){
@@ -24,7 +24,7 @@ std::unique_ptr<ASTFunction> FunctionParser::parseFunction(){
     return function;
 }
 
-void FunctionParser::parseParameter(ASTFunction* function){
+void FunctionParser::parseParameters(ASTFunction* function){
     while(tokenConsumer.getToken().gtype == GeneralTokenType::TYPE){
         Type type{ tokenTypeToType.at(tokenConsumer.getToken().type) };
         tokenConsumer.consume(GeneralTokenType::TYPE);

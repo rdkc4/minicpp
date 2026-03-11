@@ -2,7 +2,9 @@
 
 #include <cassert>
 #include <format>
+#include <memory>
 
+#include "../../common/abstract-syntax-tree/ast_parameter.hpp"
 #include "../../common/abstract-syntax-tree/ast_if_stmt.hpp"
 #include "../../common/abstract-syntax-tree/ast_switch_stmt.hpp"
 #include "../../common/abstract-syntax-tree/ast_dowhile_stmt.hpp"
@@ -46,7 +48,7 @@ void FunctionAnalyzer::checkFunctionSignatures(const ASTProgram* program){
             );
         }
         globalScopeManager.pushScope();
-        checkParameter(function->getParameters(), funcName);
+        checkParameters(function.get());
         globalScopeManager.popScope();
     }
 
@@ -64,9 +66,9 @@ void FunctionAnalyzer::checkFunction(const ASTFunction* function){
 
     // function scope
     analyzerContext.scopeManager->pushScope();
-    defineParameters(function->getParameters());
+    defineParameters(function);
     if(!function->isPredefined()){
-        checkBody(function->getBody());
+        checkBody(function);
     }
     analyzerContext.scopeManager->popScope();
     
@@ -86,7 +88,10 @@ void FunctionAnalyzer::checkFunction(const ASTFunction* function){
     analyzerContext.reset();
 }
 
-void FunctionAnalyzer::checkParameter(const std::vector<std::unique_ptr<ASTParameter>>& parameters, const std::string& functionName){
+void FunctionAnalyzer::checkParameters(const ASTFunction* function){
+    const std::string& functionName = function->getToken().value;
+    const auto& parameters = function->getParameters();
+
     // pointer to parameters for easier function call type checking
     globalScopeManager.getSymbol(functionName).setParameters(&parameters);
     
@@ -124,14 +129,14 @@ void FunctionAnalyzer::checkParameter(const std::vector<std::unique_ptr<ASTParam
     }
 }
 
-void FunctionAnalyzer::defineParameters(const std::vector<std::unique_ptr<ASTParameter>>& parameters){
-    for(const auto& parameter : parameters){
+void FunctionAnalyzer::defineParameters(const ASTFunction* function){
+    for(const auto& parameter : function->getParameters()){
         analyzerContext.scopeManager->pushSymbol(Symbol{parameter->getToken().value, Kind::PAR, parameter->getType()});
     }
 }
 
-void FunctionAnalyzer::checkBody(const std::vector<std::unique_ptr<ASTStmt>>& body){
-    for(const auto& stmt : body){
+void FunctionAnalyzer::checkBody(const ASTFunction* function){
+    for(const auto& stmt : function->getBody()){
         statementAnalyzer.checkStmt(stmt.get());
     }
 }

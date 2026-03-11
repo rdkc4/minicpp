@@ -90,7 +90,7 @@ public:
      * @param callExpr - function call that owns arguments
      * @details (NUMERICAL_EXPRESSION (COMMA NUMERICAL_EXPRESSION)*)?
     */
-    void parseArgument(ASTFunctionCallExpr* callExpr);
+    void parseArguments(ASTFunctionCallExpr* callExpr);
 
     /** 
      * @brief parses the root of the binary expression node (only operator)

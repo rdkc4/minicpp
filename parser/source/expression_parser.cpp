@@ -116,13 +116,13 @@ std::unique_ptr<ASTFunctionCallExpr> ExpressionParser::parseFunctionCallExpr(){
     tokenConsumer.consume(TokenType::_ID);
     
     tokenConsumer.consume(TokenType::_LPAREN);
-    parseArgument(callExpr.get());
+    parseArguments(callExpr.get());
     tokenConsumer.consume(TokenType::_RPAREN);
     
     return callExpr;
 }
 
-void ExpressionParser::parseArgument(ASTFunctionCallExpr* callExpr){
+void ExpressionParser::parseArguments(ASTFunctionCallExpr* callExpr){
     while(tokenConsumer.getToken().type != TokenType::_RPAREN){
         callExpr->addArgument(parseNumericalExpr());
         if(tokenConsumer.getToken().type == TokenType::_COMMA && tokenConsumer.peek().type != TokenType::_RPAREN){

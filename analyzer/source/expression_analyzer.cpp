@@ -129,10 +129,10 @@ void ExpressionAnalyzer::checkFunctionCallExpr(ASTFunctionCallExpr* callExpr){
         return;
     }
     callExpr->setType(globalScopeManager.getSymbol(callExpr->getToken().value).getType());
-    checkArgument(callExpr);
+    checkArguments(callExpr);
 }
 
-void ExpressionAnalyzer::checkArgument(const ASTFunctionCallExpr* callExpr){
+void ExpressionAnalyzer::checkArguments(const ASTFunctionCallExpr* callExpr){
     const std::vector<std::unique_ptr<ASTParameter>>* functionParameters{ globalScopeManager.getSymbol(callExpr->getToken().value).getParameters() };
     const std::vector<std::unique_ptr<ASTExpr>>& arguments{ callExpr->getArguments() };
 

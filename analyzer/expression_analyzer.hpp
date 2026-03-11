@@ -61,7 +61,7 @@ public:
      * @brief semantic check of the arguments of the function call
      * @param callExpr - const pointer to an ast function-call node
     */
-    void checkArgument(const ASTFunctionCallExpr* callExpr);
+    void checkArguments(const ASTFunctionCallExpr* callExpr);
 
 private:
     /// reference to the global scope manager

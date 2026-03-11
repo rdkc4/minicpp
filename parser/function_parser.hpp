@@ -31,7 +31,7 @@ public:
      * @param function - pointer to a function that owns parameters
      * @details PARAMETER : (TYPE ID (COMMA TYPE ID)*)?
     */
-    void parseParameter(ASTFunction* function);
+    void parseParameters(ASTFunction* function);
 
     /** 
      * @brief parses body of the function
