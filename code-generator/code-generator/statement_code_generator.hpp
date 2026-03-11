@@ -23,73 +23,73 @@ public:
     /** 
      * @brief Creates the instance of the code generator specialized for statements
     */
-    StatementCodeGenerator();
+    StatementCodeGenerator() = default;
 
     /**
      * @brief generates asm code for the statement
-     * @param _statement - const pointer to the irt statement
+     * @param stmt - const pointer to the irt statement
     */
-    void generateStatement(const IRStmt* _statement);
+    void generateStmt(const IRStmt* stmt);
 
     /** 
      * @brief generates asm code for the variable declaration
-     * @param _variable - const pointer to the irt variable declaration
+     * @param variableDecl - const pointer to the irt variable declaration
     */
-    void generateVariable(const IRVariableDeclStmt* _variable);
+    void generateVariableDeclStmt(const IRVariableDeclStmt* variableDecl);
 
     /** 
      * @brief generates asm code for the if-statement
-     * @param _if - const pointer to the irt if-statement
+     * @param ifStmt - const pointer to the irt if-statement
     */
-    void generateIfStatement(const IRIfStmt* _if);
+    void generateIfStmt(const IRIfStmt* ifStmt);
 
     /** 
      * @brief generates asm code for the while-statement
-     * @param _while - const pointer to the irt while-statement
+     * @param whileStmt - const pointer to the irt while-statement
     */
-    void generateWhileStatement(const IRWhileStmt* _while);
+    void generateWhileStmt(const IRWhileStmt* whileStmt);
 
     /** 
      * @brief generates asm code for the for-statement
-     * @param _for - const pointer to the irt for-statement
+     * @param forStmt - const pointer to the irt for-statement
     */
-    void generateForStatement(const IRForStmt* _for);
+    void generateForStmt(const IRForStmt* forStmt);
 
     /** 
      * @brief generates asm code for the do-while statement
-     * @param _dowhile - const pointer to the irt do-while statement
+     * @param dowhileStmt - const pointer to the irt do-while statement
     */
-    void generateDoWhileStatement(const IRDoWhileStmt* _dowhile);
+    void generateDoWhileStmt(const IRDoWhileStmt* dowhileStmt);
 
     /** 
      * @brief generates asm code for the compound statement
-     * @param _compound - const pointer to the irt compound statement
+     * @param compoundStmt - const pointer to the irt compound statement
     */
-    void generateCompoundStatement(const IRCompoundStmt* _compound);
+    void generateCompoundStmt(const IRCompoundStmt* compoundStmt);
 
     /** 
      * @brief generates asm code for the assignment statement
-     * @param _assignment - const pointer to the irt assignment statement
+     * @param assignStmt - const pointer to the irt assignment statement
     */
-    void generateAssignmentStatement(const IRAssignStmt* _assignment);
+    void generateAssignStmt(const IRAssignStmt* assignStmt);
 
     /** 
      * @brief generates asm code for the return statement
-     * @param _return - const pointer to the irt return statement
+     * @param returnStmt - const pointer to the irt return statement
     */
-    void generateReturnStatement(const IRReturnStmt* _return);
+    void generateReturnStmt(const IRReturnStmt* returnStmt);
 
     /** 
      * @brief generates asm code for the function-call statement
-     * @param _call - const pointer to the irt function-call statement
+     * @param callStmt - const pointer to the irt function-call statement
     */
-    void generateFunctionCallStatement(const IRFunctionCallStmt* _call);
+    void generateFunctionCallStmt(const IRFunctionCallStmt* callStmt);
 
     /** 
      * @brief generates asm code for the switch-statement
-     * @param _switch - const pointer to the irt switch-statement
+     * @param switchStmt - const pointer to the irt switch-statement
     */
-    void generateSwitchStatement(const IRSwitchStmt* _switch);
+    void generateSwitchStmt(const IRSwitchStmt* switchStmt);
 
 private:
     /// code generator specialized for expressions

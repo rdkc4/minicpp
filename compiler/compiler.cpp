@@ -140,11 +140,11 @@ Compiler::ExitCode Compiler::transformASTToIRT(std::unique_ptr<ASTProgram>& astP
         return Compiler::ExitCode::NO_ERR;
 }
 
-Compiler::ExitCode Compiler::generateCode(const IRProgram* irProgram, const std::string_view output){
+Compiler::ExitCode Compiler::generateProgram(const IRProgram* irProgram, const std::string_view output){
     std::string outputFilePath = std::string{ output } + ".s";
     CodeGenerator codeGenerator{ std::string{ outputFilePath } };
     try{
-        codeGenerator.generateCode(irProgram);
+        codeGenerator.generateProgram(irProgram);
         if(!codeGenerator.successful()){
             std::cerr << std::format("Unable to open '{}'", outputFilePath);
             return Compiler::ExitCode::CODEGEN_ERR;
@@ -210,7 +210,7 @@ Compiler::ExitCode Compiler::compile(Compiler::CompileOptions options) {
         dumpIR(irProgram.get());
     }
 
-    result = generateCode(irProgram.get(), options.output);
+    result = generateProgram(irProgram.get(), options.output);
     if(result != Compiler::ExitCode::NO_ERR){
         return result;
     }

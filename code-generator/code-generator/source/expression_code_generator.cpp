@@ -6,30 +6,28 @@
 #include "../../asm-generator/asm_instruction_generator.hpp"
 #include "../../../common/intermediate-representation-tree/ir_binary_expr.hpp"
 
-ExpressionCodeGenerator::ExpressionCodeGenerator() = default;
-
 // evaluating equations using general-purpose registers r(8-15) and stack (if necessary)
-void ExpressionCodeGenerator::generateNumericalExpression(const IRExpr* _numexp){
+void ExpressionCodeGenerator::generateNumericalExpr(const IRExpr* numericalExpr){
     auto& codeGenContext = FunctionCodeGenerator::getContext();
-    if(_numexp->getNodeType() == IRNodeType::ID){
+    if(numericalExpr->getNodeType() == IRNodeType::ID){
         if(codeGenContext.gpFreeRegPos < gpRegisters.size()){
-            AsmGenerator::Instruction::genMov(codeGenContext.asmCode, generateID(static_cast<const IRIdExpr*>(_numexp)), gpRegisters.at(codeGenContext.gpFreeRegPos), "q");
+            AsmGenerator::Instruction::genMov(codeGenContext.asmCode, generateIDExpr(static_cast<const IRIdExpr*>(numericalExpr)), gpRegisters.at(codeGenContext.gpFreeRegPos), "q");
         }
         else{
-            AsmGenerator::Instruction::genPush(codeGenContext.asmCode, generateID(static_cast<const IRIdExpr*>(_numexp)));
+            AsmGenerator::Instruction::genPush(codeGenContext.asmCode, generateIDExpr(static_cast<const IRIdExpr*>(numericalExpr)));
         }
         codeGenContext.takeGpReg();
     }
-    else if(_numexp->getNodeType() == IRNodeType::LITERAL){
+    else if(numericalExpr->getNodeType() == IRNodeType::LITERAL){
         if(codeGenContext.gpFreeRegPos < gpRegisters.size()){
-            AsmGenerator::Instruction::genMov(codeGenContext.asmCode, generateLiteral(static_cast<const IRLiteralExpr*>(_numexp)), gpRegisters.at(codeGenContext.gpFreeRegPos), "q");
+            AsmGenerator::Instruction::genMov(codeGenContext.asmCode, generateLiteralExpr(static_cast<const IRLiteralExpr*>(numericalExpr)), gpRegisters.at(codeGenContext.gpFreeRegPos), "q");
         }
         else{
-            AsmGenerator::Instruction::genPush(codeGenContext.asmCode, generateLiteral(static_cast<const IRLiteralExpr*>(_numexp)));
+            AsmGenerator::Instruction::genPush(codeGenContext.asmCode, generateLiteralExpr(static_cast<const IRLiteralExpr*>(numericalExpr)));
         }
         codeGenContext.takeGpReg();
-    }else if (_numexp->getNodeType() == IRNodeType::CALL){
-        generateFunctionCall(static_cast<const IRFunctionCallExpr*>(_numexp));
+    }else if (numericalExpr->getNodeType() == IRNodeType::CALL){
+        generateFunctionCallExpr(static_cast<const IRFunctionCallExpr*>(numericalExpr));
         if(codeGenContext.gpFreeRegPos < gpRegisters.size()){
             AsmGenerator::Instruction::genMov(codeGenContext.asmCode, "%rax", gpRegisters.at(codeGenContext.gpFreeRegPos), "q");
         }
@@ -39,64 +37,67 @@ void ExpressionCodeGenerator::generateNumericalExpression(const IRExpr* _numexp)
         codeGenContext.takeGpReg();
     }
     else{
-        std::string lreg{};
-        std::string rreg{};
-
-        const auto _binExp = static_cast<const IRBinaryExpr*>(_numexp);
-        
-        generateNumericalExpression(_binExp->getLeftOperand());
-        generateNumericalExpression(_binExp->getRightOperand());
-        
-        codeGenContext.freeGpReg();
-        if(codeGenContext.gpFreeRegPos >= gpRegisters.size()){
-            lreg = "%rdi";
-            AsmGenerator::Instruction::genPop(codeGenContext.asmCode, lreg);
-        }
-        else{
-            lreg = gpRegisters.at(codeGenContext.gpFreeRegPos);
-        }
-        codeGenContext.freeGpReg();
-        if(codeGenContext.gpFreeRegPos >= gpRegisters.size()){
-            rreg = "%rsi";
-            AsmGenerator::Instruction::genPop(codeGenContext.asmCode, rreg);
-        }
-        else{
-            rreg = gpRegisters.at(codeGenContext.gpFreeRegPos);
-        }
-        
-        IRNodeType nodeType = _numexp->getNodeType();
-        if(nodeType == IRNodeType::MUL || nodeType == IRNodeType::DIV){ // result of MUL || DIV is in RDX:RAX
-            AsmGenerator::Instruction::genOperation(codeGenContext.asmCode, "xor", "%rdx", "%rdx");
-            AsmGenerator::Instruction::genMov(codeGenContext.asmCode, rreg, "%rax", "q");
-            if(_numexp->getType() == Type::INT){
-                AsmGenerator::Instruction::genOperation(codeGenContext.asmCode, std::format("i{}", irNodeToString.at(nodeType)), lreg);
-            }
-            else{
-                AsmGenerator::Instruction::genOperation(codeGenContext.asmCode, irNodeToString.at(nodeType), lreg);
-            }
-            AsmGenerator::Instruction::genMov(codeGenContext.asmCode, "%rax", rreg, "q");
-        }
-        else if(nodeType == IRNodeType::AND || nodeType == IRNodeType::OR || nodeType == IRNodeType::XOR){
-            AsmGenerator::Instruction::genOperation(codeGenContext.asmCode, irNodeToString.at(nodeType), lreg, rreg);
-        }
-        else if(nodeType == IRNodeType::SHL || nodeType == IRNodeType::SAL || nodeType == IRNodeType::SHR || nodeType == IRNodeType::SAR){
-            AsmGenerator::Instruction::genMov(codeGenContext.asmCode, lreg, "%rcx", "q");
-            AsmGenerator::Instruction::genOperation(codeGenContext.asmCode, irNodeToString.at(nodeType), "%cl", rreg);
-        }
-        else{
-            AsmGenerator::Instruction::genOperation(codeGenContext.asmCode, irNodeToString.at(nodeType), lreg, rreg);
-        }
-        if(codeGenContext.gpFreeRegPos >= gpRegisters.size()){
-            AsmGenerator::Instruction::genPush(codeGenContext.asmCode, rreg);
-        }
-        codeGenContext.takeGpReg();
+        generateBinaryExpr(static_cast<const IRBinaryExpr*>(numericalExpr));
     }
 }
 
-void ExpressionCodeGenerator::generateRelationalExpression(const IRExpr* _relexp){
-    const auto _binExp = static_cast<const IRBinaryExpr*>(_relexp);
-    generateNumericalExpression(_binExp->getLeftOperand());
-    generateNumericalExpression(_binExp->getRightOperand());
+void ExpressionCodeGenerator::generateBinaryExpr(const IRBinaryExpr* binaryExpr){
+    auto& codeGenContext = FunctionCodeGenerator::getContext();
+    std::string lreg{};
+    std::string rreg{};
+    
+    generateNumericalExpr(binaryExpr->getLeftOperand());
+    generateNumericalExpr(binaryExpr->getRightOperand());
+    
+    codeGenContext.freeGpReg();
+    if(codeGenContext.gpFreeRegPos >= gpRegisters.size()){
+        lreg = "%rdi";
+        AsmGenerator::Instruction::genPop(codeGenContext.asmCode, lreg);
+    }
+    else{
+        lreg = gpRegisters.at(codeGenContext.gpFreeRegPos);
+    }
+    codeGenContext.freeGpReg();
+    if(codeGenContext.gpFreeRegPos >= gpRegisters.size()){
+        rreg = "%rsi";
+        AsmGenerator::Instruction::genPop(codeGenContext.asmCode, rreg);
+    }
+    else{
+        rreg = gpRegisters.at(codeGenContext.gpFreeRegPos);
+    }
+    
+    IRNodeType nodeType = binaryExpr->getNodeType();
+    if(nodeType == IRNodeType::MUL || nodeType == IRNodeType::DIV){ // result of MUL || DIV is in RDX:RAX
+        AsmGenerator::Instruction::genOperation(codeGenContext.asmCode, "xor", "%rdx", "%rdx");
+        AsmGenerator::Instruction::genMov(codeGenContext.asmCode, rreg, "%rax", "q");
+        if(binaryExpr->getType() == Type::INT){
+            AsmGenerator::Instruction::genOperation(codeGenContext.asmCode, std::format("i{}", irNodeToString.at(nodeType)), lreg);
+        }
+        else{
+            AsmGenerator::Instruction::genOperation(codeGenContext.asmCode, irNodeToString.at(nodeType), lreg);
+        }
+        AsmGenerator::Instruction::genMov(codeGenContext.asmCode, "%rax", rreg, "q");
+    }
+    else if(nodeType == IRNodeType::AND || nodeType == IRNodeType::OR || nodeType == IRNodeType::XOR){
+        AsmGenerator::Instruction::genOperation(codeGenContext.asmCode, irNodeToString.at(nodeType), lreg, rreg);
+    }
+    else if(nodeType == IRNodeType::SHL || nodeType == IRNodeType::SAL || nodeType == IRNodeType::SHR || nodeType == IRNodeType::SAR){
+        AsmGenerator::Instruction::genMov(codeGenContext.asmCode, lreg, "%rcx", "q");
+        AsmGenerator::Instruction::genOperation(codeGenContext.asmCode, irNodeToString.at(nodeType), "%cl", rreg);
+    }
+    else{
+        AsmGenerator::Instruction::genOperation(codeGenContext.asmCode, irNodeToString.at(nodeType), lreg, rreg);
+    }
+    if(codeGenContext.gpFreeRegPos >= gpRegisters.size()){
+        AsmGenerator::Instruction::genPush(codeGenContext.asmCode, rreg);
+    }
+    codeGenContext.takeGpReg();
+}
+
+void ExpressionCodeGenerator::generateRelationalExpr(const IRExpr* relationalExpr){
+    const auto* binaryExpr = static_cast<const IRBinaryExpr*>(relationalExpr);
+    generateNumericalExpr(binaryExpr->getLeftOperand());
+    generateNumericalExpr(binaryExpr->getRightOperand());
     
     auto& codeGenContext = FunctionCodeGenerator::getContext();
     codeGenContext.freeGpReg();
@@ -106,40 +107,40 @@ void ExpressionCodeGenerator::generateRelationalExpression(const IRExpr* _relexp
     AsmGenerator::Instruction::genCmp(codeGenContext.asmCode, lreg, rreg);
 }
 
-const std::string& ExpressionCodeGenerator::generateID(const IRIdExpr* _id) const {
-    return FunctionCodeGenerator::getContext().variableMap.at(_id->getIdName()); // returns address from variable map
+const std::string& ExpressionCodeGenerator::generateIDExpr(const IRIdExpr* idExpr) const {
+    return FunctionCodeGenerator::getContext().variableMap.at(idExpr->getIdName()); // returns address from variable map
 }
 
-std::string ExpressionCodeGenerator::generateLiteral(const IRLiteralExpr* _literal) const {
-    std::string val{ _literal->getValue() };
-    if(_literal->getType() == Type::UNSIGNED){
+std::string ExpressionCodeGenerator::generateLiteralExpr(const IRLiteralExpr* literalExpr) const {
+    std::string val{ literalExpr->getValue() };
+    if(literalExpr->getType() == Type::UNSIGNED){
         val.pop_back();
     }
     return std::format("${}", val);
 }
 
-void ExpressionCodeGenerator::generateFunctionCall(const IRFunctionCallExpr* _functionCall){
+void ExpressionCodeGenerator::generateFunctionCallExpr(const IRFunctionCallExpr* callExpr){
     auto& codeGenContext = FunctionCodeGenerator::getContext();
     // push arguments to stack
-    generateArgument(_functionCall);
+    generateArguments(callExpr);
 
-    AsmGenerator::Instruction::genCall(codeGenContext.asmCode, _functionCall->getCallName());
+    AsmGenerator::Instruction::genCall(codeGenContext.asmCode, callExpr->getCallName());
 
     // pop arguments from stack
-    clearArguments(_functionCall->getArgumentCount());
+    clearArguments(callExpr->getArgumentCount());
 }
 
-void ExpressionCodeGenerator::generateArgument(const IRFunctionCallExpr* _functionCall){
+void ExpressionCodeGenerator::generateArguments(const IRFunctionCallExpr* callExpr){
     auto& codeGenContext = FunctionCodeGenerator::getContext();
     // evaluating temporaries
-    for(const auto& temp : _functionCall->getTemporaries()){
-        if(temp != nullptr){
-            generateTemporaries(temp.get());
+    for(const auto& tempExpr : callExpr->getTemporaries()){
+        if(tempExpr != nullptr){
+            generateTemporaryExprs(tempExpr.get());
         }
     }
     // pushing arguments onto stack
-    for(int i = _functionCall->getArgumentCount() - 1; i >= 0; --i){
-        generateNumericalExpression(_functionCall->getArgumentAtN(static_cast<size_t>(i)));
+    for(int i = callExpr->getArgumentCount() - 1; i >= 0; --i){
+        generateNumericalExpr(callExpr->getArgumentAtN(static_cast<size_t>(i)));
         codeGenContext.freeGpReg();
         if(codeGenContext.gpFreeRegPos < gpRegisters.size()){ // if >= gpRegisters.size() argument is already pushed
             AsmGenerator::Instruction::genPush(codeGenContext.asmCode, gpRegisters.at(codeGenContext.gpFreeRegPos));
@@ -153,26 +154,26 @@ void ExpressionCodeGenerator::clearArguments(size_t argCount){
     AsmGenerator::Instruction::genOperation(codeGenContext.asmCode, "add", std::format("${}", argCount * AsmGenerator::Instruction::regSize), "%rsp");
 }
 
-void ExpressionCodeGenerator::generateTemporaries(const IRTemporaryExpr* _temporary){
-    for(size_t i = 0; i < _temporary->getTemporaries().size(); ++i){
+void ExpressionCodeGenerator::generateTemporaryExprs(const IRTemporaryExpr* tempExprs){
+    for(size_t i = 0; i < tempExprs->getTemporaries().size(); ++i){
         auto& codeGenContext = FunctionCodeGenerator::getContext();
-        const auto temp = _temporary->getExpressionAtN(i);
+        const auto* tempExpr = tempExprs->getExpressionAtN(i);
 
-        if(temp->getNodeType() == IRNodeType::CALL){
-            for(const auto& _temp : static_cast<const IRFunctionCallExpr*>(temp)->getTemporaries()){
-                if(_temp != nullptr){
-                    generateTemporaries(_temp.get());
+        if(tempExpr->getNodeType() == IRNodeType::CALL){
+            for(const auto& temp : static_cast<const IRFunctionCallExpr*>(tempExpr)->getTemporaries()){
+                if(temp != nullptr){
+                    generateTemporaryExprs(temp.get());
                 }
             }
         }
 
-        codeGenContext.variableMap.insert({_temporary->getTemporaryNameAtN(i), std::format("-{}(%rbp)", codeGenContext.variableNum * AsmGenerator::Instruction::regSize)});
+        codeGenContext.variableMap.insert({tempExprs->getTemporaryNameAtN(i), std::format("-{}(%rbp)", codeGenContext.variableNum * AsmGenerator::Instruction::regSize)});
         ++codeGenContext.variableNum;
 
-        generateNumericalExpression(temp);
+        generateNumericalExpr(tempExpr);
         codeGenContext.freeGpReg();
         AsmGenerator::Instruction::genMov(codeGenContext.asmCode, gpRegisters.at(codeGenContext.gpFreeRegPos), 
-            codeGenContext.variableMap.at(_temporary->getTemporaryNameAtN(i)), "q"
+            codeGenContext.variableMap.at(tempExprs->getTemporaryNameAtN(i)), "q"
         );
     }
 }

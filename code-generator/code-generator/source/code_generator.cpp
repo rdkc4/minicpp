@@ -20,16 +20,16 @@ size_t CodeGenerator::getNextLabelNum() noexcept {
     return labelNum.fetch_add(1);
 }
 
-void CodeGenerator::generateCode(const IRProgram* _program){
-    funcGenerator.initFunctions(_program);
+void CodeGenerator::generateProgram(const IRProgram* program){
+    funcGenerator.initFunctions(program);
 
     ThreadPool threadPool{ std::thread::hardware_concurrency() };
 
-    std::latch doneLatch{ static_cast<ptrdiff_t>(_program->getFunctionCount()) };
+    std::latch doneLatch{ static_cast<ptrdiff_t>(program->getFunctionCount()) };
 
-    for(const auto& _function : _program->getFunctions()){
-        threadPool.enqueue([&, _function=_function.get()]{
-            funcGenerator.generateFunction(_function);
+    for(const auto& function : program->getFunctions()){
+        threadPool.enqueue([&, function=function.get()]{
+            funcGenerator.generateFunction(function);
             
             doneLatch.count_down();
         });
@@ -37,10 +37,10 @@ void CodeGenerator::generateCode(const IRProgram* _program){
 
     doneLatch.wait();
 
-    writeCode(_program);
+    writeCode(program);
 }
 
-void CodeGenerator::writeCode(const IRProgram* _program){
+void CodeGenerator::writeCode(const IRProgram* program){
     std::ofstream file{ outputPath };
     if(!file.is_open()){
         return;
@@ -49,8 +49,8 @@ void CodeGenerator::writeCode(const IRProgram* _program){
     // start of asm code
     file << AsmGenerator::Instruction::genStart();
 
-    for(const auto& _function : _program->getFunctions()){
-        for(const auto& instruction : asmCode[_function->getFunctionName()]){
+    for(const auto& function : program->getFunctions()){
+        for(const auto& instruction : asmCode[function->getFunctionName()]){
             file << instruction;
         }
     }
