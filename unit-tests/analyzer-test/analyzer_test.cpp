@@ -168,7 +168,7 @@ TEST(AnalyzerTest, CheckFunction){
 
     TokenConsumer tokenConsumer { lexer };
     FunctionParserTest parser{ tokenConsumer };
-    auto _function = parser.function();
+    auto _function = parser.parseFunction();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
@@ -189,7 +189,7 @@ TEST(AnalyzerTest, CheckFunctionNotAllIfPathsReturnError){
 
     TokenConsumer tokenConsumer { lexer };
     FunctionParserTest parser{ tokenConsumer };
-    auto _function = parser.function();
+    auto _function = parser.parseFunction();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
@@ -211,7 +211,7 @@ TEST(AnalyzerTest, CheckFunctionNotAllSwitchPathsReturnError){
 
     TokenConsumer tokenConsumer { lexer };
     FunctionParserTest parser{ tokenConsumer };
-    auto _function = parser.function();
+    auto _function = parser.parseFunction();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
@@ -233,7 +233,7 @@ TEST(AnalyzerTest, CheckFunctionParameterRedefError){
 
     TokenConsumer tokenConsumer { lexer };
     FunctionParserTest parser{ tokenConsumer };
-    auto _function = parser.function();
+    auto _function = parser.parseFunction();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
@@ -255,7 +255,7 @@ TEST(AnalyzerTest, CheckFunctionVoidReturnsTypeError){
 
     TokenConsumer tokenConsumer { lexer };
     FunctionParserTest parser{ tokenConsumer };
-    auto _function = parser.function();
+    auto _function = parser.parseFunction();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
@@ -277,7 +277,7 @@ TEST(AnalyzerTest, CheckFunctionVoidTypeMismatchError){
 
     TokenConsumer tokenConsumer { lexer };
     FunctionParserTest parser{ tokenConsumer };
-    auto _function = parser.function();
+    auto _function = parser.parseFunction();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
@@ -299,7 +299,7 @@ TEST(AnalyzerTest, CheckVariable){
 
     TokenConsumer tokenConsumer { lexer };
     StatementParserTest parser{ tokenConsumer };
-    auto _variable = parser.variable();
+    auto _variable = parser.parseVariableDeclStmt();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
@@ -323,7 +323,7 @@ TEST(AnalyzerTest, CheckVariableExitedScope){
 
     TokenConsumer tokenConsumer { lexer };
     StatementParserTest parser{ tokenConsumer };
-    auto _compound = parser.compoundStatement();
+    auto _compound = parser.parseCompoundStmt();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
@@ -343,7 +343,7 @@ TEST(AnalyzerTest, CheckVariableRedefError){
 
     TokenConsumer tokenConsumer { lexer };
     StatementParserTest parser{ tokenConsumer };
-    auto _variable = parser.variable();
+    auto _variable = parser.parseVariableDeclStmt();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
@@ -368,7 +368,7 @@ TEST(AnalyzerTest, CheckVariableTypeMismatchError){
 
     TokenConsumer tokenConsumer { lexer };
     StatementParserTest parser{ tokenConsumer };
-    auto _variable = parser.variable();
+    auto _variable = parser.parseVariableDeclStmt();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
@@ -392,7 +392,7 @@ TEST(AnalyzerTest, CheckVariableAutoType){
 
     TokenConsumer tokenConsumer { lexer };
     StatementParserTest parser{ tokenConsumer };
-    auto _variable = parser.variable();
+    auto _variable = parser.parseVariableDeclStmt();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
@@ -417,7 +417,7 @@ TEST(AnalyzerTest, CheckVariableAutoError){
 
     TokenConsumer tokenConsumer { lexer };
     StatementParserTest parser{ tokenConsumer };
-    auto _variable = parser.variable();
+    auto _variable = parser.parseVariableDeclStmt();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
@@ -441,7 +441,7 @@ TEST(AnalyzerTest, CheckVariableUndefinedVariableError){
 
     TokenConsumer tokenConsumer { lexer };
     StatementParserTest parser{ tokenConsumer };
-    auto _variable = parser.variable();
+    auto _variable = parser.parseVariableDeclStmt();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
@@ -465,7 +465,7 @@ TEST(AnalyzerTest, ForStatement){
 
     TokenConsumer tokenConsumer { lexer };
     StatementParserTest parser{ tokenConsumer };
-    auto _for = parser.forStatement();
+    auto _for = parser.parseForStmt();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
@@ -489,7 +489,7 @@ TEST(AnalyzerTest, ForStatementUndefVarError){
 
     TokenConsumer tokenConsumer { lexer };
     StatementParserTest parser{ tokenConsumer };
-    auto _for = parser.forStatement();
+    auto _for = parser.parseForStmt();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
@@ -513,7 +513,7 @@ TEST(AnalyzerTest, ForStatementTypeMismatchError){
 
     TokenConsumer tokenConsumer { lexer };
     StatementParserTest parser{ tokenConsumer };
-    auto _for = parser.forStatement();
+    auto _for = parser.parseForStmt();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
@@ -538,7 +538,7 @@ TEST(AnalyzerTest, SwitchStatement){
 
     TokenConsumer tokenConsumer { lexer };
     StatementParserTest parser{ tokenConsumer };
-    auto _switch = parser.switchStatement();
+    auto _switch = parser.parseSwitchStmt();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
@@ -562,7 +562,7 @@ TEST(AnalyzerTest, SwitchStatementTypeMismatchError){
 
     TokenConsumer tokenConsumer { lexer };
     StatementParserTest parser{ tokenConsumer };
-    auto _switch = parser.switchStatement();
+    auto _switch = parser.parseSwitchStmt();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
@@ -587,7 +587,7 @@ TEST(AnalyzerTest, SwitchStatementCaseDuplicateError){
 
     TokenConsumer tokenConsumer { lexer };
     StatementParserTest parser{ tokenConsumer };
-    auto _switch = parser.switchStatement();
+    auto _switch = parser.parseSwitchStmt();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };

@@ -1,7 +1,5 @@
 #include "scope_manager.hpp"
 
-#include <initializer_list>
-
 ScopeManager::ScopeManager(SymbolTable& symTab) : symbolTable{ symTab } {}
 
 void ScopeManager::pushScope(){

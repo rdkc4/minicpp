@@ -7,20 +7,20 @@
 Parser::Parser(TokenConsumer& consumer) : funcParser{ consumer }, dirParser{ consumer }, tokenConsumer{ consumer } {}
 
 std::unique_ptr<ASTProgram> Parser::parseProgram(){
-    std::unique_ptr<ASTProgram> _program = std::make_unique<ASTProgram>(Token{"program", 0, 0}, ASTNodeType::PROGRAM);
+    std::unique_ptr<ASTProgram> program = std::make_unique<ASTProgram>(Token{"program", 0, 0}, ASTNodeType::PROGRAM);
     
     do{
         auto token = tokenConsumer.getToken();
         if(token.gtype == GeneralTokenType::TYPE){
-            _program->addFunction(funcParser.function());
+            program->addFunction(funcParser.parseFunction());
         }
         else if(token.type == TokenType::_HASH){
-            _program->addDirective(dirParser.directive());
+            program->addDirective(dirParser.parseDir());
         }
     }while(tokenConsumer.getToken().gtype == GeneralTokenType::TYPE || tokenConsumer.getToken().type == TokenType::_HASH);
 
     // check if input ends correctly
     tokenConsumer.consume(TokenType::_EOF);
 
-    return _program;
+    return program;
 }
