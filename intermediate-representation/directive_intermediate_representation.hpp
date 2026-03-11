@@ -16,14 +16,14 @@ public:
      * @param irProgram - pointer to the irt program
      * @param astProgram - const pointer to the ast program
     */
-    void directive(IRProgram* irProgram, const ASTProgram* astProgram);
+    void transformDir(IRProgram* irProgram, const ASTProgram* astProgram);
     
     /**
      * @brief adds linked library to compile flags in irt program
      * @param irProgram - pointer to the irt program
-     * @param lib - pointer to the data of the included library
+     * @param astLib - pointer to the ast include directive
     */
-    void include(IRProgram* irProgram, const ASTIncludeDir* lib);
+    void transformIncludeDir(IRProgram* irProgram, const ASTIncludeDir* astLib);
 };
 
 #endif

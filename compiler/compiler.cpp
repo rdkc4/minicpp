@@ -130,7 +130,7 @@ Compiler::ExitCode Compiler::semanticAnalysis(std::unique_ptr<ASTProgram>& astPr
 
 Compiler::ExitCode Compiler::transformASTToIRT(std::unique_ptr<ASTProgram>& astProgram, std::unique_ptr<IRProgram>& irProgram){
         IntermediateRepresentation intermediateRepresentation{};
-        irProgram = intermediateRepresentation.formIR(astProgram.get());
+        irProgram = intermediateRepresentation.transformProgram(astProgram.get());
 
         if(intermediateRepresentation.hasErrors(irProgram.get())){
             std::cerr << intermediateRepresentation.getErrors(irProgram.get());
