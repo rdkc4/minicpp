@@ -1,5 +1,6 @@
 #include "../function_code_generator.hpp"
 
+#include <memory>
 #include <format>
 
 #include "../../asm-generator/asm_instruction_generator.hpp"
@@ -12,18 +13,18 @@ CodeGeneratorThreadContext& FunctionCodeGenerator::getContext() noexcept {
     return codeGenContext;
 }
 
-void FunctionCodeGenerator::initFunctions(const IRProgram* _program){
-    for(const auto& _function : _program->getFunctions()){
-        asmCode[_function->getFunctionName()] = {};
+void FunctionCodeGenerator::initFunctions(const IRProgram* program){
+    for(const auto& function : program->getFunctions()){
+        asmCode[function->getFunctionName()] = {};
     }
 }
 
-void FunctionCodeGenerator::generateFunction(const IRFunction* _function){
-    if(_function->isPredefined()){
+void FunctionCodeGenerator::generateFunction(const IRFunction* function){
+    if(function->isPredefined()){
         return;
     }
 
-    codeGenContext.init(_function->getFunctionName());
+    codeGenContext.init(function->getFunctionName());
 
     // function label
     AsmGenerator::Instruction::genLabel(codeGenContext.asmCode, codeGenContext.functionName);
@@ -31,27 +32,27 @@ void FunctionCodeGenerator::generateFunction(const IRFunction* _function){
     AsmGenerator::Instruction::genFuncPrologue(codeGenContext.asmCode);
     
     // allocation of local variables
-    if(_function->getRequiredMemory() != "0"){
-        AsmGenerator::Instruction::genOperation(codeGenContext.asmCode, "sub", std::format("${}", _function->getRequiredMemory()), "%rsp");
+    if(function->getRequiredMemory() != "0"){
+        AsmGenerator::Instruction::genOperation(codeGenContext.asmCode, "sub", std::format("${}", function->getRequiredMemory()), "%rsp");
     }
 
-    generateParameter(_function->getParameters());
+    generateParameters(function);
 
-    for(const auto& _statement : _function->getBody()){
-        stmtGenerator.generateStatement(_statement.get());
+    for(const auto& stmt : function->getBody()){
+        stmtGenerator.generateStmt(stmt.get());
     }
 
     // function end label
     AsmGenerator::Instruction::genLabel(codeGenContext.asmCode, std::format("{}_end", codeGenContext.functionName));
     
     // free local variables 
-    if(_function->getRequiredMemory() != "0"){
-        AsmGenerator::Instruction::genOperation(codeGenContext.asmCode, "add", std::format("${}", _function->getRequiredMemory()), "%rsp");
+    if(function->getRequiredMemory() != "0"){
+        AsmGenerator::Instruction::genOperation(codeGenContext.asmCode, "add", std::format("${}", function->getRequiredMemory()), "%rsp");
     }
 
     AsmGenerator::Instruction::genFuncEpilogue(codeGenContext.asmCode);
 
-    if(_function->getFunctionName() != "main"){
+    if(function->getFunctionName() != "main"){
         AsmGenerator::Instruction::genRet(codeGenContext.asmCode);
     }
     else{
@@ -66,11 +67,11 @@ void FunctionCodeGenerator::generateFunction(const IRFunction* _function){
     codeGenContext.reset();
 }
 
-void FunctionCodeGenerator::generateParameter(const std::vector<std::unique_ptr<IRParameter>>& _parameters){
+void FunctionCodeGenerator::generateParameters(const IRFunction* function){
     size_t i{ 2 };
-    for(const auto& _parameter : _parameters){
+    for(const auto& parameter : function->getParameters()){
         // mapping parameter to address relative to %rbp (+n(%rbp))
-        codeGenContext.variableMap.insert({_parameter->getParName(), std::format("{}(%rbp)", i * AsmGenerator::Instruction::regSize)});
+        codeGenContext.variableMap.insert({parameter->getParName(), std::format("{}(%rbp)", i * AsmGenerator::Instruction::regSize)});
         ++i;
     }
 }

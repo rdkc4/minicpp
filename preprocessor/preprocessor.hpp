@@ -15,7 +15,7 @@ public:
     /** 
      * @brief Creates the instance of the preprocessor
     */
-    Preprocessor();
+    Preprocessor() = default;
 
     /** 
      * @brief entry point for preprocessing of the source file

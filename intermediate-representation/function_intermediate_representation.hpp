@@ -31,24 +31,24 @@ public:
 
     /**
      * @brief turns ast function into irt function
-     * @param _function - const pointer to the ast function
+     * @param astFunction - const pointer to the ast function
      * @returns pointer to the irt function
     */
-    std::unique_ptr<IRFunction> function(const ASTFunction* _function);
+    std::unique_ptr<IRFunction> transformFunction(const ASTFunction* astFunction);
 
     /**
      * @brief turns ast parameters into irt parameters
-     * @param _irFunction - pointer to the irt function
-     * @param _parameters - reference to a const vector of pointers to ast parameters
+     * @param irFunction - pointer to the irt function
+     * @param astFunction - const pointer to the ast function
     */
-    void parameter(IRFunction* _irFunction, const std::vector<std::unique_ptr<ASTParameter>>& _parameters);
+    void transformParameters(IRFunction* irFunction, const ASTFunction* astFunction);
 
     /**
      * @brief turns body of the ast function into the body of the irt function
-     * @param _irFunction - pointer to the irt function
-     * @param _body - reference to a const vector of pointers to the statements of the ast body
+     * @param irFunction - pointer to the irt function
+     * @param astFunction - const pointer to the ast function
     */
-    void body(IRFunction* _irFunction, const std::vector<std::unique_ptr<ASTStmt>>& _body);
+    void transformBody(IRFunction* irFunction, const ASTFunction* astFunction);
 
 private:
     /// thread local context of the function

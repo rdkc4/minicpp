@@ -7,16 +7,16 @@ fib:
 	push %rbp
 	mov %rsp, %rbp
 	sub $16, %rsp
-_if0:
+_if0_0:
 	movq 16(%rbp), %r8
 	movq $0, %r9
 	cmp %r9, %r8
-	jne _elif0_0
+	jne _if0_1
 	movq $0, %r8
 	movq %r8, %rax
 	jmp fib_end
 	jmp _if0_end
-_elif0_0:
+_if0_1:
 	movq 16(%rbp), %r8
 	movq $1, %r9
 	cmp %r9, %r8

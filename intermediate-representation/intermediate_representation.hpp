@@ -25,10 +25,10 @@ public:
 
     /**
      * @brief transforms ast program into irt program
-     * @param _program - const pointer to the root of the ast program
+     * @param program - const pointer to the root of the ast program
      * @returns pointer to the root of irt program
     */
-    [[nodiscard]] std::unique_ptr<IRProgram> formIR(const ASTProgram* _program);
+    [[nodiscard]] std::unique_ptr<IRProgram> transformProgram(const ASTProgram* program);
 
     /**
      * @brief checks if any errors are caught

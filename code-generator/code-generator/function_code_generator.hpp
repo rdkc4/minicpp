@@ -2,7 +2,6 @@
 #define FUNCTION_CODE_GENERATOR_HPP
 
 #include <vector>
-#include <memory>
 #include <unordered_map>
 #include <string>
 
@@ -31,21 +30,21 @@ public:
 
     /** 
      * @brief initializes the vector holding asm code for all functions
-     * @param _root - const pointer to the irt program
+     * @param program - const pointer to the irt program
     */
-    void initFunctions(const IRProgram* _root);
+    void initFunctions(const IRProgram* program);
 
     /** 
      * @brief generates the asm code of the function
-     * @param _function - const pointer to the irt function
+     * @param function - const pointer to the irt function
     */
-    void generateFunction(const IRFunction* _function);
+    void generateFunction(const IRFunction* function);
 
     /** 
      * @brief generates the parameters of the function
-     * @param _parameters - reference to a const vector of pointers to the parameters
+     * @param function - const pointer to the irt function
     */
-    void generateParameter(const std::vector<std::unique_ptr<IRParameter>>& _parameters);
+    void generateParameters(const IRFunction* function);
 
 private:
     /// thread local context of the function

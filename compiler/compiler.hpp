@@ -129,7 +129,7 @@ namespace Compiler {
      * @param output - path of the output file
      * @returns CODEGEN_ERR if it fails to generate code, NO_ERR otherwise
     */
-    ExitCode generateCode(const IRProgram* irProgram, const std::string_view output);
+    ExitCode generateProgram(const IRProgram* irProgram, const std::string_view output);
 
     /**
      * @brief translates assembly files into executable

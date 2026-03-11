@@ -11,50 +11,54 @@ IRThreadContext& FunctionIntermediateRepresentation::getContext() noexcept {
     return irContext;
 }
 
-std::unique_ptr<IRFunction> FunctionIntermediateRepresentation::function(const ASTFunction* _function){
-    std::unique_ptr<IRFunction> _irFunction = 
-        std::make_unique<IRFunction>(IRNodeType::FUNCTION, _function->getToken().value, _function->getType());
+std::unique_ptr<IRFunction> FunctionIntermediateRepresentation::transformFunction(const ASTFunction* astFunction){
+    std::unique_ptr<IRFunction> irFunction = 
+        std::make_unique<IRFunction>(IRNodeType::FUNCTION, astFunction->getToken().value, astFunction->getType());
     
     irContext.init();
 
-    parameter(_irFunction.get(), _function->getParameters());
-    if(_function->isPredefined()){
-        _irFunction->setPredefined(true);
+    transformParameters(irFunction.get(), astFunction);
+    if(astFunction->isPredefined()){
+        irFunction->setPredefined(true);
     }
     else {
-        body(_irFunction.get(), _function->getBody());
+        transformBody(irFunction.get(), astFunction);
 
-        Optimization::DeadCode::eliminateDeadCode(_irFunction.get());
+        Optimization::DeadCode::eliminateDeadCode(irFunction.get());
 
         // bytes allocated for local variables
-        size_t requiredMemory = Optimization::StackMemory::computeStackMemory(_irFunction.get());
+        size_t requiredMemory = Optimization::StackMemory::computeStackMemory(irFunction.get());
         std::string varCountStr{ std::to_string(requiredMemory) };
-        _irFunction->setRequiredMemory(varCountStr);
+        irFunction->setRequiredMemory(varCountStr);
     }
 
     {
         // pairing function name with its errors
         std::lock_guard<std::mutex> lock(exceptionMtx);
-        exceptions[_function->getToken().value] = std::move(irContext.errors); // irContext.errors are cleared after std::move()
+        exceptions[astFunction->getToken().value] = std::move(irContext.errors); // irContext.errors are cleared after std::move()
     }
 
     irContext.reset();
 
-    return _irFunction;
+    return irFunction;
 }
 
-void FunctionIntermediateRepresentation::parameter(IRFunction* _irFunction, const std::vector<std::unique_ptr<ASTParameter>>& _parameters){
-    for(const auto& _parameter : _parameters){
-        _irFunction->addParameter(std::make_unique<IRParameter>(IRNodeType::PARAMETER, _parameter->getToken().value, _parameter->getType()));
+void FunctionIntermediateRepresentation::transformParameters(IRFunction* irFunction, const ASTFunction* astFunction){
+    for(const auto& astParameter : astFunction->getParameters()){
+        irFunction->addParameter(
+            std::make_unique<IRParameter>(
+                IRNodeType::PARAMETER, astParameter->getToken().value, astParameter->getType()
+            )
+        );
     }
 }
 
-void FunctionIntermediateRepresentation::body(IRFunction* _irFunction, const std::vector<std::unique_ptr<ASTStmt>>& _body){
-    for(const auto& _statement : _body){
-        _irFunction->addStatement(stmtIR.statement(_statement.get()));
+void FunctionIntermediateRepresentation::transformBody(IRFunction* irFunction, const ASTFunction* astFunction){
+    for(const auto& astStmt : astFunction->getBody()){
+        irFunction->addStatement(stmtIR.transformStmt(astStmt.get()));
 
-        // ignore all constructs after return statement
-        if(_statement->getNodeType() == ASTNodeType::RETURN_STATEMENT){
+        // ignores all statements after return statement
+        if(astStmt->getNodeType() == ASTNodeType::RETURN_STATEMENT){
             break;
         }
     }

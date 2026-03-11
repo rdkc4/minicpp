@@ -55,21 +55,21 @@ public:
      * | SWITCH_STATEMENT
      * @return pointer to the statement node
     */
-    std::unique_ptr<ASTStmt> statement();
+    std::unique_ptr<ASTStmt> parseStmt();
 
     /** 
      * @brief parses variable declaration
      * @details VARIABLE_DECL : TYPE ID (ASSIGN NUMERICAL_EXPRESSION)? SEMICOLON
      * @returns pointer to a variable declaration node
     */
-    std::unique_ptr<ASTVariableDeclStmt> variable();
+    std::unique_ptr<ASTVariableDeclStmt> parseVariableDeclStmt();
 
     /** 
      * @brief parses compound statement
      * @details COMPOUND_STATEMENT : LBRACKET (STATEMENT)? RBRACKET
      * @returns pointer to a compound statement node
     */
-    std::unique_ptr<ASTCompoundStmt> compoundStatement();
+    std::unique_ptr<ASTCompoundStmt> parseCompoundStmt();
 
     /** 
      * @brief parses assignment statement
@@ -77,14 +77,14 @@ public:
      * @details ASSIGNMENT_STATEMENT : ID ASSIGN NUMERICAL_EXPRESSION SEMICOLON
      * @returns pointer to an assignment statement node
     */
-    std::unique_ptr<ASTAssignStmt> assignmentStatement(bool expectsSemicolon = true);
+    std::unique_ptr<ASTAssignStmt> parseAssignStmt(bool expectsSemicolon = true);
 
     /** 
      * @brief parses return statement
      * @details RETURN_STATEMENT : RETURN (NUMERICAL_EXPRESSION)? SEMICOLON
      * @returns pointer to a return statement node
     */
-    std::unique_ptr<ASTReturnStmt> returnStatement();
+    std::unique_ptr<ASTReturnStmt> parseReturnStmt();
 
     /** 
      * @brief parses if statement
@@ -99,73 +99,73 @@ public:
      * | IF_STATEMENT ELSE STATEMENT
      * @returns pointer to an if statement node
     */
-    std::unique_ptr<ASTIfStmt> ifStatement();
+    std::unique_ptr<ASTIfStmt> parseIfStmt();
 
     /** 
      * @brief parses while statement
      * @details WHILE_STATEMENT : WHILE LPAREN RELATIONAL_EXPRESSION RPAREN STATEMENT
      * @returns pointer to a while statement node
     */
-    std::unique_ptr<ASTWhileStmt> whileStatement();
+    std::unique_ptr<ASTWhileStmt> parseWhileStmt();
 
     /** 
      * @brief parses for statement
      * @details FOR_STATEMENT : FOR LPAREN (ASSIGN_STATEMENT SEMICOLON)? (RELATIONAL_EXPRESSION SEMICOLON)? (ASSIGNMENT_STATEMENT)? RPAREN STATEMENT
      * @returns pointer to a for statement node
     */
-    std::unique_ptr<ASTForStmt> forStatement();
+    std::unique_ptr<ASTForStmt> parseForStmt();
 
     /** 
      * @brief parses do-while statement
      * @details DO_WHILE_STATEMENT : DO STATEMENT WHILE LPAREN RELATIONAL_EXPRESSION RPAREN SEMICOLON
      * @returns pointer to a do-while statement node
     */
-    std::unique_ptr<ASTDoWhileStmt> doWhileStatement();
+    std::unique_ptr<ASTDoWhileStmt> parseDoWhileStmt();
 
     /** 
      * @brief parses function-call statement
      * @details FUNCTION_CALL_STATEMENT : FUNCTION_CALL SEMICOLON
      * @returns pointer to a function-call statement node
     */
-    std::unique_ptr<ASTFunctionCallStmt> functionCallStatement();
+    std::unique_ptr<ASTFunctionCallStmt> parseFunctionCallStmt();
 
     /** 
      * @brief parses switch statement
      * @details SWITCH_STATEMENT : SWITCH LPAREN ID RPAREN LBRACKET (_CASE)+ (_DEFAULT)? RBRACKET
      * @returns pointer to a switch statement node
     */
-    std::unique_ptr<ASTSwitchStmt> switchStatement();
+    std::unique_ptr<ASTSwitchStmt> parseSwitchStmt();
 
     /** 
      * @brief parses swtich-case block
      * @details SWITCH_CASE_BLOCK : (STATEMENT)*
      * @returns pointer to a switch-case block node
     */
-    std::unique_ptr<ASTSwitchBlockStmt> switchCaseBlock();
+    std::unique_ptr<ASTSwitchBlockStmt> parseSwitchBlockStmt();
 
     /** 
      * @brief parses case of the switch statement
      * @details _CASE : CASE LITERAL COLON SWITCH_CASE_BLOCK (_BREAK)?
      * @returns pointer to a case statement node
     */
-    std::unique_ptr<ASTCaseStmt> _case();
+    std::unique_ptr<ASTCaseStmt> parseCaseStmt();
 
     /** 
      * @brief parses default case of the switch statement
      * @details _DEFAULT : DEFAULT COLON SWITCH_CASE_BLOCK (_BREAK)?
      * @returns pointer to a default statement node
     */
-    std::unique_ptr<ASTDefaultStmt> _default();
+    std::unique_ptr<ASTDefaultStmt> parseDefaultStmt();
 
     /** 
      * @brief parses break statement
      * @details _BREAK : BREAK SEMICOLON
     */
-    void _break();
+    void parseBreakStmt();
 
 private:
     /// parser specialized for expressions
-    ExpressionParser expParser;
+    ExpressionParser exprParser;
     
     /// reference to a token handler wrapped around the lexer
     TokenConsumer& tokenConsumer;

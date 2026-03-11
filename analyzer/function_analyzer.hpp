@@ -5,13 +5,10 @@
 #include <unordered_map>
 #include <string>
 #include <vector>
-#include <memory>
 
 #include "../symbol-handling/scope-manager/scope_manager.hpp"
 #include "../common/abstract-syntax-tree/ast_program.hpp"
 #include "../common/abstract-syntax-tree/ast_function.hpp"
-#include "../common/abstract-syntax-tree/ast_stmt.hpp"
-#include "../common/abstract-syntax-tree/ast_parameter.hpp"
 #include "defs/analyzer_defs.hpp"
 #include "statement_analyzer.hpp"
 
@@ -31,41 +28,40 @@ public:
 
     /** 
      * @brief semantic check for the signature of all functions of the program
-     * @param _program - const pointer to a root of the ast
+     * @param program - const pointer to a root of the ast
     */
-    void checkFunctionSignatures(const ASTProgram* _program);
+    void checkFunctionSignatures(const ASTProgram* program);
 
     /** 
      * @brief semantic check of the single function
-     * @param _function - const pointer to a function
+     * @param function - const pointer to a function
     */
-    void checkFunction(const ASTFunction* _function);
+    void checkFunction(const ASTFunction* function);
 
     /** 
      * @brief semantic check for the parameters of the current function
-     * @param _parameters - const reference to a vector of pointers to parameters
-     * @param functionName - name of the function that is currently being analyzed 
+     * @param function - const pointer to the ast function
     */
-    void checkParameter(const std::vector<std::unique_ptr<ASTParameter>>& _parameters, const std::string& functionName);
+    void checkParameters(const ASTFunction* function);
 
     /** 
      * @brief inserts parameters of the function into the symbol table
-     * @param _parameters - const reference to a vector of pointers to parameters
+     * @param function - const pointer to the ast function
     */
-    void defineParameters(const std::vector<std::unique_ptr<ASTParameter>>& _parameters);
+    void defineParameters(const ASTFunction* function);
 
     /**
      * @brief semantic check for the body of the function
-     * @param _body - const reference to a vector of pointers to statements inside of the body
+     * @param function - const pointer to the ast function
     */
-    void checkBody(const std::vector<std::unique_ptr<ASTStmt>>& _body);
+    void checkBody(const ASTFunction* function);
 
     /** 
      * @brief check if the non-void function always returns
-     * @param _construct - const pointer to any node of the ast
+     * @param node - const pointer to any node of the ast
      * @returns true if function always returns, false otherwise
     */
-    bool alwaysReturns(const ASTNode* _construct) const noexcept;
+    bool alwaysReturns(const ASTNode* node) const noexcept;
 
     /** 
      * @brief getter for the context of the function that is analyzed by the current thread

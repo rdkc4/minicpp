@@ -130,22 +130,21 @@ Compiler::ExitCode Compiler::semanticAnalysis(std::unique_ptr<ASTProgram>& astPr
 
 Compiler::ExitCode Compiler::transformASTToIRT(std::unique_ptr<ASTProgram>& astProgram, std::unique_ptr<IRProgram>& irProgram){
         IntermediateRepresentation intermediateRepresentation{};
-        irProgram = intermediateRepresentation.formIR(astProgram.get());
+        irProgram = intermediateRepresentation.transformProgram(astProgram.get());
 
         if(intermediateRepresentation.hasErrors(irProgram.get())){
             std::cerr << intermediateRepresentation.getErrors(irProgram.get());
             return Compiler::ExitCode::IR_ERR;
         }
-        std::cout << irProgram->getLinkedLibs() << "\n";
 
         return Compiler::ExitCode::NO_ERR;
 }
 
-Compiler::ExitCode Compiler::generateCode(const IRProgram* irProgram, const std::string_view output){
+Compiler::ExitCode Compiler::generateProgram(const IRProgram* irProgram, const std::string_view output){
     std::string outputFilePath = std::string{ output } + ".s";
     CodeGenerator codeGenerator{ std::string{ outputFilePath } };
     try{
-        codeGenerator.generateCode(irProgram);
+        codeGenerator.generateProgram(irProgram);
         if(!codeGenerator.successful()){
             std::cerr << std::format("Unable to open '{}'", outputFilePath);
             return Compiler::ExitCode::CODEGEN_ERR;
@@ -211,7 +210,7 @@ Compiler::ExitCode Compiler::compile(Compiler::CompileOptions options) {
         dumpIR(irProgram.get());
     }
 
-    result = generateCode(irProgram.get(), options.output);
+    result = generateProgram(irProgram.get(), options.output);
     if(result != Compiler::ExitCode::NO_ERR){
         return result;
     }

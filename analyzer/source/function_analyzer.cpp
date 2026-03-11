@@ -2,7 +2,9 @@
 
 #include <cassert>
 #include <format>
+#include <memory>
 
+#include "../../common/abstract-syntax-tree/ast_parameter.hpp"
 #include "../../common/abstract-syntax-tree/ast_if_stmt.hpp"
 #include "../../common/abstract-syntax-tree/ast_switch_stmt.hpp"
 #include "../../common/abstract-syntax-tree/ast_dowhile_stmt.hpp"
@@ -17,17 +19,17 @@ AnalyzerThreadContext& FunctionAnalyzer::getContext() noexcept {
     return analyzerContext;
 }
 
-void FunctionAnalyzer::checkFunctionSignatures(const ASTProgram* _program){
-    for(const auto& _function : _program->getFunctions()){
-        Type returnType{ _function->getType() };
-        const std::string& funcName = _function->getToken().value;
+void FunctionAnalyzer::checkFunctionSignatures(const ASTProgram* program){
+    for(const auto& function : program->getFunctions()){
+        Type returnType{ function->getType() };
+        const std::string& funcName = function->getToken().value;
         semanticErrors[funcName] = {};
 
         // function redefinition check
         if(!globalScopeManager.pushSymbol(Symbol{funcName, Kind::FUN, returnType})){
             semanticErrors[globalError].push_back(
                 std::format("Line {}, Column {}: SEMANTIC ERROR -> function redefined '{} {}'", 
-                    _function->getToken().line, _function->getToken().column, typeToString.at(returnType), _function->getToken().value)
+                    function->getToken().line, function->getToken().column, typeToString.at(returnType), function->getToken().value)
             );
             return;
         }
@@ -36,17 +38,17 @@ void FunctionAnalyzer::checkFunctionSignatures(const ASTProgram* _program){
         if(returnType == Type::NO_TYPE){
             semanticErrors[funcName].push_back(
                 std::format("Line {}, Column {}: SEMANTIC ERROR -> invalid type '{} {}'", 
-                    _function->getToken().line, _function->getToken().column, typeToString.at(returnType), _function->getToken().value)
+                    function->getToken().line, function->getToken().column, typeToString.at(returnType), function->getToken().value)
             );
         }
         else if(returnType == Type::AUTO){
             semanticErrors[funcName].push_back(
                 std::format("Line {}, Column {}: SEMANTIC ERROR -> type deduction cannot be performed on function '{} {}'", 
-                    _function->getToken().line, _function->getToken().column, typeToString.at(returnType), _function->getToken().value)
+                    function->getToken().line, function->getToken().column, typeToString.at(returnType), function->getToken().value)
             );
         }
         globalScopeManager.pushScope();
-        checkParameter(_function->getParameters(), funcName);
+        checkParameters(function.get());
         globalScopeManager.popScope();
     }
 
@@ -56,25 +58,25 @@ void FunctionAnalyzer::checkFunctionSignatures(const ASTProgram* _program){
     }
 }
 
-void FunctionAnalyzer::checkFunction(const ASTFunction* _function){
+void FunctionAnalyzer::checkFunction(const ASTFunction* function){
     // initializing thread context
     SymbolTable symTable;
     ScopeManager functionScopeManager{symTable};
-    analyzerContext.init(_function->getToken().value, &functionScopeManager);
+    analyzerContext.init(function->getToken().value, &functionScopeManager);
 
     // function scope
     analyzerContext.scopeManager->pushScope();
-    defineParameters(_function->getParameters());
-    if(!_function->isPredefined()){
-        checkBody(_function->getBody());
+    defineParameters(function);
+    if(!function->isPredefined()){
+        checkBody(function);
     }
     analyzerContext.scopeManager->popScope();
     
     // function return type check
-    if(_function->getType() != Type::VOID && !alwaysReturns(_function)){
+    if(function->getType() != Type::VOID && !alwaysReturns(function)){
         analyzerContext.semanticErrors.push_back(
             std::format("Line {}, Column {}: SEMANTIC ERROR -> function '{} {}' not all paths return value", 
-                _function->getToken().line, _function->getToken().column, typeToString.at(_function->getType()), _function->getToken().value)
+                function->getToken().line, function->getToken().column, typeToString.at(function->getType()), function->getToken().value)
         );
     }
 
@@ -86,118 +88,121 @@ void FunctionAnalyzer::checkFunction(const ASTFunction* _function){
     analyzerContext.reset();
 }
 
-void FunctionAnalyzer::checkParameter(const std::vector<std::unique_ptr<ASTParameter>>& _parameters, const std::string& functionName){
+void FunctionAnalyzer::checkParameters(const ASTFunction* function){
+    const std::string& functionName = function->getToken().value;
+    const auto& parameters = function->getParameters();
+
     // pointer to parameters for easier function call type checking
-    globalScopeManager.getSymbol(functionName).setParameters(&_parameters);
+    globalScopeManager.getSymbol(functionName).setParameters(&parameters);
     
     // parameter check for main
-    if(functionName == "main" && _parameters.size() > 0){
+    if(functionName == "main" && parameters.size() > 0){
         semanticErrors[functionName].push_back(
             std::format("Line {}, Column {}: SEMANTIC ERROR -> function 'main' cannot take parameters", 
-                _parameters[0]->getToken().line, _parameters[0]->getToken().column)
+                parameters[0]->getToken().line, parameters[0]->getToken().column)
         );
     }
 
-    for(const auto& _parameter : _parameters){
+    for(const auto& parameter : parameters){
         // parameter type check
-        Type type{ _parameter->getType() };
+        Type type{ parameter->getType() };
         if(type == Type::VOID || type == Type::NO_TYPE){
             semanticErrors[functionName].push_back(
                 std::format("Line {}, Column {}: SEMANTIC ERROR -> invalid type '{} {}'", 
-                    _parameter->getToken().line, _parameter->getToken().column, typeToString.at(type), _parameter->getToken().value)
+                    parameter->getToken().line, parameter->getToken().column, typeToString.at(type), parameter->getToken().value)
             );
         }
         else if(type == Type::AUTO){
             semanticErrors[functionName].push_back(
                 std::format("Line {}, Column {}: SEMANTIC ERROR -> type deduction cannot be performed on parameters '{} {}'", 
-                    _parameter->getToken().line, _parameter->getToken().column, typeToString.at(type), _parameter->getToken().value)
+                    parameter->getToken().line, parameter->getToken().column, typeToString.at(type), parameter->getToken().value)
             );
         }
 
         // parameter redefinition check
-        if(!globalScopeManager.pushSymbol(Symbol{_parameter->getToken().value, Kind::PAR, _parameter->getType()})){
+        if(!globalScopeManager.pushSymbol(Symbol{parameter->getToken().value, Kind::PAR, parameter->getType()})){
             semanticErrors[functionName].push_back(
                 std::format("Line {}, Column {}: SEMANTIC ERROR -> variable redefined '{}'", 
-                    _parameter->getToken().line, _parameter->getToken().column, _parameter->getToken().value)
+                    parameter->getToken().line, parameter->getToken().column, parameter->getToken().value)
             );
         }
     }
 }
 
-void FunctionAnalyzer::defineParameters(const std::vector<std::unique_ptr<ASTParameter>>& _parameters){
-    for(const auto& _parameter : _parameters){
-        analyzerContext.scopeManager->pushSymbol(Symbol{_parameter->getToken().value, Kind::PAR, _parameter->getType()});
+void FunctionAnalyzer::defineParameters(const ASTFunction* function){
+    for(const auto& parameter : function->getParameters()){
+        analyzerContext.scopeManager->pushSymbol(Symbol{parameter->getToken().value, Kind::PAR, parameter->getType()});
     }
 }
 
-void FunctionAnalyzer::checkBody(const std::vector<std::unique_ptr<ASTStmt>>& _body){
-    for(const auto& _statement : _body){
-        statementAnalyzer.checkStatement(_statement.get());
+void FunctionAnalyzer::checkBody(const ASTFunction* function){
+    for(const auto& stmt : function->getBody()){
+        statementAnalyzer.checkStmt(stmt.get());
     }
 }
 
-bool FunctionAnalyzer::alwaysReturns(const ASTNode* _construct) const noexcept {
-    ASTNodeType nodeType{ _construct->getNodeType() };
+bool FunctionAnalyzer::alwaysReturns(const ASTNode* node) const noexcept {
+    ASTNodeType nodeType{ node->getNodeType() };
     if(nodeType == ASTNodeType::RETURN_STATEMENT){
         return true;
     }
     else if(nodeType == ASTNodeType::FUNCTION){
-        auto _function = static_cast<const ASTFunction*>(_construct);
-        for(const auto& _statement : _function->getBody()){
+        auto function = static_cast<const ASTFunction*>(node);
+        for(const auto& stmt : function->getBody()){
             // if a statement of a function always returns => function always returns
-            if(alwaysReturns(_statement.get())){
+            if(alwaysReturns(stmt.get())){
                 return true;
             }
         }
         return false;
     }
     else if(nodeType == ASTNodeType::IF_STATEMENT){
-        auto _ifSt = static_cast<const ASTIfStmt*>(_construct);
+        auto ifStmt = static_cast<const ASTIfStmt*>(node);
         // if there is no else, not all paths are covered
-        if(!_ifSt->hasElse()){
+        if(!ifStmt->hasElse()){
             return false;
         }
         // if any if / else if / else doesn't return => not all paths return
-        for(const auto& _statement : _ifSt->getStatements()){
-            if(!alwaysReturns(_statement.get())){
+        for(const auto& stmt : ifStmt->getStatements()){
+            if(!alwaysReturns(stmt.get())){
                 return false;
             }
         }
         return true;
     }
     else if(nodeType == ASTNodeType::SWITCH_STATEMENT){
-        auto _switch = static_cast<const ASTSwitchStmt*>(_construct);
+        auto switchStmt = static_cast<const ASTSwitchStmt*>(node);
         // no default => not all paths are covered
-        if(!_switch->hasDefault()){
+        if(!switchStmt->hasDefault()){
             return false;
         }
         // each case must return, otherwise not all paths return
-        for(const auto& _case : _switch->getCases()){
+        for(const auto& caseStmt : switchStmt->getCases()){
             // check cases, if there is no break fallthrough to the next case
-            if(!alwaysReturns(_case->getSwitchBlock()) && _case->hasBreak()){
+            if(!alwaysReturns(caseStmt->getSwitchBlock()) && caseStmt->hasBreak()){
                 return false;
             }
         }
-        return alwaysReturns(_switch->getDefault()->getSwitchBlock()); // check default
+        return alwaysReturns(switchStmt->getDefault()->getSwitchBlock()); // check default
     }
     else if(nodeType == ASTNodeType::DO_WHILE_STATEMENT){
-        auto _doWhileSt = static_cast<const ASTDoWhileStmt*>(_construct);
-        return alwaysReturns(_doWhileSt->getStatement());
+        auto dowhileStmt = static_cast<const ASTDoWhileStmt*>(node);
+        return alwaysReturns(dowhileStmt->getStatement());
     }
     else if(nodeType == ASTNodeType::COMPOUND_STATEMENT){
-        auto _compoundSt = static_cast<const ASTCompoundStmt*>(_construct);
+        auto compoundStmt = static_cast<const ASTCompoundStmt*>(node);
         // if any statement always returns - compound always returns
-        for(const auto& _statement : _compoundSt->getStatements()){
-            if(alwaysReturns(_statement.get())){
+        for(const auto& stmt : compoundStmt->getStatements()){
+            if(alwaysReturns(stmt.get())){
                 return true;
             }
         }
         return false;
     }
     else if(nodeType == ASTNodeType::SWITCH_BLOCK){
-        auto _switchBlock = static_cast<const ASTSwitchBlockStmt*>(_construct);
-        for(const auto& _statement : _switchBlock->getStatements()){
-            if(alwaysReturns(_statement.get())){
+        auto switchBlockStmt = static_cast<const ASTSwitchBlockStmt*>(node);
+        for(const auto& stmt : switchBlockStmt->getStatements()){
+            if(alwaysReturns(stmt.get())){
                 return true;
             }
         }

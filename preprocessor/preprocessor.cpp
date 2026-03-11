@@ -7,8 +7,6 @@
 
 #include "../common/preprocessing/preprocessing_libraries.hpp"
 
-Preprocessor::Preprocessor() = default;
-
 void Preprocessor::preprocess(const std::string& source) {
     size_t index = 0;
     size_t len = source.length();

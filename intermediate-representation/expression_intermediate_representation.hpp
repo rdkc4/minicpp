@@ -26,64 +26,71 @@ public:
     /** 
      * @brief Creates the instance of the expression intermediate representation
     */
-    ExpressionIntermediateRepresentation();
+    ExpressionIntermediateRepresentation() = default;
 
     /**
      * @brief turns ast numerical expression into irt numerical expression
-     * @param _numexp - const pointer to the ast numerical expression
+     * @param astNumericalExpr - const pointer to the ast numerical expression
      * @returns pointer to the irt numerical expression
     */
-    std::unique_ptr<IRExpr> numericalExpression(const ASTExpr* _numexp);
+    std::unique_ptr<IRExpr> transformNumericalExpr(const ASTExpr* astNumericalExpr);
+
+    /**
+     * @brief turns ast binary expression into irt binary expression
+     * @param astBinaryExpr - const pointer to the ast binary expression
+     * @returns pointer to the irt expression
+    */
+    std::unique_ptr<IRExpr> transformBinaryExpr(const ASTBinaryExpr* astBinaryExpr);
 
     /**
      * @brief turns ast relational expression into irt relational expression
-     * @param _relexp - const pointer to the ast relational expression
+     * @param astRelationalExpr - const pointer to the ast relational expression
      * @returns pointer to the irt relational expression
      * @note at the moment only binary expression
     */
-    std::unique_ptr<IRBinaryExpr> relationalExpression(const ASTExpr* _relexp);
+    std::unique_ptr<IRBinaryExpr> transformRelationalExpr(const ASTExpr* astRelationalExpr);
 
     /**
      * @brief turns ast id into irt id
-     * @param _id - const pointer to the ast id
+     * @param astIdExpr - const pointer to the ast id
      * @returns pointer to the irt id
     */
-    std::unique_ptr<IRIdExpr> id(const ASTIdExpr* _id) const;
+    std::unique_ptr<IRIdExpr> transformIdExpr(const ASTIdExpr* astIdExpr) const;
 
     /**
      * @brief turns ast literal into irt literal
-     * @param _literal - const pointer to the ast literal
+     * @param astLiteralExpr - const pointer to the ast literal
      * @returns pointer to the irt literal
     */
-    std::unique_ptr<IRLiteralExpr> literal(const ASTLiteralExpr* _literal) const;
+    std::unique_ptr<IRLiteralExpr> transformLiteralExpr(const ASTLiteralExpr* astLiteralExpr) const;
 
     /**
      * @brief generates temporary variables for runction calls of the numerical expression
-     * @param _numexp - const pointer to the ast numerical expression
+     * @param astExpr - const pointer to the ast numerical expression
      * @returns pointer to the temporary variables
     */
-    std::unique_ptr<IRTemporaryExpr> initiateTemporaries(const ASTExpr* _numexp);
+    std::unique_ptr<IRTemporaryExpr> initiateTemporaries(const ASTExpr* astExpr);
 
     /**
      * @brief turns ast function call into irt function call
-     * @param _functionCall - const pointer to the ast function call
+     * @param astCallExpr - const pointer to the ast function call
      * @returns pointer to the irt function call
     */
-    std::unique_ptr<IRFunctionCallExpr> functionCall(const ASTFunctionCallExpr* _functionCall);
+    std::unique_ptr<IRFunctionCallExpr> transformFunctionCallExpr(const ASTFunctionCallExpr* astCallExpr);
 
     /**
      * @brief turns arguments of the ast function call into arguments of the irt function call
-     * @param _irFunctionCall - pointer to the irt function call
-     * @param _functionCall - const pointer to the ast function call
+     * @param irCallExpr - pointer to the irt function call
+     * @param astCallExpr - const pointer to the ast function call
     */
-    void argument(IRFunctionCallExpr* _irFunctionCall, const ASTFunctionCallExpr* _functionCall);
+    void transformArguments(IRFunctionCallExpr* irCallExpr, const ASTFunctionCallExpr* astCallExpr);
 
     /**
      * @brief counting the number of required temporaries
-     * @param _numexp - const pointer to the ast numerical expression
+     * @param astExpr - const pointer to the ast expression
      * @returns number of required temporaries
     */
-    size_t countTemporaries(const ASTExpr* _numexp) const;
+    size_t countTemporaries(const ASTExpr* astExpr) const;
 
     /**
      * @brief generates the name for the temporary variable
@@ -93,19 +100,18 @@ public:
 
     /**
      * @brief assigns function calls to the temporaries
-     * @param _temporaryRoot - pointer to the parent node of the temporaries
-     * @param _numexp - const pointer to the ast numerical expression
+     * @param temporaryRoot - pointer to the parent node of the temporaries
+     * @param astExpr - const pointer to the ast expression
      * @param idx - index of the temporary being assigned
     */
-    void assignFunctionCalls(IRTemporaryExpr* _temporaryRoot, const ASTExpr* _numexp, size_t& idx);
+    void assignTemporaries(IRTemporaryExpr* temporaryRoot, const ASTExpr* astExpr, size_t& idx);
 
     /**
      * @brief replaces function calls with temporaries
-     * @param _functionCall - const pointer to the ast function call
+     * @param astCallExpr - const pointer to the ast function call
      * @returns pointer to the irt id of the temporary variable
     */
-    std::unique_ptr<IRIdExpr> replaceFunctionCall(const ASTFunctionCallExpr* _functionCall);
-
+    std::unique_ptr<IRIdExpr> replaceFunctionCallExpr(const ASTFunctionCallExpr* astCallExpr);
 
     /**
      * @brief helper function to get operand value

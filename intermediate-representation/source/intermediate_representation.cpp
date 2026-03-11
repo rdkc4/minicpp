@@ -12,23 +12,23 @@
 
 IntermediateRepresentation::IntermediateRepresentation() : funcIR{ exceptions } {}
 
-std::unique_ptr<IRProgram> IntermediateRepresentation::formIR(const ASTProgram* _program){
-    std::unique_ptr<IRProgram> _irProgram = std::make_unique<IRProgram>(IRNodeType::PROGRAM);
+std::unique_ptr<IRProgram> IntermediateRepresentation::transformProgram(const ASTProgram* program){
+    std::unique_ptr<IRProgram> irProgram = std::make_unique<IRProgram>(IRNodeType::PROGRAM);
 
-    dirIR.directive(_irProgram.get(), _program);
+    dirIR.transformDir(irProgram.get(), program);
     
-    const size_t total = _program->getFunctionCount();
-    _irProgram->resizeFunctions(total);
+    const size_t total = program->getFunctionCount();
+    irProgram->resizeFunctions(total);
 
     std::latch doneLatch{ static_cast<std::ptrdiff_t>(total) };
 
     ThreadPool threadPool{ std::thread::hardware_concurrency() };
 
     for(size_t i = 0; i < total; ++i){
-        threadPool.enqueue([&, _irProgram=_irProgram.get(), i, _function=_program->getFunctionAtN(i)]{
+        threadPool.enqueue([&, irProgram=irProgram.get(), i, function=program->getFunctionAtN(i)]{
             // generating ir of a function
-            std::unique_ptr<IRFunction> _irFunction = funcIR.function(_function);
-            _irProgram->setFunctionAtN(std::move(_irFunction), i);
+            std::unique_ptr<IRFunction> irFunction = funcIR.transformFunction(function);
+            irProgram->setFunctionAtN(std::move(irFunction), i);
 
             doneLatch.count_down();
         });
@@ -36,13 +36,13 @@ std::unique_ptr<IRProgram> IntermediateRepresentation::formIR(const ASTProgram* 
 
     doneLatch.wait();
 
-    for(const auto& dir : _program->getDirectives()) {
+    for(const auto& dir : program->getDirectives()) {
         if(dir->getNodeType() == ASTNodeType::INCLUDE){
-            _irProgram->addLinkedLibrary(static_cast<const ASTIncludeDir*>(dir.get())->getLibName());
+            irProgram->addLinkedLibrary(static_cast<const ASTIncludeDir*>(dir.get())->getLibName());
         }
     }
 
-    return _irProgram;
+    return irProgram;
 }
 
 bool IntermediateRepresentation::hasErrors(const IRProgram* _program) const noexcept {
