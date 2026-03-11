@@ -136,7 +136,6 @@ Compiler::ExitCode Compiler::transformASTToIRT(std::unique_ptr<ASTProgram>& astP
             std::cerr << intermediateRepresentation.getErrors(irProgram.get());
             return Compiler::ExitCode::IR_ERR;
         }
-        std::cout << irProgram->getLinkedLibs() << "\n";
 
         return Compiler::ExitCode::NO_ERR;
 }

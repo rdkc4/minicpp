@@ -6,37 +6,37 @@
 
 StatementAnalyzer::StatementAnalyzer(ScopeManager& scopeManager) : globalScopeManager{ scopeManager }, expressionAnalyzer{ scopeManager } {}
 
-void StatementAnalyzer::checkStatement(const ASTStmt* _statement){
-    switch(_statement->getNodeType()){
+void StatementAnalyzer::checkStmt(const ASTStmt* stmt){
+    switch(stmt->getNodeType()){
         case ASTNodeType::VARIABLE:
-            checkVariable(static_cast<const ASTVariableDeclStmt*>(_statement));
+            checkVariableDeclStmt(static_cast<const ASTVariableDeclStmt*>(stmt));
             break;
         case ASTNodeType::IF_STATEMENT:
-            checkIfStatement(static_cast<const ASTIfStmt*>(_statement));
+            checkIfStmt(static_cast<const ASTIfStmt*>(stmt));
             break;
         case ASTNodeType::WHILE_STATEMENT:
-            checkWhileStatement(static_cast<const ASTWhileStmt*>(_statement));
+            checkWhileStmt(static_cast<const ASTWhileStmt*>(stmt));
             break;
         case ASTNodeType::FOR_STATEMENT:
-            checkForStatement(static_cast<const ASTForStmt*>(_statement));
+            checkForStmt(static_cast<const ASTForStmt*>(stmt));
             break;
         case ASTNodeType::ASSIGNMENT_STATEMENT:
-            checkAssignmentStatement(static_cast<const ASTAssignStmt*>(_statement));
+            checkAssignStmt(static_cast<const ASTAssignStmt*>(stmt));
             break;
         case ASTNodeType::COMPOUND_STATEMENT:
-            checkCompoundStatement(static_cast<const ASTCompoundStmt*>(_statement));
+            checkCompoundStmt(static_cast<const ASTCompoundStmt*>(stmt));
             break;
         case ASTNodeType::RETURN_STATEMENT:
-            checkReturnStatement(static_cast<const ASTReturnStmt*>(_statement));
+            checkReturnStmt(static_cast<const ASTReturnStmt*>(stmt));
             break;
         case ASTNodeType::DO_WHILE_STATEMENT:
-            checkDoWhileStatement(static_cast<const ASTDoWhileStmt*>(_statement));
+            checkDoWhileStmt(static_cast<const ASTDoWhileStmt*>(stmt));
             break;
         case ASTNodeType::SWITCH_STATEMENT:
-            checkSwitchStatement(static_cast<const ASTSwitchStmt*>(_statement));
+            checkSwitchStmt(static_cast<const ASTSwitchStmt*>(stmt));
             break;
         case ASTNodeType::FUNCTION_CALL_STATEMENT:
-            checkFunctionCallStatement(static_cast<const ASTFunctionCallStmt*>(_statement));
+            checkFunctionCallStmt(static_cast<const ASTFunctionCallStmt*>(stmt));
             break;
         default:
             std::unreachable();
@@ -47,106 +47,106 @@ AnalyzerThreadContext& StatementAnalyzer::getContext() noexcept {
     return FunctionAnalyzer::getContext();
 }
 
-void StatementAnalyzer::checkVariable(const ASTVariableDeclStmt* _variable){
+void StatementAnalyzer::checkVariableDeclStmt(const ASTVariableDeclStmt* variableDecl){
     // variable type check
     AnalyzerThreadContext& analyzerContext = getContext();
-    Type type{ _variable->getType() };
+    Type type{ variableDecl->getType() };
     if(type == Type::VOID || type == Type::NO_TYPE){
         analyzerContext.semanticErrors.push_back(
             std::format("Line {}, Column {}: SEMANTIC ERROR -> invalid type '{} {}'", 
-                _variable->getToken().line, _variable->getToken().column, typeToString.at(type), _variable->getToken().value)
+                variableDecl->getToken().line, variableDecl->getToken().column, typeToString.at(type), variableDecl->getToken().value)
         );
     }
-    else if(type == Type::AUTO && !_variable->hasAssign()){
+    else if(type == Type::AUTO && !variableDecl->hasAssign()){
         analyzerContext.semanticErrors.push_back(
             std::format("Line {}, Column {}: SEMANTIC ERROR -> type deduction failed '{} {}'", 
-                _variable->getToken().line, _variable->getToken().column, typeToString.at(type), _variable->getToken().value)
+                variableDecl->getToken().line, variableDecl->getToken().column, typeToString.at(type), variableDecl->getToken().value)
         );
     }
 
     // variable redefinition check
-    if(!analyzerContext.scopeManager->pushSymbol(Symbol{_variable->getToken().value, Kind::VAR, type})){
+    if(!analyzerContext.scopeManager->pushSymbol(Symbol{variableDecl->getToken().value, Kind::VAR, type})){
         analyzerContext.semanticErrors.push_back(
             std::format("Line {}, Column {}: SEMANTIC ERROR -> variable redefined '{}'", 
-                _variable->getToken().line, _variable->getToken().column, _variable->getToken().value)
+                variableDecl->getToken().line, variableDecl->getToken().column, variableDecl->getToken().value)
         );
     }
 
     // direct initialization
-    if(_variable->getAssign() != nullptr){
-        expressionAnalyzer.checkNumericalExpression(_variable->getAssign());
+    if(variableDecl->getAssign() != nullptr){
+        expressionAnalyzer.checkNumericalExpr(variableDecl->getAssign());
 
-        Type rtype{_variable->getAssign()->getType() };
+        Type rtype{variableDecl->getAssign()->getType() };
 
         // variable initialization type check
         if(rtype != type && type != Type::AUTO && rtype != Type::NO_TYPE){ // rtype == no_type => error was caught in expression, no need to write it again
             analyzerContext.semanticErrors.push_back(
                 std::format("Line {}, Column {}: SEMANTIC ERROR -> invalid assignment statement - type mismatch: expected '{}', got '{}'", 
-                    _variable->getToken().line, _variable->getToken().column, typeToString.at(type), typeToString.at(rtype))
+                    variableDecl->getToken().line, variableDecl->getToken().column, typeToString.at(type), typeToString.at(rtype))
             );
         }
 
         if(type == Type::AUTO){
-            analyzerContext.scopeManager->getSymbol(_variable->getToken().value).setType(rtype);
+            analyzerContext.scopeManager->getSymbol(variableDecl->getToken().value).setType(rtype);
         }
     }
 }
 
-void StatementAnalyzer::checkIfStatement(const ASTIfStmt* _if){
-    for(const auto& _condition : _if->getConditions()){
-        expressionAnalyzer.checkNumericalExpression(_condition.get());
+void StatementAnalyzer::checkIfStmt(const ASTIfStmt* ifStmt){
+    for(const auto& condition : ifStmt->getConditions()){
+        expressionAnalyzer.checkNumericalExpr(condition.get());
     }
     // else statement is included
-    for(const auto& _statement : _if->getStatements()){
-        checkStatement(_statement.get());
+    for(const auto& stmt : ifStmt->getStatements()){
+        checkStmt(stmt.get());
     }
 }
 
-void StatementAnalyzer::checkWhileStatement(const ASTWhileStmt* _while){
-    expressionAnalyzer.checkNumericalExpression(_while->getCondition());
-    checkStatement(_while->getStatement());
+void StatementAnalyzer::checkWhileStmt(const ASTWhileStmt* whileStmt){
+    expressionAnalyzer.checkNumericalExpr(whileStmt->getCondition());
+    checkStmt(whileStmt->getStatement());
 }
 
 // initializer, condition and incrementer are optional
-void StatementAnalyzer::checkForStatement(const ASTForStmt* _for){
-    if(_for->hasInitializer()){
-        checkAssignmentStatement(_for->getInitializer());
+void StatementAnalyzer::checkForStmt(const ASTForStmt* forStmt){
+    if(forStmt->hasInitializer()){
+        checkAssignStmt(forStmt->getInitializer());
     }
-    if(_for->hasCondition()){
-        expressionAnalyzer.checkNumericalExpression(_for->getCondition());
+    if(forStmt->hasCondition()){
+        expressionAnalyzer.checkNumericalExpr(forStmt->getCondition());
     }
-    if(_for->hasIncrementer()){
-        checkAssignmentStatement(_for->getIncrementer());
+    if(forStmt->hasIncrementer()){
+        checkAssignStmt(forStmt->getIncrementer());
     }
 
-    checkStatement(_for->getStatement());
+    checkStmt(forStmt->getStatement());
 }
 
-void StatementAnalyzer::checkDoWhileStatement(const ASTDoWhileStmt* _dowhile){
-    checkStatement(_dowhile->getStatement());
-    expressionAnalyzer.checkNumericalExpression(_dowhile->getCondition());
+void StatementAnalyzer::checkDoWhileStmt(const ASTDoWhileStmt* dowhileStmt){
+    checkStmt(dowhileStmt->getStatement());
+    expressionAnalyzer.checkNumericalExpr(dowhileStmt->getCondition());
 }
 
-void StatementAnalyzer::checkCompoundStatement(const ASTCompoundStmt* _compound){
+void StatementAnalyzer::checkCompoundStmt(const ASTCompoundStmt* compoundStmt){
     // compound scope
     AnalyzerThreadContext& analyzerContext = getContext();
     analyzerContext.scopeManager->pushScope();
-    for(const auto& _statement : _compound->getStatements()){
-        checkStatement(_statement.get());
+    for(const auto& stmt : compoundStmt->getStatements()){
+        checkStmt(stmt.get());
     }
     analyzerContext.scopeManager->popScope();
 }
 
-void StatementAnalyzer::checkAssignmentStatement(const ASTAssignStmt* _assignment){
-    ASTIdExpr* _variable{ _assignment->getVariable() };
-    ASTExpr* _value{ _assignment->getExp() };
+void StatementAnalyzer::checkAssignStmt(const ASTAssignStmt* assignStmt){
+    ASTIdExpr* variableExpr{ assignStmt->getVariable() };
+    ASTExpr* valueExpr{ assignStmt->getExp() };
 
     // if variable is not defined, rvalue won't be analyzed
-    if(!expressionAnalyzer.checkID(_variable)) return;
+    if(!expressionAnalyzer.checkIDExpr(variableExpr)) return;
 
-    expressionAnalyzer.checkNumericalExpression(_value);
-    Type rtype{ _value->getType() };
-    Type ltype{ _variable->getType() };
+    expressionAnalyzer.checkNumericalExpr(valueExpr);
+    Type rtype{ valueExpr->getType() };
+    Type ltype{ variableExpr->getType() };
 
     // if numexp contains undefined element it will report the undefined variable, no point checking for type mismatch
     if(rtype == Type::NO_TYPE) return;
@@ -157,17 +157,17 @@ void StatementAnalyzer::checkAssignmentStatement(const ASTAssignStmt* _assignmen
     if(rtype != ltype && ltype != Type::AUTO){
         analyzerContext.semanticErrors.push_back(
             std::format("Line {}, Column {}: SEMANTIC ERROR -> invalid assignment statement - type mismatch: expected '{}', got '{}'", 
-                _assignment->getToken().line, _assignment->getToken().column, typeToString.at(ltype), typeToString.at(rtype))
+                assignStmt->getToken().line, assignStmt->getToken().column, typeToString.at(ltype), typeToString.at(rtype))
         );
     }
 
     if(ltype == Type::AUTO){
-        analyzerContext.scopeManager->getSymbol(_variable->getToken().value).setType(rtype);
+        analyzerContext.scopeManager->getSymbol(variableExpr->getToken().value).setType(rtype);
     }
 }
 
-void StatementAnalyzer::checkReturnStatement(const ASTReturnStmt* _return){
-    Type returnType{ _return->returns() ? expressionAnalyzer.checkNumericalExpressionType(_return->getExp()) : Type::VOID };
+void StatementAnalyzer::checkReturnStmt(const ASTReturnStmt* returnStmt){
+    Type returnType{ returnStmt->returns() ? expressionAnalyzer.checkNumericalExprType(returnStmt->getExp()) : Type::VOID };
     
     // if numexp inside of a return statement contains undef var, it will report it, no point checking for type mismatch
     if(returnType == Type::NO_TYPE) return;
@@ -179,31 +179,31 @@ void StatementAnalyzer::checkReturnStatement(const ASTReturnStmt* _return){
     if(returnType != expectedReturnType){
         analyzerContext.semanticErrors.push_back(
             std::format("Line {}, Column {}: SEMANTIC ERROR -> invalid return statement - type mismatch: '{} {}' returns '{}'", 
-                _return->getToken().line, _return->getToken().column, typeToString.at(expectedReturnType), analyzerContext.functionName, typeToString.at(returnType))
+                returnStmt->getToken().line, returnStmt->getToken().column, typeToString.at(expectedReturnType), analyzerContext.functionName, typeToString.at(returnType))
         );
     }
 }
 
-void StatementAnalyzer::checkFunctionCallStatement(const ASTFunctionCallStmt* _call){
-    expressionAnalyzer.checkFunctionCall(_call->getFunctionCall());
+void StatementAnalyzer::checkFunctionCallStmt(const ASTFunctionCallStmt* callStmt){
+    expressionAnalyzer.checkFunctionCallExpr(callStmt->getFunctionCall());
 }
 
-void StatementAnalyzer::checkSwitchStatement(const ASTSwitchStmt* _switch){
+void StatementAnalyzer::checkSwitchStmt(const ASTSwitchStmt* switchStmt){
     // if id is not defined, switch is ignored, all cases will be ignored, including their statements 
-    if(!expressionAnalyzer.checkID(_switch->getVariable())) return;
+    if(!expressionAnalyzer.checkIDExpr(switchStmt->getVariable())) return;
     
     AnalyzerThreadContext& analyzerContext = getContext();
     // case check
-    if(_switch->getVariable()->getType() == Type::INT){
-        checkSwitchStatementCases<int>(_switch);
+    if(switchStmt->getVariable()->getType() == Type::INT){
+        checkCaseStmts<int>(switchStmt);
     }
-    else if(_switch->getVariable()->getType() == Type::UNSIGNED){
-        checkSwitchStatementCases<unsigned>(_switch);
+    else if(switchStmt->getVariable()->getType() == Type::UNSIGNED){
+        checkCaseStmts<unsigned>(switchStmt);
     }
     else{
         analyzerContext.semanticErrors.push_back(
             std::format("Line {}, Column {}: SEMANTIC ERROR -> invalid type '{}'", 
-                _switch->getToken().line, _switch->getToken().column, _switch->getVariable()->getToken().value)
+                switchStmt->getToken().line, switchStmt->getToken().column, switchStmt->getVariable()->getToken().value)
         );
     }
 }

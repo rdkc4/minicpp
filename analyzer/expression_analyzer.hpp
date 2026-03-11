@@ -21,47 +21,47 @@ public:
 
     /** 
      * @brief determines the type of the expression node
-     * @param _numexp - pointer to an ast expression
+     * @param numericalExpr - pointer to an ast expression
     */
-    void checkNumericalExpression(ASTExpr* _numexp);
+    void checkNumericalExpr(ASTExpr* numericalExpr);
 
     /** 
      * @brief semantic check of the numerical expression node
-     * @param _numexp - pointer to an ast expression
+     * @param numericalExpr - pointer to an ast expression
      * @returns type of the expression node
     */
-    Type checkNumericalExpressionType(ASTExpr* _numexp);
+    Type checkNumericalExprType(ASTExpr* numericalExpr);
 
     /** 
      * @brief semantic check of the id node
-     * @param _id - pointer to an id node
+     * @param idExpr - pointer to an id node
      * @returns true if id exists, false otherwise
     */
-    bool checkID(ASTIdExpr* _id);
+    bool checkIDExpr(ASTIdExpr* idExpr);
 
     /** 
      * @brief semantic check of the literal node
-     * @param _literal - pointer to a literal node
+     * @param literalExpr - pointer to a literal node
     */
-    void checkLiteral(const ASTLiteralExpr* _literal) const;
+    void checkLiteralExpr(const ASTLiteralExpr* literalExpr) const;
 
     /** 
      * @brief semantic check of the relational expression
-     * @param _relexp - pointer to a relational expression
+     * @param relationalExpr - pointer to a relational expression
     */
-    void checkRelationalExpression(ASTExpr* _relexp);
+    void checkRelationalExpr(ASTExpr* relationalExpr);
 
     /** 
      * @brief semantic check of the function call
-     * @param _functionCall - pointer to an ast function-call node
+     * @param callExpr - pointer to an ast function-call node
     */
-    void checkFunctionCall(ASTFunctionCallExpr* _functionCall);
+    void checkFunctionCallExpr(ASTFunctionCallExpr* callExpr);
 
     /** 
      * @brief semantic check of the arguments of the function call
-     * @param _functionCall - const pointer to an ast function-call node
+     * @param callExpr - const pointer to an ast function-call node
     */
-    void checkArgument(const ASTFunctionCallExpr* _functionCall);
+    void checkArgument(const ASTFunctionCallExpr* callExpr);
 
 private:
     /// reference to the global scope manager

@@ -80,7 +80,7 @@ TEST(AnalyzerTest, CheckFunctionSignatures){
 
     TokenConsumer tokenConsumer { lexer };
     ParserTest parser{ tokenConsumer };
-    auto _program = parser.parseProgram();
+    auto program = parser.parseProgram();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
@@ -88,7 +88,7 @@ TEST(AnalyzerTest, CheckFunctionSignatures){
     std::unordered_map<std::string, std::vector<std::string>> semErrors = {};
     FunctionAnalyzerTest analyzer(scopeManager, semErrors, "__global");
 
-    analyzer.checkFunctionSignatures(_program.get());
+    analyzer.checkFunctionSignatures(program.get());
     ASSERT_TRUE(analyzer.getErrors("rectArea").empty());
     ASSERT_TRUE(analyzer.getErrors("sq").empty());
 
@@ -102,7 +102,7 @@ TEST(AnalyzerTest, CheckFunctionSignaturesFunctionRedefError){
 
     TokenConsumer tokenConsumer { lexer };
     ParserTest parser{ tokenConsumer };
-    auto _program = parser.parseProgram();
+    auto program = parser.parseProgram();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
@@ -110,7 +110,7 @@ TEST(AnalyzerTest, CheckFunctionSignaturesFunctionRedefError){
     std::unordered_map<std::string, std::vector<std::string>> semErrors = {};
     FunctionAnalyzerTest analyzer(scopeManager, semErrors, "__global");
 
-    analyzer.checkFunctionSignatures(_program.get());
+    analyzer.checkFunctionSignatures(program.get());
     ASSERT_FALSE(analyzer.getErrors(analyzer.getGlobalErrLabel()).empty());
     ASSERT_TRUE(analyzer.getErrors(analyzer.getGlobalErrLabel())[0].contains("redefined"));
 
@@ -124,7 +124,7 @@ TEST(AnalyzerTest, CheckFunctionSignaturesParameterRedefError){
 
     TokenConsumer tokenConsumer { lexer };
     ParserTest parser{ tokenConsumer };
-    auto _program = parser.parseProgram();
+    auto program = parser.parseProgram();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
@@ -132,7 +132,7 @@ TEST(AnalyzerTest, CheckFunctionSignaturesParameterRedefError){
     std::unordered_map<std::string, std::vector<std::string>> semErrors = {};
     FunctionAnalyzerTest analyzer(scopeManager, semErrors, "__global");
 
-    analyzer.checkFunctionSignatures(_program.get());
+    analyzer.checkFunctionSignatures(program.get());
     ASSERT_FALSE(analyzer.getErrors("rectArea").empty());
     ASSERT_TRUE(analyzer.getErrors("rectArea")[0].contains("redefined"));
 
@@ -146,7 +146,7 @@ TEST(AnalyzerTest, CheckFunctionSignaturesMainParamsError){
 
     TokenConsumer tokenConsumer { lexer };
     ParserTest parser{ tokenConsumer };
-    auto _program = parser.parseProgram();
+    auto program = parser.parseProgram();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
@@ -154,7 +154,7 @@ TEST(AnalyzerTest, CheckFunctionSignaturesMainParamsError){
     std::unordered_map<std::string, std::vector<std::string>> semErrors = {};
     FunctionAnalyzerTest analyzer(scopeManager, semErrors, "__global");
 
-    analyzer.checkFunctionSignatures(_program.get());
+    analyzer.checkFunctionSignatures(program.get());
     ASSERT_FALSE(analyzer.getErrors("main").empty());
     ASSERT_TRUE(analyzer.getErrors("main")[0].contains("parameter"));
 
@@ -168,7 +168,7 @@ TEST(AnalyzerTest, CheckFunction){
 
     TokenConsumer tokenConsumer { lexer };
     FunctionParserTest parser{ tokenConsumer };
-    auto _function = parser.parseFunction();
+    auto function = parser.parseFunction();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
@@ -177,7 +177,7 @@ TEST(AnalyzerTest, CheckFunction){
     std::unordered_map<std::string, std::vector<std::string>> semErrors = {{"fun", {}}};
     FunctionAnalyzerTest analyzer(scopeManager, semErrors, "__global");
 
-    analyzer.checkFunction(_function.get());
+    analyzer.checkFunction(function.get());
     ASSERT_TRUE(analyzer.getErrors("fun").empty());
     scopeManager.popScope();
 }
@@ -189,7 +189,7 @@ TEST(AnalyzerTest, CheckFunctionNotAllIfPathsReturnError){
 
     TokenConsumer tokenConsumer { lexer };
     FunctionParserTest parser{ tokenConsumer };
-    auto _function = parser.parseFunction();
+    auto function = parser.parseFunction();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
@@ -198,7 +198,7 @@ TEST(AnalyzerTest, CheckFunctionNotAllIfPathsReturnError){
     std::unordered_map<std::string, std::vector<std::string>> semErrors = {{"fun", {}}};
     FunctionAnalyzerTest analyzer(scopeManager, semErrors, "__global");
 
-    analyzer.checkFunction(_function.get());
+    analyzer.checkFunction(function.get());
     ASSERT_FALSE(analyzer.getErrors("fun").empty());
     ASSERT_TRUE(analyzer.getErrors("fun")[0].contains("not all paths return"));
     scopeManager.popScope();
@@ -211,7 +211,7 @@ TEST(AnalyzerTest, CheckFunctionNotAllSwitchPathsReturnError){
 
     TokenConsumer tokenConsumer { lexer };
     FunctionParserTest parser{ tokenConsumer };
-    auto _function = parser.parseFunction();
+    auto function = parser.parseFunction();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
@@ -220,7 +220,7 @@ TEST(AnalyzerTest, CheckFunctionNotAllSwitchPathsReturnError){
     std::unordered_map<std::string, std::vector<std::string>> semErrors = {{"fun", {}}};
     FunctionAnalyzerTest analyzer(scopeManager, semErrors, "__global");
 
-    analyzer.checkFunction(_function.get());
+    analyzer.checkFunction(function.get());
     ASSERT_FALSE(analyzer.getErrors("fun").empty());
     ASSERT_TRUE(analyzer.getErrors("fun")[0].contains("not all paths return"));
     scopeManager.popScope();
@@ -233,7 +233,7 @@ TEST(AnalyzerTest, CheckFunctionParameterRedefError){
 
     TokenConsumer tokenConsumer { lexer };
     FunctionParserTest parser{ tokenConsumer };
-    auto _function = parser.parseFunction();
+    auto function = parser.parseFunction();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
@@ -242,7 +242,7 @@ TEST(AnalyzerTest, CheckFunctionParameterRedefError){
     std::unordered_map<std::string, std::vector<std::string>> semErrors = {{"fun", {}}};
     FunctionAnalyzerTest analyzer(scopeManager, semErrors, "__global");
 
-    analyzer.checkFunction(_function.get());
+    analyzer.checkFunction(function.get());
     ASSERT_FALSE(analyzer.getErrors("fun").empty());
     ASSERT_TRUE(analyzer.getErrors("fun")[0].contains("redefined"));
     scopeManager.popScope();
@@ -255,7 +255,7 @@ TEST(AnalyzerTest, CheckFunctionVoidReturnsTypeError){
 
     TokenConsumer tokenConsumer { lexer };
     FunctionParserTest parser{ tokenConsumer };
-    auto _function = parser.parseFunction();
+    auto function = parser.parseFunction();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
@@ -264,7 +264,7 @@ TEST(AnalyzerTest, CheckFunctionVoidReturnsTypeError){
     std::unordered_map<std::string, std::vector<std::string>> semErrors = {{"fun", {}}};
     FunctionAnalyzerTest analyzer(scopeManager, semErrors, "__global");
 
-    analyzer.checkFunction(_function.get());
+    analyzer.checkFunction(function.get());
     ASSERT_FALSE(analyzer.getErrors("fun").empty());
     ASSERT_TRUE(analyzer.getErrors("fun")[0].contains("type mismatch"));
     scopeManager.popScope();
@@ -277,7 +277,7 @@ TEST(AnalyzerTest, CheckFunctionVoidTypeMismatchError){
 
     TokenConsumer tokenConsumer { lexer };
     FunctionParserTest parser{ tokenConsumer };
-    auto _function = parser.parseFunction();
+    auto function = parser.parseFunction();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
@@ -286,7 +286,7 @@ TEST(AnalyzerTest, CheckFunctionVoidTypeMismatchError){
     std::unordered_map<std::string, std::vector<std::string>> semErrors = {{"fun", {}}};
     FunctionAnalyzerTest analyzer(scopeManager, semErrors, "__global");
 
-    analyzer.checkFunction(_function.get());
+    analyzer.checkFunction(function.get());
     ASSERT_FALSE(analyzer.getErrors("fun").empty());
     ASSERT_TRUE(analyzer.getErrors("fun")[0].contains("type mismatch"));
     scopeManager.popScope();
@@ -299,7 +299,7 @@ TEST(AnalyzerTest, CheckVariable){
 
     TokenConsumer tokenConsumer { lexer };
     StatementParserTest parser{ tokenConsumer };
-    auto _variable = parser.parseVariableDeclStmt();
+    auto variableDecl = parser.parseVariableDeclStmt();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
@@ -308,7 +308,7 @@ TEST(AnalyzerTest, CheckVariable){
     analyzer.getContext().init("tmp", &scopeManager);
     analyzer.getContext().scopeManager->pushScope();
 
-    analyzer.checkVariable(_variable.get());
+    analyzer.checkVariableDeclStmt(variableDecl.get());
     ASSERT_TRUE(analyzer.getContext().semanticErrors.empty());
     ASSERT_TRUE(scopeManager.lookupSymbol("x", {Kind::VAR}));
     
@@ -323,7 +323,7 @@ TEST(AnalyzerTest, CheckVariableExitedScope){
 
     TokenConsumer tokenConsumer { lexer };
     StatementParserTest parser{ tokenConsumer };
-    auto _compound = parser.parseCompoundStmt();
+    auto compoundStmt = parser.parseCompoundStmt();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
@@ -331,7 +331,7 @@ TEST(AnalyzerTest, CheckVariableExitedScope){
     
     analyzer.getContext().init("tmp", &scopeManager);
 
-    analyzer.checkCompoundStatement(_compound.get());
+    analyzer.checkCompoundStmt(compoundStmt.get());
     ASSERT_TRUE(analyzer.getContext().semanticErrors.empty());
     analyzer.getContext().reset();
 }
@@ -343,7 +343,7 @@ TEST(AnalyzerTest, CheckVariableRedefError){
 
     TokenConsumer tokenConsumer { lexer };
     StatementParserTest parser{ tokenConsumer };
-    auto _variable = parser.parseVariableDeclStmt();
+    auto variableDecl = parser.parseVariableDeclStmt();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
@@ -353,7 +353,7 @@ TEST(AnalyzerTest, CheckVariableRedefError){
     analyzer.getContext().scopeManager->pushScope();
     analyzer.getContext().scopeManager->pushSymbol(Symbol{"x", Kind::VAR, Type::INT});
 
-    analyzer.checkVariable(_variable.get());
+    analyzer.checkVariableDeclStmt(variableDecl.get());
     ASSERT_FALSE(analyzer.getContext().semanticErrors.empty());
     ASSERT_TRUE(analyzer.getContext().semanticErrors[0].contains("redefined"));
     
@@ -368,7 +368,7 @@ TEST(AnalyzerTest, CheckVariableTypeMismatchError){
 
     TokenConsumer tokenConsumer { lexer };
     StatementParserTest parser{ tokenConsumer };
-    auto _variable = parser.parseVariableDeclStmt();
+    auto variableDecl = parser.parseVariableDeclStmt();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
@@ -377,7 +377,7 @@ TEST(AnalyzerTest, CheckVariableTypeMismatchError){
     analyzer.getContext().init("tmp", &scopeManager);
     analyzer.getContext().scopeManager->pushScope();
 
-    analyzer.checkVariable(_variable.get());
+    analyzer.checkVariableDeclStmt(variableDecl.get());
     ASSERT_FALSE(analyzer.getContext().semanticErrors.empty());
     ASSERT_TRUE(analyzer.getContext().semanticErrors[0].contains("type mismatch"));
     
@@ -392,7 +392,7 @@ TEST(AnalyzerTest, CheckVariableAutoType){
 
     TokenConsumer tokenConsumer { lexer };
     StatementParserTest parser{ tokenConsumer };
-    auto _variable = parser.parseVariableDeclStmt();
+    auto variableDecl = parser.parseVariableDeclStmt();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
@@ -401,7 +401,7 @@ TEST(AnalyzerTest, CheckVariableAutoType){
     analyzer.getContext().init("tmp", &scopeManager);
     analyzer.getContext().scopeManager->pushScope();
 
-    analyzer.checkVariable(_variable.get());
+    analyzer.checkVariableDeclStmt(variableDecl.get());
     ASSERT_TRUE(analyzer.getContext().semanticErrors.empty());
     ASSERT_TRUE(analyzer.getContext().scopeManager->lookupSymbol("x", {Kind::VAR}));
     ASSERT_EQ(analyzer.getContext().scopeManager->getSymbol("x").getType(), Type::UNSIGNED);
@@ -417,7 +417,7 @@ TEST(AnalyzerTest, CheckVariableAutoError){
 
     TokenConsumer tokenConsumer { lexer };
     StatementParserTest parser{ tokenConsumer };
-    auto _variable = parser.parseVariableDeclStmt();
+    auto variableDecl = parser.parseVariableDeclStmt();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
@@ -426,7 +426,7 @@ TEST(AnalyzerTest, CheckVariableAutoError){
     analyzer.getContext().init("tmp", &scopeManager);
     analyzer.getContext().scopeManager->pushScope();
 
-    analyzer.checkVariable(_variable.get());
+    analyzer.checkVariableDeclStmt(variableDecl.get());
     ASSERT_FALSE(analyzer.getContext().semanticErrors.empty());
     ASSERT_TRUE(analyzer.getContext().semanticErrors[0].contains("deduction"));
     
@@ -441,7 +441,7 @@ TEST(AnalyzerTest, CheckVariableUndefinedVariableError){
 
     TokenConsumer tokenConsumer { lexer };
     StatementParserTest parser{ tokenConsumer };
-    auto _variable = parser.parseVariableDeclStmt();
+    auto variableDecl = parser.parseVariableDeclStmt();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
@@ -450,7 +450,7 @@ TEST(AnalyzerTest, CheckVariableUndefinedVariableError){
     analyzer.getContext().init("tmp", &scopeManager);
     analyzer.getContext().scopeManager->pushScope();
 
-    analyzer.checkVariable(_variable.get());
+    analyzer.checkVariableDeclStmt(variableDecl.get());
     ASSERT_FALSE(analyzer.getContext().semanticErrors.empty());
     ASSERT_TRUE(analyzer.getContext().semanticErrors[0].contains("undefined"));
     
@@ -465,7 +465,7 @@ TEST(AnalyzerTest, ForStatement){
 
     TokenConsumer tokenConsumer { lexer };
     StatementParserTest parser{ tokenConsumer };
-    auto _for = parser.parseForStmt();
+    auto forStmt = parser.parseForStmt();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
@@ -475,7 +475,7 @@ TEST(AnalyzerTest, ForStatement){
     analyzer.getContext().scopeManager->pushScope();
     analyzer.getContext().scopeManager->pushSymbol(Symbol{"i", Kind::VAR, Type::INT}); // initialize i;
 
-    analyzer.checkForStatement(_for.get());
+    analyzer.checkForStmt(forStmt.get());
     ASSERT_TRUE(analyzer.getContext().semanticErrors.empty());
 
     analyzer.getContext().scopeManager->popScope();
@@ -489,7 +489,7 @@ TEST(AnalyzerTest, ForStatementUndefVarError){
 
     TokenConsumer tokenConsumer { lexer };
     StatementParserTest parser{ tokenConsumer };
-    auto _for = parser.parseForStmt();
+    auto forStmt = parser.parseForStmt();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
@@ -498,7 +498,7 @@ TEST(AnalyzerTest, ForStatementUndefVarError){
     analyzer.getContext().init("tmp", &scopeManager);
     analyzer.getContext().scopeManager->pushScope();
 
-    analyzer.checkForStatement(_for.get());
+    analyzer.checkForStmt(forStmt.get());
     ASSERT_FALSE(analyzer.getContext().semanticErrors.empty());
     ASSERT_TRUE(analyzer.getContext().semanticErrors[0].contains("undefined"));
     
@@ -513,7 +513,7 @@ TEST(AnalyzerTest, ForStatementTypeMismatchError){
 
     TokenConsumer tokenConsumer { lexer };
     StatementParserTest parser{ tokenConsumer };
-    auto _for = parser.parseForStmt();
+    auto forStmt = parser.parseForStmt();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
@@ -523,7 +523,7 @@ TEST(AnalyzerTest, ForStatementTypeMismatchError){
     analyzer.getContext().scopeManager->pushScope();
     analyzer.getContext().scopeManager->pushSymbol(Symbol{"i", Kind::VAR, Type::INT}); // initialize i;
 
-    analyzer.checkForStatement(_for.get());
+    analyzer.checkForStmt(forStmt.get());
     ASSERT_FALSE(analyzer.getContext().semanticErrors.empty());
     ASSERT_TRUE(analyzer.getContext().semanticErrors[0].contains("type mismatch"));
     
@@ -538,7 +538,7 @@ TEST(AnalyzerTest, SwitchStatement){
 
     TokenConsumer tokenConsumer { lexer };
     StatementParserTest parser{ tokenConsumer };
-    auto _switch = parser.parseSwitchStmt();
+    auto switchStmt = parser.parseSwitchStmt();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
@@ -548,7 +548,7 @@ TEST(AnalyzerTest, SwitchStatement){
     analyzer.getContext().scopeManager->pushScope();
     analyzer.getContext().scopeManager->pushSymbol(Symbol{"x", Kind::VAR, Type::INT}); // initialize x;
 
-    analyzer.checkSwitchStatement(_switch.get());
+    analyzer.checkSwitchStmt(switchStmt.get());
     ASSERT_TRUE(analyzer.getContext().semanticErrors.empty());
     
     analyzer.getContext().scopeManager->popScope();   
@@ -562,7 +562,7 @@ TEST(AnalyzerTest, SwitchStatementTypeMismatchError){
 
     TokenConsumer tokenConsumer { lexer };
     StatementParserTest parser{ tokenConsumer };
-    auto _switch = parser.parseSwitchStmt();
+    auto switchStmt = parser.parseSwitchStmt();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
@@ -572,7 +572,7 @@ TEST(AnalyzerTest, SwitchStatementTypeMismatchError){
     analyzer.getContext().scopeManager->pushScope();
     analyzer.getContext().scopeManager->pushSymbol(Symbol{"x", Kind::VAR, Type::INT}); // initialize x;
 
-    analyzer.checkSwitchStatement(_switch.get());
+    analyzer.checkSwitchStmt(switchStmt.get());
     ASSERT_FALSE(analyzer.getContext().semanticErrors.empty());
     ASSERT_TRUE(analyzer.getContext().semanticErrors[0].contains("type mismatch"));
     
@@ -587,7 +587,7 @@ TEST(AnalyzerTest, SwitchStatementCaseDuplicateError){
 
     TokenConsumer tokenConsumer { lexer };
     StatementParserTest parser{ tokenConsumer };
-    auto _switch = parser.parseSwitchStmt();
+    auto switchStmt = parser.parseSwitchStmt();
 
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
@@ -597,7 +597,7 @@ TEST(AnalyzerTest, SwitchStatementCaseDuplicateError){
     analyzer.getContext().scopeManager->pushScope();
     analyzer.getContext().scopeManager->pushSymbol(Symbol{"x", Kind::VAR, Type::INT}); // initialize x;
 
-    analyzer.checkSwitchStatement(_switch.get());
+    analyzer.checkSwitchStmt(switchStmt.get());
     ASSERT_FALSE(analyzer.getContext().semanticErrors.empty());
     ASSERT_TRUE(analyzer.getContext().semanticErrors[0].contains("duplicate case"));
     

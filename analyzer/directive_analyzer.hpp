@@ -27,13 +27,13 @@ public:
      * @brief checks the directives of the program
      * @param directives - const reference to a vector of pointers to ast directives
     */
-    void checkDirectives(const std::vector<std::unique_ptr<ASTDir>>& directives);
+    void checkDir(const std::vector<std::unique_ptr<ASTDir>>& directives);
 
     /**
      * @brief checks the included library
      * @param lib - const pointer to the included library
     */
-    void checkInclude(const ASTIncludeDir* lib);
+    void checkIncludeDir(const ASTIncludeDir* lib);
 
 private:
     /// maps functionName to its semantic errors

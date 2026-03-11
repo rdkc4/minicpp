@@ -33,117 +33,117 @@ public:
     StatementAnalyzer(ScopeManager& scopeManager);
 
     /** 
-     * @brief semantic check for any ast statement
-     * @param _statement - const pointer to a statement node
-    */
-    void checkStatement(const ASTStmt* _statement);
-
-    /** 
      * @brief getter for the context of the function that owns statements
      * @return reference to a context of the analyzer thread
     */
     AnalyzerThreadContext& getContext() noexcept;
 
     /** 
-     * @brief semantic check for variable declaration
-     * @param _variable - const pointer to a variable node
+     * @brief semantic check for any ast statement
+     * @param stmt - const pointer to a statement node
     */
-    void checkVariable(const ASTVariableDeclStmt* _variable);
+    void checkStmt(const ASTStmt* stmt);
+
+    /** 
+     * @brief semantic check for variable declaration
+     * @param variableDecl - const pointer to a variable declaration node
+    */
+    void checkVariableDeclStmt(const ASTVariableDeclStmt* variableDecl);
 
     /** 
      * @brief semantic check for if-statement
-     * @param _if - const pointer to an if-statement node
+     * @param ifStmt - const pointer to an if-statement node
     */
-    void checkIfStatement(const ASTIfStmt* _if);
+    void checkIfStmt(const ASTIfStmt* ifStmt);
 
     /** 
      * @brief semantic check for while-statement
-     * @param _while - const pointer to a while-statement node
+     * @param whileStmt - const pointer to a while-statement node
     */
-    void checkWhileStatement(const ASTWhileStmt* _while);
+    void checkWhileStmt(const ASTWhileStmt* whileStmt);
 
     /** 
      * @brief semantic check for for-statement
-     * @param _for - const pointer to a for-statement node
+     * @param forStmt - const pointer to a for-statement node
     */
-    void checkForStatement(const ASTForStmt* _for);
+    void checkForStmt(const ASTForStmt* forStmt);
 
     /** 
      * @brief semantic check for do-while-statement
-     * @param _dowhile - const pointer to a do-while-statement node
+     * @param dowhileStmt - const pointer to a do-while-statement node
     */
-    void checkDoWhileStatement(const ASTDoWhileStmt* _dowhile);
+    void checkDoWhileStmt(const ASTDoWhileStmt* dowhileStmt);
 
     /** 
      * @brief semantic check for compound-statement
-     * @param _compound - const pointer to a compound-statement node
+     * @param compoundStmt - const pointer to a compound-statement node
     */
-    void checkCompoundStatement(const ASTCompoundStmt* _compound);
+    void checkCompoundStmt(const ASTCompoundStmt* compoundStmt);
 
     /** 
      * @brief semantic check for assignment-statement
-     * @param _assignment - const pointer to an assignment-statement node
+     * @param assignStmt - const pointer to an assignment-statement node
     */
-    void checkAssignmentStatement(const ASTAssignStmt* _assignment);
+    void checkAssignStmt(const ASTAssignStmt* assignStmt);
 
     /** 
      * @brief semantic check for return-statement
-     * @param _return - const pointer to a return-statement node
+     * @param returnStmt - const pointer to a return-statement node
     */
-    void checkReturnStatement(const ASTReturnStmt* _return);
+    void checkReturnStmt(const ASTReturnStmt* returnStmt);
 
     /** 
      * @brief semantic check for function-call-statement
-     * @param _call - const pointer to a function-call-statement node
+     * @param callStmt - const pointer to a function-call-statement node
     */
-    void checkFunctionCallStatement(const ASTFunctionCallStmt* _call);
+    void checkFunctionCallStmt(const ASTFunctionCallStmt* callStmt);
 
     /** 
      * @brief semantic check for switch-statement
-     * @param _switch - const pointer to a switch-statement node
+     * @param switchStmt - const pointer to a switch-statement node
     */
-    void checkSwitchStatement(const ASTSwitchStmt* _switch);
+    void checkSwitchStmt(const ASTSwitchStmt* switchStmt);
 
     /** 
      * @brief semantic check for the cases of the switch-statement
-     * @param _switch - const pointer to a switch-statement node
+     * @param switchStmt - const pointer to a switch-statement node
     */
     template<typename T>
-    void checkSwitchStatementCases(const ASTSwitchStmt* _switch){
+    void checkCaseStmts(const ASTSwitchStmt* switchStmt){
         auto& analyzerContext = getContext();
         std::unordered_set<T> set;
         Type expectedType{ std::is_same<T, int>::value ? Type::INT : Type::UNSIGNED };
 
-        for(const auto& _case : _switch->getCases()){
-            expressionAnalyzer.checkLiteral(_case->getLiteral());
+        for(const auto& caseStmt : switchStmt->getCases()){
+            expressionAnalyzer.checkLiteralExpr(caseStmt->getLiteral());
 
             T val;
             // case type check
-            Type type{ _case->getLiteral()->getType() };
+            Type type{ caseStmt->getLiteral()->getType() };
             if(type != expectedType){
                 analyzerContext.semanticErrors.push_back(
                     std::format("Line {}, Column {}: SEMANTIC ERROR -> invalid case - type mismatch: expected '{}', got '{}'", 
-                        _case->getToken().line, _case->getToken().column, typeToString.at(expectedType), typeToString.at(type))
+                        caseStmt->getToken().line, caseStmt->getToken().column, typeToString.at(expectedType), typeToString.at(type))
                 );
             }
             // case duplicate check
-            else if(set.find(val = (std::is_same<T, int>::value ? std::stoi(_case->getLiteral()->getToken().value) 
-                                                                : std::stoul(_case->getLiteral()->getToken().value))) != set.end()){
+            else if(set.find(val = (std::is_same<T, int>::value ? std::stoi(caseStmt->getLiteral()->getToken().value) 
+                                                                : std::stoul(caseStmt->getLiteral()->getToken().value))) != set.end()){
                 analyzerContext.semanticErrors.push_back(
                     std::format("Line {}, Column {}: SEMANTIC ERROR -> duplicate case '{}'", 
-                        _case->getToken().line, _case->getToken().column, _case->getLiteral()->getToken().value)
+                        caseStmt->getToken().line, caseStmt->getToken().column, caseStmt->getLiteral()->getToken().value)
                 );
             }
             else{
-                for(const auto& _statement : _case->getSwitchBlock()->getStatements()){
-                    checkStatement(_statement.get());
+                for(const auto& stmt : caseStmt->getSwitchBlock()->getStatements()){
+                    checkStmt(stmt.get());
                 }
                 set.insert(val);
             }
         }
-        if(_switch->hasDefault()){
-            for(const auto& _statement : _switch->getDefault()->getSwitchBlock()->getStatements()){
-                checkStatement(_statement.get());
+        if(switchStmt->hasDefault()){
+            for(const auto& stmt : switchStmt->getDefault()->getSwitchBlock()->getStatements()){
+                checkStmt(stmt.get());
             }
         }
     }

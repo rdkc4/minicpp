@@ -28,14 +28,14 @@ public:
 
     /** 
      * @brief parses parameters of the function
-     * @param _function - pointer to a function that owns parameters
+     * @param function - pointer to a function that owns parameters
      * @details PARAMETER : (TYPE ID (COMMA TYPE ID)*)?
     */
     void parseParameter(ASTFunction* function);
 
     /** 
      * @brief parses body of the function
-     * @param _function - pointer to a function that owns the body
+     * @param function - pointer to a function that owns the body
      * @details BODY : LBRACKET (STATEMENT)? RBRACKET
     */
     void parseBody(ASTFunction* function);

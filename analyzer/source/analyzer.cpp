@@ -16,29 +16,29 @@ Analyzer::Analyzer(ScopeManager& scopeManager)
     semanticErrors[globalError] = {};
 }
 
-void Analyzer::semanticCheck(const ASTProgram* _program){
+void Analyzer::semanticCheck(const ASTProgram* program){
     // global scope
     globalScopeManager.pushScope();
 
     // check directives
-    directiveAnalyzer.checkDirectives(_program->getDirectives());
+    directiveAnalyzer.checkDir(program->getDirectives());
 
     // define all functions
-    functionAnalyzer.checkFunctionSignatures(_program);
+    functionAnalyzer.checkFunctionSignatures(program);
 
     // check if function signatures produced any errors
-    if(hasSemanticError(_program)){
+    if(hasSemanticError(program)){
         return;
     }
 
     // concurrent analysis of functions
-    startFunctionCheck(_program);
+    startFunctionCheck(program);
 
     globalScopeManager.popScope();
 }
 
-bool Analyzer::hasSemanticError(const ASTProgram* _program) const noexcept {
-    for(const auto& _function : _program->getFunctions()){
+bool Analyzer::hasSemanticError(const ASTProgram* program) const noexcept {
+    for(const auto& _function : program->getFunctions()){
         const std::string& funcName = _function->getToken().value;
         if(!semanticErrors[funcName].empty()){
             return true;
@@ -52,7 +52,7 @@ bool Analyzer::hasSemanticError(const ASTProgram* _program) const noexcept {
     return false;
 }
 
-std::string Analyzer::getSemanticErrors(const ASTProgram* _program) const noexcept {
+std::string Analyzer::getSemanticErrors(const ASTProgram* program) const noexcept {
     if(semanticErrors.empty()){
         return "";
     }
@@ -60,7 +60,7 @@ std::string Analyzer::getSemanticErrors(const ASTProgram* _program) const noexce
     std::stringstream errors{"Semantic check failed:\n"};
     size_t errLen = errors.str().length();
 
-    for(const auto& _function : _program->getFunctions()){
+    for(const auto& _function : program->getFunctions()){
         const std::string& funcName = _function->getToken().value;
         if(!semanticErrors[funcName].empty()){
             for(const auto& error : semanticErrors[funcName]){
@@ -79,13 +79,13 @@ std::string Analyzer::getSemanticErrors(const ASTProgram* _program) const noexce
     return strErrors.length() != errLen ? strErrors : "";
 }
 
-void Analyzer::startFunctionCheck(const ASTProgram* _program){
+void Analyzer::startFunctionCheck(const ASTProgram* program){
     // handling threads for concurrent function analysis
     ThreadPool threadPool{ std::thread::hardware_concurrency() };
     
-    std::latch doneLatch{ static_cast<std::ptrdiff_t>(_program->getFunctionCount()) };
+    std::latch doneLatch{ static_cast<std::ptrdiff_t>(program->getFunctionCount()) };
 
-    for(const auto& _function : _program->getFunctions()){
+    for(const auto& _function : program->getFunctions()){
         threadPool.enqueue([&, _function=_function.get()] {
             functionAnalyzer.checkFunction(_function);
             doneLatch.count_down();

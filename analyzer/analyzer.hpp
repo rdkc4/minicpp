@@ -24,25 +24,25 @@ public:
 
     /** 
      * @brief entry point for the semantic check
-     * @param _program - pointer to a root of the ast
+     * @param program - pointer to a root of the ast
     */
-    void semanticCheck(const ASTProgram* _program);
+    void semanticCheck(const ASTProgram* program);
 
     /** 
      * @brief checks if code is semantically correct
-     * @param _program - const pointer to a root of the ast
+     * @param program - const pointer to a root of the ast
      * @note _program is needed to obtain name of all functions
      * @returns true if any semantic error is caught, false otherwise
     */
-    bool hasSemanticError(const ASTProgram* _program) const noexcept;
+    bool hasSemanticError(const ASTProgram* program) const noexcept;
 
     /** 
      * @brief getter for the semantic errors
-     * @param _program - const pointer to a root of the ast
+     * @param program - const pointer to a root of the ast
      * @note _program is needed to obtain name of all functions
      * @returns semantic errors merged into a string 
     */
-    std::string getSemanticErrors(const ASTProgram* _program) const noexcept;
+    std::string getSemanticErrors(const ASTProgram* program) const noexcept;
 
 protected:
     /// reference to the global scope manager
@@ -62,9 +62,9 @@ protected:
 
     /** 
      * @brief starts checking functions parallelly
-     * @param _program - const pointer to a root of the ast
+     * @param program - const pointer to a root of the ast
     */
-    void startFunctionCheck(const ASTProgram* _program);
+    void startFunctionCheck(const ASTProgram* program);
 };
 
 #endif
