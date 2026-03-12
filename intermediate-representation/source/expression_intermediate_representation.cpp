@@ -20,8 +20,8 @@ std::unique_ptr<IRExpr> ExpressionIntermediateRepresentation::transformNumerical
 }
 
 std::unique_ptr<IRExpr> ExpressionIntermediateRepresentation::transformBinaryExpr(const ASTBinaryExpr* astBinaryExpr){
-    std::unique_ptr<IRExpr> leftOperand{ transformNumericalExpr(astBinaryExpr->getLeftOperand()) };
-    std::unique_ptr<IRExpr> rightOperand{ transformNumericalExpr(astBinaryExpr->getRightOperand()) };
+    std::unique_ptr<IRExpr> leftOperand{ transformNumericalExpr(astBinaryExpr->getLeftOperandExpr()) };
+    std::unique_ptr<IRExpr> rightOperand{ transformNumericalExpr(astBinaryExpr->getRightOperandExpr()) };
 
     if(leftOperand->getNodeType() == IRNodeType::LITERAL && rightOperand->getNodeType() == IRNodeType::LITERAL){
         if(leftOperand->getType() == Type::INT){
@@ -62,7 +62,10 @@ std::unique_ptr<IRBinaryExpr> ExpressionIntermediateRepresentation::transformRel
     IRNodeType irNodeType{ operatorToIRNodeType.at(astBinaryExpr->getOperator()).getOperation(astBinaryExpr->getType()) };
     std::unique_ptr<IRBinaryExpr> irBinaryExpr = std::make_unique<IRBinaryExpr>(irNodeType, astBinaryExpr->getType());
 
-    irBinaryExpr->setBinaryExpression(transformNumericalExpr(astBinaryExpr->getLeftOperand()), transformNumericalExpr(astBinaryExpr->getRightOperand()), astBinaryExpr->getOperator());
+    irBinaryExpr->setBinaryExpression(
+        transformNumericalExpr(astBinaryExpr->getLeftOperandExpr()), 
+        transformNumericalExpr(astBinaryExpr->getRightOperandExpr()), astBinaryExpr->getOperator()
+    );
     return irBinaryExpr;
 }
 
@@ -99,7 +102,7 @@ size_t ExpressionIntermediateRepresentation::countTemporaries(const ASTExpr* ast
     }
     else{
         const ASTBinaryExpr* binExp = static_cast<const ASTBinaryExpr*>(astExpr); 
-        return countTemporaries(binExp->getLeftOperand()) + countTemporaries(binExp->getRightOperand());
+        return countTemporaries(binExp->getLeftOperandExpr()) + countTemporaries(binExp->getRightOperandExpr());
     }
 }
 
@@ -123,8 +126,8 @@ void ExpressionIntermediateRepresentation::assignTemporaries(IRTemporaryExpr* te
     }
     else{
         const ASTBinaryExpr* binExp = static_cast<const ASTBinaryExpr*>(astExpr);
-        assignTemporaries(temporaryRoot, binExp->getLeftOperand(), idx);
-        assignTemporaries(temporaryRoot, binExp->getRightOperand(), idx);
+        assignTemporaries(temporaryRoot, binExp->getLeftOperandExpr(), idx);
+        assignTemporaries(temporaryRoot, binExp->getRightOperandExpr(), idx);
     }
 }
 

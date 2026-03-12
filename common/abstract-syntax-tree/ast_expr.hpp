@@ -30,9 +30,9 @@ public:
 
     /** 
      * @brief initializes type of the expression node
-     * @param t - type of the expression
+     * @param exprType - type of the expression
     */
-    void setType(Type t) noexcept;
+    void setType(Type exprType) noexcept;
 
     /**
      * @brief accepts the ast visitor

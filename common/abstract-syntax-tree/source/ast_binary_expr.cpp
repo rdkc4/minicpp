@@ -1,22 +1,24 @@
 #include "../ast_binary_expr.hpp"
 
-ASTBinaryExpr::ASTBinaryExpr(const Token& token, ASTNodeType ntype, Type type, Operator op) : ASTExpr(token, ntype, type), op{ op } {}
+#include "../defs/ast_defs.hpp"
+
+ASTBinaryExpr::ASTBinaryExpr(const Token& token, Type type, Operator op) : ASTExpr(token, ASTNodeType::BINARY_EXPRESSION, type), expressionOperator{ op } {}
 
 Operator ASTBinaryExpr::getOperator() const noexcept {
-    return op;
+    return expressionOperator;
 }
 
-void ASTBinaryExpr::setOperator(Operator _op) noexcept {
-    op = _op;
+void ASTBinaryExpr::setOperator(Operator op) noexcept {
+    expressionOperator = op;
 }
 
-void ASTBinaryExpr::setOperands(std::unique_ptr<ASTExpr> lOp, std::unique_ptr<ASTExpr> rOp){
-    leftOperand = std::move(lOp);
-    rightOperand = std::move(rOp);
+void ASTBinaryExpr::setOperandExprs(std::unique_ptr<ASTExpr> leftOperand, std::unique_ptr<ASTExpr> rightOperand){
+    leftOperandExpr = std::move(leftOperand);
+    rightOperandExpr = std::move(rightOperand);
 }
 
 bool ASTBinaryExpr::initialized() const noexcept {
-    return leftOperand != nullptr && rightOperand != nullptr;
+    return leftOperandExpr != nullptr && rightOperandExpr != nullptr;
 }
 
 void ASTBinaryExpr::accept(ASTVisitor& visitor) {

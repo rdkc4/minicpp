@@ -57,7 +57,7 @@ void StatementAnalyzer::checkVariableDeclStmt(const ASTVariableDeclStmt* variabl
                 variableDecl->getToken().line, variableDecl->getToken().column, typeToString.at(type), variableDecl->getToken().value)
         );
     }
-    else if(type == Type::AUTO && !variableDecl->hasAssign()){
+    else if(type == Type::AUTO && !variableDecl->hasAssignExpr()){
         analyzerContext.semanticErrors.push_back(
             std::format("Line {}, Column {}: SEMANTIC ERROR -> type deduction failed '{} {}'", 
                 variableDecl->getToken().line, variableDecl->getToken().column, typeToString.at(type), variableDecl->getToken().value)
@@ -73,10 +73,10 @@ void StatementAnalyzer::checkVariableDeclStmt(const ASTVariableDeclStmt* variabl
     }
 
     // direct initialization
-    if(variableDecl->getAssign() != nullptr){
-        expressionAnalyzer.checkNumericalExpr(variableDecl->getAssign());
+    if(variableDecl->getAssignExpr() != nullptr){
+        expressionAnalyzer.checkNumericalExpr(variableDecl->getAssignExpr());
 
-        Type rtype{variableDecl->getAssign()->getType() };
+        Type rtype{variableDecl->getAssignExpr()->getType() };
 
         // variable initialization type check
         if(rtype != type && type != Type::AUTO && rtype != Type::NO_TYPE){ // rtype == no_type => error was caught in expression, no need to write it again
@@ -93,53 +93,53 @@ void StatementAnalyzer::checkVariableDeclStmt(const ASTVariableDeclStmt* variabl
 }
 
 void StatementAnalyzer::checkIfStmt(const ASTIfStmt* ifStmt){
-    for(const auto& condition : ifStmt->getConditions()){
+    for(const auto& condition : ifStmt->getConditionExprs()){
         expressionAnalyzer.checkNumericalExpr(condition.get());
     }
     // else statement is included
-    for(const auto& stmt : ifStmt->getStatements()){
+    for(const auto& stmt : ifStmt->getStmts()){
         checkStmt(stmt.get());
     }
 }
 
 void StatementAnalyzer::checkWhileStmt(const ASTWhileStmt* whileStmt){
-    expressionAnalyzer.checkNumericalExpr(whileStmt->getCondition());
-    checkStmt(whileStmt->getStatement());
+    expressionAnalyzer.checkNumericalExpr(whileStmt->getConditionExpr());
+    checkStmt(whileStmt->getStmt());
 }
 
 // initializer, condition and incrementer are optional
 void StatementAnalyzer::checkForStmt(const ASTForStmt* forStmt){
-    if(forStmt->hasInitializer()){
-        checkAssignStmt(forStmt->getInitializer());
+    if(forStmt->hasInitializerStmt()){
+        checkAssignStmt(forStmt->getInitializerStmt());
     }
-    if(forStmt->hasCondition()){
-        expressionAnalyzer.checkNumericalExpr(forStmt->getCondition());
+    if(forStmt->hasConditionExpr()){
+        expressionAnalyzer.checkNumericalExpr(forStmt->getConditionExpr());
     }
-    if(forStmt->hasIncrementer()){
-        checkAssignStmt(forStmt->getIncrementer());
+    if(forStmt->hasIncrementerStmt()){
+        checkAssignStmt(forStmt->getIncrementerStmt());
     }
 
-    checkStmt(forStmt->getStatement());
+    checkStmt(forStmt->getStmt());
 }
 
 void StatementAnalyzer::checkDoWhileStmt(const ASTDoWhileStmt* dowhileStmt){
-    checkStmt(dowhileStmt->getStatement());
-    expressionAnalyzer.checkNumericalExpr(dowhileStmt->getCondition());
+    checkStmt(dowhileStmt->getStmt());
+    expressionAnalyzer.checkNumericalExpr(dowhileStmt->getConditionExpr());
 }
 
 void StatementAnalyzer::checkCompoundStmt(const ASTCompoundStmt* compoundStmt){
     // compound scope
     AnalyzerThreadContext& analyzerContext = getContext();
     analyzerContext.scopeManager->pushScope();
-    for(const auto& stmt : compoundStmt->getStatements()){
+    for(const auto& stmt : compoundStmt->getStmts()){
         checkStmt(stmt.get());
     }
     analyzerContext.scopeManager->popScope();
 }
 
 void StatementAnalyzer::checkAssignStmt(const ASTAssignStmt* assignStmt){
-    ASTIdExpr* variableExpr{ assignStmt->getVariable() };
-    ASTExpr* valueExpr{ assignStmt->getExp() };
+    ASTIdExpr* variableExpr{ assignStmt->getVariableIdExpr() };
+    ASTExpr* valueExpr{ assignStmt->getAssignedExpr() };
 
     // if variable is not defined, rvalue won't be analyzed
     if(!expressionAnalyzer.checkIDExpr(variableExpr)) return;
@@ -167,7 +167,7 @@ void StatementAnalyzer::checkAssignStmt(const ASTAssignStmt* assignStmt){
 }
 
 void StatementAnalyzer::checkReturnStmt(const ASTReturnStmt* returnStmt){
-    Type returnType{ returnStmt->returns() ? expressionAnalyzer.checkNumericalExprType(returnStmt->getExp()) : Type::VOID };
+    Type returnType{ returnStmt->hasReturnExpr() ? expressionAnalyzer.checkNumericalExprType(returnStmt->getReturnExpr()) : Type::VOID };
     
     // if numexp inside of a return statement contains undef var, it will report it, no point checking for type mismatch
     if(returnType == Type::NO_TYPE) return;
@@ -185,25 +185,25 @@ void StatementAnalyzer::checkReturnStmt(const ASTReturnStmt* returnStmt){
 }
 
 void StatementAnalyzer::checkFunctionCallStmt(const ASTFunctionCallStmt* callStmt){
-    expressionAnalyzer.checkFunctionCallExpr(callStmt->getFunctionCall());
+    expressionAnalyzer.checkFunctionCallExpr(callStmt->getFunctionCallExpr());
 }
 
 void StatementAnalyzer::checkSwitchStmt(const ASTSwitchStmt* switchStmt){
     // if id is not defined, switch is ignored, all cases will be ignored, including their statements 
-    if(!expressionAnalyzer.checkIDExpr(switchStmt->getVariable())) return;
+    if(!expressionAnalyzer.checkIDExpr(switchStmt->getVariableIdExpr())) return;
     
     AnalyzerThreadContext& analyzerContext = getContext();
     // case check
-    if(switchStmt->getVariable()->getType() == Type::INT){
+    if(switchStmt->getVariableIdExpr()->getType() == Type::INT){
         checkCaseStmts<int>(switchStmt);
     }
-    else if(switchStmt->getVariable()->getType() == Type::UNSIGNED){
+    else if(switchStmt->getVariableIdExpr()->getType() == Type::UNSIGNED){
         checkCaseStmts<unsigned>(switchStmt);
     }
     else{
         analyzerContext.semanticErrors.push_back(
             std::format("Line {}, Column {}: SEMANTIC ERROR -> invalid type '{}'", 
-                switchStmt->getToken().line, switchStmt->getToken().column, switchStmt->getVariable()->getToken().value)
+                switchStmt->getToken().line, switchStmt->getToken().column, switchStmt->getVariableIdExpr()->getToken().value)
         );
     }
 }

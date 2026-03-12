@@ -31,8 +31,8 @@ Type ExpressionAnalyzer::checkNumericalExprType(ASTExpr* numericalExpr){
     else{
         // numerical expression type check
         ASTBinaryExpr* binExp = static_cast<ASTBinaryExpr*>(numericalExpr);
-        Type ltype{ checkNumericalExprType(binExp->getLeftOperand()) };
-        Type rtype{ checkNumericalExprType(binExp->getRightOperand()) };
+        Type ltype{ checkNumericalExprType(binExp->getLeftOperandExpr()) };
+        Type rtype{ checkNumericalExprType(binExp->getRightOperandExpr()) };
 
         // if either subexpression is invalid, root expression shall be invalid too, no point checking for type mismatch
         if(ltype == Type::NO_TYPE || rtype == Type::NO_TYPE) return Type::NO_TYPE;
@@ -51,12 +51,12 @@ Type ExpressionAnalyzer::checkNumericalExprType(ASTExpr* numericalExpr){
 
 void ExpressionAnalyzer::checkRelationalExpr(ASTExpr* relationalExpr){
     ASTBinaryExpr* binaryExpr = static_cast<ASTBinaryExpr*>(relationalExpr);
-    checkNumericalExpr(binaryExpr->getLeftOperand());
-    checkNumericalExpr(binaryExpr->getRightOperand());
+    checkNumericalExpr(binaryExpr->getLeftOperandExpr());
+    checkNumericalExpr(binaryExpr->getRightOperandExpr());
     
     auto& analyzerContext = FunctionAnalyzer::getContext();
-    auto ltype = binaryExpr->getLeftOperand()->getType();
-    auto rtype = binaryExpr->getRightOperand()->getType();
+    auto ltype = binaryExpr->getLeftOperandExpr()->getType();
+    auto rtype = binaryExpr->getRightOperandExpr()->getType();
 
     if(ltype != rtype && ltype != Type::NO_TYPE && rtype != Type::NO_TYPE){
         analyzerContext.semanticErrors.push_back(

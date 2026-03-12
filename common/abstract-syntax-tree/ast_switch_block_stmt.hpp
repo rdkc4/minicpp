@@ -5,7 +5,6 @@
 #include <vector>
 
 #include "ast_stmt.hpp"
-#include "defs/ast_defs.hpp"
 #include "../token/token.hpp"
 #include "../visitor/ast_visitor.hpp"
 
@@ -18,21 +17,20 @@ public:
     /** 
      * @brief Creates the instance of the ast switch-block
      * @param token - const reference to the token
-     * @param ntype - type of the ast node
     */
-    ASTSwitchBlockStmt(const Token& token, ASTNodeType ntype);
+    ASTSwitchBlockStmt(const Token& token);
     
     /** 
      * @brief getter for the statements of the switch block
      * @returns reference to a vector of the pointers to statements
     */
-    const std::vector<std::unique_ptr<ASTStmt>>& getStatements() const noexcept;
+    const std::vector<std::unique_ptr<ASTStmt>>& getStmts() const noexcept;
 
     /** 
      * @brief adds new statement
-     * @param statement - pointer to a statement that is being added
+     * @param stmt - pointer to a statement that is being added
     */
-    void addStatement(std::unique_ptr<ASTStmt> statement);
+    void addStmt(std::unique_ptr<ASTStmt> stmt);
 
     /**
      * @brief accepts the ast visitor
@@ -42,7 +40,7 @@ public:
 
 private:
     /// vector of pointers to statements of the switch-block
-    std::vector<std::unique_ptr<ASTStmt>> statements;
+    std::vector<std::unique_ptr<ASTStmt>> stmts;
 };
 
 #endif

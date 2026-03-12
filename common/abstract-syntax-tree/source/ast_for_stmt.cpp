@@ -1,24 +1,26 @@
 #include "../ast_for_stmt.hpp"
 
-ASTForStmt::ASTForStmt(const Token& token, ASTNodeType ntype) : ASTStmt(token, ntype) {}
+#include "../defs/ast_defs.hpp"
 
-void ASTForStmt::setForSt(std::unique_ptr<ASTAssignStmt> init, std::unique_ptr<ASTExpr> cond, std::unique_ptr<ASTAssignStmt> inc, std::unique_ptr<ASTStmt> st){
-    initializer = std::move(init);
-    condition = std::move(cond);
-    incrementer = std::move(inc);
-    statement = std::move(st);
+ASTForStmt::ASTForStmt(const Token& token) : ASTStmt(token, ASTNodeType::FOR_STATEMENT) {}
+
+void ASTForStmt::setForSt(std::unique_ptr<ASTAssignStmt> initStmt, std::unique_ptr<ASTExpr> condExpr, std::unique_ptr<ASTAssignStmt> incStmt, std::unique_ptr<ASTStmt> statement){
+    initializerStmt = std::move(initStmt);
+    conditionExpr = std::move(condExpr);
+    incrementerStmt = std::move(incStmt);
+    stmt = std::move(statement);
 }
 
-bool ASTForStmt::hasInitializer() const noexcept {
-    return initializer != nullptr;
+bool ASTForStmt::hasInitializerStmt() const noexcept {
+    return initializerStmt != nullptr;
 }
 
-bool ASTForStmt::hasCondition() const noexcept {
-    return condition != nullptr;
+bool ASTForStmt::hasConditionExpr() const noexcept {
+    return conditionExpr != nullptr;
 }
 
-bool ASTForStmt::hasIncrementer() const noexcept {
-    return incrementer != nullptr;
+bool ASTForStmt::hasIncrementerStmt() const noexcept {
+    return incrementerStmt != nullptr;
 }
 
 void ASTForStmt::accept(ASTVisitor& visitor) {

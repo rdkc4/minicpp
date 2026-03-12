@@ -1,13 +1,15 @@
 #include "../ast_parameter.hpp"
 
-ASTParameter::ASTParameter(const Token& token, ASTNodeType ntype, Type type) : ASTNode(token, ntype), type{ type } {}
+#include "../defs/ast_defs.hpp"
+
+ASTParameter::ASTParameter(const Token& token, Type type) : ASTNode(token, ASTNodeType::PARAMETER), type{ type } {}
 
 Type ASTParameter::getType() const noexcept {
     return type;
 }
 
-void ASTParameter::setType(Type t) noexcept {
-    type = t;
+void ASTParameter::setType(Type parameterType) noexcept {
+    type = parameterType;
 }
 
 void ASTParameter::accept(ASTVisitor& visitor) {

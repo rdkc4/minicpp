@@ -1,13 +1,15 @@
 #include "../ast_compound_stmt.hpp"
 
-ASTCompoundStmt::ASTCompoundStmt(const Token& token, ASTNodeType ntype) : ASTStmt(token, ntype) {}
+#include "../defs/ast_defs.hpp"
 
-const std::vector<std::unique_ptr<ASTStmt>>& ASTCompoundStmt::getStatements() const noexcept {
-    return statements;
+ASTCompoundStmt::ASTCompoundStmt(const Token& token) : ASTStmt(token, ASTNodeType::COMPOUND_STATEMENT) {}
+
+const std::vector<std::unique_ptr<ASTStmt>>& ASTCompoundStmt::getStmts() const noexcept {
+    return stmts;
 }
 
-void ASTCompoundStmt::addStatement(std::unique_ptr<ASTStmt> statement){
-    statements.push_back(std::move(statement));
+void ASTCompoundStmt::addStmt(std::unique_ptr<ASTStmt> stmt){
+    stmts.push_back(std::move(stmt));
 }
 
 void ASTCompoundStmt::accept(ASTVisitor& visitor) {

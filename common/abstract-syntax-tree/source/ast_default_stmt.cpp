@@ -1,9 +1,11 @@
 #include "../ast_default_stmt.hpp"
 
-ASTDefaultStmt::ASTDefaultStmt(const Token& token, ASTNodeType ntype) : ASTStmt(token, ntype) {}
+#include "../defs/ast_defs.hpp"
 
-void ASTDefaultStmt::setDefault(std::unique_ptr<ASTSwitchBlockStmt> _swBlock){
-    swBlock = std::move(_swBlock);
+ASTDefaultStmt::ASTDefaultStmt(const Token& token) : ASTStmt(token, ASTNodeType::DEFAULT) {}
+
+void ASTDefaultStmt::setDefaultStmt(std::unique_ptr<ASTSwitchBlockStmt> swBlockStmt){
+    switchBlockStmt = std::move(swBlockStmt);
 }
 
 void ASTDefaultStmt::accept(ASTVisitor& visitor) {

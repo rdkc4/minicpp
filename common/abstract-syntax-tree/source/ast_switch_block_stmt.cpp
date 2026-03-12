@@ -1,13 +1,15 @@
 #include "../ast_switch_block_stmt.hpp"
 
-ASTSwitchBlockStmt::ASTSwitchBlockStmt(const Token& token, ASTNodeType ntype) : ASTStmt(token, ntype) {}
+#include "../defs/ast_defs.hpp"
 
-const std::vector<std::unique_ptr<ASTStmt>>& ASTSwitchBlockStmt::getStatements() const noexcept {
-    return statements;
+ASTSwitchBlockStmt::ASTSwitchBlockStmt(const Token& token) : ASTStmt(token, ASTNodeType::SWITCH_BLOCK) {}
+
+const std::vector<std::unique_ptr<ASTStmt>>& ASTSwitchBlockStmt::getStmts() const noexcept {
+    return stmts;
 }
 
-void ASTSwitchBlockStmt::addStatement(std::unique_ptr<ASTStmt> statement){
-    statements.push_back(std::move(statement));
+void ASTSwitchBlockStmt::addStmt(std::unique_ptr<ASTStmt> stmt){
+    stmts.push_back(std::move(stmt));
 }
 
 void ASTSwitchBlockStmt::accept(ASTVisitor& visitor) {

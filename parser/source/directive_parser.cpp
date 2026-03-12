@@ -18,7 +18,7 @@ std::unique_ptr<ASTDir> DirectiveParser::parseDir() {
 }
 
 std::unique_ptr<ASTIncludeDir> DirectiveParser::parseIncludeDir() {
-    std::unique_ptr<ASTIncludeDir> _include = std::make_unique<ASTIncludeDir>(Token{ tokenConsumer.getToken() }, ASTNodeType::INCLUDE);
+    std::unique_ptr<ASTIncludeDir> _include = std::make_unique<ASTIncludeDir>(Token{ tokenConsumer.getToken() });
 
     tokenConsumer.consume(TokenType::_INCLUDE);
     tokenConsumer.consume(TokenType::_COLON);

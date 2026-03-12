@@ -1,13 +1,15 @@
 #include "../ast_assign_stmt.hpp"
 
-ASTAssignStmt::ASTAssignStmt(const Token& token, ASTNodeType ntype) : ASTStmt(token, ntype) {}
+#include "../defs/ast_defs.hpp"
 
-void ASTAssignStmt::setVariable(std::unique_ptr<ASTIdExpr> var){
-    variable = std::move(var);
+ASTAssignStmt::ASTAssignStmt(const Token& token) : ASTStmt(token, ASTNodeType::ASSIGNMENT_STATEMENT) {}
+
+void ASTAssignStmt::setVariableIdExpr(std::unique_ptr<ASTIdExpr> idExpr){
+    variableIdExpr = std::move(idExpr);
 }
 
-void ASTAssignStmt::setExp(std::unique_ptr<ASTExpr> nexp){
-    exp = std::move(nexp);
+void ASTAssignStmt::setAssignedExpr(std::unique_ptr<ASTExpr> expr){
+    assignedExpr = std::move(expr);
 }
 
 void ASTAssignStmt::accept(ASTVisitor& visitor) {

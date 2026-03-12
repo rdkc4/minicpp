@@ -1,13 +1,15 @@
 #include "../ast_include_dir.hpp"
 
-ASTIncludeDir::ASTIncludeDir(const Token token, ASTNodeType ntype) : ASTDir(token, ntype) {}
+#include "../defs/ast_defs.hpp"
+
+ASTIncludeDir::ASTIncludeDir(const Token token) : ASTDir(token, ASTNodeType::INCLUDE) {}
 
 const std::string& ASTIncludeDir::getLibName() const noexcept {
     return libName;
 }
 
-void ASTIncludeDir::setLibName(const std::string _libName) {
-    libName = _libName;
+void ASTIncludeDir::setLibName(const std::string& includedLibName) {
+    libName = includedLibName;
 }
 
 void ASTIncludeDir::accept(ASTVisitor& visitor) {

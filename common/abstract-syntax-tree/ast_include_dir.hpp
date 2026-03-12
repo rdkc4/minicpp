@@ -4,7 +4,6 @@
 #include <string>
 
 #include "ast_dir.hpp"
-#include "defs/ast_defs.hpp"
 #include "../visitor/ast_visitor.hpp"
 
 /** 
@@ -16,9 +15,8 @@ public:
     /** 
      * @brief Creates the instance of the ast include directive
      * @param token - const reference to the token
-     * @param ntype - type of the ast node
     */
-    ASTIncludeDir(const Token token, ASTNodeType ntype);
+    ASTIncludeDir(const Token token);
 
     /** 
      * @brief getter for the name of the included library
@@ -28,9 +26,9 @@ public:
 
     /**
      * @brief initializes the name of the included library
-     * @param _libName - name of the included library
+     * @param includedLibName - name of the included library
     */
-    void setLibName(const std::string _libName);
+    void setLibName(const std::string& includedLibName);
 
     /**
      * @brief accepts the ast visitor

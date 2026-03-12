@@ -5,7 +5,6 @@
 
 #include "ast_stmt.hpp"
 #include "ast_id_expr.hpp"
-#include "defs/ast_defs.hpp"
 #include "../token/token.hpp"
 
 /** 
@@ -17,17 +16,16 @@ public:
     /** 
      * @brief Creates the instance of the ast assignment statement
      * @param token - const reference to the token
-     * @param ntype - type of the ast node
     */
-    ASTAssignStmt(const Token& token, ASTNodeType ntype);
+    ASTAssignStmt(const Token& token);
 
     /** 
      * @brief getter for variable node
      * @returns pointer or constant pointer to the id node
     */
     template<typename Self>
-    decltype(auto) getVariable(this Self&& self) noexcept {
-        return std::forward<Self>(self).variable.get();
+    decltype(auto) getVariableIdExpr(this Self&& self) noexcept {
+        return std::forward<Self>(self).variableIdExpr.get();
     }
 
     /** 
@@ -35,21 +33,21 @@ public:
      * @returns pointer or constant pointer to the expression node
     */
     template<typename Self>
-    decltype(auto) getExp(this Self&& self) noexcept {
-        return std::forward<Self>(self).exp.get();
+    decltype(auto) getAssignedExpr(this Self&& self) noexcept {
+        return std::forward<Self>(self).assignedExpr.get();
     }
 
     /** 
      * @brief initializes id sub-node
-     * @param var - pointer to an id node
+     * @param idExpr - pointer to an id node
     */
-    void setVariable(std::unique_ptr<ASTIdExpr> var);
+    void setVariableIdExpr(std::unique_ptr<ASTIdExpr> idExpr);
 
     /** 
      * @brief initializes expression sub-node
-     * @param nexp - pointer to an expression node
+     * @param expr - pointer to an expression node
     */
-    void setExp(std::unique_ptr<ASTExpr> nexp);
+    void setAssignedExpr(std::unique_ptr<ASTExpr> expr);
 
     /**
      * @brief accepts the ast visitor
@@ -59,10 +57,10 @@ public:
 
 private:
     /// pointer to the id of the variable
-    std::unique_ptr<ASTIdExpr> variable;
+    std::unique_ptr<ASTIdExpr> variableIdExpr;
 
     /// pointer to the assigned expression
-    std::unique_ptr<ASTExpr> exp;
+    std::unique_ptr<ASTExpr> assignedExpr;
 
 };
 

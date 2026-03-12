@@ -114,12 +114,12 @@ public:
         std::unordered_set<T> set;
         Type expectedType{ std::is_same<T, int>::value ? Type::INT : Type::UNSIGNED };
 
-        for(const auto& caseStmt : switchStmt->getCases()){
-            expressionAnalyzer.checkLiteralExpr(caseStmt->getLiteral());
+        for(const auto& caseStmt : switchStmt->getCaseStmts()){
+            expressionAnalyzer.checkLiteralExpr(caseStmt->getLiteralExpr());
 
             T val;
             // case type check
-            Type type{ caseStmt->getLiteral()->getType() };
+            Type type{ caseStmt->getLiteralExpr()->getType() };
             if(type != expectedType){
                 analyzerContext.semanticErrors.push_back(
                     std::format("Line {}, Column {}: SEMANTIC ERROR -> invalid case - type mismatch: expected '{}', got '{}'", 
@@ -127,22 +127,22 @@ public:
                 );
             }
             // case duplicate check
-            else if(set.find(val = (std::is_same<T, int>::value ? std::stoi(caseStmt->getLiteral()->getToken().value) 
-                                                                : std::stoul(caseStmt->getLiteral()->getToken().value))) != set.end()){
+            else if(set.find(val = (std::is_same<T, int>::value ? std::stoi(caseStmt->getLiteralExpr()->getToken().value) 
+                                                                : std::stoul(caseStmt->getLiteralExpr()->getToken().value))) != set.end()){
                 analyzerContext.semanticErrors.push_back(
                     std::format("Line {}, Column {}: SEMANTIC ERROR -> duplicate case '{}'", 
-                        caseStmt->getToken().line, caseStmt->getToken().column, caseStmt->getLiteral()->getToken().value)
+                        caseStmt->getToken().line, caseStmt->getToken().column, caseStmt->getLiteralExpr()->getToken().value)
                 );
             }
             else{
-                for(const auto& stmt : caseStmt->getSwitchBlock()->getStatements()){
+                for(const auto& stmt : caseStmt->getSwitchBlockStmt()->getStmts()){
                     checkStmt(stmt.get());
                 }
                 set.insert(val);
             }
         }
-        if(switchStmt->hasDefault()){
-            for(const auto& stmt : switchStmt->getDefault()->getSwitchBlock()->getStatements()){
+        if(switchStmt->hasDefaultStmt()){
+            for(const auto& stmt : switchStmt->getDefaultStmt()->getSwitchBlockStmt()->getStmts()){
                 checkStmt(stmt.get());
             }
         }

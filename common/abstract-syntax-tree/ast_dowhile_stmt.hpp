@@ -5,7 +5,6 @@
 
 #include "ast_stmt.hpp"
 #include "ast_expr.hpp"
-#include "defs/ast_defs.hpp"
 #include "../token/token.hpp"
 #include "../visitor/ast_visitor.hpp"
 
@@ -18,17 +17,16 @@ public:
     /** 
      * @brief Creates the instance of the ast do-while statement
      * @param token - const reference to the token
-     * @param ntype - type of the ast node
     */
-    ASTDoWhileStmt(const Token& token, ASTNodeType ntype);
+    ASTDoWhileStmt(const Token& token);
 
     /** 
      * @brief getter for relational expression node
      * @returns pointer or const pointer to a relational expression node
     */
     template<typename Self>
-    decltype(auto) getCondition(this Self&& self) noexcept {
-        return std::forward<Self>(self).condition.get();
+    decltype(auto) getConditionExpr(this Self&& self) noexcept {
+        return std::forward<Self>(self).conditionExpr.get();
     }
 
     /**
@@ -36,16 +34,16 @@ public:
      * @returns pointer or const pointer to a statement node 
     */
     template<typename Self>
-    decltype(auto) getStatement(this Self&& self) noexcept {
-        return std::forward<Self>(self).statement.get();
+    decltype(auto) getStmt(this Self&& self) noexcept {
+        return std::forward<Self>(self).stmt.get();
     }
 
     /** 
      * @brief initializes do-while statement node
-     * @param cond - pointer to a relational expression node
-     * @param st - pointer to a statement node
+     * @param condExpr - pointer to a relational expression node
+     * @param statement - pointer to a statement node
     */
-    void setDoWhile(std::unique_ptr<ASTExpr> cond, std::unique_ptr<ASTStmt> st);
+    void setDoWhile(std::unique_ptr<ASTExpr> condExpr, std::unique_ptr<ASTStmt> statement);
 
     /**
      * @brief accepts the ast visitor
@@ -55,10 +53,10 @@ public:
 
 private:
     /// pointer to the relational expression of the do-while statement
-    std::unique_ptr<ASTExpr> condition;
+    std::unique_ptr<ASTExpr> conditionExpr;
 
     /// pointer to the statement of the do-while statement
-    std::unique_ptr<ASTStmt> statement;
+    std::unique_ptr<ASTStmt> stmt;
 
 };
 

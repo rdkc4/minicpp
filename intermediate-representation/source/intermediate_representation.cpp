@@ -36,7 +36,7 @@ std::unique_ptr<IRProgram> IntermediateRepresentation::transformProgram(const AS
 
     doneLatch.wait();
 
-    for(const auto& dir : program->getDirectives()) {
+    for(const auto& dir : program->getDirs()) {
         if(dir->getNodeType() == ASTNodeType::INCLUDE){
             irProgram->addLinkedLibrary(static_cast<const ASTIncludeDir*>(dir.get())->getLibName());
         }

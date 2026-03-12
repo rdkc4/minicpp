@@ -3,7 +3,7 @@
 #include <utility>
 
 void DirectiveIntermediateRepresentation::transformDir(IRProgram* irProgram, const ASTProgram* astProgram){
-    for(const auto& dir : astProgram->getDirectives()){
+    for(const auto& dir : astProgram->getDirs()){
         switch(dir->getNodeType()){
             case ASTNodeType::INCLUDE:
                 transformIncludeDir(irProgram, static_cast<const ASTIncludeDir*>(dir.get()));

@@ -4,7 +4,6 @@
 #include <memory>
 
 #include "ast_expr.hpp"
-#include "defs/ast_defs.hpp"
 #include "../token/token.hpp"
 #include "../defs/defs.hpp"
 #include "../visitor/ast_visitor.hpp"
@@ -18,19 +17,18 @@ public:
     /** 
      * @brief Creates the instance of the ast binary expression
      * @param token - const reference to the token
-     * @param ntype - type of the ast node
-     * @param type - type of the binary expression
-     * @param op - operator of the binary expression
+     * @param type - type of the binary expression, defaults to NO_TYPE
+     * @param op - operator of the binary expression, defaults to NO_OP
     */
-    ASTBinaryExpr(const Token& token, ASTNodeType ntype, Type type = Type::NO_TYPE, Operator op = Operator::NO_OP);
+    ASTBinaryExpr(const Token& token, Type type = Type::NO_TYPE, Operator op = Operator::NO_OP);
     
     /** 
      * @brief getter for left operand expression node
      * @returns pointer or const pointer to left operand expression node
     */
     template<typename Self>
-    decltype(auto) getLeftOperand(this Self&& self) noexcept {
-        return std::forward<Self>(self).leftOperand.get();
+    decltype(auto) getLeftOperandExpr(this Self&& self) noexcept {
+        return std::forward<Self>(self).leftOperandExpr.get();
     }
 
     /** 
@@ -38,8 +36,8 @@ public:
      * @returns pointer or const pointer to right operand expression node
     */
     template<typename Self>
-    decltype(auto) getRightOperand(this Self&& self) noexcept {
-        return std::forward<Self>(self).rightOperand.get();
+    decltype(auto) getRightOperandExpr(this Self&& self) noexcept {
+        return std::forward<Self>(self).rightOperandExpr.get();
     }
 
     /** 
@@ -50,16 +48,16 @@ public:
 
     /** 
      * @brief initializes operator
-     * @param _op - operator of the binary expression
+     * @param op - operator of the binary expression
     */
-    void setOperator(Operator _op) noexcept;
+    void setOperator(Operator op) noexcept;
 
     /**
      * @brief initializes operands
-     * @param lOp - pointer to a left operand expression node
-     * @param rOp - pointer to a right operand expression node
+     * @param leftOperand - pointer to a left operand expression node
+     * @param rightOperand - pointer to a right operand expression node
     */
-    void setOperands(std::unique_ptr<ASTExpr> lOp, std::unique_ptr<ASTExpr> rOp);
+    void setOperandExprs(std::unique_ptr<ASTExpr> leftOperand, std::unique_ptr<ASTExpr> rightOperand);
 
     /** 
      * @brief checks if left and right operands are initialized
@@ -75,13 +73,13 @@ public:
 
 private:
     /// pointer to the left operand of the binary expression
-    std::unique_ptr<ASTExpr> leftOperand;
+    std::unique_ptr<ASTExpr> leftOperandExpr;
 
     /// pointer to the right operand of the binary expression
-    std::unique_ptr<ASTExpr> rightOperand;
+    std::unique_ptr<ASTExpr> rightOperandExpr;
 
     /// operator of the binary expression
-    Operator op;
+    Operator expressionOperator;
 };
 
 
