@@ -11,6 +11,7 @@
 #include "../common/intermediate-representation-tree/ir_assign_stmt.hpp"
 #include "../common/intermediate-representation-tree/ir_return_stmt.hpp"
 #include "../common/intermediate-representation-tree/ir_switch_stmt.hpp"
+#include "../common/intermediate-representation-tree/ir_function_call_stmt.hpp"
 #include "../common/intermediate-representation-tree/ir_function_call_expr.hpp"
 
 namespace Optimization {
@@ -25,109 +26,116 @@ namespace Optimization {
 
         /** 
          * @brief calculates the memory required for the stack of the function
-         * @param _function - const pointer to the irt function
+         * @param function - const pointer to the irt function
          * @returns total number of bytes required for the stack of the function for local variables
         */
-        size_t computeStackMemory(const IRFunction* _function);
+        size_t computeStackMemory(const IRFunction* function);
 
         /** 
          * @brief calculates the number of temporary variables
-         * @param _temporary - const pointer to the irt temporary
+         * @param temporaryExpr - const pointer to the irt temporary
          * @returns number of temporary variables
         */
-        size_t computeStackMemory(const IRTemporaryExpr* _temporary);
+        size_t computeStackMemory(const IRTemporaryExpr* temporaryExpr);
 
         /** 
          * @brief calculates the number of local variables in a statement
-         * @param _stmt - const pointer to the irt statement
+         * @param stmt - const pointer to the irt statement
          * @returns number of local variables in a statement
         */
-        size_t computeStackMemory(const IRStmt* _stmt);
+        size_t computeStackMemory(const IRStmt* stmt);
 
         /** 
          * @brief calculates the number of local variables in a variable declaration
-         * @param _variable - const pointer to the irt variable
+         * @param variableDecl - const pointer to the irt variable
          * @returns number of variables in a variable declaration
          * @note initial variable + number of temporary variables
         */
-        size_t computeStackMemory(const IRVariableDeclStmt* _variable);
+        size_t computeStackMemory(const IRVariableDeclStmt* variableDecl);
 
         /** 
          * @brief calculates the number of local variables in a compound statement
-         * @param _compound - const pointer to irt compound statement
+         * @param compoundStmt - const pointer to irt compound statement
          * @returns number of local variables in a compound statement
         */
-        size_t computeStackMemory(const IRCompoundStmt* _compound);
+        size_t computeStackMemory(const IRCompoundStmt* compoundStmt);
 
         /** 
          * @brief calculates the number of local variables in an if-statement
-         * @param _if - const pointer to the irt if-statement
+         * @param ifStmt - const pointer to the irt if-statement
          * @returns number of local variables in an if-statement
         */
-        size_t computeStackMemory(const IRIfStmt* _if);
+        size_t computeStackMemory(const IRIfStmt* ifStmt);
 
         /** 
          * @brief calculates the number of local variables in a for-statement
-         * @param _for - const pointer to the irt for-statement
+         * @param forStmt - const pointer to the irt for-statement
          * @returns number of local variables in a for-statement
         */
-        size_t computeStackMemory(const IRForStmt* _for);
+        size_t computeStackMemory(const IRForStmt* forStmt);
 
         /** 
          * @brief calculates the number of local variables in a while-statement
-         * @param _while - const pointer to the irt while-statement
+         * @param whileStmt - const pointer to the irt while-statement
          * @returns number of local variables in a while-statement
         */
-        size_t computeStackMemory(const IRWhileStmt* _while);
+        size_t computeStackMemory(const IRWhileStmt* whileStmt);
 
         /** 
          * @brief calculates the number of local variables in a do-while statement
-         * @param _dowhile - const pointer to the irt do-while statement
+         * @param dowhileStmt - const pointer to the irt do-while statement
          * @returns number of local variables in a do-while statement
         */
-        size_t computeStackMemory(const IRDoWhileStmt* _dowhile);
+        size_t computeStackMemory(const IRDoWhileStmt* dowhileStmt);
 
         /** 
          * @brief calculates the number of temporary variables in an assignment statement
-         * @param _assign - const pointer to the irt assignment statement
+         * @param assignStmt - const pointer to the irt assignment statement
          * @returns number of temporary variables in an assignment statement
         */
-        size_t computeStackMemory(const IRAssignStmt* _assign);
+        size_t computeStackMemory(const IRAssignStmt* assignStmt);
 
         /** 
          * @brief calculates the number of temporary variables in a return statement
-         * @param _return - const pointer to the irt return statement
+         * @param returnStmt - const pointer to the irt return statement
          * @returns number of temporary variables in a return statement
         */
-        size_t computeStackMemory(const IRReturnStmt* _return);
+        size_t computeStackMemory(const IRReturnStmt* returnStmt);
 
         /** 
          * @brief calculates the number of local variables in a switch-statement
-         * @param _switch - const pointer to the irt switch-statement
+         * @param switchStmt - const pointer to the irt switch-statement
          * @returns number of local variables in a switch-statement
         */
-        size_t computeStackMemory(const IRSwitchStmt* _switch);
+        size_t computeStackMemory(const IRSwitchStmt* switchStmt);
 
         /** 
          * @brief calculates the number of local variables in a switch-block
-         * @param _swBlock - const pointer to the irt switch-block
+         * @param switchBlockStmt - const pointer to the irt switch-block
          * @returns number of local variables in a switch-block
         */
-        size_t computeStackMemory(const IRSwitchBlockStmt* _swBlock);
+        size_t computeStackMemory(const IRSwitchBlockStmt* switchBlockStmt);
 
         /** 
-         * @brief calculates the number of temporary variables in a function call
-         * @param _functionCall - const pointer to the irt function call
-         * @returns number of temporary variables in a function call
+         * @brief calculates the number of temporary variables in a function call statement
+         * @param callStmt - const pointer to the irt function call statement
+         * @returns number of temporary variables in a function call statement
         */
-        size_t computeStackMemory(const IRFunctionCallExpr* _functionCall);
+        size_t computeStackMemory(const IRFunctionCallStmt* callStmt);
+
+        /** 
+         * @brief calculates the number of temporary variables in a function call expression
+         * @param callExpr - const pointer to the irt function call expression
+         * @returns number of temporary variables in a function call expression
+        */
+        size_t computeStackMemory(const IRFunctionCallExpr* callExpr);
 
         /** 
          * @brief overload for the nodes that don't need any space on the stack
-         * @param _node - const pointer to irt node (unused)
+         * @param node - const pointer to irt node (unused)
          * @returns zero
         */
-        size_t computeStackMemory([[maybe_unused]] const IRNode* _node);
+        size_t computeStackMemory([[maybe_unused]] const IRNode* node);
     };
 };
 

@@ -15,5 +15,5 @@ void DirectiveIntermediateRepresentation::transformDir(IRProgram* irProgram, con
 }
 
 void DirectiveIntermediateRepresentation::transformIncludeDir(IRProgram* irProgram, const ASTIncludeDir* astLib){
-    irProgram->addLinkedLibrary(astLib->getLibName());
+    irProgram->addLinkedLib(astLib->getLibName());
 }

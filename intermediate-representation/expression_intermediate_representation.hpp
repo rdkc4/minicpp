@@ -148,7 +148,7 @@ public:
         std::string suffix{ type == Type::INT ? "" : "u" };
 
         Optimization::ConstantFolding::MergeResult<std::unique_ptr<IRExpr>> foldedExpr {
-            .result = std::make_unique<IRLiteralExpr>(IRNodeType::LITERAL, std::to_string(res.result) + suffix, type),
+            .result = std::make_unique<IRLiteralExpr>(std::to_string(res.result) + suffix, type),
             .error = res.error
         };
 

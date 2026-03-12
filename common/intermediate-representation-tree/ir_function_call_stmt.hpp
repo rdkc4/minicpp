@@ -15,24 +15,23 @@ class IRFunctionCallStmt : public IRStmt {
 public:
     /** 
      * @brief Creates the instance of the irt function-call statement
-     * @param ntype - type of the irt node
     */
-    IRFunctionCallStmt(IRNodeType ntype);
+    IRFunctionCallStmt();
 
     /**
      * @brief getter for the function call expression of the function call statement
      * @returns pointer or const pointer to the function call expression
     */
     template<typename Self>
-    decltype(auto) getFunctionCall(this Self&& self) noexcept {
-        return std::forward<Self>(self).functionCall.get();
+    decltype(auto) getFunctionCallExpr(this Self&& self) noexcept {
+        return std::forward<Self>(self).functionCallExpr.get();
     }
 
     /**
      * @brief initializes the function call statement
-     * @param call - pointer to a function call expression
+     * @param callExpr - pointer to a function call expression
     */
-    void setFunctionCallSt(std::unique_ptr<IRFunctionCallExpr> call);
+    void setFunctionCallStmt(std::unique_ptr<IRFunctionCallExpr> callExpr);
 
     /**
      * @brief accepts the ir visitor
@@ -42,7 +41,7 @@ public:
 
 private:
     /// pointer to the function call expression
-    std::unique_ptr<IRFunctionCallExpr> functionCall; 
+    std::unique_ptr<IRFunctionCallExpr> functionCallExpr; 
 };
 
 #endif

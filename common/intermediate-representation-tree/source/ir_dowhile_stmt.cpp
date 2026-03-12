@@ -1,15 +1,17 @@
 #include "../ir_dowhile_stmt.hpp"
 
-IRDoWhileStmt::IRDoWhileStmt(IRNodeType ntype) : IRStmt(ntype) {}
+#include "../defs/ir_defs.hpp"
 
-void IRDoWhileStmt::setDoWhileSt(std::unique_ptr<IRExpr> cond, std::unique_ptr<IRStmt> st, std::unique_ptr<IRTemporaryExpr> temp){
-    condition = std::move(cond);
-    statement = std::move(st);
-    temporaries = std::move(temp);
+IRDoWhileStmt::IRDoWhileStmt() : IRStmt(IRNodeType::DO_WHILE) {}
+
+void IRDoWhileStmt::setDoWhileStmt(std::unique_ptr<IRExpr> condExpr, std::unique_ptr<IRStmt> statement, std::unique_ptr<IRTemporaryExpr> tempExpr){
+    conditionExpr = std::move(condExpr);
+    stmt = std::move(statement);
+    temporaryExpr = std::move(tempExpr);
 }
 
-bool IRDoWhileStmt::hasTemporaries() const noexcept {
-    return temporaries != nullptr;
+bool IRDoWhileStmt::hasTemporaryExpr() const noexcept {
+    return temporaryExpr != nullptr;
 }
 
 void IRDoWhileStmt::accept(IRVisitor& visitor){

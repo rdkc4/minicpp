@@ -1,43 +1,45 @@
 #include "../ir_if_stmt.hpp"
 
-IRIfStmt::IRIfStmt(IRNodeType ntype) : IRStmt(ntype) {}
+#include "../defs/ir_defs.hpp"
 
-const std::vector<std::unique_ptr<IRExpr>>& IRIfStmt::getConditions() const noexcept {
-    return conditions;
+IRIfStmt::IRIfStmt() : IRStmt(IRNodeType::IF) {}
+
+const std::vector<std::unique_ptr<IRExpr>>& IRIfStmt::getConditionExprs() const noexcept {
+    return conditionExprs;
 }
 
-const std::vector<std::unique_ptr<IRStmt>>& IRIfStmt::getStatements() const noexcept {
-    return statements;
+const std::vector<std::unique_ptr<IRStmt>>& IRIfStmt::getStmts() const noexcept {
+    return stmts;
 }
 
-const std::vector<std::unique_ptr<IRTemporaryExpr>>& IRIfStmt::getTemporaries() const noexcept {
-    return temporaries;
+const std::vector<std::unique_ptr<IRTemporaryExpr>>& IRIfStmt::getTemporaryExprs() const noexcept {
+    return temporaryExprs;
 }
 
 size_t IRIfStmt::getConditionCount() const noexcept {
-    return conditions.size();
+    return conditionExprs.size();
 }
 
-void IRIfStmt::addIf(std::unique_ptr<IRExpr> cond, std::unique_ptr<IRStmt> statement, std::unique_ptr<IRTemporaryExpr> temp){
-    conditions.push_back(std::move(cond));
-    statements.push_back(std::move(statement));
-    temporaries.push_back(std::move(temp));
+void IRIfStmt::addIfStmt(std::unique_ptr<IRExpr> condExpr, std::unique_ptr<IRStmt> statement, std::unique_ptr<IRTemporaryExpr> tempExpr){
+    conditionExprs.push_back(std::move(condExpr));
+    stmts.push_back(std::move(statement));
+    temporaryExprs.push_back(std::move(tempExpr));
 }
 
-void IRIfStmt::addElse(std::unique_ptr<IRStmt> statement){
-    statements.push_back(std::move(statement));
+void IRIfStmt::addElseStmt(std::unique_ptr<IRStmt> statement){
+    stmts.push_back(std::move(statement));
 }
 
-bool IRIfStmt::hasElse() const noexcept {
-    return statements.size() > conditions.size();
+bool IRIfStmt::hasElseStmt() const noexcept {
+    return stmts.size() > conditionExprs.size();
 }
 
-const IRStmt* IRIfStmt::getElseStatement() const noexcept {
-    return hasElse() ? statements.back().get() : nullptr;
+const IRStmt* IRIfStmt::getElseStmt() const noexcept {
+    return hasElseStmt() ? stmts.back().get() : nullptr;
 }
 
-const std::tuple<const IRExpr*, const IRStmt*, const IRTemporaryExpr*> IRIfStmt::getIfAtN(size_t n) const noexcept {
-    return {conditions[n].get(), statements[n].get(), temporaries[n].get() };
+const std::tuple<const IRExpr*, const IRStmt*, const IRTemporaryExpr*> IRIfStmt::getIfStmtAtN(size_t n) const noexcept {
+    return {conditionExprs[n].get(), stmts[n].get(), temporaryExprs[n].get() };
 }
 
 void IRIfStmt::accept(IRVisitor& visitor){

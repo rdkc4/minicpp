@@ -1,15 +1,17 @@
 #include "../ir_assign_stmt.hpp"
 
-IRAssignStmt::IRAssignStmt(IRNodeType ntype) : IRStmt(ntype) {}
+#include "../defs/ir_defs.hpp"
 
-void IRAssignStmt::setAssignSt(std::unique_ptr<IRIdExpr> var, std::unique_ptr<IRExpr> _exp, std::unique_ptr<IRTemporaryExpr> temp){
-    variable = std::move(var);
-    exp = std::move(_exp);
-    temporaries = std::move(temp);
+IRAssignStmt::IRAssignStmt() : IRStmt(IRNodeType::ASSIGN) {}
+
+void IRAssignStmt::setAssignStmt(std::unique_ptr<IRIdExpr> idExpr, std::unique_ptr<IRExpr> expr, std::unique_ptr<IRTemporaryExpr> tempExpr){
+    variableIdExpr = std::move(idExpr);
+    assignedExpr = std::move(expr);
+    temporaryExpr = std::move(tempExpr);
 }
 
-bool IRAssignStmt::hasTemporaries() const noexcept {
-    return temporaries != nullptr;
+bool IRAssignStmt::hasTemporaryExpr() const noexcept {
+    return temporaryExpr != nullptr;
 }
 
 void IRAssignStmt::accept(IRVisitor& visitor){

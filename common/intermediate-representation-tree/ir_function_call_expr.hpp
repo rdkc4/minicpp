@@ -7,7 +7,6 @@
 
 #include "ir_expr.hpp"
 #include "ir_temporary_expr.hpp"
-#include "defs/ir_defs.hpp"
 #include "../defs/defs.hpp"
 #include "../visitor/ir_visitor.hpp"
 
@@ -19,11 +18,10 @@ class IRFunctionCallExpr final : public IRExpr {
 public:
     /** 
      * @brief Creates the instance of the irt function call expression
-     * @param ntype - type of the irt node
      * @param callName - name of the function being called
      * @param type - return type of the function being called
     */
-    IRFunctionCallExpr(IRNodeType ntype, const std::string& callName, Type type);
+    IRFunctionCallExpr(const std::string& callName, Type type);
 
     /** 
      * @brief getter for the arguments of the function call expression
@@ -42,15 +40,15 @@ public:
      * @brief getter for the temporaries of the function call expression
      * @returns reference to a const vector of pointers to the temporaries
     */
-    const std::vector<std::unique_ptr<IRTemporaryExpr>>& getTemporaries() const noexcept;
+    const std::vector<std::unique_ptr<IRTemporaryExpr>>& getTemporaryExprs() const noexcept;
 
     /** 
      * @brief adds new argument to the function call expression
      * @note each argument may have temporaries
      * @param argument - argument of the function call
-     * @param temp - temporaries of the argument, default nullptr
+     * @param tempExpr - temporaries of the argument, default nullptr
     */
-    void addArgument(std::unique_ptr<IRExpr> argument, std::unique_ptr<IRTemporaryExpr> temp = nullptr);
+    void addArgument(std::unique_ptr<IRExpr> argument, std::unique_ptr<IRTemporaryExpr> tempExpr = nullptr);
 
     /** 
      * @brief getter for the name of the function that is being called
@@ -62,7 +60,7 @@ public:
      * @brief initializes the name of the called function
      * @param _callName - name of the function that is being called
     */
-    void setCallName(const std::string& _callName);
+    void setCallName(const std::string& callName);
 
     /** 
      * @brief getter for the argument count
@@ -78,13 +76,13 @@ public:
 
 private:
     /// name of the function being called
-    std::string callName;
+    std::string functionCallName;
 
     /// vector of pointers to expressions representing arguments
     std::vector<std::unique_ptr<IRExpr>> arguments;
 
     /// vector of pointers to temporaries of the function call expression
-    std::vector<std::unique_ptr<IRTemporaryExpr>> temporaries;
+    std::vector<std::unique_ptr<IRTemporaryExpr>> temporaryExprs;
     
 };
 

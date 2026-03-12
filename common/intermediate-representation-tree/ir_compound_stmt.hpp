@@ -5,7 +5,6 @@
 #include <vector>
 
 #include "ir_stmt.hpp"
-#include "defs/ir_defs.hpp"
 #include "../visitor/ir_visitor.hpp"
 
 /**
@@ -16,27 +15,26 @@ class IRCompoundStmt final : public IRStmt {
 public:
     /** 
      * @brief Creates the instance of the irt compound statement
-     * @param ntype - type of the irt node
     */
-    IRCompoundStmt(IRNodeType ntype);
+    IRCompoundStmt();
 
     /**
      * @brief getter for the statements inside of the compound statement
      * @returns const vector of pointers to statement nodes
     */
-    const std::vector<std::unique_ptr<IRStmt>>& getStatements() const noexcept;
+    const std::vector<std::unique_ptr<IRStmt>>& getStmts() const noexcept;
 
     /**
      * @brief adds new statement to the compound statement node
-     * @param statement - pointer to a statement that is being added
+     * @param stmt - pointer to a statement that is being added
     */
-    void addStatement(std::unique_ptr<IRStmt> statement);
+    void addStmt(std::unique_ptr<IRStmt> stmt);
 
     /**
      * @brief eliminates statements of the compound statement that appear after the node that always returns
      * @param startIdx - index in the vector of statements where deletion starts
     */
-    void eliminateDead(size_t startIdx);
+    void eliminateDeadStmts(size_t startIdx);
 
     /**
      * @brief accepts the ir visitor
@@ -46,7 +44,7 @@ public:
 
 private:
     /// vector of pointers to statements of the compound statement
-    std::vector<std::unique_ptr<IRStmt>> statements;
+    std::vector<std::unique_ptr<IRStmt>> stmts;
 };
 
 #endif

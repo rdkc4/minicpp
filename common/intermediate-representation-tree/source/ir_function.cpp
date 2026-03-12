@@ -1,6 +1,8 @@
 #include "../ir_function.hpp"
 
-IRFunction::IRFunction(IRNodeType ntype, const std::string& funcName, Type type) : IRNode(ntype), functionName{ funcName }, requiredMemory{ "0" }, type{ type }, predefined{ false } {}
+#include "../defs/ir_defs.hpp"
+
+IRFunction::IRFunction(const std::string& funcName, Type type) : IRNode(IRNodeType::FUNCTION), functionName{ funcName }, requiredMemory{ "0" }, type{ type }, predefined{ false } {}
 
 const std::vector<std::unique_ptr<IRParameter>>& IRFunction::getParameters() const noexcept {
     return parameters;
@@ -14,8 +16,8 @@ const std::vector<std::unique_ptr<IRStmt>>& IRFunction::getBody() const noexcept
     return body;
 }
 
-void IRFunction::addStatement(std::unique_ptr<IRStmt> statement){
-    body.push_back(std::move(statement));
+void IRFunction::addStatement(std::unique_ptr<IRStmt> stmt){
+    body.push_back(std::move(stmt));
 }
 
 const std::string& IRFunction::getFunctionName() const noexcept {
@@ -30,8 +32,8 @@ Type IRFunction::getType() const noexcept {
     return type;
 }
 
-void IRFunction::setType(Type t) noexcept {
-    type = t;
+void IRFunction::setType(Type returnType) noexcept {
+    type = returnType;
 }
 
 const std::string& IRFunction::getRequiredMemory() const noexcept {
@@ -42,7 +44,7 @@ void IRFunction::setRequiredMemory(const std::string& size){
     requiredMemory = size;
 }
 
-void IRFunction::eliminateDead(size_t startIdx){
+void IRFunction::eliminateDeadStmts(size_t startIdx){
     if(startIdx < body.size()){
         body.erase(body.begin() + startIdx, body.end());
     }

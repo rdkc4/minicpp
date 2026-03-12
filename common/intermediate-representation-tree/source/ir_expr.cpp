@@ -6,6 +6,6 @@ Type IRExpr::getType() const noexcept {
     return type;
 }
 
-void IRExpr::setType(Type t) noexcept {
-    type = t;
+void IRExpr::setType(Type exprType) noexcept {
+    type = exprType;
 }

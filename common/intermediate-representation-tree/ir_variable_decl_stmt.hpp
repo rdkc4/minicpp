@@ -7,7 +7,6 @@
 #include "ir_stmt.hpp"
 #include "ir_expr.hpp"
 #include "ir_temporary_expr.hpp"
-#include "defs/ir_defs.hpp"
 #include "../defs/defs.hpp"
 #include "../visitor/ir_visitor.hpp"
 
@@ -19,19 +18,18 @@ class IRVariableDeclStmt final : public IRStmt {
 public:
     /** 
      * @brief Creates the instance of the irt variable declaration
-     * @param ntype - type of the irt node
      * @param varName - name of the variable
      * @param type - type of the variable
     */
-    IRVariableDeclStmt(IRNodeType ntype, std::string_view varName, Type type);
+    IRVariableDeclStmt(std::string_view varName, Type type);
 
     /** 
      * @brief getter for the value assigned to the variable
      * @returns pointer or const pointer to the expression
     */
     template<typename Self>
-    decltype(auto) getAssign(this Self&& self) noexcept {
-        return std::forward<Self>(self).assignment.get();
+    decltype(auto) getAssignExpr(this Self&& self) noexcept {
+        return std::forward<Self>(self).assignExpr.get();
     }
 
     /** 
@@ -39,7 +37,7 @@ public:
      * @param assign - pointer to the expression
      * @param temp - pointer to the temporaries, default nullptr
     */
-    void setAssign(std::unique_ptr<IRExpr> assign, std::unique_ptr<IRTemporaryExpr> temp = nullptr);
+    void setAssignExpr(std::unique_ptr<IRExpr> expr, std::unique_ptr<IRTemporaryExpr> tempExpr = nullptr);
 
     /** 
      * @brief getter for the name of the variable
@@ -81,22 +79,22 @@ public:
      * @brief checks if variable is assigned value
      * @returns true if variable has an assignment, false otherwise
     */
-    bool hasAssign() const noexcept;
+    bool hasAssignExpr() const noexcept;
 
     /** 
      * @brief getter for the temporaries of the variable
      * @returns pointer or const pointer to the temporary
     */
     template<typename Self>
-    decltype(auto) getTemporaries(this Self&& self) noexcept {
-        return std::forward<Self>(self).temporaries.get();
+    decltype(auto) getTemporaryExpr(this Self&& self) noexcept {
+        return std::forward<Self>(self).temporaryExpr.get();
     }
 
     /** 
      * @brief checks if variable has temporaries
      * @returns true if variable has temporaries, false otherwise
     */
-    bool hasTemporaries() const noexcept;
+    bool hasTemporaryExpr() const noexcept;
 
     /**
      * @brief accepts the ir visitor
@@ -115,12 +113,11 @@ private:
     Type type;
 
     /// pointer to the expression assigned to the variable
-    std::unique_ptr<IRExpr> assignment;
+    std::unique_ptr<IRExpr> assignExpr;
 
     /// pointer to the temporaries of the variable
-    std::unique_ptr<IRTemporaryExpr> temporaries;
+    std::unique_ptr<IRTemporaryExpr> temporaryExpr;
     
 };
-
 
 #endif

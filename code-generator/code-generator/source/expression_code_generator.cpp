@@ -46,8 +46,8 @@ void ExpressionCodeGenerator::generateBinaryExpr(const IRBinaryExpr* binaryExpr)
     std::string lreg{};
     std::string rreg{};
     
-    generateNumericalExpr(binaryExpr->getLeftOperand());
-    generateNumericalExpr(binaryExpr->getRightOperand());
+    generateNumericalExpr(binaryExpr->getLeftOperandExpr());
+    generateNumericalExpr(binaryExpr->getRightOperandExpr());
     
     codeGenContext.freeGpReg();
     if(codeGenContext.gpFreeRegPos >= gpRegisters.size()){
@@ -96,8 +96,8 @@ void ExpressionCodeGenerator::generateBinaryExpr(const IRBinaryExpr* binaryExpr)
 
 void ExpressionCodeGenerator::generateRelationalExpr(const IRExpr* relationalExpr){
     const auto* binaryExpr = static_cast<const IRBinaryExpr*>(relationalExpr);
-    generateNumericalExpr(binaryExpr->getLeftOperand());
-    generateNumericalExpr(binaryExpr->getRightOperand());
+    generateNumericalExpr(binaryExpr->getLeftOperandExpr());
+    generateNumericalExpr(binaryExpr->getRightOperandExpr());
     
     auto& codeGenContext = FunctionCodeGenerator::getContext();
     codeGenContext.freeGpReg();
@@ -133,7 +133,7 @@ void ExpressionCodeGenerator::generateFunctionCallExpr(const IRFunctionCallExpr*
 void ExpressionCodeGenerator::generateArguments(const IRFunctionCallExpr* callExpr){
     auto& codeGenContext = FunctionCodeGenerator::getContext();
     // evaluating temporaries
-    for(const auto& tempExpr : callExpr->getTemporaries()){
+    for(const auto& tempExpr : callExpr->getTemporaryExprs()){
         if(tempExpr != nullptr){
             generateTemporaryExprs(tempExpr.get());
         }
@@ -155,12 +155,12 @@ void ExpressionCodeGenerator::clearArguments(size_t argCount){
 }
 
 void ExpressionCodeGenerator::generateTemporaryExprs(const IRTemporaryExpr* tempExprs){
-    for(size_t i = 0; i < tempExprs->getTemporaries().size(); ++i){
+    for(size_t i = 0; i < tempExprs->getTemporaryExprs().size(); ++i){
         auto& codeGenContext = FunctionCodeGenerator::getContext();
-        const auto* tempExpr = tempExprs->getExpressionAtN(i);
+        const auto* tempExpr = tempExprs->getTemporaryExprAtN(i);
 
         if(tempExpr->getNodeType() == IRNodeType::CALL){
-            for(const auto& temp : static_cast<const IRFunctionCallExpr*>(tempExpr)->getTemporaries()){
+            for(const auto& temp : static_cast<const IRFunctionCallExpr*>(tempExpr)->getTemporaryExprs()){
                 if(temp != nullptr){
                     generateTemporaryExprs(temp.get());
                 }

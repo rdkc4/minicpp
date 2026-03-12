@@ -4,16 +4,17 @@
 #include <format>
 #include <utility>
 
+#include "../../common/abstract-syntax-tree/ast_program.hpp"
 #include "../../common/preprocessing/preprocessing_libraries.hpp"
 
 DirectiveAnalyzer::DirectiveAnalyzer(std::unordered_map<std::string, std::vector<std::string>>& semErrors, const std::string& err)
     : semanticErrors{ semErrors }, globalError{ err } {}
 
-void DirectiveAnalyzer::checkDir(const std::vector<std::unique_ptr<ASTDir>>& directives) {
-    for(auto& directive : directives){
-        switch(directive->getNodeType()){
+void DirectiveAnalyzer::checkDir(const ASTProgram* program) {
+    for(const auto& dir : program->getDirs()){
+        switch(dir->getNodeType()){
             case ASTNodeType::INCLUDE:
-                checkIncludeDir(static_cast<const ASTIncludeDir*>(directive.get()));
+                checkIncludeDir(static_cast<const ASTIncludeDir*>(dir.get()));
                 break;
             default:
                 std::unreachable();
@@ -21,11 +22,11 @@ void DirectiveAnalyzer::checkDir(const std::vector<std::unique_ptr<ASTDir>>& dir
     }
 }
 
-void DirectiveAnalyzer::checkIncludeDir(const ASTIncludeDir* lib) {
-    if(!std::filesystem::exists(Preprocessing::Libs::generateLibSourcePath(lib->getLibName()))){
+void DirectiveAnalyzer::checkIncludeDir(const ASTIncludeDir* includeDir) {
+    if(!std::filesystem::exists(Preprocessing::Libs::generateLibSourcePath(includeDir->getLibName()))){
         semanticErrors.at(globalError).push_back(
             std::format("Line {}, Column {}: SEMANTIC ERROR -> unknown library '{}'", 
-                lib->getToken().line, lib->getToken().column, lib->getLibName())
+                includeDir->getToken().line, includeDir->getToken().column, includeDir->getLibName())
         );
     }   
 }

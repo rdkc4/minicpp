@@ -8,7 +8,6 @@
 
 #include "ir_node.hpp"
 #include "ir_function.hpp"
-#include "defs/ir_defs.hpp"
 #include "../visitor/ir_visitor.hpp"
 
 /** 
@@ -19,9 +18,8 @@ class IRProgram final : public IRNode {
 public:
     /** 
      * @brief Creates the instance of the irt program
-     * @param ntype - type of the irt node
     */
-    IRProgram(IRNodeType ntype);
+    IRProgram();
 
     /** 
      * @brief getter for the functions of the program
@@ -44,10 +42,10 @@ public:
 
     /** 
      * @brief initializes the function at the specified position
-     * @param _function - pointer to the function
+     * @param function - pointer to the function
      * @param n - position of the function
     */
-    void setFunctionAtN(std::unique_ptr<IRFunction> _function, size_t n);
+    void setFunctionAtN(std::unique_ptr<IRFunction> function, size_t n);
 
     /** 
      * @brief getter for the count of the functions
@@ -59,7 +57,7 @@ public:
      * @brief adds a new library to linking list
      * @param libName - name of the library
     */
-    void addLinkedLibrary(const std::string& libName);
+    void addLinkedLib(const std::string& libName);
 
     /** 
      * @brief getter for the linked libraries

@@ -1,6 +1,9 @@
 #include "../ir_function_call_expr.hpp"
 
-IRFunctionCallExpr::IRFunctionCallExpr(IRNodeType ntype, const std::string& callName, Type type) : IRExpr(ntype, type), callName{ callName } {}
+#include "../defs/ir_defs.hpp"
+
+IRFunctionCallExpr::IRFunctionCallExpr(const std::string& callName, Type type) 
+    : IRExpr(IRNodeType::CALL, type), functionCallName{ callName } {}
 
 const std::vector<std::unique_ptr<IRExpr>>& IRFunctionCallExpr::getArguments() const noexcept {
     return arguments;
@@ -10,21 +13,21 @@ const IRExpr* IRFunctionCallExpr::getArgumentAtN(size_t n) const noexcept {
     return arguments[n].get();
 }
 
-const std::vector<std::unique_ptr<IRTemporaryExpr>>& IRFunctionCallExpr::getTemporaries() const noexcept {
-    return temporaries;
+const std::vector<std::unique_ptr<IRTemporaryExpr>>& IRFunctionCallExpr::getTemporaryExprs() const noexcept {
+    return temporaryExprs;
 }
 
-void IRFunctionCallExpr::addArgument(std::unique_ptr<IRExpr> argument, std::unique_ptr<IRTemporaryExpr> temp){
+void IRFunctionCallExpr::addArgument(std::unique_ptr<IRExpr> argument, std::unique_ptr<IRTemporaryExpr> tempExpr){
     arguments.push_back(std::move(argument));
-    temporaries.push_back(std::move(temp));
+    temporaryExprs.push_back(std::move(tempExpr));
 }
 
 const std::string& IRFunctionCallExpr::getCallName() const noexcept {
-    return callName;
+    return functionCallName;
 }
 
-void IRFunctionCallExpr::setCallName(const std::string& _callName){
-    callName = _callName;
+void IRFunctionCallExpr::setCallName(const std::string& callName){
+    functionCallName = callName;
 }
 
 size_t IRFunctionCallExpr::getArgumentCount() const noexcept {

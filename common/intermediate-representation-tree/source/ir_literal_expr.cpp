@@ -1,6 +1,9 @@
 #include "../ir_literal_expr.hpp"
 
-IRLiteralExpr::IRLiteralExpr(IRNodeType ntype, const std::string& val, Type type) : IRExpr(ntype, type), value{ val } {}
+#include "../defs/ir_defs.hpp"
+
+IRLiteralExpr::IRLiteralExpr(const std::string& val, Type type) 
+    : IRExpr(IRNodeType::LITERAL, type), value{ val } {}
 
 const std::string& IRLiteralExpr::getValue() const noexcept {
     return value;

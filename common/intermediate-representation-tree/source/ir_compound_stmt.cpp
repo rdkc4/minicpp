@@ -1,18 +1,20 @@
 #include "../ir_compound_stmt.hpp"
 
-IRCompoundStmt::IRCompoundStmt(IRNodeType ntype) : IRStmt(ntype) {}
+#include "../defs/ir_defs.hpp"
 
-const std::vector<std::unique_ptr<IRStmt>>& IRCompoundStmt::getStatements() const noexcept {
-    return statements;
+IRCompoundStmt::IRCompoundStmt() : IRStmt(IRNodeType::COMPOUND) {}
+
+const std::vector<std::unique_ptr<IRStmt>>& IRCompoundStmt::getStmts() const noexcept {
+    return stmts;
 }
 
-void IRCompoundStmt::addStatement(std::unique_ptr<IRStmt> statement){
-    statements.push_back(std::move(statement));
+void IRCompoundStmt::addStmt(std::unique_ptr<IRStmt> stmt){
+    stmts.push_back(std::move(stmt));
 }
 
-void IRCompoundStmt::eliminateDead(size_t startIdx){
-    if(startIdx < statements.size()){
-        statements.erase(statements.begin() + startIdx, statements.end());
+void IRCompoundStmt::eliminateDeadStmts(size_t startIdx){
+    if(startIdx < stmts.size()){
+        stmts.erase(stmts.begin() + startIdx, stmts.end());
     }
 }
 

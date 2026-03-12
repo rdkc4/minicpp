@@ -1,8 +1,9 @@
 #include "../ir_program.hpp"
 
+#include "../defs/ir_defs.hpp"
 #include "../../preprocessing/preprocessing_libraries.hpp"
 
-IRProgram::IRProgram(IRNodeType ntype) : IRNode(ntype) {}
+IRProgram::IRProgram() : IRNode(IRNodeType::PROGRAM) {}
 
 const std::vector<std::unique_ptr<IRFunction>>& IRProgram::getFunctions() const noexcept {
     return functions;
@@ -16,15 +17,15 @@ void IRProgram::resizeFunctions(size_t n){
     functions.resize(n);
 }
 
-void IRProgram::setFunctionAtN(std::unique_ptr<IRFunction> _function, size_t n){
-    functions[n] = std::move(_function);
+void IRProgram::setFunctionAtN(std::unique_ptr<IRFunction> function, size_t n){
+    functions[n] = std::move(function);
 }
 
 size_t IRProgram::getFunctionCount() const noexcept {
     return functions.size();
 }
 
-void IRProgram::addLinkedLibrary(const std::string& libName) {
+void IRProgram::addLinkedLib(const std::string& libName) {
     linkedLibs.insert(Preprocessing::Libs::generateLibObjPath(libName));
 }
 

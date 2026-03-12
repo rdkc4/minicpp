@@ -5,7 +5,6 @@
 #include <vector>
 
 #include "ir_stmt.hpp"
-#include "defs/ir_defs.hpp"
 #include "../visitor/ir_visitor.hpp"
 
 /** 
@@ -16,27 +15,26 @@ class IRSwitchBlockStmt final : public IRStmt {
 public:
     /** 
      * @brief Creates the instance of the irt switch-block
-     * @param ntype - type of the irt node
     */
-    IRSwitchBlockStmt(IRNodeType ntype);
+    IRSwitchBlockStmt();
 
     /** 
      * @brief getter for the statements of the switch block
      * @returns reference to const vector of pointers to the statements
     */
-    const std::vector<std::unique_ptr<IRStmt>>& getStatements() const noexcept;
+    const std::vector<std::unique_ptr<IRStmt>>& getStmts() const noexcept;
 
     /** 
      * @brief adds new statement to switch block
-     * @param statement - pointer to the statement
+     * @param stmt - pointer to the statement
     */
-    void addStatement(std::unique_ptr<IRStmt> statement);
+    void addStmt(std::unique_ptr<IRStmt> stmt);
 
     /**
      * @brief eliminates statements of the switch block that appear after the node that always returns
      * @param startIdx - index in the vector of statements where deletion starts
     */
-    void eliminateDead(size_t startIdx);
+    void eliminateDeadStmts(size_t startIdx);
 
     /**
      * @brief accepts the ir visitor
@@ -46,7 +44,7 @@ public:
 
 private:
     /// vector of pointers to statements of the switch-block
-    std::vector<std::unique_ptr<IRStmt>> statements;
+    std::vector<std::unique_ptr<IRStmt>> stmts;
     
 };
 

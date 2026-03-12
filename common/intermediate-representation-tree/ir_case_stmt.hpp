@@ -6,7 +6,6 @@
 #include "ir_stmt.hpp"
 #include "ir_literal_expr.hpp"
 #include "ir_switch_block_stmt.hpp"
-#include "defs/ir_defs.hpp"
 #include "../visitor/ir_visitor.hpp"
 
 /**
@@ -17,17 +16,16 @@ class IRCaseStmt final : public IRStmt {
 public:
     /** 
      * @brief Creates the instance of the irt case
-     * @param ntype - type of the irt node
     */
-    IRCaseStmt(IRNodeType ntype);
+    IRCaseStmt();
 
     /**
      * @brief getter for the literal of the case
      * @returns pointer or const pointer to the literal
     */
     template<typename Self>
-    decltype(auto) getLiteral(this Self&& self) noexcept {
-        return std::forward<Self>(self).literal.get();
+    decltype(auto) getLiteralExpr(this Self&& self) noexcept {
+        return std::forward<Self>(self).literalExpr.get();
     }
 
     /**
@@ -35,23 +33,23 @@ public:
      * @returns pointer or const pointer to the switch block node of the case
     */
     template<typename Self>
-    decltype(auto) getSwitchBlock(this Self&& self) noexcept {
-        return std::forward<Self>(self).swBlock.get();
+    decltype(auto) getSwitchBlockStmt(this Self&& self) noexcept {
+        return std::forward<Self>(self).switchBlockStmt.get();
     }
 
     /**
      * @brief initializes case statement
-     * @param lit - pointer to the literal
-     * @param block - pointer to the switch block
-     * @param hasBr - flag whether or not case statement has break
+     * @param litExpr - pointer to the literal
+     * @param swBlockStmt - pointer to the switch block
+     * @param hasBreak - flag whether or not case statement has break
     */
-    void setCase(std::unique_ptr<IRLiteralExpr> lit, std::unique_ptr<IRSwitchBlockStmt> block, bool hasBr);
+    void setCase(std::unique_ptr<IRLiteralExpr> litExpr, std::unique_ptr<IRSwitchBlockStmt> swBlockStmt, bool hasBreak);
 
     /**
      * @brief getter for the flag for break statement
      * @returns true if case has break statement, false otherwise
     */
-    bool hasBreak() const noexcept;
+    bool hasBreakStmt() const noexcept;
 
     /**
      * @brief accepts the ir visitor
@@ -61,10 +59,10 @@ public:
 
 private:
     /// pointer to the literal of the case
-    std::unique_ptr<IRLiteralExpr> literal;
+    std::unique_ptr<IRLiteralExpr> literalExpr;
 
     /// pointer to the switch-block of the case
-    std::unique_ptr<IRSwitchBlockStmt> swBlock;
+    std::unique_ptr<IRSwitchBlockStmt> switchBlockStmt;
 
     /// flag if case breaks
     bool breaks;

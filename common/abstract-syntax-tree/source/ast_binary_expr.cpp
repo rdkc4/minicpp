@@ -2,14 +2,15 @@
 
 #include "../defs/ast_defs.hpp"
 
-ASTBinaryExpr::ASTBinaryExpr(const Token& token, Type type, Operator op) : ASTExpr(token, ASTNodeType::BINARY_EXPRESSION, type), expressionOperator{ op } {}
+ASTBinaryExpr::ASTBinaryExpr(const Token& token, Type type, Operator op) 
+    : ASTExpr(token, ASTNodeType::BINARY_EXPRESSION, type), exprOperator{ op } {}
 
 Operator ASTBinaryExpr::getOperator() const noexcept {
-    return expressionOperator;
+    return exprOperator;
 }
 
 void ASTBinaryExpr::setOperator(Operator op) noexcept {
-    expressionOperator = op;
+    exprOperator = op;
 }
 
 void ASTBinaryExpr::setOperandExprs(std::unique_ptr<ASTExpr> leftOperand, std::unique_ptr<ASTExpr> rightOperand){

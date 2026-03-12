@@ -79,7 +79,7 @@ private:
     std::unique_ptr<ASTExpr> rightOperandExpr;
 
     /// operator of the binary expression
-    Operator expressionOperator;
+    Operator exprOperator;
 };
 
 
