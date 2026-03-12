@@ -1,10 +1,12 @@
 #include "../ast_while_stmt.hpp"
 
-ASTWhileStmt::ASTWhileStmt(const Token& token, ASTNodeType ntype) : ASTStmt(token, ntype) {}
+#include "../defs/ast_defs.hpp"
 
-void ASTWhileStmt::setWhile(std::unique_ptr<ASTExpr> cond, std::unique_ptr<ASTStmt> st){
-    condition = std::move(cond);
-    statement = std::move(st);
+ASTWhileStmt::ASTWhileStmt(const Token& token) : ASTStmt(token, ASTNodeType::WHILE_STATEMENT) {}
+
+void ASTWhileStmt::setWhileStmt(std::unique_ptr<ASTExpr> cond, std::unique_ptr<ASTStmt> statement){
+    conditionExpr = std::move(cond);
+    stmt = std::move(statement);
 }
 
 void ASTWhileStmt::accept(ASTVisitor& visitor) {

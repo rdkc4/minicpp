@@ -1,145 +1,151 @@
 #include "../stack_memory.hpp"
 
-size_t Optimization::StackMemory::computeStackMemory(const IRFunction* _function){
+size_t Optimization::StackMemory::computeStackMemory(const IRFunction* function){
     size_t variableCount = 0;
-    for(const auto& _statement : _function->getBody()){
-        variableCount += computeStackMemory(_statement.get());
+    for(const auto& stmt : function->getBody()){
+        variableCount += computeStackMemory(stmt.get());
     }
     return variableCount * regSize;
 }
 
-size_t Optimization::StackMemory::computeStackMemory(const IRTemporaryExpr* _temporary){
+size_t Optimization::StackMemory::computeStackMemory(const IRTemporaryExpr* temporaryExpr){
     size_t variableCount = 0;
-    for(const auto& _exp : _temporary->getTemporaries()){
+    for(const auto& expr : temporaryExpr->getTemporaryExprs()){
         ++variableCount;
-        if(_exp->getNodeType() == IRNodeType::CALL){
-            variableCount += computeStackMemory(_exp.get());
+        if(expr->getNodeType() == IRNodeType::CALL){
+            variableCount += computeStackMemory(expr.get());
         }
     }
     return variableCount;
 }
 
-size_t Optimization::StackMemory::computeStackMemory(const IRStmt* _stmt){
-    switch(_stmt->getNodeType()){
+size_t Optimization::StackMemory::computeStackMemory(const IRStmt* stmt){
+    switch(stmt->getNodeType()){
         case IRNodeType::VARIABLE:
-            return computeStackMemory(static_cast<const IRVariableDeclStmt*>(_stmt));
-        case  IRNodeType::COMPOUND:
-            return computeStackMemory(static_cast<const IRCompoundStmt*>(_stmt));
-        case  IRNodeType::IF:
-            return computeStackMemory(static_cast<const IRIfStmt*>(_stmt));
-        case  IRNodeType::FOR:
-            return computeStackMemory(static_cast<const IRForStmt*>(_stmt));
-        case  IRNodeType::WHILE:
-            return computeStackMemory(static_cast<const IRWhileStmt*>(_stmt));
-        case  IRNodeType::DO_WHILE:
-            return computeStackMemory(static_cast<const IRDoWhileStmt*>(_stmt));
-        case  IRNodeType::ASSIGN:
-            return computeStackMemory(static_cast<const IRAssignStmt*>(_stmt));
-        case  IRNodeType::RETURN:
-            return computeStackMemory(static_cast<const IRReturnStmt*>(_stmt));
-        case  IRNodeType::SWITCH:
-            return computeStackMemory(static_cast<const IRSwitchStmt*>(_stmt));
+            return computeStackMemory(static_cast<const IRVariableDeclStmt*>(stmt));
+        case IRNodeType::COMPOUND:
+            return computeStackMemory(static_cast<const IRCompoundStmt*>(stmt));
+        case IRNodeType::IF:
+            return computeStackMemory(static_cast<const IRIfStmt*>(stmt));
+        case IRNodeType::FOR:
+            return computeStackMemory(static_cast<const IRForStmt*>(stmt));
+        case IRNodeType::WHILE:
+            return computeStackMemory(static_cast<const IRWhileStmt*>(stmt));
+        case IRNodeType::DO_WHILE:
+            return computeStackMemory(static_cast<const IRDoWhileStmt*>(stmt));
+        case IRNodeType::ASSIGN:
+            return computeStackMemory(static_cast<const IRAssignStmt*>(stmt));
+        case IRNodeType::RETURN:
+            return computeStackMemory(static_cast<const IRReturnStmt*>(stmt));
+        case IRNodeType::SWITCH:
+            return computeStackMemory(static_cast<const IRSwitchStmt*>(stmt));
+        case IRNodeType::CALL:
+            return computeStackMemory(static_cast<const IRFunctionCallStmt*>(stmt));
         default:
             return 0;
     }
 }
 
-size_t Optimization::StackMemory::computeStackMemory(const IRVariableDeclStmt* _variable){
+size_t Optimization::StackMemory::computeStackMemory(const IRVariableDeclStmt* variableDecl){
     size_t variableCount = 1;
-    if(_variable->hasTemporaries()){
-        variableCount += computeStackMemory(_variable->getTemporaries());
+    if(variableDecl->hasTemporaryExpr()){
+        variableCount += computeStackMemory(variableDecl->getTemporaryExpr());
     }
     return variableCount;
 }
 
-size_t Optimization::StackMemory::computeStackMemory(const IRCompoundStmt* _compound){
+size_t Optimization::StackMemory::computeStackMemory(const IRCompoundStmt* compoundStmt){
     size_t variableCount = 0;
-    for(const auto& _statement : _compound->getStatements()){
-        variableCount += computeStackMemory(_statement.get());
+    for(const auto& stmt : compoundStmt->getStmts()){
+        variableCount += computeStackMemory(stmt.get());
     }
     return variableCount;
 }
 
-size_t Optimization::StackMemory::computeStackMemory(const IRIfStmt* _if){
+size_t Optimization::StackMemory::computeStackMemory(const IRIfStmt* ifStmt){
     size_t variableCount = 0;
-    for(const auto& _statement : _if->getStatements()){
-        variableCount += computeStackMemory(_statement.get());
+    for(const auto& stmt : ifStmt->getStmts()){
+        variableCount += computeStackMemory(stmt.get());
     }
-    for(const auto& temp : _if->getTemporaries()){
-        if(temp != nullptr){
-            variableCount += computeStackMemory(temp.get());
+    for(const auto& tempExpr : ifStmt->getTemporaryExprs()){
+        if(tempExpr){
+            variableCount += computeStackMemory(tempExpr.get());
         }
     }
     return variableCount;
 }
 
-size_t Optimization::StackMemory::computeStackMemory(const IRForStmt* _for){
-    size_t variableCount = computeStackMemory(_for->getStatement());
-    if(_for->hasTemporaries()){
-        variableCount += computeStackMemory(_for->getTemporaries());
+size_t Optimization::StackMemory::computeStackMemory(const IRForStmt* forStmt){
+    size_t variableCount = computeStackMemory(forStmt->getStmt());
+    if(forStmt->hasTemporaryExpr()){
+        variableCount += computeStackMemory(forStmt->getTemporaryExpr());
     }
     return variableCount;
 }
 
-size_t Optimization::StackMemory::computeStackMemory(const IRWhileStmt* _while){
-    size_t variableCount = computeStackMemory(_while->getStatement());
-    if(_while->hasTemporaries()){
-        variableCount += computeStackMemory(_while->getTemporaries());
+size_t Optimization::StackMemory::computeStackMemory(const IRWhileStmt* whileStmt){
+    size_t variableCount = computeStackMemory(whileStmt->getStmt());
+    if(whileStmt->hasTemporaryExpr()){
+        variableCount += computeStackMemory(whileStmt->getTemporaryExpr());
     }
     return variableCount;
 }
 
-size_t Optimization::StackMemory::computeStackMemory(const IRDoWhileStmt* _dowhile){
-    size_t variableCount = computeStackMemory(_dowhile->getStatement());
-    if(_dowhile->hasTemporaries()){
-        variableCount += computeStackMemory(_dowhile->getTemporaries());
+size_t Optimization::StackMemory::computeStackMemory(const IRDoWhileStmt* dowhileStmt){
+    size_t variableCount = computeStackMemory(dowhileStmt->getStmt());
+    if(dowhileStmt->hasTemporaryExpr()){
+        variableCount += computeStackMemory(dowhileStmt->getTemporaryExpr());
     }
     return variableCount;
 }
 
-size_t Optimization::StackMemory::computeStackMemory(const IRAssignStmt* _assign){
-    if(_assign->hasTemporaries()){
-        return computeStackMemory(_assign->getTemporaries());
+size_t Optimization::StackMemory::computeStackMemory(const IRAssignStmt* assignStmt){
+    if(assignStmt->hasTemporaryExpr()){
+        return computeStackMemory(assignStmt->getTemporaryExpr());
     }
     return 0;
 }
 
-size_t Optimization::StackMemory::computeStackMemory(const IRReturnStmt* _return){
-    if(_return->hasTemporaries()){
-        return computeStackMemory(_return->getTemporaries());
+size_t Optimization::StackMemory::computeStackMemory(const IRReturnStmt* returnStmt){
+    if(returnStmt->hasTemporaryExpr()){
+        return computeStackMemory(returnStmt->getTemporaryExpr());
     }
     return 0;
 }
 
-size_t Optimization::StackMemory::computeStackMemory(const IRSwitchStmt* _switch){
+size_t Optimization::StackMemory::computeStackMemory(const IRSwitchStmt* switchStmt){
     size_t variableCount = 0;
-    for(const auto& _case : _switch->getCases()){
-        variableCount += computeStackMemory(_case->getSwitchBlock());
+    for(const auto& caseStmt : switchStmt->getCaseStmts()){
+        variableCount += computeStackMemory(caseStmt->getSwitchBlockStmt());
     }
-    if(_switch->hasDefault()){
-        variableCount += computeStackMemory(_switch->getDefault()->getSwitchBlock());
-    }
-    return variableCount;
-}
-
-size_t Optimization::StackMemory::computeStackMemory(const IRSwitchBlockStmt* _swBlock){
-    size_t variableCount = 0;
-    for(const auto& _statement : _swBlock->getStatements()){
-        variableCount += computeStackMemory(_statement.get());
+    if(switchStmt->hasDefaultStmt()){
+        variableCount += computeStackMemory(switchStmt->getDefaultStmt()->getSwitchBlockStmt());
     }
     return variableCount;
 }
 
-size_t Optimization::StackMemory::computeStackMemory(const IRFunctionCallExpr* _functionCall){
+size_t Optimization::StackMemory::computeStackMemory(const IRSwitchBlockStmt* switchBlockStmt){
     size_t variableCount = 0;
-    for(const auto& temp : _functionCall->getTemporaries()){
-        if(temp != nullptr){
-            variableCount += computeStackMemory(temp.get());
+    for(const auto& stmt : switchBlockStmt->getStmts()){
+        variableCount += computeStackMemory(stmt.get());
+    }
+    return variableCount;
+}
+
+size_t Optimization::StackMemory::computeStackMemory(const IRFunctionCallStmt* callStmt){
+    return computeStackMemory(callStmt->getFunctionCallExpr());
+}
+
+size_t Optimization::StackMemory::computeStackMemory(const IRFunctionCallExpr* callExpr){
+    size_t variableCount = 0;
+    for(const auto& tempExpr : callExpr->getTemporaryExprs()){
+        if(tempExpr){
+            variableCount += computeStackMemory(tempExpr.get());
         }
     }
     return variableCount;
 }
 
-size_t Optimization::StackMemory::computeStackMemory([[maybe_unused]] const IRNode* _node){
+size_t Optimization::StackMemory::computeStackMemory([[maybe_unused]] const IRNode* node){
     return 0;
 }

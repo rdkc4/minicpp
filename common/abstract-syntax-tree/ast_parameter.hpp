@@ -2,7 +2,6 @@
 #define AST_PARAMETER_HPP
 
 #include "ast_node.hpp"
-#include "defs/ast_defs.hpp"
 #include "../token/token.hpp"
 #include "../defs/defs.hpp"
 #include "../visitor/ast_visitor.hpp"
@@ -19,7 +18,7 @@ public:
      * @param ntype - type of the ast node
      * @param type - type of the parameter
     */
-    ASTParameter(const Token& token, ASTNodeType ntype, Type type = Type::NO_TYPE);
+    ASTParameter(const Token& token, Type type = Type::NO_TYPE);
     
     /** 
      * @brief getter for a type of the parameter
@@ -29,9 +28,9 @@ public:
 
     /** 
      * @brief initializes type of the parameter
-     * @param t - type of a parameter
+     * @param parameterType - type of a parameter
     */
-    void setType(Type t) noexcept;
+    void setType(Type parameterType) noexcept;
 
     /**
      * @brief accepts the ast visitor

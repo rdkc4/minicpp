@@ -5,7 +5,6 @@
 
 #include "ast_stmt.hpp"
 #include "ast_expr.hpp"
-#include "defs/ast_defs.hpp"
 #include "../token/token.hpp"
 #include "../defs/defs.hpp"
 #include "../visitor/ast_visitor.hpp"
@@ -19,10 +18,9 @@ public:
     /** 
      * @brief Creates the instance of the ast variable declaration
      * @param token - const reference to the token
-     * @param ntype - type of the ast node
      * @param type - type of the variable
     */
-    ASTVariableDeclStmt(const Token& token, ASTNodeType ntype, Type type = Type::NO_TYPE);
+    ASTVariableDeclStmt(const Token& token, Type type = Type::NO_TYPE);
 
     /** 
      * @brief getter for the type of the variable
@@ -32,9 +30,9 @@ public:
 
     /** 
      * @brief initializes the type of the variable
-     * @param t - type of the variable
+     * @param variableType - type of the variable
     */
-    void setType(Type t) noexcept;
+    void setType(Type variableType) noexcept;
 
     /** 
      * @brief getter for the expression assigned to the variable
@@ -42,21 +40,21 @@ public:
      * @returns pointer or const pointer to the expression assigned to the variable
     */
     template<typename Self>
-    decltype(auto) getAssign(this Self&& self) noexcept {
-        return std::forward<Self>(self).assignment.get();
+    decltype(auto) getAssignExpr(this Self&& self) noexcept {
+        return std::forward<Self>(self).assignExpr.get();
     }
 
     /** 
      * @brief initializes expression of the variable
-     * @param assign - expression being assigned to the variable
+     * @param expr - expression being assigned to the variable
     */
-    void setAssign(std::unique_ptr<ASTExpr> assign);
+    void setAssignExpr(std::unique_ptr<ASTExpr> expr);
 
     /** 
      * @brief checks if the variable has assignment
      * @return true if variable has assignment, false otherwise
     */
-    bool hasAssign() const noexcept;
+    bool hasAssignExpr() const noexcept;
 
     /**
      * @brief accepts the ast visitor
@@ -69,7 +67,7 @@ private:
     Type type;
     
     /// pointer to the expression assigned to the variable
-    std::unique_ptr<ASTExpr> assignment;
+    std::unique_ptr<ASTExpr> assignExpr;
 
 };
 

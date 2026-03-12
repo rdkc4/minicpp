@@ -1,18 +1,20 @@
 #include "../ir_switch_block_stmt.hpp"
 
-IRSwitchBlockStmt::IRSwitchBlockStmt(IRNodeType ntype) : IRStmt(ntype) {}
+#include "../defs/ir_defs.hpp"
 
-const std::vector<std::unique_ptr<IRStmt>>& IRSwitchBlockStmt::getStatements() const noexcept {
-    return statements;
+IRSwitchBlockStmt::IRSwitchBlockStmt() : IRStmt(IRNodeType::SWITCH_BLOCK) {}
+
+const std::vector<std::unique_ptr<IRStmt>>& IRSwitchBlockStmt::getStmts() const noexcept {
+    return stmts;
 }
 
-void IRSwitchBlockStmt::addStatement(std::unique_ptr<IRStmt> statement){
-    statements.push_back(std::move(statement));
+void IRSwitchBlockStmt::addStmt(std::unique_ptr<IRStmt> stmt){
+    stmts.push_back(std::move(stmt));
 }
 
-void IRSwitchBlockStmt::eliminateDead(size_t startIdx){
-    if(startIdx < statements.size()){
-        statements.erase(statements.begin() + startIdx, statements.end());
+void IRSwitchBlockStmt::eliminateDeadStmts(size_t startIdx){
+    if(startIdx < stmts.size()){
+        stmts.erase(stmts.begin() + startIdx, stmts.end());
     }
 }
 

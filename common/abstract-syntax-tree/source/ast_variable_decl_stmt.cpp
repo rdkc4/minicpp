@@ -1,21 +1,24 @@
 #include "../ast_variable_decl_stmt.hpp"
 
-ASTVariableDeclStmt::ASTVariableDeclStmt(const Token& token, ASTNodeType ntype, Type type) : ASTStmt(token, ntype), type{ type } {}
+#include "../defs/ast_defs.hpp"
+
+ASTVariableDeclStmt::ASTVariableDeclStmt(const Token& token, Type type) 
+    : ASTStmt(token, ASTNodeType::VARIABLE), type{ type } {}
 
 Type ASTVariableDeclStmt::getType() const noexcept {
     return type;
 }
 
-void ASTVariableDeclStmt::setType(Type t) noexcept {
-    type = t;
+void ASTVariableDeclStmt::setType(Type variableType) noexcept {
+    type = variableType;
 }
 
-void ASTVariableDeclStmt::setAssign(std::unique_ptr<ASTExpr> assign){
-    assignment = std::move(assign);
+void ASTVariableDeclStmt::setAssignExpr(std::unique_ptr<ASTExpr> expr){
+    assignExpr = std::move(expr);
 }
 
-bool ASTVariableDeclStmt::hasAssign() const noexcept {
-    return assignment != nullptr;
+bool ASTVariableDeclStmt::hasAssignExpr() const noexcept {
+    return assignExpr != nullptr;
 }
 
 void ASTVariableDeclStmt::accept(ASTVisitor& visitor) {

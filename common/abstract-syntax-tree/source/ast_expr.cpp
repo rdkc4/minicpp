@@ -6,6 +6,6 @@ Type ASTExpr::getType() const noexcept {
     return type;
 }
 
-void ASTExpr::setType(Type t) noexcept {
-    type = t;
+void ASTExpr::setType(Type exprType) noexcept {
+    type = exprType;
 }

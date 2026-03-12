@@ -96,7 +96,7 @@ TEST(ParserTest, VariableDirectInit){
     std::unique_ptr<ASTVariableDeclStmt> variableDecl;
     ASSERT_NO_THROW(variableDecl = parser.parseVariableDeclStmt());
     ASSERT_EQ(variableDecl->getNodeType(), ASTNodeType::VARIABLE);
-    ASSERT_TRUE(variableDecl->hasAssign());
+    ASSERT_TRUE(variableDecl->hasAssignExpr());
 }
 
 TEST(ParserTest, VariableNoInit){
@@ -110,7 +110,7 @@ TEST(ParserTest, VariableNoInit){
     std::unique_ptr<ASTVariableDeclStmt> variableDecl;
     ASSERT_NO_THROW(variableDecl = parser.parseVariableDeclStmt());
     ASSERT_EQ(variableDecl->getNodeType(), ASTNodeType::VARIABLE);
-    ASSERT_FALSE(variableDecl->hasAssign());
+    ASSERT_FALSE(variableDecl->hasAssignExpr());
 }
 
 TEST(ParserTest, EmptyCompoundStatement){
@@ -125,7 +125,7 @@ TEST(ParserTest, EmptyCompoundStatement){
     std::unique_ptr<ASTCompoundStmt> compoundStmt;
     ASSERT_NO_THROW(compoundStmt = parser.parseCompoundStmt());
     ASSERT_EQ(compoundStmt->getNodeType(), ASTNodeType::COMPOUND_STATEMENT);
-    ASSERT_EQ(compoundStmt->getStatements().size(), expectedChildrenSize);
+    ASSERT_EQ(compoundStmt->getStmts().size(), expectedChildrenSize);
 }
 
 TEST(ParserTest, CompoundStatement){
@@ -140,7 +140,7 @@ TEST(ParserTest, CompoundStatement){
     std::unique_ptr<ASTCompoundStmt> compoundStmt;
     ASSERT_NO_THROW(compoundStmt = parser.parseCompoundStmt());
     ASSERT_EQ(compoundStmt->getNodeType(), ASTNodeType::COMPOUND_STATEMENT);
-    ASSERT_EQ(compoundStmt->getStatements().size(), expectedChildrenSize);
+    ASSERT_EQ(compoundStmt->getStmts().size(), expectedChildrenSize);
 }
 
 TEST(ParserTest, AssignmentStatement){
@@ -153,7 +153,7 @@ TEST(ParserTest, AssignmentStatement){
     std::unique_ptr<ASTAssignStmt> assignStmt;
     ASSERT_NO_THROW(assignStmt = parser.parseAssignStmt());
     ASSERT_EQ(assignStmt->getNodeType(), ASTNodeType::ASSIGNMENT_STATEMENT);
-    ASSERT_TRUE(assignStmt->getExp()->getNodeType() == ASTNodeType::LITERAL);
+    ASSERT_TRUE(assignStmt->getAssignedExpr()->getNodeType() == ASTNodeType::LITERAL);
 }
 
 TEST(ParserTest, ReturnStatementVoid){
@@ -166,7 +166,7 @@ TEST(ParserTest, ReturnStatementVoid){
     std::unique_ptr<ASTReturnStmt> returnStmt;
     ASSERT_NO_THROW(returnStmt = parser.parseReturnStmt());
     ASSERT_EQ(returnStmt->getNodeType(), ASTNodeType::RETURN_STATEMENT);
-    ASSERT_FALSE(returnStmt->returns());
+    ASSERT_FALSE(returnStmt->hasReturnExpr());
 }
 
 TEST(ParserTest, ReturnStatement){
@@ -179,7 +179,7 @@ TEST(ParserTest, ReturnStatement){
     std::unique_ptr<ASTReturnStmt> returnStmt;
     ASSERT_NO_THROW(returnStmt = parser.parseReturnStmt());
     ASSERT_EQ(returnStmt->getNodeType(), ASTNodeType::RETURN_STATEMENT);
-    ASSERT_TRUE(returnStmt->returns());
+    ASSERT_TRUE(returnStmt->hasReturnExpr());
 }
 
 TEST(ParserTest, IfStatementOnlyIf){
@@ -194,8 +194,8 @@ TEST(ParserTest, IfStatementOnlyIf){
     std::unique_ptr<ASTIfStmt> ifStmt;
     ASSERT_NO_THROW(ifStmt = parser.parseIfStmt());
     ASSERT_EQ(ifStmt->getNodeType(), ASTNodeType::IF_STATEMENT);
-    ASSERT_EQ(ifStmt->getConditions().size(), expectedConditionCount);
-    ASSERT_FALSE(ifStmt->hasElse());
+    ASSERT_EQ(ifStmt->getConditionExprs().size(), expectedConditionCount);
+    ASSERT_FALSE(ifStmt->hasElseStmt());
 }
 
 TEST(ParserTest, IfStatementIfElse){
@@ -210,8 +210,8 @@ TEST(ParserTest, IfStatementIfElse){
     std::unique_ptr<ASTIfStmt> ifStmt;
     ASSERT_NO_THROW(ifStmt = parser.parseIfStmt());
     ASSERT_EQ(ifStmt->getNodeType(), ASTNodeType::IF_STATEMENT);
-    ASSERT_EQ(ifStmt->getStatements().size(), expectedStatementCount);
-    ASSERT_TRUE(ifStmt->hasElse());
+    ASSERT_EQ(ifStmt->getStmts().size(), expectedStatementCount);
+    ASSERT_TRUE(ifStmt->hasElseStmt());
 }
 
 TEST(ParserTest, IfStatementIfElseif){
@@ -226,7 +226,7 @@ TEST(ParserTest, IfStatementIfElseif){
     std::unique_ptr<ASTIfStmt> ifStmt;
     ASSERT_NO_THROW(ifStmt = parser.parseIfStmt());
     ASSERT_EQ(ifStmt->getNodeType(), ASTNodeType::IF_STATEMENT);
-    ASSERT_EQ(ifStmt->getConditions().size(), expectedConditionCount);
+    ASSERT_EQ(ifStmt->getConditionExprs().size(), expectedConditionCount);
 }
 
 TEST(ParserTest, IfStatementIfElseifElse){
@@ -241,8 +241,8 @@ TEST(ParserTest, IfStatementIfElseifElse){
     std::unique_ptr<ASTIfStmt> ifStmt;
     ASSERT_NO_THROW(ifStmt = parser.parseIfStmt());
     ASSERT_EQ(ifStmt->getNodeType(), ASTNodeType::IF_STATEMENT);
-    ASSERT_EQ(ifStmt->getStatements().size(), expectedStatementCount);
-    ASSERT_TRUE(ifStmt->hasElse());
+    ASSERT_EQ(ifStmt->getStmts().size(), expectedStatementCount);
+    ASSERT_TRUE(ifStmt->hasElseStmt());
 }
 
 TEST(ParserTest, WhileStatement){
@@ -267,9 +267,9 @@ TEST(ParserTest, ForStatement){
     std::unique_ptr<ASTForStmt> forStmt;
     ASSERT_NO_THROW(forStmt = parser.parseForStmt());
     ASSERT_EQ(forStmt->getNodeType(), ASTNodeType::FOR_STATEMENT);
-    ASSERT_TRUE(forStmt->hasInitializer());
-    ASSERT_TRUE(forStmt->hasCondition());
-    ASSERT_TRUE(forStmt->hasIncrementer());
+    ASSERT_TRUE(forStmt->hasInitializerStmt());
+    ASSERT_TRUE(forStmt->hasConditionExpr());
+    ASSERT_TRUE(forStmt->hasIncrementerStmt());
 }
 
 TEST(ParserTest, DoWhileStatement){
@@ -296,8 +296,8 @@ TEST(ParserTest, SwitchStatement){
     std::unique_ptr<ASTSwitchStmt> switchStmt;
     ASSERT_NO_THROW(switchStmt = parser.parseSwitchStmt());
     ASSERT_EQ(switchStmt->getNodeType(), ASTNodeType::SWITCH_STATEMENT);
-    ASSERT_EQ(switchStmt->getCases().size(), expectedCaseCount);
-    ASSERT_TRUE(switchStmt->hasDefault());  
+    ASSERT_EQ(switchStmt->getCaseStmts().size(), expectedCaseCount);
+    ASSERT_TRUE(switchStmt->hasDefaultStmt());  
 }
 
 TEST(ParserTest, SwitchStatementNoDefault){
@@ -312,8 +312,8 @@ TEST(ParserTest, SwitchStatementNoDefault){
     std::unique_ptr<ASTSwitchStmt> switchStmt;
     ASSERT_NO_THROW(switchStmt = parser.parseSwitchStmt());
     ASSERT_EQ(switchStmt->getNodeType(), ASTNodeType::SWITCH_STATEMENT);
-    ASSERT_EQ(switchStmt->getCases().size(), expectedCaseCount);
-    ASSERT_FALSE(switchStmt->hasDefault());   
+    ASSERT_EQ(switchStmt->getCaseStmts().size(), expectedCaseCount);
+    ASSERT_FALSE(switchStmt->hasDefaultStmt());   
 }
 
 TEST(ParserTest, SwitchStatementNoCaseThrows){

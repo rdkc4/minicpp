@@ -3,7 +3,8 @@
 #include "../../optimization/dead_code.hpp"
 #include "../../optimization/stack_memory.hpp"
 
-FunctionIntermediateRepresentation::FunctionIntermediateRepresentation(std::unordered_map<std::string, std::vector<std::string>>& exceptions) : exceptions{ exceptions } {}
+FunctionIntermediateRepresentation::FunctionIntermediateRepresentation(std::unordered_map<std::string, std::vector<std::string>>& exceptions) 
+    : exceptions{ exceptions } {}
 
 thread_local IRThreadContext FunctionIntermediateRepresentation::irContext;
 
@@ -13,7 +14,7 @@ IRThreadContext& FunctionIntermediateRepresentation::getContext() noexcept {
 
 std::unique_ptr<IRFunction> FunctionIntermediateRepresentation::transformFunction(const ASTFunction* astFunction){
     std::unique_ptr<IRFunction> irFunction = 
-        std::make_unique<IRFunction>(IRNodeType::FUNCTION, astFunction->getToken().value, astFunction->getType());
+        std::make_unique<IRFunction>(astFunction->getToken().value, astFunction->getType());
     
     irContext.init();
 
@@ -46,9 +47,7 @@ std::unique_ptr<IRFunction> FunctionIntermediateRepresentation::transformFunctio
 void FunctionIntermediateRepresentation::transformParameters(IRFunction* irFunction, const ASTFunction* astFunction){
     for(const auto& astParameter : astFunction->getParameters()){
         irFunction->addParameter(
-            std::make_unique<IRParameter>(
-                IRNodeType::PARAMETER, astParameter->getToken().value, astParameter->getType()
-            )
+            std::make_unique<IRParameter>(astParameter->getToken().value, astParameter->getType())
         );
     }
 }

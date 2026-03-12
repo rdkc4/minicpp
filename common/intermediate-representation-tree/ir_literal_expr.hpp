@@ -4,7 +4,6 @@
 #include <string>
 
 #include "ir_expr.hpp"
-#include "defs/ir_defs.hpp"
 #include "../defs/defs.hpp"
 #include "../visitor/ir_visitor.hpp"
 
@@ -16,11 +15,10 @@ class IRLiteralExpr final : public IRExpr {
 public:
     /** 
      * @brief Creates the instance of the irt literal
-     * @param ntype - type of the irt node
      * @param val - value of the literal
      * @param type - type of the literal
     */
-    IRLiteralExpr(IRNodeType ntype, const std::string& val, Type type);
+    IRLiteralExpr(const std::string& val, Type type);
 
     /** 
      * @brief getter for the value of the literal

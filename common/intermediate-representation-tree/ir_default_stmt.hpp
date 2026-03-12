@@ -5,7 +5,6 @@
 
 #include "ir_stmt.hpp"
 #include "ir_switch_block_stmt.hpp"
-#include "defs/ir_defs.hpp"
 #include "../visitor/ir_visitor.hpp"
 
 /**
@@ -16,24 +15,23 @@ class IRDefaultStmt final : public IRStmt {
 public:
     /** 
      * @brief Creates the instance of the irt default case
-     * @param ntype - type of the irt node
     */
-    IRDefaultStmt(IRNodeType ntype);
+    IRDefaultStmt();
 
     /**
      * @brief getter for the switch block of the default statement
      * @returns pointer or const pointer to the switch block node
     */
     template<typename Self>
-    decltype(auto) getSwitchBlock(this Self&& self) noexcept {
-        return std::forward<Self>(self).swBlock.get();
+    decltype(auto) getSwitchBlockStmt(this Self&& self) noexcept {
+        return std::forward<Self>(self).switchBlockStmt.get();
     }
 
     /**
      * @brief initializes the default statement node
-     * @param block - pointer to a switch block node
+     * @param swBlockStmt - pointer to a switch block node
     */
-    void setSwitchBlock(std::unique_ptr<IRSwitchBlockStmt> block);
+    void setSwitchBlock(std::unique_ptr<IRSwitchBlockStmt> swBlockStmt);
 
     /**
      * @brief accepts the ir visitor
@@ -43,7 +41,7 @@ public:
 
 private:
     /// pointer to the switch-block of the default case
-    std::unique_ptr<IRSwitchBlockStmt> swBlock;
+    std::unique_ptr<IRSwitchBlockStmt> switchBlockStmt;
 };
 
 #endif

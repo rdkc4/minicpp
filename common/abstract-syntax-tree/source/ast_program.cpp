@@ -1,6 +1,8 @@
 #include "../ast_program.hpp"
 
-ASTProgram::ASTProgram(const Token& token, ASTNodeType ntype) : ASTNode(token, ntype) {}
+#include "../defs/ast_defs.hpp"
+
+ASTProgram::ASTProgram(const Token& token) : ASTNode(token, ASTNodeType::PROGRAM) {}
 
 const std::vector<std::unique_ptr<ASTFunction>>& ASTProgram::getFunctions() const noexcept {
     return functions;
@@ -14,20 +16,20 @@ const ASTFunction* ASTProgram::getFunctionAtN(size_t n) const noexcept {
     return functions[n].get();
 }
 
-const std::vector<std::unique_ptr<ASTDir>>& ASTProgram::getDirectives() const noexcept {
-    return directives;
+const std::vector<std::unique_ptr<ASTDir>>& ASTProgram::getDirs() const noexcept {
+    return dirs;
 }
 
-const ASTDir* ASTProgram::getDirectiveAtN(size_t n) const noexcept {
-    return directives[n].get();
+const ASTDir* ASTProgram::getDirAtN(size_t n) const noexcept {
+    return dirs[n].get();
 }
 
 void ASTProgram::addFunction(std::unique_ptr<ASTFunction> function){
     functions.push_back(std::move(function));
 }
 
-void ASTProgram::addDirective(std::unique_ptr<ASTDir> directive) {
-    directives.push_back(std::move(directive));
+void ASTProgram::addDir(std::unique_ptr<ASTDir> directive) {
+    dirs.push_back(std::move(directive));
 }
 
 void ASTProgram::accept(ASTVisitor& visitor) {

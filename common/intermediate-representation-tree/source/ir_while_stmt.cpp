@@ -1,15 +1,17 @@
 #include "../ir_while_stmt.hpp"
 
-IRWhileStmt::IRWhileStmt(IRNodeType ntype) : IRStmt(ntype) {}
+#include "../defs/ir_defs.hpp"
 
-void IRWhileStmt::setWhileSt(std::unique_ptr<IRExpr> cond, std::unique_ptr<IRStmt> st, std::unique_ptr<IRTemporaryExpr> temp){
-    condition = std::move(cond);
-    statement = std::move(st);
-    temporaries = std::move(temp);
+IRWhileStmt::IRWhileStmt() : IRStmt(IRNodeType::WHILE) {}
+
+void IRWhileStmt::setWhileStmt(std::unique_ptr<IRExpr> condExpr, std::unique_ptr<IRStmt> statement, std::unique_ptr<IRTemporaryExpr> tempExpr){
+    conditionExpr = std::move(condExpr);
+    stmt = std::move(statement);
+    temporaryExpr = std::move(tempExpr);
 }
 
-bool IRWhileStmt::hasTemporaries() const noexcept {
-    return temporaries != nullptr;
+bool IRWhileStmt::hasTemporaryExpr() const noexcept {
+    return temporaryExpr != nullptr;
 }
 
 void IRWhileStmt::accept(IRVisitor& visitor){

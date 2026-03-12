@@ -1,11 +1,13 @@
 #include "../ir_variable_decl_stmt.hpp"
 
-IRVariableDeclStmt::IRVariableDeclStmt(IRNodeType ntype, std::string_view varName, Type type) 
-    : IRStmt(ntype), varName{ varName }, value{ "0" }, type{ type } {}
+#include "../defs/ir_defs.hpp"
 
-void IRVariableDeclStmt::setAssign(std::unique_ptr<IRExpr> assign, std::unique_ptr<IRTemporaryExpr> temp){
-    assignment = std::move(assign);
-    temporaries = std::move(temp);
+IRVariableDeclStmt::IRVariableDeclStmt(std::string_view varName, Type type) 
+    : IRStmt(IRNodeType::VARIABLE), varName{ varName }, value{ "0" }, type{ type } {}
+
+void IRVariableDeclStmt::setAssignExpr(std::unique_ptr<IRExpr> expr, std::unique_ptr<IRTemporaryExpr> tempExpr){
+    assignExpr = std::move(expr);
+    temporaryExpr = std::move(tempExpr);
 }
 
 const std::string& IRVariableDeclStmt::getVarName() const noexcept {
@@ -32,12 +34,12 @@ void IRVariableDeclStmt::setType(Type t) noexcept {
     type = t;
 }
 
-bool IRVariableDeclStmt::hasAssign() const noexcept {
-    return assignment != nullptr;
+bool IRVariableDeclStmt::hasAssignExpr() const noexcept {
+    return assignExpr != nullptr;
 }
 
-bool IRVariableDeclStmt::hasTemporaries() const noexcept {
-    return temporaries != nullptr;
+bool IRVariableDeclStmt::hasTemporaryExpr() const noexcept {
+    return temporaryExpr != nullptr;
 }
 
 void IRVariableDeclStmt::accept(IRVisitor& visitor){

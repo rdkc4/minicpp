@@ -159,11 +159,11 @@ bool FunctionAnalyzer::alwaysReturns(const ASTNode* node) const noexcept {
     else if(nodeType == ASTNodeType::IF_STATEMENT){
         auto ifStmt = static_cast<const ASTIfStmt*>(node);
         // if there is no else, not all paths are covered
-        if(!ifStmt->hasElse()){
+        if(!ifStmt->hasElseStmt()){
             return false;
         }
         // if any if / else if / else doesn't return => not all paths return
-        for(const auto& stmt : ifStmt->getStatements()){
+        for(const auto& stmt : ifStmt->getStmts()){
             if(!alwaysReturns(stmt.get())){
                 return false;
             }
@@ -173,26 +173,26 @@ bool FunctionAnalyzer::alwaysReturns(const ASTNode* node) const noexcept {
     else if(nodeType == ASTNodeType::SWITCH_STATEMENT){
         auto switchStmt = static_cast<const ASTSwitchStmt*>(node);
         // no default => not all paths are covered
-        if(!switchStmt->hasDefault()){
+        if(!switchStmt->hasDefaultStmt()){
             return false;
         }
         // each case must return, otherwise not all paths return
-        for(const auto& caseStmt : switchStmt->getCases()){
+        for(const auto& caseStmt : switchStmt->getCaseStmts()){
             // check cases, if there is no break fallthrough to the next case
-            if(!alwaysReturns(caseStmt->getSwitchBlock()) && caseStmt->hasBreak()){
+            if(!alwaysReturns(caseStmt->getSwitchBlockStmt()) && caseStmt->hasBreakStmt()){
                 return false;
             }
         }
-        return alwaysReturns(switchStmt->getDefault()->getSwitchBlock()); // check default
+        return alwaysReturns(switchStmt->getDefaultStmt()->getSwitchBlockStmt()); // check default
     }
     else if(nodeType == ASTNodeType::DO_WHILE_STATEMENT){
         auto dowhileStmt = static_cast<const ASTDoWhileStmt*>(node);
-        return alwaysReturns(dowhileStmt->getStatement());
+        return alwaysReturns(dowhileStmt->getStmt());
     }
     else if(nodeType == ASTNodeType::COMPOUND_STATEMENT){
         auto compoundStmt = static_cast<const ASTCompoundStmt*>(node);
         // if any statement always returns - compound always returns
-        for(const auto& stmt : compoundStmt->getStatements()){
+        for(const auto& stmt : compoundStmt->getStmts()){
             if(alwaysReturns(stmt.get())){
                 return true;
             }
@@ -201,7 +201,7 @@ bool FunctionAnalyzer::alwaysReturns(const ASTNode* node) const noexcept {
     }
     else if(nodeType == ASTNodeType::SWITCH_BLOCK){
         auto switchBlockStmt = static_cast<const ASTSwitchBlockStmt*>(node);
-        for(const auto& stmt : switchBlockStmt->getStatements()){
+        for(const auto& stmt : switchBlockStmt->getStmts()){
             if(alwaysReturns(stmt.get())){
                 return true;
             }

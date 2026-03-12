@@ -12,7 +12,7 @@ void ASTDumper::visit(ASTProgram* program){
     dumpNode("DIRECTIVES");
     {
         IndentGuard dirGuard{indent};
-        for(const auto& dir : program->getDirectives()){
+        for(const auto& dir : program->getDirs()){
             dir->accept(*this);
         }
     }
@@ -59,9 +59,9 @@ void ASTDumper::visit(ASTParameter* parameter){
 void ASTDumper::visit(ASTVariableDeclStmt* variableDecl){
     dumpNode(variableDecl);
 
-    if(variableDecl->hasAssign()){
+    if(variableDecl->hasAssignExpr()){
         IndentGuard variableGuard{indent};
-        variableDecl->getAssign()->accept(*this);
+        variableDecl->getAssignExpr()->accept(*this);
     }
 }
 
@@ -69,15 +69,15 @@ void ASTDumper::visit(ASTAssignStmt* assignStmt){
     dumpNode(assignStmt);
     
     IndentGuard assignGuard{indent};
-    assignStmt->getVariable()->accept(*this);
-    assignStmt->getExp()->accept(*this);
+    assignStmt->getVariableIdExpr()->accept(*this);
+    assignStmt->getAssignedExpr()->accept(*this);
 }
 
 void ASTDumper::visit(ASTCompoundStmt* compoundStmt){
     dumpNode(compoundStmt);
 
     IndentGuard compoundGuard{indent};
-    for(const auto& stmt : compoundStmt->getStatements()){
+    for(const auto& stmt : compoundStmt->getStmts()){
         stmt->accept(*this);
     }
 }
@@ -86,37 +86,37 @@ void ASTDumper::visit(ASTForStmt* forStmt){
     dumpNode(forStmt);
 
     IndentGuard forGuard{indent};
-    if(forStmt->hasInitializer()){
-        forStmt->getInitializer()->accept(*this);
+    if(forStmt->hasInitializerStmt()){
+        forStmt->getInitializerStmt()->accept(*this);
     }
-    if(forStmt->hasCondition()){
-        forStmt->getCondition()->accept(*this);
+    if(forStmt->hasConditionExpr()){
+        forStmt->getConditionExpr()->accept(*this);
     }
-    if(forStmt->hasIncrementer()){
-        forStmt->getIncrementer()->accept(*this);
+    if(forStmt->hasIncrementerStmt()){
+        forStmt->getIncrementerStmt()->accept(*this);
     }
-    forStmt->getStatement()->accept(*this);
+    forStmt->getStmt()->accept(*this);
 }
 
 void ASTDumper::visit(ASTFunctionCallStmt* callStmt){
     dumpNode(callStmt);
 
     IndentGuard callGuard{indent};
-    callStmt->getFunctionCall()->accept(*this);
+    callStmt->getFunctionCallExpr()->accept(*this);
 }
 
 void ASTDumper::visit(ASTIfStmt* ifStmt){
     dumpNode(ifStmt);
 
     IndentGuard ifGuard{indent};
-    const auto& conditions = ifStmt->getConditions();
-    const auto& statements = ifStmt->getStatements();
+    const auto& conditions = ifStmt->getConditionExprs();
+    const auto& statements = ifStmt->getStmts();
 
     for(size_t i = 0; i < conditions.size(); ++i){
         conditions[i]->accept(*this);
         statements[i]->accept(*this);
     }
-    if(ifStmt->hasElse()){
+    if(ifStmt->hasElseStmt()){
         statements.back()->accept(*this);
     }
 }
@@ -124,9 +124,9 @@ void ASTDumper::visit(ASTIfStmt* ifStmt){
 void ASTDumper::visit(ASTReturnStmt* returnStmt){
     dumpNode(returnStmt);
 
-    if(returnStmt->returns()){
+    if(returnStmt->hasReturnExpr()){
         IndentGuard returnGuard{indent};
-        returnStmt->getExp()->accept(*this);
+        returnStmt->getReturnExpr()->accept(*this);
     }
 }
 
@@ -134,28 +134,28 @@ void ASTDumper::visit(ASTWhileStmt* whileStmt){
     dumpNode(whileStmt);
 
     IndentGuard whileGuard{indent};
-    whileStmt->getCondition()->accept(*this);
-    whileStmt->getStatement()->accept(*this);
+    whileStmt->getConditionExpr()->accept(*this);
+    whileStmt->getStmt()->accept(*this);
 }
 
 void ASTDumper::visit(ASTDoWhileStmt* dowhileStmt){
     dumpNode(dowhileStmt);
 
     IndentGuard dowhileGuard{indent};
-    dowhileStmt->getCondition()->accept(*this);
-    dowhileStmt->getStatement()->accept(*this);
+    dowhileStmt->getConditionExpr()->accept(*this);
+    dowhileStmt->getStmt()->accept(*this);
 }
 
 void ASTDumper::visit(ASTSwitchStmt* switchStmt){
     dumpNode(switchStmt);
 
     IndentGuard switchGuard{indent};
-    switchStmt->getVariable()->accept(*this);
-    for(const auto& caseStmt : switchStmt->getCases()){
+    switchStmt->getVariableIdExpr()->accept(*this);
+    for(const auto& caseStmt : switchStmt->getCaseStmts()){
         caseStmt->accept(*this);
     }
-    if(switchStmt->hasDefault()){
-        switchStmt->getDefault()->accept(*this);
+    if(switchStmt->hasDefaultStmt()){
+        switchStmt->getDefaultStmt()->accept(*this);
     }
 }
 
@@ -163,9 +163,9 @@ void ASTDumper::visit(ASTCaseStmt* caseStmt){
     dumpNode(caseStmt);
 
     IndentGuard caseGuard{indent};
-    caseStmt->getLiteral()->accept(*this);
-    caseStmt->getSwitchBlock()->accept(*this);
-    if(caseStmt->hasBreak()){
+    caseStmt->getLiteralExpr()->accept(*this);
+    caseStmt->getSwitchBlockStmt()->accept(*this);
+    if(caseStmt->hasBreakStmt()){
         dumpNode("BREAK");
     }
 }
@@ -174,14 +174,14 @@ void ASTDumper::visit(ASTDefaultStmt* defaultStmt){
     dumpNode(defaultStmt);
 
     IndentGuard defaultGuard{indent};
-    defaultStmt->getSwitchBlock()->accept(*this);
+    defaultStmt->getSwitchBlockStmt()->accept(*this);
 }
 
 void ASTDumper::visit(ASTSwitchBlockStmt* switchBlockStmt){
     dumpNode(switchBlockStmt);
 
     IndentGuard switchBlockGuard{indent};
-    for(const auto& stmt : switchBlockStmt->getStatements()){
+    for(const auto& stmt : switchBlockStmt->getStmts()){
         stmt->accept(*this);
     }
 }
@@ -190,8 +190,8 @@ void ASTDumper::visit(ASTBinaryExpr* binaryExpr){
     dumpNode(binaryExpr);
 
     IndentGuard binaryExprGuard{indent};
-    binaryExpr->getLeftOperand()->accept(*this);
-    binaryExpr->getRightOperand()->accept(*this);
+    binaryExpr->getLeftOperandExpr()->accept(*this);
+    binaryExpr->getRightOperandExpr()->accept(*this);
 }
 
 void ASTDumper::visit(ASTFunctionCallExpr* callExpr){

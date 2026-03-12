@@ -1,29 +1,31 @@
 #include "../ir_for_stmt.hpp"
 
-IRForStmt::IRForStmt(IRNodeType ntype) : IRStmt(ntype) {}
+#include "../defs/ir_defs.hpp"
 
-void IRForStmt::setForSt(std::unique_ptr<IRAssignStmt> init, std::unique_ptr<IRExpr> cond, std::unique_ptr<IRAssignStmt> inc, std::unique_ptr<IRStmt> st, std::unique_ptr<IRTemporaryExpr> temp){
-    initializer = std::move(init);
-    condition = std::move(cond);
-    incrementer = std::move(inc);
-    statement = std::move(st);
-    temporaries = std::move(temp);
+IRForStmt::IRForStmt() : IRStmt(IRNodeType::FOR) {}
+
+void IRForStmt::setForSt(std::unique_ptr<IRAssignStmt> initStmt, std::unique_ptr<IRExpr> condExpr, std::unique_ptr<IRAssignStmt> incStmt, std::unique_ptr<IRStmt> statement, std::unique_ptr<IRTemporaryExpr> tempExpr){
+    initializerStmt = std::move(initStmt);
+    conditionExpr = std::move(condExpr);
+    incrementerStmt = std::move(incStmt);
+    stmt = std::move(statement);
+    temporaryExpr = std::move(tempExpr);
 }
 
-bool IRForStmt::hasInitializer() const noexcept {
-    return initializer != nullptr;
+bool IRForStmt::hasInitializerStmt() const noexcept {
+    return initializerStmt != nullptr;
 }
 
-bool IRForStmt::hasCondition() const noexcept {
-    return condition != nullptr;
+bool IRForStmt::hasConditionExpr() const noexcept {
+    return conditionExpr != nullptr;
 }
 
-bool IRForStmt::hasIncrementer() const noexcept {
-    return incrementer != nullptr;
+bool IRForStmt::hasIncrementerStmt() const noexcept {
+    return incrementerStmt != nullptr;
 }
 
-bool IRForStmt::hasTemporaries() const noexcept {
-    return temporaries != nullptr;
+bool IRForStmt::hasTemporaryExpr() const noexcept {
+    return temporaryExpr != nullptr;
 }
 
 void IRForStmt::accept(IRVisitor& visitor){

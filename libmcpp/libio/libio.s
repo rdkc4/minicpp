@@ -111,3 +111,5 @@ print_u:
     mov %rbp, %rsp
     pop %rbp
     ret
+
+.section .note.GNU-stack,"",@progbits

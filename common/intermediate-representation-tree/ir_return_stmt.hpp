@@ -6,7 +6,6 @@
 #include "ir_stmt.hpp"
 #include "ir_expr.hpp"
 #include "ir_temporary_expr.hpp"
-#include "defs/ir_defs.hpp"
 #include "../visitor/ir_visitor.hpp"
 
 /** 
@@ -17,46 +16,45 @@ class IRReturnStmt final : public IRStmt {
 public:
     /** 
      * @brief Creates the instance of the irt return statement
-     * @param ntype - type of the irt node
     */
-    IRReturnStmt(IRNodeType ntype);
+    IRReturnStmt();
 
     /** 
      * @brief getter for the expression of the return statement
      * @returns pointer or const pointer to the expression
     */
     template<typename Self>
-    decltype(auto) getExp(this Self&& self) noexcept {
-        return std::forward<Self>(self).exp.get();
+    decltype(auto) getReturnExpr(this Self&& self) noexcept {
+        return std::forward<Self>(self).returnExpr.get();
     }
 
     /** 
      * @brief initializes the expression of the return statement
-     * @param _exp - pointer to the expression
-     * @param temp - pointer to the temporaries of the expression, default nullptr
+     * @param expr - pointer to the expression
+     * @param tempExpr - pointer to the temporaries of the expression, default nullptr
     */
-    void setExp(std::unique_ptr<IRExpr> _exp, std::unique_ptr<IRTemporaryExpr> temp = nullptr);
+    void setReturnExpr(std::unique_ptr<IRExpr> expr, std::unique_ptr<IRTemporaryExpr> tempExpr = nullptr);
 
     /** 
      * @brief getter for the temporaries
      * @returns pointer or const pointer to the temporary
     */
     template<typename Self>
-    decltype(auto) getTemporaries(this Self&& self) noexcept {
-        return std::forward<Self>(self).temporaries.get();
+    decltype(auto) getTemporaryExpr(this Self&& self) noexcept {
+        return std::forward<Self>(self).temporaryExpr.get();
     }
 
     /** 
      * @brief checks if return-statement returns value
      * @returns true if return-statement returns value, false otherwise
     */
-    bool returns() const noexcept;
+    bool hasReturnValue() const noexcept;
 
     /** 
      * @brief checks if return statement has temporaries
      * @returns true if return statement has temporaries, false otherwise
     */
-    bool hasTemporaries() const noexcept;
+    bool hasTemporaryExpr() const noexcept;
 
     /**
      * @brief accepts the ir visitor
@@ -66,10 +64,10 @@ public:
 
 private:
     /// pointer to the expression of the return statement
-    std::unique_ptr<IRExpr> exp;
+    std::unique_ptr<IRExpr> returnExpr;
 
     /// pointer to the temporaries of the return statement
-    std::unique_ptr<IRTemporaryExpr> temporaries;
+    std::unique_ptr<IRTemporaryExpr> temporaryExpr;
     
 };
 

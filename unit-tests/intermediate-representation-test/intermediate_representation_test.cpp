@@ -129,7 +129,7 @@ TEST(IRTest, CompoundStatementDeadCodeElimination){
     const size_t expectedStmtCount = 1;
 
     ASSERT_TRUE(irCompoundStmt->getNodeType() == IRNodeType::COMPOUND);
-    ASSERT_TRUE(irCompoundStmt->getStatements().size() == expectedStmtCount);
+    ASSERT_TRUE(irCompoundStmt->getStmts().size() == expectedStmtCount);
 }
 
 TEST(IRTest, AssignmentStatementGeneratesTemporaries){
@@ -168,8 +168,8 @@ TEST(IRTest, SwitchCaseDeadCodeElimination){
     const size_t expectedStmtCount = 1;
 
     ASSERT_TRUE(irSwitchStmt->getNodeType() == IRNodeType::SWITCH);
-    auto _case = irSwitchStmt->getCaseAtN(0);
-    ASSERT_EQ(_case->getSwitchBlock()->getStatements().size(), expectedStmtCount);
+    auto caseStmt = irSwitchStmt->getCaseStmtAtN(0);
+    ASSERT_EQ(caseStmt->getSwitchBlockStmt()->getStmts().size(), expectedStmtCount);
 }
 
 TEST(IRTest, NumExpConstantFolding){

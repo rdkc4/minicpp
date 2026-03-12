@@ -1,13 +1,15 @@
 #include "../ast_return_stmt.hpp"
 
-ASTReturnStmt::ASTReturnStmt(const Token& token, ASTNodeType ntype) : ASTStmt(token, ntype) {}
+#include "../defs/ast_defs.hpp"
 
-void ASTReturnStmt::setExp(std::unique_ptr<ASTExpr> nexp){
-    exp = std::move(nexp);
+ASTReturnStmt::ASTReturnStmt(const Token& token) : ASTStmt(token, ASTNodeType::RETURN_STATEMENT) {}
+
+void ASTReturnStmt::setReturnExpr(std::unique_ptr<ASTExpr> expr){
+    returnExpr = std::move(expr);
 }
 
-bool ASTReturnStmt::returns() const noexcept {
-    return exp != nullptr;
+bool ASTReturnStmt::hasReturnExpr() const noexcept {
+    return returnExpr != nullptr;
 }
 
 void ASTReturnStmt::accept(ASTVisitor& visitor) {

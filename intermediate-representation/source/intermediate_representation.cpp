@@ -13,7 +13,7 @@
 IntermediateRepresentation::IntermediateRepresentation() : funcIR{ exceptions } {}
 
 std::unique_ptr<IRProgram> IntermediateRepresentation::transformProgram(const ASTProgram* program){
-    std::unique_ptr<IRProgram> irProgram = std::make_unique<IRProgram>(IRNodeType::PROGRAM);
+    std::unique_ptr<IRProgram> irProgram = std::make_unique<IRProgram>();
 
     dirIR.transformDir(irProgram.get(), program);
     
@@ -36,25 +36,25 @@ std::unique_ptr<IRProgram> IntermediateRepresentation::transformProgram(const AS
 
     doneLatch.wait();
 
-    for(const auto& dir : program->getDirectives()) {
+    for(const auto& dir : program->getDirs()) {
         if(dir->getNodeType() == ASTNodeType::INCLUDE){
-            irProgram->addLinkedLibrary(static_cast<const ASTIncludeDir*>(dir.get())->getLibName());
+            irProgram->addLinkedLib(static_cast<const ASTIncludeDir*>(dir.get())->getLibName());
         }
     }
 
     return irProgram;
 }
 
-bool IntermediateRepresentation::hasErrors(const IRProgram* _program) const noexcept {
-    for(const auto& _function : _program->getFunctions()){
-        if(!exceptions.at(_function->getFunctionName()).empty()){
+bool IntermediateRepresentation::hasErrors(const IRProgram* program) const noexcept {
+    for(const auto& function : program->getFunctions()){
+        if(!exceptions.at(function->getFunctionName()).empty()){
             return true;
         }
     }
     return false;
 }
 
-std::string IntermediateRepresentation::getErrors(const IRProgram* _program) const noexcept {
+std::string IntermediateRepresentation::getErrors(const IRProgram* program) const noexcept {
     if(exceptions.empty()){
         return "";
     }
@@ -62,8 +62,8 @@ std::string IntermediateRepresentation::getErrors(const IRProgram* _program) con
     std::stringstream errors{"Forming Intermediate Representation failed:\n"};
     size_t errLen = errors.str().length();
 
-    for(const auto& _function : _program->getFunctions()){
-        const std::vector<std::string>& funcErrors = exceptions.at(_function->getFunctionName());
+    for(const auto& function : program->getFunctions()){
+        const std::vector<std::string>& funcErrors = exceptions.at(function->getFunctionName());
         for(const auto& error : funcErrors){
             errors << error << "\n";
         }

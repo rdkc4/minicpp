@@ -21,7 +21,7 @@ void Analyzer::semanticCheck(const ASTProgram* program){
     globalScopeManager.pushScope();
 
     // check directives
-    directiveAnalyzer.checkDir(program->getDirectives());
+    directiveAnalyzer.checkDir(program);
 
     // define all functions
     functionAnalyzer.checkFunctionSignatures(program);

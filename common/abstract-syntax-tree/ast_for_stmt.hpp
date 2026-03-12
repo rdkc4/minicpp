@@ -6,7 +6,6 @@
 #include "ast_stmt.hpp"
 #include "ast_assign_stmt.hpp"
 #include "ast_expr.hpp"
-#include "defs/ast_defs.hpp"
 #include "../token/token.hpp"
 #include "../visitor/ast_visitor.hpp"
 
@@ -19,9 +18,8 @@ public:
     /** 
      * @brief Creates the instance of the ast for-statement
      * @param token - const reference to the token
-     * @param ntype - type of the ast node
     */
-    ASTForStmt(const Token& token, ASTNodeType ntype);
+    ASTForStmt(const Token& token);
 
     /** 
      * @brief getter for initializer
@@ -29,8 +27,8 @@ public:
      * @returns pointer or const pointer to an assignment statement
     */
     template<typename Self>
-    decltype(auto) getInitializer(this Self&& self) noexcept {
-        return std::forward<Self>(self).initializer.get();
+    decltype(auto) getInitializerStmt(this Self&& self) noexcept {
+        return std::forward<Self>(self).initializerStmt.get();
     }
 
     /** 
@@ -39,8 +37,8 @@ public:
      * @returns pointer or const pointer to relational expression
     */
     template<typename Self>
-    decltype(auto) getCondition(this Self&& self) noexcept {
-        return std::forward<Self>(self).condition.get();
+    decltype(auto) getConditionExpr(this Self&& self) noexcept {
+        return std::forward<Self>(self).conditionExpr.get();
     }
 
     /** 
@@ -49,8 +47,8 @@ public:
      * @returns pointer or const pointer to assignment statement
     */
     template<typename Self>
-    decltype(auto) getIncrementer(this Self&& self) noexcept {
-        return std::forward<Self>(self).incrementer.get();
+    decltype(auto) getIncrementerStmt(this Self&& self) noexcept {
+        return std::forward<Self>(self).incrementerStmt.get();
     }
     
     /** 
@@ -58,35 +56,36 @@ public:
      * @returns pointer or const pointer to a statement
     */
     template<typename Self>
-    decltype(auto) getStatement(this Self&& self) noexcept {
-        return std::forward<Self>(self).statement.get();
+    decltype(auto) getStmt(this Self&& self) noexcept {
+        return std::forward<Self>(self).stmt.get();
     }
 
     /** 
      * @brief initializes for statement node
-     * @param init - pointer to an assignment statement (initializer) 
-     * @param cond - pointer to a relational expression (condition)
-     * @param st - pointer to a statement node
+     * @param initStmt - pointer to an assignment statement (initializer) 
+     * @param condExpr - pointer to a relational expression (condition)
+     * @param incStmt - pointer to an assignment statement (incrementer)
+     * @param statement - pointer to a statement node
     */
-    void setForSt(std::unique_ptr<ASTAssignStmt> init, std::unique_ptr<ASTExpr> cond, std::unique_ptr<ASTAssignStmt> inc, std::unique_ptr<ASTStmt> st);
+    void setForSt(std::unique_ptr<ASTAssignStmt> initStmt, std::unique_ptr<ASTExpr> condExpr, std::unique_ptr<ASTAssignStmt> incStmt, std::unique_ptr<ASTStmt> statement);
 
     /** 
      * @brief checks if initializer is initialized
      * @returns true if initializer is not null, otherwise false
     */
-    bool hasInitializer() const noexcept;
+    bool hasInitializerStmt() const noexcept;
 
     /** 
      * @brief checks if condition is initialized
      * @returns true if condition is not null, otherwise false
     */
-    bool hasCondition() const noexcept;
+    bool hasConditionExpr() const noexcept;
 
     /** 
      * @brief checks if incrementer is initialized
      * @returns true if incrementer is not null, otherwise false
     */
-    bool hasIncrementer() const noexcept;
+    bool hasIncrementerStmt() const noexcept;
 
     /**
      * @brief accepts the ast visitor
@@ -96,16 +95,16 @@ public:
 
 private:
     /// pointer to the assignment statement of the initializer
-    std::unique_ptr<ASTAssignStmt> initializer;
+    std::unique_ptr<ASTAssignStmt> initializerStmt;
 
     /// pointer to the relational expression of the for-statement
-    std::unique_ptr<ASTExpr> condition;
+    std::unique_ptr<ASTExpr> conditionExpr;
 
     /// pointer to the assignment statement of the incrementer
-    std::unique_ptr<ASTAssignStmt> incrementer;
+    std::unique_ptr<ASTAssignStmt> incrementerStmt;
 
     /// pointer to the statement of the for-statement
-    std::unique_ptr<ASTStmt> statement;
+    std::unique_ptr<ASTStmt> stmt;
 
 };
 

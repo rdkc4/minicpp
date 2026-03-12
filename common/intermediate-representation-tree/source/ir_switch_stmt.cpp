@@ -1,33 +1,35 @@
 #include "../ir_switch_stmt.hpp"
 
-IRSwitchStmt::IRSwitchStmt(IRNodeType ntype) : IRStmt(ntype) {}
+#include "../defs/ir_defs.hpp"
 
-void IRSwitchStmt::setVariable(std::unique_ptr<IRIdExpr> var){
-    variable = std::move(var);
+IRSwitchStmt::IRSwitchStmt() : IRStmt(IRNodeType::SWITCH) {}
+
+void IRSwitchStmt::setVariableIdExpr(std::unique_ptr<IRIdExpr> idExpr){
+    variableIdExpr = std::move(idExpr);
 }
 
-const std::vector<std::unique_ptr<IRCaseStmt>>& IRSwitchStmt::getCases() const noexcept {
-    return cases;
+const std::vector<std::unique_ptr<IRCaseStmt>>& IRSwitchStmt::getCaseStmts() const noexcept {
+    return caseStmts;
 }
 
-const IRCaseStmt* IRSwitchStmt::getCaseAtN(size_t n) const noexcept {
-    return cases[n].get();
+const IRCaseStmt* IRSwitchStmt::getCaseStmtAtN(size_t n) const noexcept {
+    return caseStmts[n].get();
 }
 
-void IRSwitchStmt::addCase(std::unique_ptr<IRCaseStmt> _case){
-    cases.push_back(std::move(_case));
+void IRSwitchStmt::addCaseStmt(std::unique_ptr<IRCaseStmt> caseStmt){
+    caseStmts.push_back(std::move(caseStmt));
 }
 
-void IRSwitchStmt::setDefault(std::unique_ptr<IRDefaultStmt> _swDefault) {
-    _default = std::move(_swDefault);
+void IRSwitchStmt::setDefaultStmt(std::unique_ptr<IRDefaultStmt> swDefaultStmt) {
+    defaultStmt = std::move(swDefaultStmt);
 }
 
-bool IRSwitchStmt::hasDefault() const noexcept {
-    return _default != nullptr;
+bool IRSwitchStmt::hasDefaultStmt() const noexcept {
+    return defaultStmt != nullptr;
 }
 
 size_t IRSwitchStmt::getCaseCount() const noexcept {
-    return cases.size();
+    return caseStmts.size();
 }
 
 void IRSwitchStmt::accept(IRVisitor& visitor){

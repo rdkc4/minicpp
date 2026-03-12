@@ -7,7 +7,6 @@
 #include "ast_node.hpp"
 #include "ast_parameter.hpp"
 #include "ast_stmt.hpp"
-#include "defs/ast_defs.hpp"
 #include "../token/token.hpp"
 #include "../defs/defs.hpp"
 #include "../visitor/ast_visitor.hpp"
@@ -21,10 +20,9 @@ public:
     /** 
      * @brief Creates the instance of the ast function
      * @param token - const reference to the token
-     * @param ntype - type of the ast node
      * @param type - return type of the function
     */
-    ASTFunction(const Token& token, ASTNodeType ntype, Type type = Type::NO_TYPE);
+    ASTFunction(const Token& token, Type type = Type::NO_TYPE);
 
     /** 
      * @brief getter for the function parameters

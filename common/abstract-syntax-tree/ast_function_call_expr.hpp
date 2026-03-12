@@ -5,7 +5,6 @@
 #include <vector>
 
 #include "ast_expr.hpp"
-#include "defs/ast_defs.hpp"
 #include "../token/token.hpp"
 #include "../defs/defs.hpp"
 #include "../visitor/ast_visitor.hpp"
@@ -19,10 +18,9 @@ public:
     /** 
      * @brief Creates the instance of the ast function call
      * @param token - const reference to the token
-     * @param ntype - type of the ast node
      * @param type - type of the function call
     */
-    ASTFunctionCallExpr(const Token& token, ASTNodeType ntype, Type type = Type::NO_TYPE);
+    ASTFunctionCallExpr(const Token& token, Type type = Type::NO_TYPE);
 
     /** 
      * @brief getter for expressions passed to a function as arguments
@@ -39,9 +37,9 @@ public:
 
     /** 
      * @brief adds new argument
-     * @param arg - pointer to the argument node
+     * @param expr - pointer to the expression node
     */
-    void addArgument(std::unique_ptr<ASTExpr> arg);
+    void addArgument(std::unique_ptr<ASTExpr> expr);
 
     /** 
      * @brief gets the amount of arguments

@@ -1,6 +1,8 @@
 #include "../ast_function.hpp"
 
-ASTFunction::ASTFunction(const Token& token, ASTNodeType ntype, Type type) : ASTNode(token, ntype), type{ type }, predefined{ false } {}
+#include "../defs/ast_defs.hpp"
+
+ASTFunction::ASTFunction(const Token& token, Type type) : ASTNode(token, ASTNodeType::FUNCTION), type{ type }, predefined{ false } {}
 
 const std::vector<std::unique_ptr<ASTParameter>>& ASTFunction::getParameters() const noexcept {
     return parameters;

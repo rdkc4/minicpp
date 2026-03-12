@@ -4,7 +4,6 @@
 #include <memory>
 
 #include "ir_expr.hpp"
-#include "defs/ir_defs.hpp"
 #include "../defs/defs.hpp"
 #include "../visitor/ir_visitor.hpp"
 
@@ -26,8 +25,8 @@ public:
      * @returns pointer or const pointer to the expression node
     */
     template<typename Self>
-    decltype(auto) getLeftOperand(this Self&& self) noexcept {
-        return std::forward<Self>(self).leftOperand.get();
+    decltype(auto) getLeftOperandExpr(this Self&& self) noexcept {
+        return std::forward<Self>(self).leftOperandExpr.get();
     }
 
     /**
@@ -35,8 +34,8 @@ public:
      * @returns pointer or const pointer to the expression node
     */
     template<typename Self>
-    decltype(auto) getRightOperand(this Self&& self) noexcept {
-        return std::forward<Self>(self).rightOperand.get();
+    decltype(auto) getRightOperandExpr(this Self&& self) noexcept {
+        return std::forward<Self>(self).rightOperandExpr.get();
     }
 
     /**
@@ -47,11 +46,11 @@ public:
 
     /**
      * @brief initializes the binary expression node
-     * @param lOp - pointer to the left operand
-     * @param rOp - pointer to the right operand
-     * @param _op - operator of the binary expression
+     * @param leftOperand - pointer to the left operand
+     * @param rightOperand - pointer to the right operand
+     * @param op - operator of the binary expression
     */
-    void setBinaryExpression(std::unique_ptr<IRExpr> lOp, std::unique_ptr<IRExpr> rOp, Operator _op);
+    void setBinaryExpr(std::unique_ptr<IRExpr> leftOperand, std::unique_ptr<IRExpr> rightOperand, Operator op);
 
     /**
      * @brief accepts the ir visitor
@@ -61,13 +60,13 @@ public:
 
 private:
     /// pointer to the left operand of the binary expression
-    std::unique_ptr<IRExpr> leftOperand;
+    std::unique_ptr<IRExpr> leftOperandExpr;
 
     /// pointer to the right operand of the binary expression
-    std::unique_ptr<IRExpr> rightOperand;
+    std::unique_ptr<IRExpr> rightOperandExpr;
     
     /// operator of the binary expression
-    Operator op;
+    Operator exprOperator;
 };
 
 #endif

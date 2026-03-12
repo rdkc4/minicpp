@@ -7,7 +7,7 @@ std::unique_ptr<ASTFunction> FunctionParser::parseFunction(){
     tokenConsumer.consume(GeneralTokenType::TYPE);
     const Token token{ tokenConsumer.getToken() };
     tokenConsumer.consume(TokenType::_ID);
-    std::unique_ptr<ASTFunction> function = std::make_unique<ASTFunction>(token, ASTNodeType::FUNCTION, type);
+    std::unique_ptr<ASTFunction> function = std::make_unique<ASTFunction>(token, type);
 
     tokenConsumer.consume(TokenType::_LPAREN);
     parseParameters(function.get());
@@ -31,7 +31,7 @@ void FunctionParser::parseParameters(ASTFunction* function){
         const Token token{ tokenConsumer.getToken() };
         tokenConsumer.consume(TokenType::_ID);
         
-        function->addParameter(std::make_unique<ASTParameter>(token, ASTNodeType::PARAMETER, type));
+        function->addParameter(std::make_unique<ASTParameter>(token, type));
 
         if(tokenConsumer.getToken().type == TokenType::_COMMA && tokenConsumer.peek().gtype == GeneralTokenType::TYPE){
             tokenConsumer.consume(TokenType::_COMMA);

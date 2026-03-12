@@ -6,7 +6,6 @@
 #include "ast_stmt.hpp"
 #include "ast_literal_expr.hpp"
 #include "ast_switch_block_stmt.hpp"
-#include "defs/ast_defs.hpp"
 #include "../token/token.hpp"
 #include "../visitor/ast_visitor.hpp"
 
@@ -19,17 +18,16 @@ public:
     /** 
      * @brief Creates the instance of the ast case
      * @param token - const reference to the token
-     * @param ntype - type of the ast node
     */
-    ASTCaseStmt(const Token& token, ASTNodeType ntype);
+    ASTCaseStmt(const Token& token);
 
     /** 
      * @brief getter for a literal node
      * @returns pointer or const pointer to a literal node
     */
     template<typename Self>
-    decltype(auto) getLiteral(this Self&& self) noexcept {
-        return std::forward<Self>(self).literal.get();
+    decltype(auto) getLiteralExpr(this Self&& self) noexcept {
+        return std::forward<Self>(self).literalExpr.get();
     }
 
     /** 
@@ -37,23 +35,23 @@ public:
      * @returns pointer or const pointer to a switch block node
     */
     template<typename Self>
-    decltype(auto) getSwitchBlock(this Self&& self) noexcept {
-        return std::forward<Self>(self).swBlock.get();
+    decltype(auto) getSwitchBlockStmt(this Self&& self) noexcept {
+        return std::forward<Self>(self).switchBlockStmt.get();
     }
 
     /** 
      * @brief initializes case node
-     * @param lit - pointer to a literal node
-     * @param _swBlock - pointer to a switch block node
-     * @param hasBr - flag if case has break
+     * @param litExpr - pointer to a literal node
+     * @param swBlockStmt - pointer to a switch block node
+     * @param hasBreak - flag if case has break
     */
-    void setCase(std::unique_ptr<ASTLiteralExpr> lit, std::unique_ptr<ASTSwitchBlockStmt> _swBlock, bool hasBr);
+    void setCase(std::unique_ptr<ASTLiteralExpr> litExpr, std::unique_ptr<ASTSwitchBlockStmt> swBlockStmt, bool hasBreak);
 
     /** 
      * @brief getter for break flag
-     * @returns true if breaks, false otherwise
+     * @returns true if case has break, false otherwise
     */
-    bool hasBreak() const noexcept;
+    bool hasBreakStmt() const noexcept;
 
     /**
      * @brief accepts the ast visitor
@@ -63,13 +61,13 @@ public:
 
 private:
     /// pointer to the literal of the case
-    std::unique_ptr<ASTLiteralExpr> literal;
+    std::unique_ptr<ASTLiteralExpr> literalExpr;
 
     /// pointer to the switch-block of the case
-    std::unique_ptr<ASTSwitchBlockStmt> swBlock;
+    std::unique_ptr<ASTSwitchBlockStmt> switchBlockStmt;
 
     /// flag if case breaks
-    bool _break;
+    bool breaks;
 
 };
 

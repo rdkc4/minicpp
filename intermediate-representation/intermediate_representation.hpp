@@ -32,17 +32,17 @@ public:
 
     /**
      * @brief checks if any errors are caught
-     * @param _program - const pointer to the root of the irt
+     * @param program - const pointer to the root of the irt
      * @returns true if any error is caught, false otherwise
     */
-    bool hasErrors(const IRProgram* _program) const noexcept;
+    bool hasErrors(const IRProgram* program) const noexcept;
 
     /**
      * @brief getter for the ir errors
-     * @param _program - pointer to the root of the irt program
+     * @param program - pointer to the root of the irt program
      * @returns errors merged into a string
     */
-    std::string getErrors(const IRProgram* _program) const noexcept;
+    std::string getErrors(const IRProgram* program) const noexcept;
 
 private:
     /// intermediate representation specialized for functions

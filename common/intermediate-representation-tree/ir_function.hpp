@@ -8,7 +8,6 @@
 #include "ir_node.hpp"
 #include "ir_parameter.hpp"
 #include "ir_stmt.hpp"
-#include "defs/ir_defs.hpp"
 #include "../defs/defs.hpp"
 #include "../visitor/ir_visitor.hpp"
 
@@ -20,11 +19,10 @@ class IRFunction final : public IRNode {
 public:
     /** 
      * @brief Creates the instance of the irt function
-     * @param ntype - type of the irt node
      * @param funcName - name of the function
      * @param type - return type of the function
     */
-    IRFunction(IRNodeType ntype, const std::string& funcName, Type type);
+    IRFunction(const std::string& funcName, Type type);
 
     /** 
      * @brief getter for the parameters of the function
@@ -46,9 +44,9 @@ public:
 
     /** 
      * @brief adds new statement to the body
-     * @param statement - pointer to the statement that is being added
+     * @param stmt - pointer to the statement that is being added
     */
-    void addStatement(std::unique_ptr<IRStmt> statement);
+    void addStatement(std::unique_ptr<IRStmt> stmt);
 
     /** 
      * @brief getter for the name of the function
@@ -70,9 +68,9 @@ public:
 
     /** 
      * @brief initializes the return type of the function
-     * @param t - return type of the function
+     * @param returnType - return type of the function
     */
-    void setType(Type t) noexcept;
+    void setType(Type returnType) noexcept;
 
     /** 
      * @brief getter for the amount of bytes function takes on the stack
@@ -90,7 +88,7 @@ public:
      * @brief eliminates statements of the function's body that appear after the node that always returns
      * @param startIdx - index in the vector of statements where deletion starts
     */
-    void eliminateDead(size_t startIdx);
+    void eliminateDeadStmts(size_t startIdx);
 
     /** 
      * @brief sets predifined flag of a function

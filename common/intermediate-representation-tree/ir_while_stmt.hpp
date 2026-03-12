@@ -6,7 +6,6 @@
 #include "ir_stmt.hpp"
 #include "ir_expr.hpp"
 #include "ir_temporary_expr.hpp"
-#include "defs/ir_defs.hpp"
 #include "../visitor/ir_visitor.hpp"
 
 /** 
@@ -17,17 +16,16 @@ class IRWhileStmt final : public IRStmt {
 public:
     /** 
      * @brief Creates the instance of the irt while-statement
-     * @param ntype - type of the irt node
     */
-    IRWhileStmt(IRNodeType ntype);
+    IRWhileStmt();
 
     /** 
      * @brief getter for the condition of the while statement
      * @returns pointer or const pointer to relational expression
     */
     template<typename Self>
-    decltype(auto) getCondition(this Self&& self) noexcept {
-        return std::forward<Self>(self).condition.get();
+    decltype(auto) getConditionExpr(this Self&& self) noexcept {
+        return std::forward<Self>(self).conditionExpr.get();
     }
 
     /** 
@@ -35,32 +33,32 @@ public:
      * @returns pointer or const pointer to the statement
     */
     template<typename Self>
-    decltype(auto) getStatement(this Self&& self) noexcept {
-        return std::forward<Self>(self).statement.get();
+    decltype(auto) getStmt(this Self&& self) noexcept {
+        return std::forward<Self>(self).stmt.get();
     }
 
     /** 
      * @brief initializes the while statement
-     * @param cond - pointer to the relational expression
-     * @param st - pointer to the statement
-     * @param temp - pointer to the temporary, default nullptr
+     * @param condExpr - pointer to the relational expression
+     * @param statement - pointer to the statement
+     * @param tempExpr - pointer to the temporary, default nullptr
     */
-    void setWhileSt(std::unique_ptr<IRExpr> cond, std::unique_ptr<IRStmt> st, std::unique_ptr<IRTemporaryExpr> temp = nullptr);
+    void setWhileStmt(std::unique_ptr<IRExpr> condExpr, std::unique_ptr<IRStmt> statement, std::unique_ptr<IRTemporaryExpr> tempExpr = nullptr);
 
     /** 
      * @brief getter for the temporaries
      * @returns pointer or const pointer to the temporary
     */
     template<typename Self>
-    decltype(auto) getTemporaries(this Self&& self) noexcept {
-        return std::forward<Self>(self).temporaries.get();
+    decltype(auto) getTemporaryExpr(this Self&& self) noexcept {
+        return std::forward<Self>(self).temporaryExpr.get();
     }
 
     /** 
      * @brief checks if the while statement has temporaries
      * @returns true if while statement has temporaries, false otherwise
     */
-    bool hasTemporaries() const noexcept;
+    bool hasTemporaryExpr() const noexcept;
 
     /**
      * @brief accepts the ir visitor
@@ -70,13 +68,13 @@ public:
 
 private:
     /// pointer to the relational expression of the while-statement
-    std::unique_ptr<IRExpr> condition;
+    std::unique_ptr<IRExpr> conditionExpr;
 
     /// pointer to the statement of the while-statement
-    std::unique_ptr<IRStmt> statement;
+    std::unique_ptr<IRStmt> stmt;
 
     /// pointer to the temporaries of the while-statement
-    std::unique_ptr<IRTemporaryExpr> temporaries;
+    std::unique_ptr<IRTemporaryExpr> temporaryExpr;
     
 };
 

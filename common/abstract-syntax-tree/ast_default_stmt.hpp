@@ -5,7 +5,6 @@
 
 #include "ast_stmt.hpp"
 #include "ast_switch_block_stmt.hpp"
-#include "defs/ast_defs.hpp"
 #include "../token/token.hpp"
 #include "../visitor/ast_visitor.hpp"
 
@@ -18,25 +17,23 @@ public:
     /** 
      * @brief Creates the instance of the ast default case
      * @param token - const reference to the token
-     * @param ntype - type of the ast node
     */
-    ASTDefaultStmt(const Token& token, ASTNodeType ntype);
+    ASTDefaultStmt(const Token& token);
 
     /** 
      * @brief getter for switch block node
      * @returns pointer or const pointer to a switch block node
     */
     template<typename Self>
-    decltype(auto) getSwitchBlock(this Self&& self) noexcept {
-        return std::forward<Self>(self).swBlock.get();
+    decltype(auto) getSwitchBlockStmt(this Self&& self) noexcept {
+        return std::forward<Self>(self).switchBlockStmt.get();
     }
 
     /** 
      * @brief initializes switch block node
-     * @param _swBlock - pointer to a switch block node
-     * @return void
+     * @param swBlockStmt - pointer to a switch block node
     */
-    void setDefault(std::unique_ptr<ASTSwitchBlockStmt> _swBlock);
+    void setDefaultStmt(std::unique_ptr<ASTSwitchBlockStmt> swBlockStmt);
 
     /**
      * @brief accepts the ast visitor
@@ -46,7 +43,7 @@ public:
 
 private:
     /// pointer to the switch-block of the default case
-    std::unique_ptr<ASTSwitchBlockStmt> swBlock;
+    std::unique_ptr<ASTSwitchBlockStmt> switchBlockStmt;
 
 };
 

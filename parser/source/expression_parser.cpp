@@ -77,7 +77,7 @@ std::unique_ptr<ASTExpr> ExpressionParser::rpnToTree(std::stack<std::unique_ptr<
         rpn.pop();
         std::unique_ptr<ASTExpr> leftSubtree = rpnToTree(rpn, leftSubtreeRoot);
 
-        binExpr->setOperands(std::move(leftSubtree), std::move(rightSubtree));
+        binExpr->setOperandExprs(std::move(leftSubtree), std::move(rightSubtree));
     }
 
     return std::move(root);
@@ -107,12 +107,12 @@ std::unique_ptr<ASTExpr> ExpressionParser::parseExpr(){
 std::unique_ptr<ASTExpr> ExpressionParser::parseRelationalExpr(){
     std::unique_ptr<ASTExpr> leftOperand = parseNumericalExpr();
     std::unique_ptr<ASTBinaryExpr> relationalExpr = parseOperator(true);
-    relationalExpr->setOperands(std::move(leftOperand), parseNumericalExpr());
+    relationalExpr->setOperandExprs(std::move(leftOperand), parseNumericalExpr());
     return relationalExpr;
 }
 
 std::unique_ptr<ASTFunctionCallExpr> ExpressionParser::parseFunctionCallExpr(){
-    std::unique_ptr<ASTFunctionCallExpr> callExpr = std::make_unique<ASTFunctionCallExpr>(tokenConsumer.getToken(), ASTNodeType::FUNCTION_CALL);
+    std::unique_ptr<ASTFunctionCallExpr> callExpr = std::make_unique<ASTFunctionCallExpr>(tokenConsumer.getToken());
     tokenConsumer.consume(TokenType::_ID);
     
     tokenConsumer.consume(TokenType::_LPAREN);
@@ -138,20 +138,20 @@ std::unique_ptr<ASTIdExpr> ExpressionParser::parseIdExpr(){
     const Token token{ tokenConsumer.getToken() };
     tokenConsumer.consume(TokenType::_ID);
 
-    return std::make_unique<ASTIdExpr>(token, ASTNodeType::ID);
+    return std::make_unique<ASTIdExpr>(token);
 }
 
 std::unique_ptr<ASTLiteralExpr> ExpressionParser::parseLiteralExpr(){
     const Token token{ tokenConsumer.getToken() };
     tokenConsumer.consume(TokenType::_LITERAL);
     if(token.value.back() == 'u'){
-        return std::make_unique<ASTLiteralExpr>(token, ASTNodeType::LITERAL, Type::UNSIGNED);
+        return std::make_unique<ASTLiteralExpr>(token, Type::UNSIGNED);
     }
-    return std::make_unique<ASTLiteralExpr>(token, ASTNodeType::LITERAL, Type::INT);
+    return std::make_unique<ASTLiteralExpr>(token, Type::INT);
 }
 
 std::unique_ptr<ASTBinaryExpr> ExpressionParser::parseOperator(bool isRel){
-    std::unique_ptr<ASTBinaryExpr> op =  std::make_unique<ASTBinaryExpr>(Token{ tokenConsumer.getToken() }, ASTNodeType::BINARY_EXPRESSION);
+    std::unique_ptr<ASTBinaryExpr> op =  std::make_unique<ASTBinaryExpr>(Token{ tokenConsumer.getToken() });
     if(stringToOperator.find(tokenConsumer.getToken().value) != stringToOperator.end()){
         op->setOperator(stringToOperator.at(tokenConsumer.getToken().value));
     }

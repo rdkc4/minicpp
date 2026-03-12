@@ -71,7 +71,7 @@ void FunctionCodeGenerator::generateParameters(const IRFunction* function){
     size_t i{ 2 };
     for(const auto& parameter : function->getParameters()){
         // mapping parameter to address relative to %rbp (+n(%rbp))
-        codeGenContext.variableMap.insert({parameter->getParName(), std::format("{}(%rbp)", i * AsmGenerator::Instruction::regSize)});
+        codeGenContext.variableMap.insert({parameter->getParameterName(), std::format("{}(%rbp)", i * AsmGenerator::Instruction::regSize)});
         ++i;
     }
 }

@@ -5,7 +5,6 @@
 #include <string_view>
 
 #include "ir_expr.hpp"
-#include "defs/ir_defs.hpp"
 #include "../defs/defs.hpp"
 #include "../visitor/ir_visitor.hpp"
 
@@ -17,11 +16,10 @@ class IRIdExpr final : public IRExpr {
 public:
     /** 
      * @brief Creates the instance of the irt id
-     * @param ntype - type of the irt node
      * @param idName - name of the id
      * @param type - type of the id
     */
-    IRIdExpr(IRNodeType ntype, std::string_view idName, Type type);
+    IRIdExpr(std::string_view idName, Type type);
 
     /** 
      * @brief getter for the name of the id
@@ -31,9 +29,9 @@ public:
 
     /** 
      * @brief initializes the name of the id
-     * @param _idName - name of the id
+     * @param name - name of the id
     */
-    void setIdName(const std::string& _idName);
+    void setIdName(const std::string& name);
 
     /** 
      * @brief getter for the value of the id
