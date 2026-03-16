@@ -82,7 +82,7 @@ SRCS = main.cpp \
 	analyzer/source/function_analyzer.cpp \
 	analyzer/source/directive_analyzer.cpp \
 	analyzer/source/analyzer.cpp \
-	optimization/source/dead_code.cpp \
+	optimization/source/dead_code_eliminator.cpp \
 	optimization/source/stack_frame_analyzer.cpp \
 	intermediate-representation/source/expression_intermediate_representation.cpp \
 	intermediate-representation/source/statement_intermediate_representation.cpp \

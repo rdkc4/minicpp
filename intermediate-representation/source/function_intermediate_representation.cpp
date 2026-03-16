@@ -1,7 +1,5 @@
 #include "../function_intermediate_representation.hpp"
 
-#include "../../optimization/dead_code.hpp"
-
 FunctionIntermediateRepresentation::FunctionIntermediateRepresentation(std::unordered_map<std::string, std::vector<std::string>>& exceptions) 
     : exceptions{ exceptions } {}
 
@@ -23,7 +21,6 @@ std::unique_ptr<IRFunction> FunctionIntermediateRepresentation::transformFunctio
     }
     else {
         transformBody(irFunction.get(), astFunction);
-        Optimization::DeadCode::eliminateDeadCode(irFunction.get());
     }
 
     {

@@ -44,17 +44,16 @@ TEST(IRTest, FunctionDeadCodeElimination){
     lexer.tokenize();
 
     TokenConsumer tokenConsumer { lexer };
-    FunctionParserTest parser{ tokenConsumer };
-    std::unique_ptr<ASTFunction> astFunction = parser.parseFunction();
+    ParserTest parser{ tokenConsumer };
+    std::unique_ptr<ASTProgram> astProgram = parser.parseProgram();
 
-    std::unordered_map<std::string, std::vector<std::string>> exceptions;
-    FunctionIntermediateRepresentationTest intermediateRepresentation{ exceptions };
-    std::unique_ptr<IRFunction> irFunction = intermediateRepresentation.transformFunction(astFunction.get());
+    IntermediateRepresentationTest intermediateRepresentation{};
+    std::unique_ptr<IRProgram> irProgram = intermediateRepresentation.transformProgram(astProgram.get());
 
     const size_t expectedStmtCount = 1;
 
-    ASSERT_TRUE(irFunction->getNodeType() == IRNodeType::FUNCTION);
-    ASSERT_EQ(irFunction->getBody().size(), expectedStmtCount);
+    ASSERT_EQ(irProgram->getFunctionCount(), 1);
+    ASSERT_EQ(irProgram->getFunctionAtN(0)->getBody().size(), expectedStmtCount);
 }
 
 TEST(IRTest, FunctionDeadCodeEliminationIfBranching){
@@ -63,17 +62,16 @@ TEST(IRTest, FunctionDeadCodeEliminationIfBranching){
     lexer.tokenize();
 
     TokenConsumer tokenConsumer { lexer };
-    FunctionParserTest parser{ tokenConsumer };
-    std::unique_ptr<ASTFunction> astFunction = parser.parseFunction();
+    ParserTest parser{ tokenConsumer };
+    std::unique_ptr<ASTProgram> astProgram = parser.parseProgram();
 
-    std::unordered_map<std::string, std::vector<std::string>> exceptions;
-    FunctionIntermediateRepresentationTest intermediateRepresentation{ exceptions };
-    std::unique_ptr<IRFunction> irFunction = intermediateRepresentation.transformFunction(astFunction.get());
+    IntermediateRepresentationTest intermediateRepresentation{};
+    std::unique_ptr<IRProgram> irProgram = intermediateRepresentation.transformProgram(astProgram.get());
     
     const size_t expectedStmtCount = 1;
 
-    ASSERT_TRUE(irFunction->getNodeType() == IRNodeType::FUNCTION);
-    ASSERT_EQ(irFunction->getBody().size(), expectedStmtCount);
+    ASSERT_EQ(irProgram->getFunctionCount(), 1);
+    ASSERT_EQ(irProgram->getFunctionAtN(0)->getBody().size(), expectedStmtCount);
 }
 
 TEST(IRTest, FunctionDeadCodeEliminationSwitchBranching){
@@ -82,17 +80,16 @@ TEST(IRTest, FunctionDeadCodeEliminationSwitchBranching){
     lexer.tokenize();
 
     TokenConsumer tokenConsumer { lexer };
-    FunctionParserTest parser{ tokenConsumer };
-    std::unique_ptr<ASTFunction> astFunction = parser.parseFunction();
+    ParserTest parser{ tokenConsumer };
+    std::unique_ptr<ASTProgram> astProgram = parser.parseProgram();
 
-    std::unordered_map<std::string, std::vector<std::string>> exceptions;
-    FunctionIntermediateRepresentationTest intermediateRepresentation{ exceptions };
-    std::unique_ptr<IRFunction> irFunction = intermediateRepresentation.transformFunction(astFunction.get());
+    IntermediateRepresentationTest intermediateRepresentation{};
+    std::unique_ptr<IRProgram> irProgram = intermediateRepresentation.transformProgram(astProgram.get());
     
     const size_t expectedStmtCount = 1; 
     
-    ASSERT_TRUE(irFunction->getNodeType() == IRNodeType::FUNCTION);
-    ASSERT_TRUE(irFunction->getBody().size() == expectedStmtCount);
+    ASSERT_EQ(irProgram->getFunctionCount(), 1);
+    ASSERT_TRUE(irProgram->getFunctionAtN(0)->getBody().size() == expectedStmtCount);
 }
 
 TEST(IRTest, FunctionDeadCodeEliminationDoWhile){
@@ -101,17 +98,16 @@ TEST(IRTest, FunctionDeadCodeEliminationDoWhile){
     lexer.tokenize();
 
     TokenConsumer tokenConsumer { lexer };
-    FunctionParserTest parser{ tokenConsumer };
-    std::unique_ptr<ASTFunction> astFunction = parser.parseFunction();
+    ParserTest parser{ tokenConsumer };
+    std::unique_ptr<ASTProgram> astProgram = parser.parseProgram();
 
-    std::unordered_map<std::string, std::vector<std::string>> exceptions;
-    FunctionIntermediateRepresentationTest intermediateRepresentation{ exceptions };
-    std::unique_ptr<IRFunction> irFunction = intermediateRepresentation.transformFunction(astFunction.get());
+    IntermediateRepresentationTest intermediateRepresentation{};
+    std::unique_ptr<IRProgram> irProgram = intermediateRepresentation.transformProgram(astProgram.get());
 
     const size_t expectedStmtCount = 1;
 
-    ASSERT_TRUE(irFunction->getNodeType() == IRNodeType::FUNCTION);
-    ASSERT_EQ(irFunction->getBody().size(), expectedStmtCount);
+    ASSERT_EQ(irProgram->getFunctionCount(), 1);
+    ASSERT_EQ(irProgram->getFunctionAtN(0)->getBody().size(), expectedStmtCount);
 }
 
 TEST(IRTest, CompoundStatementDeadCodeElimination){

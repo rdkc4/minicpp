@@ -1,5 +1,5 @@
-#ifndef OPTIMIZATION_STACK_MEMORY_HPP
-#define OPTIMIZATION_STACK_MEMORY_HPP
+#ifndef OPTIMIZATION_DEAD_CODE_HPP
+#define OPTIMIZATION_DEAD_CODE_HPP
 
 #include "../common/visitor/ir_visitor.hpp"
 #include "../common/intermediate-representation-tree/ir_program.hpp"
@@ -17,153 +17,146 @@
 #include "../common/intermediate-representation-tree/ir_function_call_expr.hpp"
 #include "../thread-pool/thread_pool.hpp"
 
-/**
- * @class StackFrameAnalyzer
- * @brief calculates the size of the stack for each function
-*/
-class StackFrameAnalyzer final : public IRVisitor {
+class DeadCodeEliminator final : public IRVisitor {
 public:
     /**
-     * @brief creates the instance of the stack frame analyzer
-     * @param threadPool - reference to a thread pool for parallel function stack analysis
+     * @brief creates the instance of the dead code eliminator
+     * @param threadPool - reference to a thread pool for parallel dead code elimination
     */
-    StackFrameAnalyzer(ThreadPool& threadPool);
+    DeadCodeEliminator(ThreadPool& threadPool);
 
     /**
-     * @brief starts the stack analysis for all functions
+     * @brief starts the dead code elimination for all functions
      * @param program - pointer to the program
     */
     void visit(IRProgram* program) override;
 
     /**
-     * @brief calculates the size of the stack required for the function
+     * @brief eliminates the dead code of the function
      * @param function - pointer to the function
     */
     void visit(IRFunction* function) override;
 
     /**
-     * @brief intentionally empty, not used for stack size evaluation
+     * @brief intentionally empty, cannot return
      * @param parameter - pointer to the parameter
     */
     void visit([[maybe_unused]] IRParameter* parameter) override;
 
     /**
-     * @brief calculates the size of the stack required for the variable declaration
+     * @brief intentionally empty, cannot return
      * @param variableDecl - pointer to the variable declaration
     */
-    void visit(IRVariableDeclStmt* variableDecl) override;
+    void visit([[maybe_unused]] IRVariableDeclStmt* variableDecl) override;
 
     /**
-     * @brief calculates the size of the stack required for the assign statement
+     * @brief intentionally empty, cannot return
      * @param assignStmt - pointer to the assign statement
     */
-    void visit(IRAssignStmt* assignStmt) override;
+    void visit([[maybe_unused]] IRAssignStmt* assignStmt) override;
 
     /**
-     * @brief calculates the size of the stack required for the compound statement
+     * @brief eliminates the dead code of the compound statement
      * @param compoundStmt - pointer to the compound statement
     */
     void visit(IRCompoundStmt* compoundStmt) override;
 
     /**
-     * @brief calculates the size of the stack required for the for statement
+     * @brief intentionally empty, cannot return (compile-time condition evaluation is not available yet)
      * @param forStmt - pointer to the for statement
     */
-    void visit(IRForStmt* forStmt) override;
+    void visit([[maybe_unused]] IRForStmt* forStmt) override;
 
     /**
-     * @brief calculates the size of the stack required for the function call statement
+     * @brief intentionally empty, cannot return
      * @param callStmt - pointer to the function call statement
     */
-    void visit(IRFunctionCallStmt* callStmt) override;
+    void visit([[maybe_unused]] IRFunctionCallStmt* callStmt) override;
 
     /**
-     * @brief calculates the size of the stack required for the if statement
+     * @brief eliminates the dead code of the if statement
      * @param ifStmt - pointer to the if statement
     */
     void visit(IRIfStmt* ifStmt) override;
 
     /**
-     * @brief calculates the size of the stack required for the return statement
+     * @brief always returns
      * @param returnStmt - pointer to the return statement
     */
-    void visit(IRReturnStmt* returnStmt) override;
+    void visit([[maybe_unused]] IRReturnStmt* returnStmt) override;
 
     /**
-     * @brief calculates the size of the stack required for the while statement
+     * @brief intentionally empty, cannot return (compile-time condition evaluation is not available yet)
      * @param whileStmt - pointer to the while statement
     */
-    void visit(IRWhileStmt* whileStmt) override;
+    void visit([[maybe_unused]] IRWhileStmt* whileStmt) override;
 
     /**
-     * @brief calculates the size of the stack required for the do-while statement
+     * @brief eliminates the dead code of the do-while statement
      * @param dowhileStmt - pointer to the do-while statement
     */
     void visit(IRDoWhileStmt* dowhileStmt) override;
 
     /**
-     * @brief calculates the size of the stack required for the switch statement
+     * @brief eliminates the dead code of the switch statement
      * @param switchStmt - pointer to the switch statement
     */
     void visit(IRSwitchStmt* switchStmt) override;
 
     /**
-     * @brief calculates the size of the stack required for the case statement
+     * @brief eliminates the dead code of the case statement
      * @param caseStmt - pointer to the case statement
     */
     void visit(IRCaseStmt* caseStmt) override;
 
     /**
-     * @brief calculates the size of the stack required for the default statement
+     * @brief eliminates the dead code of the default statement
      * @param defaultStmt - pointer to the default statement
     */
     void visit(IRDefaultStmt* defaultStmt) override;
 
     /**
-     * @brief calculates the size of the stack required for the switch-block statement
+     * @brief eliminates the dead code of the switch-block statement
      * @param switchBlockStmt - pointer to the switch-block statement
     */
     void visit(IRSwitchBlockStmt* switchBlockStmt) override;
 
     /**
-     * @brief intentionally empty, not used for stack size evaluation
+     * @brief intentionally empty, cannot return
      * @param binaryExpr - pointer to the binary expression
     */
     void visit([[maybe_unused]] IRBinaryExpr* binaryExpr) override;
 
     /**
-     * @brief calculates the size of the stack required for the function call expression
+     * @brief intentionally empty, cannot return
      * @param callExpr - pointer to the function call expression
     */
-    void visit(IRFunctionCallExpr* callExpr) override;
+    void visit([[maybe_unused]] IRFunctionCallExpr* callExpr) override;
 
     /**
-     * @brief intentionally empty, not used for stack size evaluation
+     * @brief intentionally empty, cannot return
      * @param idExpr - pointer to the id expression
     */
     void visit([[maybe_unused]] IRIdExpr* idExpr) override;
 
     /**
-     * @brief intentionally empty, not used for stack size evaluation
+     * @brief intentionally empty, cannot return
      * @param literalExpr - pointer to the literal expression
     */
     void visit([[maybe_unused]] IRLiteralExpr* literalExpr) override;
 
     /**
-     * @brief calculates the size of the stack required for the temporary expression
+     * @brief intentionally empty, cannot return
      * @param tempExpr - pointer to the temporary expression
     */
-    void visit(IRTemporaryExpr* tempExpr) override;
+    void visit([[maybe_unused]] IRTemporaryExpr* tempExpr) override;
 
 private:
-    /// reference to a thread pool for parallel function stack analysis
+    /// reference to a thread pool for parallel dead code elimination
     ThreadPool& threadPool;
 
-    /// number of required variables
-    static thread_local size_t variableCounter;
-
-    /// size of the register
-    constexpr static size_t regSize = 8;
+    /// flag if current node always returns
+    static thread_local bool alwaysReturns;
 
 };
 

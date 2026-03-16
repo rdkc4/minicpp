@@ -10,6 +10,7 @@
 #include "../../common/abstract-syntax-tree/ast_include_dir.hpp"
 #include "../../thread-pool/thread_pool.hpp"
 #include "../../optimization/stack_frame_analyzer.hpp"
+#include "../../optimization/dead_code_eliminator.hpp"
 
 IntermediateRepresentation::IntermediateRepresentation() : funcIR{ exceptions } {}
 
@@ -36,6 +37,10 @@ std::unique_ptr<IRProgram> IntermediateRepresentation::transformProgram(const AS
     }
 
     doneLatch.wait();
+
+    // eliminating dead code from the program
+    DeadCodeEliminator dce{threadPool};
+    irProgram->accept(dce);
 
     // calculating required memory for the stack of each function
     StackFrameAnalyzer stackFrameAnalyzer{threadPool};

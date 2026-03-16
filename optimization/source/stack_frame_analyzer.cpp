@@ -8,7 +8,6 @@ StackFrameAnalyzer::StackFrameAnalyzer(ThreadPool& threadPool) : threadPool{thre
 thread_local size_t StackFrameAnalyzer::variableCounter{};
 
 void StackFrameAnalyzer::visit(IRProgram* program){
-
     std::latch doneLatch{ static_cast<std::ptrdiff_t>(program->getFunctionCount()) };
 
     for(const auto& function : program->getFunctions()){
