@@ -107,7 +107,7 @@ Compiler::ExitCode Compiler::syntaxAnalysis(Lexer& lexer, std::unique_ptr<ASTPro
         astProgram = parser.parseProgram();
     }
     catch(std::exception& e){
-        std::cerr << std::format("\nSyntax check: failed!\n{}\n", e.what());
+        std::cerr << std::format("Syntax check: failed!\n{}\n", e.what());
         return ExitCode::SYNTAX_ERR;
     }
 

@@ -9,6 +9,7 @@
 
 #include "../../common/abstract-syntax-tree/ast_include_dir.hpp"
 #include "../../thread-pool/thread_pool.hpp"
+#include "../../optimization/stack_frame_analyzer.hpp"
 
 IntermediateRepresentation::IntermediateRepresentation() : funcIR{ exceptions } {}
 
@@ -35,6 +36,10 @@ std::unique_ptr<IRProgram> IntermediateRepresentation::transformProgram(const AS
     }
 
     doneLatch.wait();
+
+    // calculating required memory for the stack of each function
+    StackFrameAnalyzer stackFrameAnalyzer{threadPool};
+    irProgram->accept(stackFrameAnalyzer); 
 
     for(const auto& dir : program->getDirs()) {
         if(dir->getNodeType() == ASTNodeType::INCLUDE){

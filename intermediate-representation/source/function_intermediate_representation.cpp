@@ -1,7 +1,6 @@
 #include "../function_intermediate_representation.hpp"
 
 #include "../../optimization/dead_code.hpp"
-#include "../../optimization/stack_memory.hpp"
 
 FunctionIntermediateRepresentation::FunctionIntermediateRepresentation(std::unordered_map<std::string, std::vector<std::string>>& exceptions) 
     : exceptions{ exceptions } {}
@@ -24,13 +23,7 @@ std::unique_ptr<IRFunction> FunctionIntermediateRepresentation::transformFunctio
     }
     else {
         transformBody(irFunction.get(), astFunction);
-
         Optimization::DeadCode::eliminateDeadCode(irFunction.get());
-
-        // bytes allocated for local variables
-        size_t requiredMemory = Optimization::StackMemory::computeStackMemory(irFunction.get());
-        std::string varCountStr{ std::to_string(requiredMemory) };
-        irFunction->setRequiredMemory(varCountStr);
     }
 
     {
