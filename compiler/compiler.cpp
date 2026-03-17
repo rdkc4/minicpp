@@ -11,7 +11,6 @@
 #include "../lexer/lexer.hpp"
 #include "../parser/parser.hpp"
 #include "../symbol-handling/scope-manager/scope_manager.hpp"
-#include "../analyzer/analyzer.hpp"
 #include "../intermediate-representation/intermediate_representation.hpp"
 #include "../code-generator/code-generator/code_generator.hpp"
 #include "../common/dump/ast_dumper.hpp"
@@ -113,14 +112,16 @@ Compiler::ExitCode Compiler::syntaxAnalysis(Lexer& lexer, std::unique_ptr<ASTPro
 
     return Compiler::ExitCode::NO_ERR;
 }
-
+#include "../analyzer/analyzer.hpp"
 Compiler::ExitCode Compiler::semanticAnalysis(std::unique_ptr<ASTProgram>& astProgram){
     SymbolTable symbolTable {};
     ScopeManager scopeManager{ symbolTable };
-    Analyzer analyzer{ scopeManager };
-    analyzer.semanticCheck(astProgram.get());
+    Analyzer analyzer{scopeManager};
+    astProgram->accept(analyzer);
+    //Analyzer analyzer{ scopeManager };
+    //analyzer.semanticCheck(astProgram.get());
 
-    if(analyzer.hasSemanticError(astProgram.get())){
+    if(analyzer.hasSemanticErrors(astProgram.get())){
         std::cerr << analyzer.getSemanticErrors(astProgram.get());
         return Compiler::ExitCode::SEMANTIC_ERR;
     }

@@ -15,7 +15,7 @@ class AnalyzerTest : public Analyzer {
             return globalScopeManager;
         }
 
-        const std::string& getGlobalErrLabel() const noexcept {
+        constexpr const char* getGlobalErrLabel() const noexcept {
             return globalError;
         }
 
@@ -23,38 +23,10 @@ class AnalyzerTest : public Analyzer {
             assert(semanticErrors.find(func) != semanticErrors.end());
             return semanticErrors.at(func);
         }
-};
 
-class FunctionAnalyzerTest : public FunctionAnalyzer {
-public:
-    FunctionAnalyzerTest(ScopeManager& scopeManager, std::unordered_map<std::string, std::vector<std::string>>& semErrors, const std::string& err) 
-        : FunctionAnalyzer(scopeManager, semErrors, err) {}
-
-    std::vector<std::string>& getErrors(const std::string& funcName){
-        assert(semanticErrors.contains(funcName));
-        return semanticErrors[funcName];
-    }
-
-    const std::string& getGlobalErrLabel() const noexcept {
-        return globalError;
-    }
-
-    void initErrorsEmpty(const std::string& func){
-        semanticErrors[func] = {};
-    }
-};
-
-class StatementAnalyzerTest : public StatementAnalyzer {
-public:
-    StatementAnalyzerTest(ScopeManager& scopeManager) : StatementAnalyzer(scopeManager) {}
-
-    AnalyzerThreadContext& getContext() noexcept {
-        return FunctionAnalyzer::getContext();
-    }
-};
-
-class ExpressionAnalyzerTest : public ExpressionAnalyzer {
-    ExpressionAnalyzerTest(ScopeManager& scopeManager) : ExpressionAnalyzer(scopeManager) {}
+        AnalyzerThreadContext& getContext() noexcept {
+            return analyzerContext;
+        }
 };
 
 #endif

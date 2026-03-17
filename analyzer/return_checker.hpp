@@ -1,10 +1,5 @@
-#ifndef ANALYZER_HPP
-#define ANALYZER_HPP
-
-#include <unordered_map>
-#include <string>
-#include <vector>
-#include <mutex>
+#ifndef RETURN_CHECKER_HPP
+#define RETURN_CHECKER_HPP
 
 #include "../common/visitor/ast_visitor.hpp"
 #include "../common/abstract-syntax-tree/ast_program.hpp"
@@ -28,36 +23,32 @@
 #include "../common/abstract-syntax-tree/ast_function_call_expr.hpp"
 #include "../common/abstract-syntax-tree/ast_id_expr.hpp"
 #include "../common/abstract-syntax-tree/ast_literal_expr.hpp"
-#include "../symbol-handling/scope-manager/scope_manager.hpp"
-#include "defs/analyzer_defs.hpp"
 
-class Analyzer : public ASTVisitor {
+class ReturnChecker final : public ASTVisitor {
 public:
-    Analyzer(ScopeManager& scopeManager);
+    void visit([[maybe_unused]] ASTProgram* program) override;
 
-    void visit(ASTProgram* program) override;
-
-    void visit(ASTIncludeDir* includeDir) override;
+    void visit([[maybe_unused]] ASTIncludeDir* includeDir) override;
 
     void visit(ASTFunction* function) override;
 
-    void visit(ASTParameter* parameter) override;
+    void visit([[maybe_unused]] ASTParameter* parameter) override;
 
-    void visit(ASTVariableDeclStmt* variableDecl) override;
+    void visit([[maybe_unused]] ASTVariableDeclStmt* variableDecl) override;
 
-    void visit(ASTAssignStmt* assignStmt) override;
+    void visit([[maybe_unused]] ASTAssignStmt* assignStmt) override;
 
     void visit(ASTCompoundStmt* compoundStmt) override;
 
-    void visit(ASTForStmt* forStmt) override;
+    void visit([[maybe_unused]] ASTForStmt* forStmt) override;
 
-    void visit(ASTFunctionCallStmt* callStmt) override;
+    void visit([[maybe_unused]] ASTFunctionCallStmt* callStmt) override;
 
     void visit(ASTIfStmt* ifStmt) override;
 
-    void visit(ASTReturnStmt* returnStmt) override;
+    void visit([[maybe_unused]] ASTReturnStmt* returnStmt) override;
 
-    void visit(ASTWhileStmt* whileStmt) override;
+    void visit([[maybe_unused]] ASTWhileStmt* whileStmt) override;
 
     void visit(ASTDoWhileStmt* dowhileStmt) override;
     
@@ -69,34 +60,16 @@ public:
     
     void visit(ASTSwitchBlockStmt* switchBlockStmt) override;
 
-    void visit(ASTBinaryExpr* binaryExpr) override;
+    void visit([[maybe_unused]] ASTBinaryExpr* binaryExpr) override;
 
-    void visit(ASTFunctionCallExpr* callExpr) override;
+    void visit([[maybe_unused]] ASTFunctionCallExpr* callExpr) override;
 
-    void visit(ASTIdExpr* idExpr) override;
+    void visit([[maybe_unused]] ASTIdExpr* idExpr) override;
 
-    void visit(ASTLiteralExpr* literalExpr) override;
-
-    bool hasSemanticErrors(const ASTProgram* program) const noexcept;
-
-    std::string getSemanticErrors(const ASTProgram* program) const noexcept;
-
-    void checkFunctionSignature(const ASTFunction* function);
-
-    void defineParameters(const ASTFunction* function);
+    void visit([[maybe_unused]] ASTLiteralExpr* literalExpr) override;
 
 private:
-    std::mutex exceptionMtx;
-
-protected:
-    static thread_local AnalyzerThreadContext analyzerContext;
-
-    ScopeManager& globalScopeManager;
-
-    std::unordered_map<std::string, std::vector<std::string>> semanticErrors;
-
-    static constexpr const char* globalError{ "__global" };
-
+    bool alwaysReturns{ false };
 };
 
 #endif

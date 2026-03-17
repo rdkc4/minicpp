@@ -1,9 +1,5 @@
 #include "symbol_table.hpp"
 
-#include <initializer_list>
-
-SymbolTable::SymbolTable() = default;
-
 bool SymbolTable::lookupSymbol(const std::string& name, std::initializer_list<Kind> kind) const {
     auto it{ symbolTable.find(name) };
     if(it != symbolTable.end()){
