@@ -151,7 +151,7 @@ void Analyzer::visit(ASTFunction* function){
     analyzerContext.scopeManager->popScope();
 
     {
-        std::lock_guard<std::mutex> lock(exceptionMtx);
+        std::lock_guard<std::mutex> lock(errorMtx);
         assert(semanticErrors[functionName].empty());
         semanticErrors[functionName] = std::move(analyzerContext.semanticErrors);
     }
