@@ -13,12 +13,13 @@ TEST(AnalyzerTest, SemanticCheck){
     ParserTest parser{ tokenConsumer };
     auto ast = parser.parseProgram();
 
+    ThreadPool tp{1};
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
-    AnalyzerTest analyzer{scopeManager};
+    AnalyzerTest analyzer{scopeManager, tp};
 
-    analyzer.semanticCheck(ast.get());
-    ASSERT_FALSE(analyzer.hasSemanticError(ast.get()));
+    ast->accept(analyzer);
+    ASSERT_FALSE(analyzer.hasSemanticErrors(ast.get()));
 }
 
 TEST(AnalyzerTest, SemanticCheckInvalidFunctionCallThrows){
@@ -30,12 +31,13 @@ TEST(AnalyzerTest, SemanticCheckInvalidFunctionCallThrows){
     ParserTest parser{ tokenConsumer };
     auto ast = parser.parseProgram();
 
+    ThreadPool tp{1};
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
-    AnalyzerTest analyzer{scopeManager};
+    AnalyzerTest analyzer{scopeManager, tp};
     
-    analyzer.semanticCheck(ast.get());
-    ASSERT_TRUE(analyzer.hasSemanticError(ast.get()));
+    ast->accept(analyzer);
+    ASSERT_TRUE(analyzer.hasSemanticErrors(ast.get()));
     ASSERT_TRUE(analyzer.getErrors("main")[0].contains("invalid function call"));
 }
 
@@ -48,12 +50,13 @@ TEST(AnalyzerTest, SemanticCheckTypeMismatchThrows){
     ParserTest parser{ tokenConsumer };
     auto ast = parser.parseProgram();
 
+    ThreadPool tp{1};
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
-    AnalyzerTest analyzer{scopeManager};
+    AnalyzerTest analyzer{scopeManager, tp};
 
-    analyzer.semanticCheck(ast.get());
-    ASSERT_TRUE(analyzer.hasSemanticError(ast.get()));
+    ast->accept(analyzer);
+    ASSERT_TRUE(analyzer.hasSemanticErrors(ast.get()));
 }
 
 TEST(AnalyzerTest, SemanticCheckNoMainThrows){
@@ -65,12 +68,13 @@ TEST(AnalyzerTest, SemanticCheckNoMainThrows){
     ParserTest parser{ tokenConsumer };
     auto ast = parser.parseProgram();
 
+    ThreadPool tp{1};
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
-    AnalyzerTest analyzer{scopeManager};
+    AnalyzerTest analyzer{scopeManager, tp};
 
-    analyzer.semanticCheck(ast.get());
-    ASSERT_TRUE(analyzer.hasSemanticError(ast.get()));
+    ast->accept(analyzer);
+    ASSERT_TRUE(analyzer.hasSemanticErrors(ast.get()));
 }
 
 TEST(AnalyzerTest, CheckFunctionSignatures){
@@ -82,13 +86,13 @@ TEST(AnalyzerTest, CheckFunctionSignatures){
     ParserTest parser{ tokenConsumer };
     auto program = parser.parseProgram();
 
+    ThreadPool tp{1};
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
     scopeManager.pushScope();
-    std::unordered_map<std::string, std::vector<std::string>> semErrors = {};
-    FunctionAnalyzerTest analyzer(scopeManager, semErrors, "__global");
+    AnalyzerTest analyzer{scopeManager, tp};
 
-    analyzer.checkFunctionSignatures(program.get());
+    program->accept(analyzer);
     ASSERT_TRUE(analyzer.getErrors("rectArea").empty());
     ASSERT_TRUE(analyzer.getErrors("sq").empty());
 
@@ -104,13 +108,13 @@ TEST(AnalyzerTest, CheckFunctionSignaturesFunctionRedefError){
     ParserTest parser{ tokenConsumer };
     auto program = parser.parseProgram();
 
+    ThreadPool tp{1};
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
     scopeManager.pushScope();
-    std::unordered_map<std::string, std::vector<std::string>> semErrors = {};
-    FunctionAnalyzerTest analyzer(scopeManager, semErrors, "__global");
+    AnalyzerTest analyzer{scopeManager, tp};
 
-    analyzer.checkFunctionSignatures(program.get());
+    program->accept(analyzer);
     ASSERT_FALSE(analyzer.getErrors(analyzer.getGlobalErrLabel()).empty());
     ASSERT_TRUE(analyzer.getErrors(analyzer.getGlobalErrLabel())[0].contains("redefined"));
 
@@ -126,13 +130,13 @@ TEST(AnalyzerTest, CheckFunctionSignaturesParameterRedefError){
     ParserTest parser{ tokenConsumer };
     auto program = parser.parseProgram();
 
+    ThreadPool tp{1};
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
     scopeManager.pushScope();
-    std::unordered_map<std::string, std::vector<std::string>> semErrors = {};
-    FunctionAnalyzerTest analyzer(scopeManager, semErrors, "__global");
+    AnalyzerTest analyzer{scopeManager, tp};
 
-    analyzer.checkFunctionSignatures(program.get());
+    program->accept(analyzer);
     ASSERT_FALSE(analyzer.getErrors("rectArea").empty());
     ASSERT_TRUE(analyzer.getErrors("rectArea")[0].contains("redefined"));
 
@@ -148,13 +152,13 @@ TEST(AnalyzerTest, CheckFunctionSignaturesMainParamsError){
     ParserTest parser{ tokenConsumer };
     auto program = parser.parseProgram();
 
+    ThreadPool tp{1};
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
     scopeManager.pushScope();
-    std::unordered_map<std::string, std::vector<std::string>> semErrors = {};
-    FunctionAnalyzerTest analyzer(scopeManager, semErrors, "__global");
+    AnalyzerTest analyzer{scopeManager, tp};
 
-    analyzer.checkFunctionSignatures(program.get());
+    program->accept(analyzer);
     ASSERT_FALSE(analyzer.getErrors("main").empty());
     ASSERT_TRUE(analyzer.getErrors("main")[0].contains("parameter"));
 
@@ -170,14 +174,14 @@ TEST(AnalyzerTest, CheckFunction){
     FunctionParserTest parser{ tokenConsumer };
     auto function = parser.parseFunction();
 
+    ThreadPool tp{1};
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
     scopeManager.pushScope();
     scopeManager.pushSymbol(Symbol{"fun", Kind::FUN, Type::INT});
-    std::unordered_map<std::string, std::vector<std::string>> semErrors = {{"fun", {}}};
-    FunctionAnalyzerTest analyzer(scopeManager, semErrors, "__global");
+    AnalyzerTest analyzer{scopeManager, tp};
 
-    analyzer.checkFunction(function.get());
+    function->accept(analyzer);
     ASSERT_TRUE(analyzer.getErrors("fun").empty());
     scopeManager.popScope();
 }
@@ -191,14 +195,14 @@ TEST(AnalyzerTest, CheckFunctionNotAllIfPathsReturnError){
     FunctionParserTest parser{ tokenConsumer };
     auto function = parser.parseFunction();
 
+    ThreadPool tp{1};
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
     scopeManager.pushScope();
     scopeManager.pushSymbol(Symbol{"fun", Kind::FUN, Type::INT});
-    std::unordered_map<std::string, std::vector<std::string>> semErrors = {{"fun", {}}};
-    FunctionAnalyzerTest analyzer(scopeManager, semErrors, "__global");
+    AnalyzerTest analyzer{scopeManager, tp};
 
-    analyzer.checkFunction(function.get());
+    function->accept(analyzer);
     ASSERT_FALSE(analyzer.getErrors("fun").empty());
     ASSERT_TRUE(analyzer.getErrors("fun")[0].contains("not all paths return"));
     scopeManager.popScope();
@@ -213,14 +217,14 @@ TEST(AnalyzerTest, CheckFunctionNotAllSwitchPathsReturnError){
     FunctionParserTest parser{ tokenConsumer };
     auto function = parser.parseFunction();
 
+    ThreadPool tp{1};
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
     scopeManager.pushScope();
     scopeManager.pushSymbol(Symbol{"fun", Kind::FUN, Type::INT});
-    std::unordered_map<std::string, std::vector<std::string>> semErrors = {{"fun", {}}};
-    FunctionAnalyzerTest analyzer(scopeManager, semErrors, "__global");
+    AnalyzerTest analyzer{scopeManager, tp};
 
-    analyzer.checkFunction(function.get());
+    function->accept(analyzer);
     ASSERT_FALSE(analyzer.getErrors("fun").empty());
     ASSERT_TRUE(analyzer.getErrors("fun")[0].contains("not all paths return"));
     scopeManager.popScope();
@@ -235,14 +239,14 @@ TEST(AnalyzerTest, CheckFunctionParameterRedefError){
     FunctionParserTest parser{ tokenConsumer };
     auto function = parser.parseFunction();
 
+    ThreadPool tp{1};
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
     scopeManager.pushScope();
     scopeManager.pushSymbol(Symbol{"fun", Kind::FUN, Type::INT});
-    std::unordered_map<std::string, std::vector<std::string>> semErrors = {{"fun", {}}};
-    FunctionAnalyzerTest analyzer(scopeManager, semErrors, "__global");
+    AnalyzerTest analyzer{scopeManager, tp};
 
-    analyzer.checkFunction(function.get());
+    function->accept(analyzer);
     ASSERT_FALSE(analyzer.getErrors("fun").empty());
     ASSERT_TRUE(analyzer.getErrors("fun")[0].contains("redefined"));
     scopeManager.popScope();
@@ -257,14 +261,14 @@ TEST(AnalyzerTest, CheckFunctionVoidReturnsTypeError){
     FunctionParserTest parser{ tokenConsumer };
     auto function = parser.parseFunction();
 
+    ThreadPool tp{1};
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
     scopeManager.pushScope();
     scopeManager.pushSymbol(Symbol{"fun", Kind::FUN, Type::VOID});
-    std::unordered_map<std::string, std::vector<std::string>> semErrors = {{"fun", {}}};
-    FunctionAnalyzerTest analyzer(scopeManager, semErrors, "__global");
+    AnalyzerTest analyzer{scopeManager, tp};
 
-    analyzer.checkFunction(function.get());
+    function->accept(analyzer);
     ASSERT_FALSE(analyzer.getErrors("fun").empty());
     ASSERT_TRUE(analyzer.getErrors("fun")[0].contains("type mismatch"));
     scopeManager.popScope();
@@ -279,14 +283,14 @@ TEST(AnalyzerTest, CheckFunctionVoidTypeMismatchError){
     FunctionParserTest parser{ tokenConsumer };
     auto function = parser.parseFunction();
 
+    ThreadPool tp{1};
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
     scopeManager.pushScope();
     scopeManager.pushSymbol(Symbol{"fun", Kind::FUN, Type::INT});
-    std::unordered_map<std::string, std::vector<std::string>> semErrors = {{"fun", {}}};
-    FunctionAnalyzerTest analyzer(scopeManager, semErrors, "__global");
+    AnalyzerTest analyzer{scopeManager, tp};
 
-    analyzer.checkFunction(function.get());
+    function->accept(analyzer);
     ASSERT_FALSE(analyzer.getErrors("fun").empty());
     ASSERT_TRUE(analyzer.getErrors("fun")[0].contains("type mismatch"));
     scopeManager.popScope();
@@ -301,14 +305,15 @@ TEST(AnalyzerTest, CheckVariable){
     StatementParserTest parser{ tokenConsumer };
     auto variableDecl = parser.parseVariableDeclStmt();
 
+    ThreadPool tp{1};
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
-    StatementAnalyzerTest analyzer(scopeManager);
+    AnalyzerTest analyzer{scopeManager, tp};
     
     analyzer.getContext().init("tmp", &scopeManager);
     analyzer.getContext().scopeManager->pushScope();
 
-    analyzer.checkVariableDeclStmt(variableDecl.get());
+    variableDecl->accept(analyzer);
     ASSERT_TRUE(analyzer.getContext().semanticErrors.empty());
     ASSERT_TRUE(scopeManager.lookupSymbol("x", {Kind::VAR}));
     
@@ -325,13 +330,14 @@ TEST(AnalyzerTest, CheckVariableExitedScope){
     StatementParserTest parser{ tokenConsumer };
     auto compoundStmt = parser.parseCompoundStmt();
 
+    ThreadPool tp{1};
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
-    StatementAnalyzerTest analyzer{ scopeManager };
+    AnalyzerTest analyzer{ scopeManager, tp };
     
     analyzer.getContext().init("tmp", &scopeManager);
 
-    analyzer.checkCompoundStmt(compoundStmt.get());
+    compoundStmt->accept(analyzer);
     ASSERT_TRUE(analyzer.getContext().semanticErrors.empty());
     analyzer.getContext().reset();
 }
@@ -345,15 +351,16 @@ TEST(AnalyzerTest, CheckVariableRedefError){
     StatementParserTest parser{ tokenConsumer };
     auto variableDecl = parser.parseVariableDeclStmt();
 
+    ThreadPool tp{1};
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
-    StatementAnalyzerTest analyzer{scopeManager};
+    AnalyzerTest analyzer{scopeManager, tp};
     
     analyzer.getContext().init("tmp", &scopeManager);
     analyzer.getContext().scopeManager->pushScope();
     analyzer.getContext().scopeManager->pushSymbol(Symbol{"x", Kind::VAR, Type::INT});
 
-    analyzer.checkVariableDeclStmt(variableDecl.get());
+    variableDecl->accept(analyzer);
     ASSERT_FALSE(analyzer.getContext().semanticErrors.empty());
     ASSERT_TRUE(analyzer.getContext().semanticErrors[0].contains("redefined"));
     
@@ -370,14 +377,15 @@ TEST(AnalyzerTest, CheckVariableTypeMismatchError){
     StatementParserTest parser{ tokenConsumer };
     auto variableDecl = parser.parseVariableDeclStmt();
 
+    ThreadPool tp{1};
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
-    StatementAnalyzerTest analyzer{scopeManager};
+    AnalyzerTest analyzer{scopeManager, tp};
     
     analyzer.getContext().init("tmp", &scopeManager);
     analyzer.getContext().scopeManager->pushScope();
 
-    analyzer.checkVariableDeclStmt(variableDecl.get());
+    variableDecl->accept(analyzer);
     ASSERT_FALSE(analyzer.getContext().semanticErrors.empty());
     ASSERT_TRUE(analyzer.getContext().semanticErrors[0].contains("type mismatch"));
     
@@ -394,14 +402,15 @@ TEST(AnalyzerTest, CheckVariableAutoType){
     StatementParserTest parser{ tokenConsumer };
     auto variableDecl = parser.parseVariableDeclStmt();
 
+    ThreadPool tp{1};
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
-    StatementAnalyzerTest analyzer{scopeManager};
+    AnalyzerTest analyzer{scopeManager, tp};
     
     analyzer.getContext().init("tmp", &scopeManager);
     analyzer.getContext().scopeManager->pushScope();
 
-    analyzer.checkVariableDeclStmt(variableDecl.get());
+    variableDecl->accept(analyzer);
     ASSERT_TRUE(analyzer.getContext().semanticErrors.empty());
     ASSERT_TRUE(analyzer.getContext().scopeManager->lookupSymbol("x", {Kind::VAR}));
     ASSERT_EQ(analyzer.getContext().scopeManager->getSymbol("x").getType(), Type::UNSIGNED);
@@ -419,14 +428,15 @@ TEST(AnalyzerTest, CheckVariableAutoError){
     StatementParserTest parser{ tokenConsumer };
     auto variableDecl = parser.parseVariableDeclStmt();
 
+    ThreadPool tp{1};
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
-    StatementAnalyzerTest analyzer{scopeManager};
+    AnalyzerTest analyzer{scopeManager, tp};
     
     analyzer.getContext().init("tmp", &scopeManager);
     analyzer.getContext().scopeManager->pushScope();
 
-    analyzer.checkVariableDeclStmt(variableDecl.get());
+    variableDecl->accept(analyzer);
     ASSERT_FALSE(analyzer.getContext().semanticErrors.empty());
     ASSERT_TRUE(analyzer.getContext().semanticErrors[0].contains("deduction"));
     
@@ -443,14 +453,15 @@ TEST(AnalyzerTest, CheckVariableUndefinedVariableError){
     StatementParserTest parser{ tokenConsumer };
     auto variableDecl = parser.parseVariableDeclStmt();
 
+    ThreadPool tp{1};
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
-    StatementAnalyzerTest analyzer{scopeManager};
+    AnalyzerTest analyzer{scopeManager, tp};
 
     analyzer.getContext().init("tmp", &scopeManager);
     analyzer.getContext().scopeManager->pushScope();
 
-    analyzer.checkVariableDeclStmt(variableDecl.get());
+    variableDecl->accept(analyzer);
     ASSERT_FALSE(analyzer.getContext().semanticErrors.empty());
     ASSERT_TRUE(analyzer.getContext().semanticErrors[0].contains("undefined"));
     
@@ -467,15 +478,16 @@ TEST(AnalyzerTest, ForStatement){
     StatementParserTest parser{ tokenConsumer };
     auto forStmt = parser.parseForStmt();
 
+    ThreadPool tp{1};
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
-    StatementAnalyzerTest analyzer{scopeManager};
+    AnalyzerTest analyzer{scopeManager, tp};
 
     analyzer.getContext().init("tmp", &scopeManager);
     analyzer.getContext().scopeManager->pushScope();
     analyzer.getContext().scopeManager->pushSymbol(Symbol{"i", Kind::VAR, Type::INT}); // initialize i;
 
-    analyzer.checkForStmt(forStmt.get());
+    forStmt->accept(analyzer);
     ASSERT_TRUE(analyzer.getContext().semanticErrors.empty());
 
     analyzer.getContext().scopeManager->popScope();
@@ -491,14 +503,15 @@ TEST(AnalyzerTest, ForStatementUndefVarError){
     StatementParserTest parser{ tokenConsumer };
     auto forStmt = parser.parseForStmt();
 
+    ThreadPool tp{1};
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
-    StatementAnalyzerTest analyzer{scopeManager};
+    AnalyzerTest analyzer{scopeManager, tp};
     
     analyzer.getContext().init("tmp", &scopeManager);
     analyzer.getContext().scopeManager->pushScope();
 
-    analyzer.checkForStmt(forStmt.get());
+    forStmt->accept(analyzer);
     ASSERT_FALSE(analyzer.getContext().semanticErrors.empty());
     ASSERT_TRUE(analyzer.getContext().semanticErrors[0].contains("undefined"));
     
@@ -515,15 +528,16 @@ TEST(AnalyzerTest, ForStatementTypeMismatchError){
     StatementParserTest parser{ tokenConsumer };
     auto forStmt = parser.parseForStmt();
 
+    ThreadPool tp{1};
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
-    StatementAnalyzerTest analyzer{scopeManager};
+    AnalyzerTest analyzer{scopeManager, tp};
     
     analyzer.getContext().init("tmp", &scopeManager);
     analyzer.getContext().scopeManager->pushScope();
     analyzer.getContext().scopeManager->pushSymbol(Symbol{"i", Kind::VAR, Type::INT}); // initialize i;
 
-    analyzer.checkForStmt(forStmt.get());
+    forStmt->accept(analyzer);
     ASSERT_FALSE(analyzer.getContext().semanticErrors.empty());
     ASSERT_TRUE(analyzer.getContext().semanticErrors[0].contains("type mismatch"));
     
@@ -540,15 +554,16 @@ TEST(AnalyzerTest, SwitchStatement){
     StatementParserTest parser{ tokenConsumer };
     auto switchStmt = parser.parseSwitchStmt();
 
+    ThreadPool tp{1};
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
-    StatementAnalyzerTest analyzer{scopeManager};
+    AnalyzerTest analyzer{scopeManager, tp};
     
     analyzer.getContext().init("tmp", &scopeManager);
     analyzer.getContext().scopeManager->pushScope();
     analyzer.getContext().scopeManager->pushSymbol(Symbol{"x", Kind::VAR, Type::INT}); // initialize x;
 
-    analyzer.checkSwitchStmt(switchStmt.get());
+    switchStmt->accept(analyzer);
     ASSERT_TRUE(analyzer.getContext().semanticErrors.empty());
     
     analyzer.getContext().scopeManager->popScope();   
@@ -564,15 +579,16 @@ TEST(AnalyzerTest, SwitchStatementTypeMismatchError){
     StatementParserTest parser{ tokenConsumer };
     auto switchStmt = parser.parseSwitchStmt();
 
+    ThreadPool tp{1};
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
-    StatementAnalyzerTest analyzer{scopeManager};
+    AnalyzerTest analyzer{scopeManager, tp};
     
     analyzer.getContext().init("tmp", &scopeManager);
     analyzer.getContext().scopeManager->pushScope();
     analyzer.getContext().scopeManager->pushSymbol(Symbol{"x", Kind::VAR, Type::INT}); // initialize x;
 
-    analyzer.checkSwitchStmt(switchStmt.get());
+    switchStmt->accept(analyzer);
     ASSERT_FALSE(analyzer.getContext().semanticErrors.empty());
     ASSERT_TRUE(analyzer.getContext().semanticErrors[0].contains("type mismatch"));
     
@@ -589,15 +605,16 @@ TEST(AnalyzerTest, SwitchStatementCaseDuplicateError){
     StatementParserTest parser{ tokenConsumer };
     auto switchStmt = parser.parseSwitchStmt();
 
+    ThreadPool tp{1};
     SymbolTable symtab;
     ScopeManager scopeManager{ symtab };
-    StatementAnalyzerTest analyzer{scopeManager};
+    AnalyzerTest analyzer{scopeManager, tp};
     
     analyzer.getContext().init("tmp", &scopeManager);
     analyzer.getContext().scopeManager->pushScope();
     analyzer.getContext().scopeManager->pushSymbol(Symbol{"x", Kind::VAR, Type::INT}); // initialize x;
 
-    analyzer.checkSwitchStmt(switchStmt.get());
+    switchStmt->accept(analyzer);
     ASSERT_FALSE(analyzer.getContext().semanticErrors.empty());
     ASSERT_TRUE(analyzer.getContext().semanticErrors[0].contains("duplicate case"));
     

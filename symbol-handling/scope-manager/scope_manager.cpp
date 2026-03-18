@@ -35,3 +35,10 @@ Symbol& ScopeManager::getSymbol(const std::string& name) const {
 bool ScopeManager::lookupSymbol(const std::string& name, std::initializer_list<Kind> kind) const {
     return symbolTable.lookupSymbol(name, kind);
 }
+
+void ScopeManager::clear() noexcept {
+    while(!scope.empty()){
+        scope.pop();
+    }
+    symbolTable.clearSymbols();
+}

@@ -1,5 +1,5 @@
-#ifndef OPTIMIZATION_STACK_MEMORY_HPP
-#define OPTIMIZATION_STACK_MEMORY_HPP
+#ifndef STACK_FRAME_ANALYZER_HPP
+#define STACK_FRAME_ANALYZER_HPP
 
 #include "../common/visitor/ir_visitor.hpp"
 #include "../common/intermediate-representation-tree/ir_program.hpp"

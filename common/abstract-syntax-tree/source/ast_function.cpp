@@ -2,7 +2,8 @@
 
 #include "../defs/ast_defs.hpp"
 
-ASTFunction::ASTFunction(const Token& token, Type type) : ASTNode(token, ASTNodeType::FUNCTION), type{ type }, predefined{ false } {}
+ASTFunction::ASTFunction(const Token& token, Type type) 
+    : ASTNode(token, ASTNodeType::FUNCTION), type{ type }, predefined{ false }, alwaysReturns{ false } {}
 
 const std::vector<std::unique_ptr<ASTParameter>>& ASTFunction::getParameters() const noexcept {
     return parameters;
@@ -34,6 +35,14 @@ bool ASTFunction::isPredefined() const noexcept {
 
 size_t ASTFunction::getParameterCount() const noexcept {
     return parameters.size();
+}
+
+void ASTFunction::setAlwaysReturns(bool returns) noexcept {
+    alwaysReturns = returns;
+}
+
+bool ASTFunction::alwaysReturnsValue() const noexcept {
+    return alwaysReturns;
 }
 
 void ASTFunction::accept(ASTVisitor& visitor) {

@@ -7,6 +7,8 @@
 
 class IntermediateRepresentationTest : public IntermediateRepresentation {
     public:
+        IntermediateRepresentationTest(ThreadPool& threadPool) : IntermediateRepresentation{ threadPool } {}
+
         const std::vector<std::string>& getErrors(const std::string& func) const noexcept {
             assert(exceptions.find(func) != exceptions.end());
             return exceptions.at(func);

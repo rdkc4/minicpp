@@ -11,7 +11,6 @@
 #include "../lexer/lexer.hpp"
 #include "../parser/parser.hpp"
 #include "../symbol-handling/scope-manager/scope_manager.hpp"
-#include "../analyzer/analyzer.hpp"
 #include "../intermediate-representation/intermediate_representation.hpp"
 #include "../code-generator/code-generator/code_generator.hpp"
 #include "../common/dump/ast_dumper.hpp"
@@ -113,14 +112,16 @@ Compiler::ExitCode Compiler::syntaxAnalysis(Lexer& lexer, std::unique_ptr<ASTPro
 
     return Compiler::ExitCode::NO_ERR;
 }
-
-Compiler::ExitCode Compiler::semanticAnalysis(std::unique_ptr<ASTProgram>& astProgram){
+#include "../analyzer/analyzer.hpp"
+Compiler::ExitCode Compiler::semanticAnalysis(std::unique_ptr<ASTProgram>& astProgram, ThreadPool& threadPool){
     SymbolTable symbolTable {};
     ScopeManager scopeManager{ symbolTable };
-    Analyzer analyzer{ scopeManager };
-    analyzer.semanticCheck(astProgram.get());
+    Analyzer analyzer{scopeManager, threadPool};
+    astProgram->accept(analyzer);
+    //Analyzer analyzer{ scopeManager };
+    //analyzer.semanticCheck(astProgram.get());
 
-    if(analyzer.hasSemanticError(astProgram.get())){
+    if(analyzer.hasSemanticErrors(astProgram.get())){
         std::cerr << analyzer.getSemanticErrors(astProgram.get());
         return Compiler::ExitCode::SEMANTIC_ERR;
     }
@@ -128,8 +129,8 @@ Compiler::ExitCode Compiler::semanticAnalysis(std::unique_ptr<ASTProgram>& astPr
     return Compiler::ExitCode::NO_ERR;
 }
 
-Compiler::ExitCode Compiler::transformASTToIRT(std::unique_ptr<ASTProgram>& astProgram, std::unique_ptr<IRProgram>& irProgram){
-        IntermediateRepresentation intermediateRepresentation{};
+Compiler::ExitCode Compiler::transformASTToIRT(std::unique_ptr<ASTProgram>& astProgram, std::unique_ptr<IRProgram>& irProgram, ThreadPool& threadPool){
+        IntermediateRepresentation intermediateRepresentation{threadPool};
         irProgram = intermediateRepresentation.transformProgram(astProgram.get());
 
         if(intermediateRepresentation.hasErrors(irProgram.get())){
@@ -140,9 +141,9 @@ Compiler::ExitCode Compiler::transformASTToIRT(std::unique_ptr<ASTProgram>& astP
         return Compiler::ExitCode::NO_ERR;
 }
 
-Compiler::ExitCode Compiler::generateProgram(const IRProgram* irProgram, const std::string_view output){
+Compiler::ExitCode Compiler::generateProgram(const IRProgram* irProgram, const std::string_view output, ThreadPool& threadPool){
     std::string outputFilePath = std::string{ output } + ".s";
-    CodeGenerator codeGenerator{ std::string{ outputFilePath } };
+    CodeGenerator codeGenerator{ outputFilePath, threadPool };
     try{
         codeGenerator.generateProgram(irProgram);
         if(!codeGenerator.successful()){
@@ -195,13 +196,15 @@ Compiler::ExitCode Compiler::compile(Compiler::CompileOptions options) {
         dumpAST(astProgram.get());
     }
 
-    result = semanticAnalysis(astProgram);
+    ThreadPool threadPool{ std::thread::hardware_concurrency() };
+
+    result = semanticAnalysis(astProgram, threadPool);
     if(result != Compiler::ExitCode::NO_ERR){
         return result;
     }
 
     std::unique_ptr<IRProgram> irProgram;
-    result = transformASTToIRT(astProgram, irProgram);
+    result = transformASTToIRT(astProgram, irProgram, threadPool);
     if(result != Compiler::ExitCode::NO_ERR){
         return result;
     }
@@ -210,7 +213,7 @@ Compiler::ExitCode Compiler::compile(Compiler::CompileOptions options) {
         dumpIR(irProgram.get());
     }
 
-    result = generateProgram(irProgram.get(), options.output);
+    result = generateProgram(irProgram.get(), options.output, threadPool);
     if(result != Compiler::ExitCode::NO_ERR){
         return result;
     }

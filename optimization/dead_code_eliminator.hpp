@@ -1,5 +1,5 @@
-#ifndef OPTIMIZATION_DEAD_CODE_HPP
-#define OPTIMIZATION_DEAD_CODE_HPP
+#ifndef DEAD_CODE_ELIMINATOR_HPP
+#define DEAD_CODE_ELIMINATOR_HPP
 
 #include "../common/visitor/ir_visitor.hpp"
 #include "../common/intermediate-representation-tree/ir_program.hpp"

@@ -73,6 +73,18 @@ public:
     size_t getParameterCount() const noexcept;
 
     /**
+     * @brief sets the always return flag
+     * @param returns - flag whether function returns or not
+    */
+    void setAlwaysReturns(bool returns) noexcept;
+
+    /**
+     * @brief getter for the always returns flag
+     * @returns true if function always returns value, false otherwise
+    */
+    bool alwaysReturnsValue() const noexcept;
+
+    /**
      * @brief accepts the ast visitor
      * @param visitor - reference to an ast visitor
     */
@@ -84,6 +96,9 @@ private:
 
     /// flag if function is predefined
     bool predefined;
+
+    /// flag if function always returns, only for functions that return value
+    bool alwaysReturns;
 
     /// vector of pointers to parameters of the function
     std::vector<std::unique_ptr<ASTParameter>> parameters;

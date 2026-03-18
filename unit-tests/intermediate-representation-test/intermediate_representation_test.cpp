@@ -14,7 +14,8 @@ TEST(IRTest, FormIR){
     ParserTest parser{ tokenConsumer };
     std::unique_ptr<ASTProgram> astProgram = parser.parseProgram();
 
-    IntermediateRepresentationTest intermediateRepresentation;
+    ThreadPool tp{1};
+    IntermediateRepresentationTest intermediateRepresentation{tp};
     std::unique_ptr<IRProgram> irProgram = intermediateRepresentation.transformProgram(astProgram.get());
     const size_t functionCount = 2;
 
@@ -31,7 +32,8 @@ TEST(IRTest, FormIRThrows){
     ParserTest parser{ tokenConsumer };
     std::unique_ptr<ASTProgram> astProgram = parser.parseProgram();
 
-    IntermediateRepresentationTest intermediateRepresentation;
+    ThreadPool tp{1};
+    IntermediateRepresentationTest intermediateRepresentation{tp};
     std::unique_ptr<IRProgram> irProgram = intermediateRepresentation.transformProgram(astProgram.get());
 
     ASSERT_TRUE(intermediateRepresentation.hasErrors(irProgram.get()));
@@ -47,7 +49,8 @@ TEST(IRTest, FunctionDeadCodeElimination){
     ParserTest parser{ tokenConsumer };
     std::unique_ptr<ASTProgram> astProgram = parser.parseProgram();
 
-    IntermediateRepresentationTest intermediateRepresentation{};
+    ThreadPool tp{1};
+    IntermediateRepresentationTest intermediateRepresentation{tp};
     std::unique_ptr<IRProgram> irProgram = intermediateRepresentation.transformProgram(astProgram.get());
 
     const size_t expectedStmtCount = 1;
@@ -65,7 +68,8 @@ TEST(IRTest, FunctionDeadCodeEliminationIfBranching){
     ParserTest parser{ tokenConsumer };
     std::unique_ptr<ASTProgram> astProgram = parser.parseProgram();
 
-    IntermediateRepresentationTest intermediateRepresentation{};
+    ThreadPool tp{1};
+    IntermediateRepresentationTest intermediateRepresentation{tp};
     std::unique_ptr<IRProgram> irProgram = intermediateRepresentation.transformProgram(astProgram.get());
     
     const size_t expectedStmtCount = 1;
@@ -83,7 +87,8 @@ TEST(IRTest, FunctionDeadCodeEliminationSwitchBranching){
     ParserTest parser{ tokenConsumer };
     std::unique_ptr<ASTProgram> astProgram = parser.parseProgram();
 
-    IntermediateRepresentationTest intermediateRepresentation{};
+    ThreadPool tp{1};
+    IntermediateRepresentationTest intermediateRepresentation{tp};
     std::unique_ptr<IRProgram> irProgram = intermediateRepresentation.transformProgram(astProgram.get());
     
     const size_t expectedStmtCount = 1; 
@@ -101,7 +106,8 @@ TEST(IRTest, FunctionDeadCodeEliminationDoWhile){
     ParserTest parser{ tokenConsumer };
     std::unique_ptr<ASTProgram> astProgram = parser.parseProgram();
 
-    IntermediateRepresentationTest intermediateRepresentation{};
+    ThreadPool tp{1};
+    IntermediateRepresentationTest intermediateRepresentation{tp};
     std::unique_ptr<IRProgram> irProgram = intermediateRepresentation.transformProgram(astProgram.get());
 
     const size_t expectedStmtCount = 1;

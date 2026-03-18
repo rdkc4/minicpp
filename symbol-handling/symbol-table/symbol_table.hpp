@@ -10,12 +10,12 @@
  * @class SymbolTable
  * @brief maintaining the table of symbols
 */
-class SymbolTable{
+class SymbolTable {
 public:
     /** 
      * @brief Creates the instance of the symbol table
     */
-    SymbolTable();
+    SymbolTable() = default;
 
     /** 
      * @brief checks if symbol exists in a table

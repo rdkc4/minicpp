@@ -5,6 +5,7 @@
 #include <unordered_map>
 
 #include "../../common/intermediate-representation-tree/ir_program.hpp"
+#include "../../thread-pool/thread_pool.hpp"
 #include "function_code_generator.hpp"
 
 /** 
@@ -16,8 +17,9 @@ public:
     /** 
      * @brief Creates an instance of the code generator
      * @param filePath - path for the output asm file
+     * @param threadPool - reference to a thread pool
     */
-    CodeGenerator(const std::string& filePath);
+    CodeGenerator(const std::string& filePath, ThreadPool& threadPool);
 
     /** 
      * @brief generates the unique number for the label
@@ -38,6 +40,9 @@ public:
     bool successful() const noexcept;
 
 private:
+    /// thread pool for parallel function code generation
+    ThreadPool& threadPool;
+
     /// number for the next label
     static std::atomic<size_t> labelNum;
 

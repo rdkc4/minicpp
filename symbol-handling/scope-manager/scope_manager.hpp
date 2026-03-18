@@ -56,6 +56,11 @@ public:
     */
     bool lookupSymbol(const std::string& name, std::initializer_list<Kind> kind) const;
 
+    /**
+     * @brief clears all scopes
+    */
+    void clear() noexcept;
+
 private:
     /// table of active symbols
     SymbolTable& symbolTable;
