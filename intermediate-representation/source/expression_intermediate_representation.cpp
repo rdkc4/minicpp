@@ -1,7 +1,9 @@
 #include "../expression_intermediate_representation.hpp"
-#include "../function_intermediate_representation.hpp"
 
 #include <cassert>
+
+#include "../function_intermediate_representation.hpp"
+#include "../../optimization/constant_folding.hpp"
 
 // NUMEXP - reduced to (id, literal, function call) or arithmetic operation (add, sub, mul, div)
 std::unique_ptr<IRExpr> ExpressionIntermediateRepresentation::transformNumericalExpr(const ASTExpr* astNumericalExpr){
@@ -25,7 +27,7 @@ std::unique_ptr<IRExpr> ExpressionIntermediateRepresentation::transformBinaryExp
 
     if(leftOperand->getNodeType() == IRNodeType::LITERAL && rightOperand->getNodeType() == IRNodeType::LITERAL){
         if(leftOperand->getType() == Type::INT){
-            auto res = mergeLiterals<int>(static_cast<const IRLiteralExpr*>(leftOperand.get()), 
+            auto res = Optimization::ConstantFolding::mergeLiterals<int>(static_cast<const IRLiteralExpr*>(leftOperand.get()), 
                 static_cast<const IRLiteralExpr*>(rightOperand.get()), astBinaryExpr
             );
             if(!res.error.empty()){
@@ -35,7 +37,7 @@ std::unique_ptr<IRExpr> ExpressionIntermediateRepresentation::transformBinaryExp
             return std::move(res.result);
         }
         else if(leftOperand->getType() == Type::UNSIGNED){
-            auto res = mergeLiterals<unsigned>(static_cast<const IRLiteralExpr*>(leftOperand.get()), 
+            auto res = Optimization::ConstantFolding::mergeLiterals<unsigned>(static_cast<const IRLiteralExpr*>(leftOperand.get()), 
                 static_cast<const IRLiteralExpr*>(rightOperand.get()), astBinaryExpr
             );
             if(!res.error.empty()){
