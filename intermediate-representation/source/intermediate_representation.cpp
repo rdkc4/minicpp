@@ -4,15 +4,14 @@
 #include <memory>
 #include <sstream>
 #include <string>
-#include <thread>
 #include <latch>
 
 #include "../../common/abstract-syntax-tree/ast_include_dir.hpp"
-#include "../../thread-pool/thread_pool.hpp"
 #include "../../optimization/stack_frame_analyzer.hpp"
 #include "../../optimization/dead_code_eliminator.hpp"
 
-IntermediateRepresentation::IntermediateRepresentation() : funcIR{ exceptions } {}
+IntermediateRepresentation::IntermediateRepresentation(ThreadPool& threadPool) 
+    : threadPool{ threadPool }, funcIR{ exceptions } {}
 
 std::unique_ptr<IRProgram> IntermediateRepresentation::transformProgram(const ASTProgram* program){
     std::unique_ptr<IRProgram> irProgram = std::make_unique<IRProgram>();
@@ -23,8 +22,6 @@ std::unique_ptr<IRProgram> IntermediateRepresentation::transformProgram(const AS
     irProgram->resizeFunctions(total);
 
     std::latch doneLatch{ static_cast<std::ptrdiff_t>(total) };
-
-    ThreadPool threadPool{ std::thread::hardware_concurrency() };
 
     for(size_t i = 0; i < total; ++i){
         threadPool.enqueue([&, irProgram=irProgram.get(), i, function=program->getFunctionAtN(i)]{

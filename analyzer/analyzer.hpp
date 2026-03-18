@@ -30,6 +30,7 @@
 #include "../common/abstract-syntax-tree/ast_literal_expr.hpp"
 #include "../symbol-handling/scope-manager/scope_manager.hpp"
 #include "defs/analyzer_defs.hpp"
+#include "../thread-pool/thread_pool.hpp"
 
 /**
  * @class Analyzer
@@ -40,8 +41,9 @@ public:
     /**
      * @brief creates the instance of the analyzer
      * @param scopeManager - reference to the scope manager
+     * @param threadPool - reference to a thread pool
     */
-    Analyzer(ScopeManager& scopeManager);
+    Analyzer(ScopeManager& scopeManager, ThreadPool& threadPool);
 
     /**
      * @brief performs semantic analysis of the program
@@ -198,6 +200,9 @@ public:
 private:
     /// mutex for semantic errors
     std::mutex errorMtx;
+
+    /// thread pool for parallel function code analysis
+    ThreadPool& threadPool;
 
 protected:
     /// thread local context of the function

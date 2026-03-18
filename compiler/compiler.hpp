@@ -11,6 +11,7 @@
 #include "../lexer/lexer.hpp"
 #include "../common/abstract-syntax-tree/ast_program.hpp"
 #include "../common/intermediate-representation-tree/ir_program.hpp"
+#include "../thread-pool/thread_pool.hpp"
 
 /** 
  * @namespace Compiler
@@ -111,25 +112,28 @@ namespace Compiler {
     /** 
      * @brief performs semantic analysis of the code
      * @param astProgram - reference to the pointer of the AST program
+     * @param threadPool - reference to a thread pool
      * @returns SEMANTIC_ERR if it captures any semantic errors, NO_ERR otherwise
     */
-    ExitCode semanticAnalysis(std::unique_ptr<ASTProgram>& astProgram);
+    ExitCode semanticAnalysis(std::unique_ptr<ASTProgram>& astProgram, ThreadPool& threadPool);
 
     /** 
      * @brief performs transformation of the code from AST to IRT
      * @param astProgram - reference to the pointer of the AST program
      * @param irProgram - reference to the pointer of the IRT program
+     * @param threadPool - reference to a thread pool
      * @returns IR_ERR if it captures any errors, NO_ERR otherwise
     */
-    ExitCode transformASTToIRT(std::unique_ptr<ASTProgram>& astProgram, std::unique_ptr<IRProgram>& irProgram);
+    ExitCode transformASTToIRT(std::unique_ptr<ASTProgram>& astProgram, std::unique_ptr<IRProgram>& irProgram, ThreadPool& threadPool);
 
     /** 
      * @brief performs code generation
      * @param irProgram - const pointer to the IRT program
      * @param output - path of the output file
+     * @param threadPool - reference to a thread pool
      * @returns CODEGEN_ERR if it fails to generate code, NO_ERR otherwise
     */
-    ExitCode generateProgram(const IRProgram* irProgram, const std::string_view output);
+    ExitCode generateProgram(const IRProgram* irProgram, const std::string_view output, ThreadPool& threadPool);
 
     /**
      * @brief translates assembly files into executable

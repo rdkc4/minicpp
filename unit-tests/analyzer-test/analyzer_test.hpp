@@ -9,7 +9,7 @@
 
 class AnalyzerTest : public Analyzer {
     public:
-        AnalyzerTest(ScopeManager& scopeManager) : Analyzer{ scopeManager }{}
+        AnalyzerTest(ScopeManager& scopeManager, ThreadPool& threadPool) : Analyzer{ scopeManager, threadPool }{}
 
         ScopeManager& getScopeManager() noexcept {
             return globalScopeManager;

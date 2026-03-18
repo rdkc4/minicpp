@@ -8,9 +8,9 @@
 
 #include "../common/preprocessing/preprocessing_libraries.hpp"
 #include "return_checker.hpp"
-#include "../thread-pool/thread_pool.hpp"
 
-Analyzer::Analyzer(ScopeManager& scopeManager) : globalScopeManager{scopeManager} {}
+Analyzer::Analyzer(ScopeManager& scopeManager, ThreadPool& threadPool)
+    : threadPool{ threadPool }, globalScopeManager{scopeManager} {}
 
 thread_local AnalyzerThreadContext Analyzer::analyzerContext;
 
@@ -29,9 +29,6 @@ void Analyzer::visit(ASTProgram* program){
     }
 
     if(hasSemanticErrors(program)) return;
-
-    // handling threads for concurrent function analysis
-    ThreadPool threadPool{ std::thread::hardware_concurrency() };
     
     std::latch doneLatch{ static_cast<std::ptrdiff_t>(program->getFunctionCount()) };
     for(const auto& function : program->getFunctions()){

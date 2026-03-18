@@ -7,10 +7,10 @@
 #include <string>
 
 #include "../common/intermediate-representation-tree/ir_program.hpp"
-
 #include "../common/abstract-syntax-tree/ast_program.hpp"
 #include "directive_intermediate_representation.hpp"
 #include "function_intermediate_representation.hpp"
+#include "../thread-pool/thread_pool.hpp"
 
 /**
  * @class IntermediateRepresentation
@@ -20,8 +20,9 @@ class IntermediateRepresentation {
 public:
     /** 
      * @brief Creates the instance of the intermediate representation
+     * @param threadPool - reference to a thread pool
     */
-    IntermediateRepresentation();
+    IntermediateRepresentation(ThreadPool& threadPool);
 
     /**
      * @brief transforms ast program into irt program
@@ -45,6 +46,9 @@ public:
     std::string getErrors(const IRProgram* program) const noexcept;
 
 private:
+    /// thread pool for parallel function ir transformation
+    ThreadPool& threadPool;
+
     /// intermediate representation specialized for functions
     FunctionIntermediateRepresentation funcIR;
 

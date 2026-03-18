@@ -6,13 +6,11 @@
 #include <memory>
 #include <string>
 #include <latch>
-#include <thread>
-
-#include "../../../thread-pool/thread_pool.hpp"
 
 #include "../../asm-generator/asm_instruction_generator.hpp"
 
-CodeGenerator::CodeGenerator(const std::string& filePath) : outputPath{ filePath }, funcGenerator{ asmCode } {}
+CodeGenerator::CodeGenerator(const std::string& filePath, ThreadPool& threadPool) 
+    : threadPool{ threadPool}, outputPath{ filePath }, funcGenerator{ asmCode } {}
 
 std::atomic<size_t> CodeGenerator::labelNum{ 0 };
 
@@ -22,8 +20,6 @@ size_t CodeGenerator::getNextLabelNum() noexcept {
 
 void CodeGenerator::generateProgram(const IRProgram* program){
     funcGenerator.initFunctions(program);
-
-    ThreadPool threadPool{ std::thread::hardware_concurrency() };
 
     std::latch doneLatch{ static_cast<ptrdiff_t>(program->getFunctionCount()) };
 
