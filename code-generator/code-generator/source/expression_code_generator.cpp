@@ -151,7 +151,12 @@ void ExpressionCodeGenerator::generateArguments(const IRFunctionCallExpr* callEx
 void ExpressionCodeGenerator::clearArguments(size_t argCount){
     auto& codeGenContext = FunctionCodeGenerator::getContext();
     // popping arguments of the stack
-    AsmGenerator::Instruction::genOperation(codeGenContext.asmCode, "add", std::format("${}", argCount * AsmGenerator::Instruction::regSize), "%rsp");
+    AsmGenerator::Instruction::genOperation(
+        codeGenContext.asmCode, 
+        "add", 
+        std::format("${}", argCount * AsmGenerator::Instruction::regSize), 
+        "%rsp"
+    );
 }
 
 void ExpressionCodeGenerator::generateTemporaryExprs(const IRTemporaryExpr* tempExprs){
@@ -167,7 +172,10 @@ void ExpressionCodeGenerator::generateTemporaryExprs(const IRTemporaryExpr* temp
             }
         }
 
-        codeGenContext.variableMap.insert({tempExprs->getTemporaryNameAtN(i), std::format("-{}(%rbp)", codeGenContext.variableNum * AsmGenerator::Instruction::regSize)});
+        codeGenContext.variableMap.insert({
+            tempExprs->getTemporaryNameAtN(i), 
+            std::format("-{}(%rbp)", codeGenContext.variableNum * AsmGenerator::Instruction::regSize)
+        });
         ++codeGenContext.variableNum;
 
         generateNumericalExpr(tempExpr);

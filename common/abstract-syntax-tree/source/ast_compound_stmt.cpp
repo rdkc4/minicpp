@@ -2,7 +2,7 @@
 
 #include "../defs/ast_defs.hpp"
 
-ASTCompoundStmt::ASTCompoundStmt(const Token& token) : ASTStmt(token, ASTNodeType::COMPOUND_STATEMENT) {}
+ASTCompoundStmt::ASTCompoundStmt(const Token& token) : ASTStmt(token, ASTNodeType::COMPOUND_STMT) {}
 
 const std::vector<std::unique_ptr<ASTStmt>>& ASTCompoundStmt::getStmts() const noexcept {
     return stmts;

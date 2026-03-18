@@ -43,7 +43,9 @@ std::unique_ptr<ASTExpr> ExpressionParser::parseNumericalExpr(){
 
         }
         // if operator of weaker precedence comes next, retrieve operators that have equal or stronger precedence
-        while(!weakOps.empty() && getPrecedence(weakOps.top()->getToken().value) >= getPrecedence(tokenConsumer.getToken().value)){
+        while(!weakOps.empty() && 
+            getPrecedence(weakOps.top()->getToken().value) >= getPrecedence(tokenConsumer.getToken().value)
+        ){
             rpn.push(std::move(weakOps.top()));
             weakOps.pop();
         }
@@ -61,7 +63,10 @@ std::unique_ptr<ASTExpr> ExpressionParser::parseNumericalExpr(){
  * if parent has children - subtree handled
 */
 std::unique_ptr<ASTExpr> ExpressionParser::rpnToTree(std::stack<std::unique_ptr<ASTExpr>>& rpn, std::unique_ptr<ASTExpr>& root) const {
-    if(root->getNodeType() == ASTNodeType::ID || root->getNodeType() == ASTNodeType::LITERAL || root->getNodeType() == ASTNodeType::FUNCTION_CALL){
+    if(root->getNodeType() == ASTNodeType::ID_EXPR || 
+        root->getNodeType() == ASTNodeType::LITERAL_EXPR || 
+        root->getNodeType() == ASTNodeType::FUNCTION_CALL_EXPR
+    ){
         return std::move(root);
     }
     else if(auto* binExpr = static_cast<ASTBinaryExpr*>(root.get())){

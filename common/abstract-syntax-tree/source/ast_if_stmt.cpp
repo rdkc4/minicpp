@@ -2,7 +2,7 @@
 
 #include "../defs/ast_defs.hpp"
 
-ASTIfStmt::ASTIfStmt(const Token& token) : ASTStmt(token, ASTNodeType::IF_STATEMENT) {}
+ASTIfStmt::ASTIfStmt(const Token& token) : ASTStmt(token, ASTNodeType::IF_STMT) {}
 
 const std::vector<std::unique_ptr<ASTExpr>>& ASTIfStmt::getConditionExprs() const noexcept {
     return conditionExprs;

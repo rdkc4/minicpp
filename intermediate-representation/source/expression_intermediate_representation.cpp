@@ -5,13 +5,13 @@
 
 // NUMEXP - reduced to (id, literal, function call) or arithmetic operation (add, sub, mul, div)
 std::unique_ptr<IRExpr> ExpressionIntermediateRepresentation::transformNumericalExpr(const ASTExpr* astNumericalExpr){
-    if(astNumericalExpr->getNodeType() == ASTNodeType::ID){
+    if(astNumericalExpr->getNodeType() == ASTNodeType::ID_EXPR){
         return transformIdExpr(static_cast<const ASTIdExpr*>(astNumericalExpr));
     }
-    else if(astNumericalExpr->getNodeType() == ASTNodeType::LITERAL){
+    else if(astNumericalExpr->getNodeType() == ASTNodeType::LITERAL_EXPR){
         return transformLiteralExpr(static_cast<const ASTLiteralExpr*>(astNumericalExpr));
     }
-    else if(astNumericalExpr->getNodeType() == ASTNodeType::FUNCTION_CALL){
+    else if(astNumericalExpr->getNodeType() == ASTNodeType::FUNCTION_CALL_EXPR){
         return replaceFunctionCallExpr(static_cast<const ASTFunctionCallExpr*>(astNumericalExpr));
     }
     else{
@@ -51,7 +51,11 @@ std::unique_ptr<IRExpr> ExpressionIntermediateRepresentation::transformBinaryExp
     IRNodeType iNodeType{ operatorToIRNodeType.at(astBinaryExpr->getOperator()).getOperation(type) };
 
     std::unique_ptr<IRBinaryExpr> irBinaryExpr = std::make_unique<IRBinaryExpr>(iNodeType, type);
-    irBinaryExpr->setBinaryExpr(std::move(leftOperand), std::move(rightOperand), astBinaryExpr->getOperator());
+    irBinaryExpr->setBinaryExpr(
+        std::move(leftOperand), 
+        std::move(rightOperand), 
+        astBinaryExpr->getOperator()
+    );
 
     return irBinaryExpr;
 }
@@ -60,11 +64,13 @@ std::unique_ptr<IRBinaryExpr> ExpressionIntermediateRepresentation::transformRel
     const ASTBinaryExpr* astBinaryExpr = static_cast<const ASTBinaryExpr*>(astRelationalExpr);
     
     IRNodeType irNodeType{ operatorToIRNodeType.at(astBinaryExpr->getOperator()).getOperation(astBinaryExpr->getType()) };
-    std::unique_ptr<IRBinaryExpr> irBinaryExpr = std::make_unique<IRBinaryExpr>(irNodeType, astBinaryExpr->getType());
+    std::unique_ptr<IRBinaryExpr> irBinaryExpr = 
+        std::make_unique<IRBinaryExpr>(irNodeType, astBinaryExpr->getType());
 
     irBinaryExpr->setBinaryExpr(
         transformNumericalExpr(astBinaryExpr->getLeftOperandExpr()), 
-        transformNumericalExpr(astBinaryExpr->getRightOperandExpr()), astBinaryExpr->getOperator()
+        transformNumericalExpr(astBinaryExpr->getRightOperandExpr()), 
+        astBinaryExpr->getOperator()
     );
     return irBinaryExpr;
 }
@@ -94,10 +100,13 @@ void ExpressionIntermediateRepresentation::transformArguments(IRFunctionCallExpr
 
 // counting the number of function calls that should be replaced by temporary variables
 size_t ExpressionIntermediateRepresentation::countTemporaries(const ASTExpr* astExpr) const {
-    if(astExpr->getNodeType() == ASTNodeType::FUNCTION_CALL){
+    if(astExpr->getNodeType() == ASTNodeType::FUNCTION_CALL_EXPR){
         return 1;
     }
-    else if(astExpr->getNodeType() == ASTNodeType::LITERAL || astExpr->getNodeType() == ASTNodeType::ID || astExpr->getNodeType() == ASTNodeType::VARIABLE){
+    else if(astExpr->getNodeType() == ASTNodeType::LITERAL_EXPR || 
+        astExpr->getNodeType() == ASTNodeType::ID_EXPR || 
+        astExpr->getNodeType() == ASTNodeType::VARIABLE_DECL_STMT
+    ){
         return 0;
     }
     else{
@@ -116,12 +125,19 @@ std::string ExpressionIntermediateRepresentation::generateTemporaries(){
 
 // assigning a returned value to temporary variables
 void ExpressionIntermediateRepresentation::assignTemporaries(IRTemporaryExpr* temporaryRoot, const ASTExpr* astExpr, size_t& idx){
-    if(astExpr->getNodeType() == ASTNodeType::FUNCTION_CALL){
+    if(astExpr->getNodeType() == ASTNodeType::FUNCTION_CALL_EXPR){
         const ASTFunctionCallExpr* funcCall = static_cast<const ASTFunctionCallExpr*>(astExpr);
 
-        temporaryRoot->setTemporaryExprAtN(transformFunctionCallExpr(funcCall), astExpr->getType(), idx++);
+        temporaryRoot->setTemporaryExprAtN(
+            transformFunctionCallExpr(funcCall), 
+            astExpr->getType(), 
+            idx++
+        );
     }
-    else if(astExpr->getNodeType() == ASTNodeType::LITERAL || astExpr->getNodeType() == ASTNodeType::VARIABLE || astExpr->getNodeType() == ASTNodeType::ID){
+    else if(astExpr->getNodeType() == ASTNodeType::LITERAL_EXPR || 
+        astExpr->getNodeType() == ASTNodeType::VARIABLE_DECL_STMT || 
+        astExpr->getNodeType() == ASTNodeType::ID_EXPR
+    ){
         return;
     }
     else{

@@ -2,7 +2,7 @@
 
 #include "../defs/ast_defs.hpp"
 
-ASTDefaultStmt::ASTDefaultStmt(const Token& token) : ASTStmt(token, ASTNodeType::DEFAULT) {}
+ASTDefaultStmt::ASTDefaultStmt(const Token& token) : ASTStmt(token, ASTNodeType::DEFAULT_STMT) {}
 
 void ASTDefaultStmt::setDefaultStmt(std::unique_ptr<ASTSwitchBlockStmt> swBlockStmt){
     switchBlockStmt = std::move(swBlockStmt);

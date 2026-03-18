@@ -3,7 +3,7 @@
 #include "../defs/ast_defs.hpp"
 
 ASTBinaryExpr::ASTBinaryExpr(const Token& token, Type type, Operator op) 
-    : ASTExpr(token, ASTNodeType::BINARY_EXPRESSION, type), exprOperator{ op } {}
+    : ASTExpr(token, ASTNodeType::BINARY_EXPR, type), exprOperator{ op } {}
 
 Operator ASTBinaryExpr::getOperator() const noexcept {
     return exprOperator;

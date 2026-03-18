@@ -14,11 +14,12 @@ std::unique_ptr<ASTDir> DirectiveParser::parseDir() {
     }
 
     throw std::runtime_error(std::format("Line {}, Column {}: SYNTAX ERROR -> near '{}'",
-        token.line, token.column, token.value));
+        token.line, token.column, token.value)
+    );
 }
 
 std::unique_ptr<ASTIncludeDir> DirectiveParser::parseIncludeDir() {
-    std::unique_ptr<ASTIncludeDir> _include = std::make_unique<ASTIncludeDir>(Token{ tokenConsumer.getToken() });
+    std::unique_ptr<ASTIncludeDir> includeDir = std::make_unique<ASTIncludeDir>(Token{ tokenConsumer.getToken() });
 
     tokenConsumer.consume(TokenType::_INCLUDE);
     tokenConsumer.consume(TokenType::_COLON);
@@ -26,7 +27,7 @@ std::unique_ptr<ASTIncludeDir> DirectiveParser::parseIncludeDir() {
     const std::string libName = tokenConsumer.getToken().value;
     tokenConsumer.consume(TokenType::_ID);
 
-    _include->setLibName(libName);
+    includeDir->setLibName(libName);
 
-    return _include;
+    return includeDir;
 }

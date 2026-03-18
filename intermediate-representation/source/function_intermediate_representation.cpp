@@ -47,7 +47,7 @@ void FunctionIntermediateRepresentation::transformBody(IRFunction* irFunction, c
         irFunction->addStatement(stmtIR.transformStmt(astStmt.get()));
 
         // ignores all statements after return statement
-        if(astStmt->getNodeType() == ASTNodeType::RETURN_STATEMENT){
+        if(astStmt->getNodeType() == ASTNodeType::RETURN_STMT){
             break;
         }
     }

@@ -5,7 +5,7 @@
 #include <fstream>
 #include <sstream>
 
-#include "../common/preprocessing/preprocessing_libraries.hpp"
+#include "../common/preprocessing/preprocessing_libs.hpp"
 
 void Preprocessor::preprocess(const std::string& source) {
     size_t index = 0;

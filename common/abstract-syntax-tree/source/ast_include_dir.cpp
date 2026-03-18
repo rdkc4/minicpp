@@ -2,7 +2,7 @@
 
 #include "../defs/ast_defs.hpp"
 
-ASTIncludeDir::ASTIncludeDir(const Token token) : ASTDir(token, ASTNodeType::INCLUDE) {}
+ASTIncludeDir::ASTIncludeDir(const Token token) : ASTDir(token, ASTNodeType::INCLUDE_DIR) {}
 
 const std::string& ASTIncludeDir::getLibName() const noexcept {
     return libName;

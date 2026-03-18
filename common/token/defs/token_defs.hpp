@@ -9,9 +9,15 @@
  * @brief types of the tokens defined by the compiler
 */
 enum class TokenType{
-    _ID, _LITERAL, _AROP, _BITWISE, _RELOP, _LPAREN, _RPAREN, _LBRACKET, _RBRACKET, _SEMICOLON, _COLON, _ASSIGN,
-    _IF, _ELSE, _WHILE, _DO, _FOR, _SWITCH, _CASE, _DEFAULT, _BREAK, _RETURN, _COMMA, _EOF, _INVALID, _NODE,
-    _INT, _UNSIGNED, _VOID, _AUTO, _INCLUDE, _HASH
+    _ID, _LITERAL, 
+    _AROP, _BITWISE, _RELOP, _ASSIGN,
+    _LPAREN, _RPAREN, _LBRACKET, _RBRACKET, 
+    _SEMICOLON, _COLON, _HASH, _COMMA,
+    _IF, _ELSE, _WHILE, _DO, _FOR, _RETURN,
+    _SWITCH, _CASE, _DEFAULT, _BREAK,   
+    _EOF, _INVALID, _NODE,
+    _INT, _UNSIGNED, _VOID, _AUTO, 
+    _INCLUDE
 };
 
 /** 

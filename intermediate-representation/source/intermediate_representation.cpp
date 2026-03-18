@@ -44,7 +44,7 @@ std::unique_ptr<IRProgram> IntermediateRepresentation::transformProgram(const AS
     irProgram->accept(stackFrameAnalyzer); 
 
     for(const auto& dir : program->getDirs()) {
-        if(dir->getNodeType() == ASTNodeType::INCLUDE){
+        if(dir->getNodeType() == ASTNodeType::INCLUDE_DIR){
             irProgram->addLinkedLib(static_cast<const ASTIncludeDir*>(dir.get())->getLibName());
         }
     }

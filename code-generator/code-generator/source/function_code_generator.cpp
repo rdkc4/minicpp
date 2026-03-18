@@ -5,7 +5,8 @@
 
 #include "../../asm-generator/asm_instruction_generator.hpp"
 
-FunctionCodeGenerator::FunctionCodeGenerator(std::unordered_map<std::string, std::vector<std::string>>& asmCode) : asmCode{ asmCode } {}
+FunctionCodeGenerator::FunctionCodeGenerator(std::unordered_map<std::string, std::vector<std::string>>& asmCode) 
+    : asmCode{ asmCode } {}
 
 thread_local CodeGeneratorThreadContext FunctionCodeGenerator::codeGenContext;
 
@@ -33,7 +34,12 @@ void FunctionCodeGenerator::generateFunction(const IRFunction* function){
     
     // allocation of local variables
     if(function->getRequiredMemory() != "0"){
-        AsmGenerator::Instruction::genOperation(codeGenContext.asmCode, "sub", std::format("${}", function->getRequiredMemory()), "%rsp");
+        AsmGenerator::Instruction::genOperation(
+            codeGenContext.asmCode, 
+            "sub", 
+            std::format("${}", function->getRequiredMemory()), 
+            "%rsp"
+        );
     }
 
     generateParameters(function);
@@ -43,11 +49,19 @@ void FunctionCodeGenerator::generateFunction(const IRFunction* function){
     }
 
     // function end label
-    AsmGenerator::Instruction::genLabel(codeGenContext.asmCode, std::format("{}_end", codeGenContext.functionName));
+    AsmGenerator::Instruction::genLabel(
+        codeGenContext.asmCode, 
+        std::format("{}_end", codeGenContext.functionName)
+    );
     
     // free local variables 
     if(function->getRequiredMemory() != "0"){
-        AsmGenerator::Instruction::genOperation(codeGenContext.asmCode, "add", std::format("${}", function->getRequiredMemory()), "%rsp");
+        AsmGenerator::Instruction::genOperation(
+            codeGenContext.asmCode, 
+            "add", 
+            std::format("${}", function->getRequiredMemory()), 
+            "%rsp"
+        );
     }
 
     AsmGenerator::Instruction::genFuncEpilogue(codeGenContext.asmCode);
@@ -71,7 +85,10 @@ void FunctionCodeGenerator::generateParameters(const IRFunction* function){
     size_t i{ 2 };
     for(const auto& parameter : function->getParameters()){
         // mapping parameter to address relative to %rbp (+n(%rbp))
-        codeGenContext.variableMap.insert({parameter->getParameterName(), std::format("{}(%rbp)", i * AsmGenerator::Instruction::regSize)});
+        codeGenContext.variableMap.insert({
+            parameter->getParameterName(), 
+            std::format("{}(%rbp)", i * AsmGenerator::Instruction::regSize)
+        });
         ++i;
     }
 }

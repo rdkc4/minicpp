@@ -2,7 +2,7 @@
 
 #include "../defs/ast_defs.hpp"
 
-ASTDoWhileStmt::ASTDoWhileStmt(const Token& token) : ASTStmt(token, ASTNodeType::DO_WHILE_STATEMENT) {}
+ASTDoWhileStmt::ASTDoWhileStmt(const Token& token) : ASTStmt(token, ASTNodeType::DOWHILE_STMT) {}
 
 void ASTDoWhileStmt::setDoWhile(std::unique_ptr<ASTExpr> condExpr, std::unique_ptr<ASTStmt> statement){
     conditionExpr = std::move(condExpr);

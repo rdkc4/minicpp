@@ -3,7 +3,7 @@
 #include "../defs/ast_defs.hpp"
 
 ASTVariableDeclStmt::ASTVariableDeclStmt(const Token& token, Type type) 
-    : ASTStmt(token, ASTNodeType::VARIABLE), type{ type } {}
+    : ASTStmt(token, ASTNodeType::VARIABLE_DECL_STMT), type{ type } {}
 
 Type ASTVariableDeclStmt::getType() const noexcept {
     return type;

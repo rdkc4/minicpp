@@ -2,7 +2,7 @@
 
 #include "../defs/ast_defs.hpp"
 
-ASTSwitchStmt::ASTSwitchStmt(const Token& token) : ASTStmt(token, ASTNodeType::SWITCH_STATEMENT) {}
+ASTSwitchStmt::ASTSwitchStmt(const Token& token) : ASTStmt(token, ASTNodeType::SWITCH_STMT) {}
 
 void ASTSwitchStmt::setVariableIdExpr(std::unique_ptr<ASTIdExpr> idExpr){
     variableIdExpr = std::move(idExpr);

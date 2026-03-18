@@ -14,8 +14,28 @@
  * @brief types of the irt nodes
 */
 enum class IRNodeType{
-    PROGRAM, FUNCTION, PARAMETER, VARIABLE, ARGUMENT, ID, LITERAL, IF, WHILE, FOR, DO_WHILE, SWITCH, CASE, SWITCH_BLOCK,
-    DEFAULT, BREAK, ASSIGN, COMPOUND, CALL, RETURN, TEMPORARY, ADD, SUB, DIV, MUL, CMP, AND, OR, XOR, SHL, SAL, SHR, SAR,
+    PROGRAM, 
+    FUNCTION, 
+    PARAMETER, 
+    VARIABLE, 
+    ARGUMENT, 
+    ID, 
+    LITERAL, 
+    IF, 
+    WHILE, 
+    FOR, 
+    DO_WHILE, 
+    SWITCH, 
+    CASE, 
+    SWITCH_BLOCK,
+    DEFAULT, 
+    BREAK, 
+    ASSIGN, 
+    COMPOUND, 
+    CALL, 
+    RETURN, 
+    TEMPORARY, 
+    ADD, SUB, DIV, MUL, CMP, AND, OR, XOR, SHL, SAL, SHR, SAR,
     JG, JA, JL, JB, JGE, JAE, JLE, JBE, JE, JNE, NONE
 };
 

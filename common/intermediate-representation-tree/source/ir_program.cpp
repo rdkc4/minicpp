@@ -1,7 +1,7 @@
 #include "../ir_program.hpp"
 
 #include "../defs/ir_defs.hpp"
-#include "../../preprocessing/preprocessing_libraries.hpp"
+#include "../../preprocessing/preprocessing_libs.hpp"
 
 IRProgram::IRProgram() : IRNode(IRNodeType::PROGRAM) {}
 

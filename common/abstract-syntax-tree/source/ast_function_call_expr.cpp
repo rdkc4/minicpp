@@ -2,7 +2,8 @@
 
 #include "../defs/ast_defs.hpp"
 
-ASTFunctionCallExpr::ASTFunctionCallExpr(const Token& token, Type type) : ASTExpr(token, ASTNodeType::FUNCTION_CALL, type) {}
+ASTFunctionCallExpr::ASTFunctionCallExpr(const Token& token, Type type) 
+    : ASTExpr(token, ASTNodeType::FUNCTION_CALL_EXPR, type) {}
 
 const std::vector<std::unique_ptr<ASTExpr>>& ASTFunctionCallExpr::getArguments() const noexcept {
     return arguments;

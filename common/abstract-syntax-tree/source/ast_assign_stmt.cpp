@@ -2,7 +2,7 @@
 
 #include "../defs/ast_defs.hpp"
 
-ASTAssignStmt::ASTAssignStmt(const Token& token) : ASTStmt(token, ASTNodeType::ASSIGNMENT_STATEMENT) {}
+ASTAssignStmt::ASTAssignStmt(const Token& token) : ASTStmt(token, ASTNodeType::ASSIGN_STMT) {}
 
 void ASTAssignStmt::setVariableIdExpr(std::unique_ptr<ASTIdExpr> idExpr){
     variableIdExpr = std::move(idExpr);

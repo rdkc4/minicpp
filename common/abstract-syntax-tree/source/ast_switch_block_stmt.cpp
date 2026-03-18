@@ -2,7 +2,7 @@
 
 #include "../defs/ast_defs.hpp"
 
-ASTSwitchBlockStmt::ASTSwitchBlockStmt(const Token& token) : ASTStmt(token, ASTNodeType::SWITCH_BLOCK) {}
+ASTSwitchBlockStmt::ASTSwitchBlockStmt(const Token& token) : ASTStmt(token, ASTNodeType::SWITCH_BLOCK_STMT) {}
 
 const std::vector<std::unique_ptr<ASTStmt>>& ASTSwitchBlockStmt::getStmts() const noexcept {
     return stmts;

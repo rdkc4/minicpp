@@ -6,7 +6,7 @@
 #include <cassert>
 #include <latch>
 
-#include "../common/preprocessing/preprocessing_libraries.hpp"
+#include "../common/preprocessing/preprocessing_libs.hpp"
 #include "return_checker.hpp"
 
 Analyzer::Analyzer(ScopeManager& scopeManager, ThreadPool& threadPool)
@@ -140,7 +140,10 @@ void Analyzer::visit(ASTFunction* function){
             if(!function->alwaysReturnsValue()){
                 analyzerContext.semanticErrors.push_back(
                     std::format("Line {}, Column {}: SEMANTIC ERROR -> function '{} {}' not all paths return value", 
-                        function->getToken().line, function->getToken().column, typeToString.at(function->getType()), function->getToken().value)
+                        function->getToken().line, 
+                        function->getToken().column, 
+                        typeToString.at(function->getType()), function->getToken().value
+                    )
                 );
             }
         }
@@ -157,7 +160,9 @@ void Analyzer::visit(ASTFunction* function){
 
 void Analyzer::defineParameters(const ASTFunction* function){
     for(const auto& parameter : function->getParameters()){
-        analyzerContext.scopeManager->pushSymbol(Symbol{parameter->getToken().value, Kind::PAR, parameter->getType()});
+        analyzerContext.scopeManager->pushSymbol(
+            Symbol{parameter->getToken().value, Kind::PAR, parameter->getType()}
+        );
     }
 }
 
@@ -177,7 +182,9 @@ void Analyzer::visit(ASTParameter* parameter){
     }
 
     // parameter redefinition check
-    if(!analyzerContext.scopeManager->pushSymbol(Symbol{parameter->getToken().value, Kind::PAR, parameter->getType()})){
+    if(!analyzerContext.scopeManager->pushSymbol(
+        Symbol{parameter->getToken().value, Kind::PAR, parameter->getType()})
+    ){
         analyzerContext.semanticErrors.push_back(
             std::format("Line {}, Column {}: SEMANTIC ERROR -> variable redefined '{}'", 
                 parameter->getToken().line, parameter->getToken().column, parameter->getToken().value)
@@ -191,13 +198,21 @@ void Analyzer::visit(ASTVariableDeclStmt* variableDecl){
     if(type == Type::VOID || type == Type::NO_TYPE){
         analyzerContext.semanticErrors.push_back(
             std::format("Line {}, Column {}: SEMANTIC ERROR -> invalid type '{} {}'", 
-                variableDecl->getToken().line, variableDecl->getToken().column, typeToString.at(type), variableDecl->getToken().value)
+                variableDecl->getToken().line, 
+                variableDecl->getToken().column, 
+                typeToString.at(type), 
+                variableDecl->getToken().value
+            )
         );
     }
     else if(type == Type::AUTO && !variableDecl->hasAssignExpr()){
         analyzerContext.semanticErrors.push_back(
             std::format("Line {}, Column {}: SEMANTIC ERROR -> type deduction failed '{} {}'", 
-                variableDecl->getToken().line, variableDecl->getToken().column, typeToString.at(type), variableDecl->getToken().value)
+                variableDecl->getToken().line, 
+                variableDecl->getToken().column, 
+                typeToString.at(type), 
+                variableDecl->getToken().value
+            )
         );
     }
 
@@ -219,7 +234,11 @@ void Analyzer::visit(ASTVariableDeclStmt* variableDecl){
         if(rtype != type && type != Type::AUTO && rtype != Type::NO_TYPE){ // rtype == no_type => error was caught in expression, no need to write it again
             analyzerContext.semanticErrors.push_back(
                 std::format("Line {}, Column {}: SEMANTIC ERROR -> invalid assignment statement - type mismatch: expected '{}', got '{}'", 
-                    variableDecl->getToken().line, variableDecl->getToken().column, typeToString.at(type), typeToString.at(rtype))
+                    variableDecl->getToken().line, 
+                    variableDecl->getToken().column, 
+                    typeToString.at(type), 
+                    typeToString.at(rtype)
+                )
             );
         }
 
@@ -310,7 +329,12 @@ void Analyzer::visit(ASTReturnStmt* returnStmt){
     if(returnType != expectedReturnType){
         analyzerContext.semanticErrors.push_back(
             std::format("Line {}, Column {}: SEMANTIC ERROR -> invalid return statement - type mismatch: '{} {}' returns '{}'", 
-                returnStmt->getToken().line, returnStmt->getToken().column, typeToString.at(expectedReturnType), analyzerContext.functionName, typeToString.at(returnType))
+                returnStmt->getToken().line, 
+                returnStmt->getToken().column, 
+                typeToString.at(expectedReturnType), 
+                analyzerContext.functionName, 
+                typeToString.at(returnType)
+            )
         );
     }
 }
@@ -340,7 +364,11 @@ void Analyzer::visit(ASTSwitchStmt* switchStmt){
         if(literalExpr->getType() != expectedType){
             analyzerContext.semanticErrors.push_back(
                 std::format("Line {}, Column {}: SEMANTIC ERROR -> invalid case - type mismatch: expected '{}', got '{}'", 
-                    caseStmt->getToken().line, caseStmt->getToken().column, typeToString.at(expectedType), typeToString.at(literalExpr->getType()))
+                    caseStmt->getToken().line, 
+                    caseStmt->getToken().column, 
+                    typeToString.at(expectedType), 
+                    typeToString.at(literalExpr->getType())
+                )
             );
         }
         // duplicates
@@ -417,7 +445,12 @@ void Analyzer::visit(ASTFunctionCallExpr* callExpr){
     if(callExpr->getArgumentCount() != expectedParams){
         analyzerContext.semanticErrors.push_back(
             std::format("Line {}, Column {}: SEMANTIC ERROR -> invalid function call '{}': provided arguments '{}', expected '{}'", 
-                callExpr->getToken().line, callExpr->getToken().column, callExpr->getToken().value, callExpr->getArgumentCount(), expectedParams)
+                callExpr->getToken().line, 
+                callExpr->getToken().column, 
+                callExpr->getToken().value, 
+                callExpr->getArgumentCount(), 
+                expectedParams
+            )
         );
         callExpr->setType(globalScopeManager.getSymbol(callExpr->getToken().value).getType());
         // number of provided arguments differs from expected, no type checking
@@ -441,7 +474,12 @@ void Analyzer::visit(ASTFunctionCallExpr* callExpr){
         if(ltype != rtype){
             analyzerContext.semanticErrors.push_back(
                 std::format("Line {}, Column {}: SEMANTIC ERROR -> invalid argument - type mismatch: expected '{}', got '{} {}'",
-                    arguments[i]->getToken().line, arguments[i]->getToken().column, typeToString.at(rtype), typeToString.at(ltype), arguments[i]->getToken().value)
+                    arguments[i]->getToken().line, 
+                    arguments[i]->getToken().column, 
+                    typeToString.at(rtype), 
+                    typeToString.at(ltype), 
+                    arguments[i]->getToken().value
+                )
             );
         }
     }

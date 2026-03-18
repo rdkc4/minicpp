@@ -2,7 +2,7 @@
 
 #include "../defs/ast_defs.hpp"
 
-ASTCaseStmt::ASTCaseStmt(const Token& token) : ASTStmt(token, ASTNodeType::CASE) {}
+ASTCaseStmt::ASTCaseStmt(const Token& token) : ASTStmt(token, ASTNodeType::CASE_STMT) {}
 
 void ASTCaseStmt::setCase(std::unique_ptr<ASTLiteralExpr> litExpr, std::unique_ptr<ASTSwitchBlockStmt> swBlockStmt, bool hasBreak){
     literalExpr = std::move(litExpr);

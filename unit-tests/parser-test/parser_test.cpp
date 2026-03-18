@@ -95,7 +95,7 @@ TEST(ParserTest, VariableDirectInit){
 
     std::unique_ptr<ASTVariableDeclStmt> variableDecl;
     ASSERT_NO_THROW(variableDecl = parser.parseVariableDeclStmt());
-    ASSERT_EQ(variableDecl->getNodeType(), ASTNodeType::VARIABLE);
+    ASSERT_EQ(variableDecl->getNodeType(), ASTNodeType::VARIABLE_DECL_STMT);
     ASSERT_TRUE(variableDecl->hasAssignExpr());
 }
 
@@ -109,7 +109,7 @@ TEST(ParserTest, VariableNoInit){
 
     std::unique_ptr<ASTVariableDeclStmt> variableDecl;
     ASSERT_NO_THROW(variableDecl = parser.parseVariableDeclStmt());
-    ASSERT_EQ(variableDecl->getNodeType(), ASTNodeType::VARIABLE);
+    ASSERT_EQ(variableDecl->getNodeType(), ASTNodeType::VARIABLE_DECL_STMT);
     ASSERT_FALSE(variableDecl->hasAssignExpr());
 }
 
@@ -124,7 +124,7 @@ TEST(ParserTest, EmptyCompoundStatement){
 
     std::unique_ptr<ASTCompoundStmt> compoundStmt;
     ASSERT_NO_THROW(compoundStmt = parser.parseCompoundStmt());
-    ASSERT_EQ(compoundStmt->getNodeType(), ASTNodeType::COMPOUND_STATEMENT);
+    ASSERT_EQ(compoundStmt->getNodeType(), ASTNodeType::COMPOUND_STMT);
     ASSERT_EQ(compoundStmt->getStmts().size(), expectedChildrenSize);
 }
 
@@ -139,7 +139,7 @@ TEST(ParserTest, CompoundStatement){
 
     std::unique_ptr<ASTCompoundStmt> compoundStmt;
     ASSERT_NO_THROW(compoundStmt = parser.parseCompoundStmt());
-    ASSERT_EQ(compoundStmt->getNodeType(), ASTNodeType::COMPOUND_STATEMENT);
+    ASSERT_EQ(compoundStmt->getNodeType(), ASTNodeType::COMPOUND_STMT);
     ASSERT_EQ(compoundStmt->getStmts().size(), expectedChildrenSize);
 }
 
@@ -152,8 +152,8 @@ TEST(ParserTest, AssignmentStatement){
 
     std::unique_ptr<ASTAssignStmt> assignStmt;
     ASSERT_NO_THROW(assignStmt = parser.parseAssignStmt());
-    ASSERT_EQ(assignStmt->getNodeType(), ASTNodeType::ASSIGNMENT_STATEMENT);
-    ASSERT_TRUE(assignStmt->getAssignedExpr()->getNodeType() == ASTNodeType::LITERAL);
+    ASSERT_EQ(assignStmt->getNodeType(), ASTNodeType::ASSIGN_STMT);
+    ASSERT_TRUE(assignStmt->getAssignedExpr()->getNodeType() == ASTNodeType::LITERAL_EXPR);
 }
 
 TEST(ParserTest, ReturnStatementVoid){
@@ -165,7 +165,7 @@ TEST(ParserTest, ReturnStatementVoid){
 
     std::unique_ptr<ASTReturnStmt> returnStmt;
     ASSERT_NO_THROW(returnStmt = parser.parseReturnStmt());
-    ASSERT_EQ(returnStmt->getNodeType(), ASTNodeType::RETURN_STATEMENT);
+    ASSERT_EQ(returnStmt->getNodeType(), ASTNodeType::RETURN_STMT);
     ASSERT_FALSE(returnStmt->hasReturnExpr());
 }
 
@@ -178,7 +178,7 @@ TEST(ParserTest, ReturnStatement){
 
     std::unique_ptr<ASTReturnStmt> returnStmt;
     ASSERT_NO_THROW(returnStmt = parser.parseReturnStmt());
-    ASSERT_EQ(returnStmt->getNodeType(), ASTNodeType::RETURN_STATEMENT);
+    ASSERT_EQ(returnStmt->getNodeType(), ASTNodeType::RETURN_STMT);
     ASSERT_TRUE(returnStmt->hasReturnExpr());
 }
 
@@ -193,7 +193,7 @@ TEST(ParserTest, IfStatementOnlyIf){
 
     std::unique_ptr<ASTIfStmt> ifStmt;
     ASSERT_NO_THROW(ifStmt = parser.parseIfStmt());
-    ASSERT_EQ(ifStmt->getNodeType(), ASTNodeType::IF_STATEMENT);
+    ASSERT_EQ(ifStmt->getNodeType(), ASTNodeType::IF_STMT);
     ASSERT_EQ(ifStmt->getConditionExprs().size(), expectedConditionCount);
     ASSERT_FALSE(ifStmt->hasElseStmt());
 }
@@ -209,7 +209,7 @@ TEST(ParserTest, IfStatementIfElse){
 
     std::unique_ptr<ASTIfStmt> ifStmt;
     ASSERT_NO_THROW(ifStmt = parser.parseIfStmt());
-    ASSERT_EQ(ifStmt->getNodeType(), ASTNodeType::IF_STATEMENT);
+    ASSERT_EQ(ifStmt->getNodeType(), ASTNodeType::IF_STMT);
     ASSERT_EQ(ifStmt->getStmts().size(), expectedStatementCount);
     ASSERT_TRUE(ifStmt->hasElseStmt());
 }
@@ -225,7 +225,7 @@ TEST(ParserTest, IfStatementIfElseif){
 
     std::unique_ptr<ASTIfStmt> ifStmt;
     ASSERT_NO_THROW(ifStmt = parser.parseIfStmt());
-    ASSERT_EQ(ifStmt->getNodeType(), ASTNodeType::IF_STATEMENT);
+    ASSERT_EQ(ifStmt->getNodeType(), ASTNodeType::IF_STMT);
     ASSERT_EQ(ifStmt->getConditionExprs().size(), expectedConditionCount);
 }
 
@@ -240,7 +240,7 @@ TEST(ParserTest, IfStatementIfElseifElse){
 
     std::unique_ptr<ASTIfStmt> ifStmt;
     ASSERT_NO_THROW(ifStmt = parser.parseIfStmt());
-    ASSERT_EQ(ifStmt->getNodeType(), ASTNodeType::IF_STATEMENT);
+    ASSERT_EQ(ifStmt->getNodeType(), ASTNodeType::IF_STMT);
     ASSERT_EQ(ifStmt->getStmts().size(), expectedStatementCount);
     ASSERT_TRUE(ifStmt->hasElseStmt());
 }
@@ -254,7 +254,7 @@ TEST(ParserTest, WhileStatement){
 
     std::unique_ptr<ASTWhileStmt> whileStmt;
     ASSERT_NO_THROW(whileStmt = parser.parseWhileStmt());
-    ASSERT_EQ(whileStmt->getNodeType(), ASTNodeType::WHILE_STATEMENT);
+    ASSERT_EQ(whileStmt->getNodeType(), ASTNodeType::WHILE_STMT);
 }
 
 TEST(ParserTest, ForStatement){
@@ -266,7 +266,7 @@ TEST(ParserTest, ForStatement){
 
     std::unique_ptr<ASTForStmt> forStmt;
     ASSERT_NO_THROW(forStmt = parser.parseForStmt());
-    ASSERT_EQ(forStmt->getNodeType(), ASTNodeType::FOR_STATEMENT);
+    ASSERT_EQ(forStmt->getNodeType(), ASTNodeType::FOR_STMT);
     ASSERT_TRUE(forStmt->hasInitializerStmt());
     ASSERT_TRUE(forStmt->hasConditionExpr());
     ASSERT_TRUE(forStmt->hasIncrementerStmt());
@@ -281,7 +281,7 @@ TEST(ParserTest, DoWhileStatement){
 
     std::unique_ptr<ASTDoWhileStmt> dowhileStmt;
     ASSERT_NO_THROW(dowhileStmt = parser.parseDoWhileStmt());
-    ASSERT_EQ(dowhileStmt->getNodeType(), ASTNodeType::DO_WHILE_STATEMENT);
+    ASSERT_EQ(dowhileStmt->getNodeType(), ASTNodeType::DOWHILE_STMT);
 }
 
 TEST(ParserTest, SwitchStatement){
@@ -295,7 +295,7 @@ TEST(ParserTest, SwitchStatement){
 
     std::unique_ptr<ASTSwitchStmt> switchStmt;
     ASSERT_NO_THROW(switchStmt = parser.parseSwitchStmt());
-    ASSERT_EQ(switchStmt->getNodeType(), ASTNodeType::SWITCH_STATEMENT);
+    ASSERT_EQ(switchStmt->getNodeType(), ASTNodeType::SWITCH_STMT);
     ASSERT_EQ(switchStmt->getCaseStmts().size(), expectedCaseCount);
     ASSERT_TRUE(switchStmt->hasDefaultStmt());  
 }
@@ -311,7 +311,7 @@ TEST(ParserTest, SwitchStatementNoDefault){
 
     std::unique_ptr<ASTSwitchStmt> switchStmt;
     ASSERT_NO_THROW(switchStmt = parser.parseSwitchStmt());
-    ASSERT_EQ(switchStmt->getNodeType(), ASTNodeType::SWITCH_STATEMENT);
+    ASSERT_EQ(switchStmt->getNodeType(), ASTNodeType::SWITCH_STMT);
     ASSERT_EQ(switchStmt->getCaseStmts().size(), expectedCaseCount);
     ASSERT_FALSE(switchStmt->hasDefaultStmt());   
 }
@@ -336,7 +336,7 @@ TEST(ParserTest, NumericalExpression){
 
     std::unique_ptr<ASTExpr> numericalExpr;
     ASSERT_NO_THROW(numericalExpr = parser.parseNumericalExpr());
-    ASSERT_EQ(numericalExpr->getNodeType(), ASTNodeType::BINARY_EXPRESSION);
+    ASSERT_EQ(numericalExpr->getNodeType(), ASTNodeType::BINARY_EXPR);
     ASSERT_EQ(static_cast<ASTBinaryExpr*>(numericalExpr.get())->getOperator(), Operator::ADD);
 }
 
@@ -349,7 +349,7 @@ TEST(ParserTest, RelationalExpression){
 
     std::unique_ptr<ASTExpr> relationalExpr;
     ASSERT_NO_THROW(relationalExpr = parser.parseRelationalExpr());
-    ASSERT_EQ(relationalExpr->getNodeType(), ASTNodeType::BINARY_EXPRESSION);
+    ASSERT_EQ(relationalExpr->getNodeType(), ASTNodeType::BINARY_EXPR);
     ASSERT_EQ(static_cast<ASTBinaryExpr*>(relationalExpr.get())->getOperator(), Operator::GREATER);
 }
 
@@ -362,7 +362,7 @@ TEST(ParserTest, FunctionCallNoArgs){
 
     std::unique_ptr<ASTFunctionCallExpr> callExpr;
     ASSERT_NO_THROW(callExpr = parser.parseFunctionCallExpr());
-    ASSERT_EQ(callExpr->getNodeType(), ASTNodeType::FUNCTION_CALL);
+    ASSERT_EQ(callExpr->getNodeType(), ASTNodeType::FUNCTION_CALL_EXPR);
     ASSERT_TRUE(callExpr->getArgumentCount() == 0);
     ASSERT_EQ(callExpr->getToken().value, "fun");
 }
@@ -378,7 +378,7 @@ TEST(ParserTest, FunctionCallSingleArg){
 
     std::unique_ptr<ASTFunctionCallExpr> callExpr;
     ASSERT_NO_THROW(callExpr = parser.parseFunctionCallExpr());
-    ASSERT_EQ(callExpr->getNodeType(), ASTNodeType::FUNCTION_CALL);
+    ASSERT_EQ(callExpr->getNodeType(), ASTNodeType::FUNCTION_CALL_EXPR);
     ASSERT_EQ(callExpr->getArgumentCount(), expectedArgumentCount);
     ASSERT_EQ(callExpr->getToken().value, "fun");
 }
@@ -394,7 +394,7 @@ TEST(ParserTest, FunctionCallMultipleArgs){
 
     std::unique_ptr<ASTFunctionCallExpr> callExpr;
     ASSERT_NO_THROW(callExpr = parser.parseFunctionCallExpr());
-    ASSERT_EQ(callExpr->getNodeType(), ASTNodeType::FUNCTION_CALL);
+    ASSERT_EQ(callExpr->getNodeType(), ASTNodeType::FUNCTION_CALL_EXPR);
     ASSERT_EQ(callExpr->getArgumentCount(), expectedArgumentCount);
     ASSERT_EQ(callExpr->getToken().value, "fun");
 }
