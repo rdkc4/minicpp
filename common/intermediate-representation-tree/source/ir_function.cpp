@@ -2,7 +2,8 @@
 
 #include "../defs/ir_defs.hpp"
 
-IRFunction::IRFunction(const std::string& funcName, Type type) : IRNode(IRNodeType::FUNCTION), functionName{ funcName }, requiredMemory{ "0" }, type{ type }, predefined{ false } {}
+IRFunction::IRFunction(const std::string& funcName, Type type) 
+    : IRNode(IRNodeType::FUNCTION), functionName{ funcName }, requiredMemory{ "0" }, type{ type }, predefined{ false } {}
 
 const std::vector<std::unique_ptr<IRParameter>>& IRFunction::getParameters() const noexcept {
     return parameters;

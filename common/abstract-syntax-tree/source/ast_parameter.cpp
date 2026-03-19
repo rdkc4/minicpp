@@ -2,7 +2,8 @@
 
 #include "../defs/ast_defs.hpp"
 
-ASTParameter::ASTParameter(const Token& token, Type type) : ASTNode(token, ASTNodeType::PARAMETER), type{ type } {}
+ASTParameter::ASTParameter(const Token& token, Type type) 
+    : ASTNode(token, ASTNodeType::PARAMETER), type{ type } {}
 
 Type ASTParameter::getType() const noexcept {
     return type;

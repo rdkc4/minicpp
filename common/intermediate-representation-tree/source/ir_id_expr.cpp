@@ -2,7 +2,8 @@
 
 #include "../defs/ir_defs.hpp"
 
-IRIdExpr::IRIdExpr(std::string_view idName, Type type) : IRExpr(IRNodeType::ID, type), idName{ idName }, value{ "0" } {}
+IRIdExpr::IRIdExpr(std::string_view idName, Type type) 
+    : IRExpr(IRNodeType::ID, type), idName{ idName }, value{ "0" } {}
 
 const std::string& IRIdExpr::getIdName() const noexcept {
     return idName;
