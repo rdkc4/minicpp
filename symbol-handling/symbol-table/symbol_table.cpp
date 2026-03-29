@@ -1,15 +1,15 @@
 #include "symbol_table.hpp"
 
-bool SymbolTable::lookupSymbol(const std::string& name, std::initializer_list<Kind> kind) const {
+const Symbol* SymbolTable::lookupSymbol(const std::string& name, std::initializer_list<Kind> kind) const {
     auto it{ symbolTable.find(name) };
     if(it != symbolTable.end()){
         for(const auto& _kind : kind){
             if(it->second.getKind() == _kind){
-                return true;
+                return &it->second;
             }
         }
     }
-    return false;
+    return nullptr;
 }
 
 bool SymbolTable::insertSymbol(const std::string& name, const Symbol& symbol){

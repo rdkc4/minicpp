@@ -26,26 +26,30 @@ std::unique_ptr<IRExpr> ExpressionIntermediateRepresentation::transformBinaryExp
     std::unique_ptr<IRExpr> rightOperand{ transformNumericalExpr(astBinaryExpr->getRightOperandExpr()) };
 
     if(leftOperand->getNodeType() == IRNodeType::LITERAL && rightOperand->getNodeType() == IRNodeType::LITERAL){
+
+        Optimization::ConstantFolding::MergeResult<std::unique_ptr<IRExpr>> res;
         if(leftOperand->getType() == Type::INT){
-            auto res = Optimization::ConstantFolding::mergeLiterals<int>(static_cast<const IRLiteralExpr*>(leftOperand.get()), 
-                static_cast<const IRLiteralExpr*>(rightOperand.get()), astBinaryExpr
+            res = Optimization::ConstantFolding::mergeLiterals<int>(
+                static_cast<const IRLiteralExpr*>(leftOperand.get()), 
+                static_cast<const IRLiteralExpr*>(rightOperand.get()), 
+                astBinaryExpr
             );
-            if(!res.error.empty()){
-                auto& irContext = FunctionIntermediateRepresentation::getContext();
-                irContext.errors.push_back(res.error);
-            }
-            return std::move(res.result);
         }
         else if(leftOperand->getType() == Type::UNSIGNED){
-            auto res = Optimization::ConstantFolding::mergeLiterals<unsigned>(static_cast<const IRLiteralExpr*>(leftOperand.get()), 
-                static_cast<const IRLiteralExpr*>(rightOperand.get()), astBinaryExpr
+            res = Optimization::ConstantFolding::mergeLiterals<unsigned>(
+                static_cast<const IRLiteralExpr*>(leftOperand.get()), 
+                static_cast<const IRLiteralExpr*>(rightOperand.get()), 
+                astBinaryExpr
             );
-            if(!res.error.empty()){
-                auto& irContext = FunctionIntermediateRepresentation::getContext();
-                irContext.errors.push_back(res.error);
-            }
-            return std::move(res.result);
         }
+
+        assert(res.result != nullptr);
+        if(!res.error.empty()){
+            auto& irContext = FunctionIntermediateRepresentation::getContext();
+            irContext.errors.push_back(res.error);
+        }
+
+        return std::move(res.result);
     }
     
     std::string val{ astBinaryExpr->getToken().value };

@@ -21,9 +21,9 @@ public:
      * @brief checks if symbol exists in a table
      * @param name - name of the symbol
      * @param kind - list of kinds that symbol is allowed to have
-     * @returns true if symbol of given name and kind exists, false otherwise
+     * @returns const pointer to symbol if symbol exists, nullptr otherwise
     */
-    bool lookupSymbol(const std::string& name, std::initializer_list<Kind> kind) const; // check if symbol of given kind exists
+    const Symbol* lookupSymbol(const std::string& name, std::initializer_list<Kind> kind) const;
 
     /** 
      * @brief inserts symbol into the symbol table if the symbol with the given name doesn't exist

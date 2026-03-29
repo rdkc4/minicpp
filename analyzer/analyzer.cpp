@@ -3,7 +3,6 @@
 #include <format>
 #include <unordered_set>
 #include <filesystem>
-#include <cassert>
 #include <latch>
 
 #include "../common/preprocessing/preprocessing_libs.hpp"
@@ -49,23 +48,25 @@ void Analyzer::visit(ASTProgram* program){
 
 void Analyzer::visit(ASTIncludeDir* includeDir){
     if(!std::filesystem::exists(Preprocessing::Libs::generateLibSourcePath(includeDir->getLibName()))){
+        const auto& token = includeDir->getToken();
         semanticErrors.at(globalError).push_back(
             std::format("Line {}, Column {}: SEMANTIC ERROR -> unknown library '{}'", 
-                includeDir->getToken().line, includeDir->getToken().column, includeDir->getLibName())
+                token.line, token.column, includeDir->getLibName())
         );
     }
 }
 
 void Analyzer::checkFunctionSignature(const ASTFunction* function){
     Type returnType{ function->getType() };
-    const std::string& funcName = function->getToken().value;
+    const std::string& funcName{ function->getToken().value };
+    const auto& funcToken{ function->getToken() };
     semanticErrors[funcName] = {};
 
     // function redefinition check
     if(!globalScopeManager.pushSymbol(Symbol{funcName, Kind::FUN, returnType})){
         semanticErrors[globalError].push_back(
             std::format("Line {}, Column {}: SEMANTIC ERROR -> function redefined '{} {}'", 
-                function->getToken().line, function->getToken().column, typeToString.at(returnType), function->getToken().value)
+                funcToken.line, funcToken.column, typeToString.at(returnType), funcToken.value)
         );
         return;
     }
@@ -74,13 +75,13 @@ void Analyzer::checkFunctionSignature(const ASTFunction* function){
     if(returnType == Type::NO_TYPE){
         semanticErrors[funcName].push_back(
             std::format("Line {}, Column {}: SEMANTIC ERROR -> invalid type '{} {}'", 
-                function->getToken().line, function->getToken().column, typeToString.at(returnType), function->getToken().value)
+                funcToken.line, funcToken.column, typeToString.at(returnType), funcToken.value)
         );
     }
     else if(returnType == Type::AUTO){
         semanticErrors[funcName].push_back(
             std::format("Line {}, Column {}: SEMANTIC ERROR -> type deduction cannot be performed on function '{} {}'", 
-                function->getToken().line, function->getToken().column, typeToString.at(returnType), function->getToken().value)
+                funcToken.line, funcToken.column, typeToString.at(returnType), funcToken.value)
         );
     }
 
@@ -89,16 +90,17 @@ void Analyzer::checkFunctionSignature(const ASTFunction* function){
     analyzerContext.init(funcName, &signatureScopeManager);
 
     analyzerContext.scopeManager->pushScope();
-    const auto& parameters = function->getParameters();
+    const auto& parameters{ function->getParameters() };
 
     // pointer to parameters for easier function call type checking
     globalScopeManager.getSymbol(funcName).setParameters(&parameters);
     
     // parameter check for main
     if(funcName == "main" && parameters.size() > 0){
+        const auto& paramToken{ parameters[0]->getToken() };
         semanticErrors[funcName].push_back(
             std::format("Line {}, Column {}: SEMANTIC ERROR -> function 'main' cannot have any parameters", 
-                parameters[0]->getToken().line, parameters[0]->getToken().column
+                paramToken.line, paramToken.column
             )
         );
     }
@@ -116,13 +118,14 @@ void Analyzer::checkFunctionSignature(const ASTFunction* function){
 }
 
 void Analyzer::visit(ASTFunction* function){
-    const std::string functionName = function->getToken().value;
+    const auto& funcToken{ function->getToken() };
+    const auto funcReturnType{ function->getType() };
 
     SymbolTable symTab;
     ScopeManager functionScopeManager{symTab};
 
     // initializing thread context
-    analyzerContext.init(functionName, &functionScopeManager);
+    analyzerContext.init(funcToken.value, &functionScopeManager);
 
     // function scope
     analyzerContext.scopeManager->pushScope();
@@ -133,16 +136,17 @@ void Analyzer::visit(ASTFunction* function){
         }
 
         // function return type check
-        if(function->getType() != Type::VOID){
+        if(funcReturnType != Type::VOID){
             ReturnChecker returnChecker;
             function->accept(returnChecker);
 
             if(!function->alwaysReturnsValue()){
                 analyzerContext.semanticErrors.push_back(
                     std::format("Line {}, Column {}: SEMANTIC ERROR -> function '{} {}' not all paths return value", 
-                        function->getToken().line, 
-                        function->getToken().column, 
-                        typeToString.at(function->getType()), function->getToken().value
+                        funcToken.line, 
+                        funcToken.column, 
+                        typeToString.at(funcReturnType), 
+                        funcToken.value
                     )
                 );
             }
@@ -152,8 +156,7 @@ void Analyzer::visit(ASTFunction* function){
 
     {
         std::lock_guard<std::mutex> lock(errorMtx);
-        assert(semanticErrors[functionName].empty());
-        semanticErrors[functionName] = std::move(analyzerContext.semanticErrors);
+        semanticErrors[funcToken.value] = std::move(analyzerContext.semanticErrors);
     }
     analyzerContext.reset();
 }
@@ -167,83 +170,85 @@ void Analyzer::defineParameters(const ASTFunction* function){
 }
 
 void Analyzer::visit(ASTParameter* parameter){
-    Type type{ parameter->getType() };
-    if(type == Type::VOID || type == Type::NO_TYPE){
+    Type paramType{ parameter->getType() };
+    const auto& paramToken{ parameter->getToken() };
+
+    if(paramType == Type::VOID || paramType == Type::NO_TYPE){
         analyzerContext.semanticErrors.push_back(
             std::format("Line {}, Column {}: SEMANTIC ERROR -> invalid type '{} {}'", 
-                parameter->getToken().line, parameter->getToken().column, typeToString.at(type), parameter->getToken().value)
+                paramToken.line, paramToken.column, typeToString.at(paramType), paramToken.value)
         );
     }
-    else if(type == Type::AUTO){
+    else if(paramType == Type::AUTO){
         analyzerContext.semanticErrors.push_back(
             std::format("Line {}, Column {}: SEMANTIC ERROR -> type deduction cannot be performed on parameters '{} {}'", 
-                parameter->getToken().line, parameter->getToken().column, typeToString.at(type), parameter->getToken().value)
+                paramToken.line, paramToken.column, typeToString.at(paramType), paramToken.value)
         );
     }
 
     // parameter redefinition check
-    if(!analyzerContext.scopeManager->pushSymbol(
-        Symbol{parameter->getToken().value, Kind::PAR, parameter->getType()})
-    ){
+    if(!analyzerContext.scopeManager->pushSymbol(Symbol{paramToken.value, Kind::PAR, paramType})){
         analyzerContext.semanticErrors.push_back(
             std::format("Line {}, Column {}: SEMANTIC ERROR -> variable redefined '{}'", 
-                parameter->getToken().line, parameter->getToken().column, parameter->getToken().value)
+                paramToken.line, paramToken.column, paramToken.value)
         );
     }
 }
 
 void Analyzer::visit(ASTVariableDeclStmt* variableDecl){
     // variable type check
-    Type type{ variableDecl->getType() };
-    if(type == Type::VOID || type == Type::NO_TYPE){
+    Type variableType{ variableDecl->getType() };
+    const auto& variableToken{ variableDecl->getToken() };
+    if(variableType == Type::VOID || variableType == Type::NO_TYPE){
         analyzerContext.semanticErrors.push_back(
             std::format("Line {}, Column {}: SEMANTIC ERROR -> invalid type '{} {}'", 
-                variableDecl->getToken().line, 
-                variableDecl->getToken().column, 
-                typeToString.at(type), 
-                variableDecl->getToken().value
+                variableToken.line, 
+                variableToken.column, 
+                typeToString.at(variableType), 
+                variableToken.value
             )
         );
     }
-    else if(type == Type::AUTO && !variableDecl->hasAssignExpr()){
+    else if(variableType == Type::AUTO && !variableDecl->hasAssignExpr()){
         analyzerContext.semanticErrors.push_back(
             std::format("Line {}, Column {}: SEMANTIC ERROR -> type deduction failed '{} {}'", 
-                variableDecl->getToken().line, 
-                variableDecl->getToken().column, 
-                typeToString.at(type), 
-                variableDecl->getToken().value
+                variableToken.line, 
+                variableToken.column, 
+                typeToString.at(variableType), 
+                variableToken.value
             )
         );
     }
 
     // variable redefinition check
-    if(!analyzerContext.scopeManager->pushSymbol(Symbol{variableDecl->getToken().value, Kind::VAR, type})){
+    if(!analyzerContext.scopeManager->pushSymbol(Symbol{variableToken.value, Kind::VAR, variableType})){
         analyzerContext.semanticErrors.push_back(
             std::format("Line {}, Column {}: SEMANTIC ERROR -> variable redefined '{}'", 
-                variableDecl->getToken().line, variableDecl->getToken().column, variableDecl->getToken().value)
+                variableToken.line, variableToken.column, variableToken.value)
         );
     }
 
     // direct initialization
-    if(variableDecl->getAssignExpr() != nullptr){
-        variableDecl->getAssignExpr()->accept(*this);
+    if(variableDecl->hasAssignExpr()){
+        auto* assignExpr{ variableDecl->getAssignExpr() };
+        assignExpr->accept(*this);
 
-        Type rtype{variableDecl->getAssignExpr()->getType() };
+        Type rtype{ assignExpr->getType() };
 
         // variable initialization type check
-        if(rtype != type && type != Type::AUTO && rtype != Type::NO_TYPE){ // rtype == no_type => error was caught in expression, no need to write it again
+        if(rtype != variableType && variableType != Type::AUTO && rtype != Type::NO_TYPE){ // rtype == no_type => error was caught in expression, no need to write it again
             analyzerContext.semanticErrors.push_back(
                 std::format("Line {}, Column {}: SEMANTIC ERROR -> invalid assignment statement - type mismatch: expected '{}', got '{}'", 
-                    variableDecl->getToken().line, 
-                    variableDecl->getToken().column, 
-                    typeToString.at(type), 
+                    variableToken.line, 
+                    variableToken.column, 
+                    typeToString.at(variableType), 
                     typeToString.at(rtype)
                 )
             );
         }
 
-        if(type == Type::AUTO){
-            analyzerContext.scopeManager->getSymbol(variableDecl->getToken().value).setType(rtype);
+        if(variableType == Type::AUTO){
+            analyzerContext.scopeManager->getSymbol(variableToken.value).setType(rtype);
         }
     }
 }
@@ -262,9 +267,10 @@ void Analyzer::visit(ASTAssignStmt* assignStmt){
 
     // assignment type check
     if(rtype != ltype && ltype != Type::AUTO){
+        const auto& assignStmtToken{ assignStmt->getToken() };
         analyzerContext.semanticErrors.push_back(
             std::format("Line {}, Column {}: SEMANTIC ERROR -> invalid assignment statement - type mismatch: expected '{}', got '{}'", 
-                assignStmt->getToken().line, assignStmt->getToken().column, typeToString.at(ltype), typeToString.at(rtype))
+                assignStmtToken.line, assignStmtToken.column, typeToString.at(ltype), typeToString.at(rtype))
         );
     }
 
@@ -299,11 +305,11 @@ void Analyzer::visit(ASTFunctionCallStmt* callStmt){
 }
 
 void Analyzer::visit(ASTIfStmt* ifStmt){
-    const auto& conditions = ifStmt->getConditionExprs();
-    const auto& stmts = ifStmt->getStmts();
+    const auto& conditions{ ifStmt->getConditionExprs() };
+    const auto& stmts{ ifStmt->getStmts() };
 
     const size_t size = conditions.size();
-    for(size_t i = 0; i < size; ++i){
+    for(size_t i{0}; i < size; ++i){
         conditions[i]->accept(*this);
         stmts[i]->accept(*this);
     }
@@ -317,8 +323,9 @@ void Analyzer::visit(ASTReturnStmt* returnStmt){
     Type returnType{Type::VOID};
 
     if(returnStmt->hasReturnExpr()){
-        returnStmt->getReturnExpr()->accept(*this);
-        returnType = returnStmt->getReturnExpr()->getType();
+        auto* returnExpr{ returnStmt->getReturnExpr() };
+        returnExpr->accept(*this);
+        returnType = returnExpr->getType();
     }
 
     // if numexp inside of a return statement contains undef var, it will report it, no point checking for type mismatch
@@ -327,10 +334,11 @@ void Analyzer::visit(ASTReturnStmt* returnStmt){
     // return type check
     Type expectedReturnType{ globalScopeManager.getSymbol(analyzerContext.functionName).getType() };
     if(returnType != expectedReturnType){
+        const auto& returnToken{ returnStmt->getToken() };
         analyzerContext.semanticErrors.push_back(
             std::format("Line {}, Column {}: SEMANTIC ERROR -> invalid return statement - type mismatch: '{} {}' returns '{}'", 
-                returnStmt->getToken().line, 
-                returnStmt->getToken().column, 
+                returnToken.line, 
+                returnToken.column, 
                 typeToString.at(expectedReturnType), 
                 analyzerContext.functionName, 
                 typeToString.at(returnType)
@@ -350,35 +358,41 @@ void Analyzer::visit(ASTDoWhileStmt* dowhileStmt){
 }
 
 void Analyzer::visit(ASTSwitchStmt* switchStmt){
-    switchStmt->getVariableIdExpr()->accept(*this);
+    auto* variableIdExpr{ switchStmt->getVariableIdExpr() };
+    variableIdExpr->accept(*this);
 
-    if(switchStmt->getVariableIdExpr()->getType() == Type::NO_TYPE) return;
+    auto variableIdExprType{ variableIdExpr->getType() };
+    if(variableIdExprType == Type::NO_TYPE) return;
     
-    auto expectedType = switchStmt->getVariableIdExpr()->getType();
     std::unordered_set<std::string> caseSet;
     for(const auto& caseStmt : switchStmt->getCaseStmts()){
         caseStmt->accept(*this);
-        const auto* literalExpr = caseStmt->getLiteralExpr();
+
+        const auto& caseToken{ caseStmt->getToken() };
+
+        const auto* literalExpr{ caseStmt->getLiteralExpr() };
+        const auto& literalExprToken{ literalExpr->getToken() };
+        auto literalType{ literalExpr->getType() };
 
         // type mismatch
-        if(literalExpr->getType() != expectedType){
+        if(literalType != variableIdExprType){
             analyzerContext.semanticErrors.push_back(
                 std::format("Line {}, Column {}: SEMANTIC ERROR -> invalid case - type mismatch: expected '{}', got '{}'", 
-                    caseStmt->getToken().line, 
-                    caseStmt->getToken().column, 
-                    typeToString.at(expectedType), 
-                    typeToString.at(literalExpr->getType())
+                    caseToken.line, 
+                    caseToken.column, 
+                    typeToString.at(variableIdExprType), 
+                    typeToString.at(literalType)
                 )
             );
         }
         // duplicates
-        if(caseSet.contains(literalExpr->getToken().value)){
+        if(caseSet.contains(literalExprToken.value)){
             analyzerContext.semanticErrors.push_back(
                 std::format("Line {}, Column {}: SEMANTIC ERROR -> duplicate case '{}'", 
-                    caseStmt->getToken().line, caseStmt->getToken().column, caseStmt->getLiteralExpr()->getToken().value)
+                    caseToken.line, caseToken.column, literalExprToken.value)
             );
         }
-        caseSet.insert(literalExpr->getToken().value);
+        caseSet.insert(literalExprToken.value);
     }
 
     if(switchStmt->hasDefaultStmt()){
@@ -388,7 +402,7 @@ void Analyzer::visit(ASTSwitchStmt* switchStmt){
 }
 
 void Analyzer::visit(ASTCaseStmt* caseStmt){
-    auto* literalExpr = caseStmt->getLiteralExpr();
+    auto* literalExpr{ caseStmt->getLiteralExpr() };
     literalExpr->accept(*this);
     if(literalExpr->getType() == Type::NO_TYPE) return;
 
@@ -406,79 +420,88 @@ void Analyzer::visit(ASTSwitchBlockStmt* switchBlockStmt){
 }
 
 void Analyzer::visit(ASTBinaryExpr* binaryExpr){
-    binaryExpr->getLeftOperandExpr()->accept(*this);
-    binaryExpr->getRightOperandExpr()->accept(*this);
+    auto* leftOperand{ binaryExpr->getLeftOperandExpr() };
+    auto* rightOperand{ binaryExpr->getRightOperandExpr() };
 
-    auto ltype = binaryExpr->getLeftOperandExpr()->getType();
-    auto rtype = binaryExpr->getRightOperandExpr()->getType();
+    leftOperand->accept(*this);
+    rightOperand->accept(*this);
+
+    auto ltype{ leftOperand->getType() };
+    auto rtype{ rightOperand->getType() };
 
     if(ltype != rtype && ltype != Type::NO_TYPE && rtype != Type::NO_TYPE){
+        const auto& binaryExprToken{ binaryExpr->getToken() };
         analyzerContext.semanticErrors.push_back(
-            std::format("Line {}, Column {}: SEMANTIC ERROR -> invalid assignment statement - type mismatch: expected '{}', got '{}'", 
-                binaryExpr->getToken().line, binaryExpr->getToken().column, typeToString.at(ltype), typeToString.at(rtype))
+            std::format("Line {}, Column {}: SEMANTIC ERROR -> binary expression - type mismatch: expected '{}', got '{}'", 
+                binaryExprToken.line, binaryExprToken.column, typeToString.at(ltype), typeToString.at(rtype))
         );
     }
     binaryExpr->setType(ltype);
 }
 
 void Analyzer::visit(ASTFunctionCallExpr* callExpr){
-    if(!globalScopeManager.lookupSymbol(callExpr->getToken().value, {Kind::FUN})){
+    const auto& callExprToken{  callExpr->getToken() };
+
+    const auto* callExprSymbol{ globalScopeManager.lookupSymbol(callExprToken.value, {Kind::FUN}) };
+    if(!callExprSymbol){
         analyzerContext.semanticErrors.push_back(
             std::format("Line {}, Column {}: SEMANTIC ERROR -> undefined function '{}'", 
-                callExpr->getToken().line, callExpr->getToken().column, callExpr->getToken().value)
+                callExprToken.line, callExprToken.column, callExprToken.value)
         );
         // function doesn't exist, no point checking arguments
         return;
     }
-    
+
     // main function can't be called
-    if(callExpr->getToken().value == "main"){
+    if(callExprToken.value == "main"){
         analyzerContext.semanticErrors.push_back(
             std::format("Line {}, Column {}: SEMANTIC ERROR -> 'main' is not callable function", 
-                callExpr->getToken().line, callExpr->getToken().column)
+                callExprToken.line, callExprToken.column)
         );
         return;
     }
 
-    // comparation of given parameter count with expected parameter count
-    size_t expectedParams{ globalScopeManager.getSymbol(callExpr->getToken().value).getParameters()->size() };
-    if(callExpr->getArgumentCount() != expectedParams){
+    const auto* callExprParams{ callExprSymbol->getParameters() };
+    callExpr->setType(callExprSymbol->getType());
+
+    // comparison of given parameter count with expected parameter count
+    size_t providedParams{ callExpr->getArgumentCount() };
+    size_t expectedParams{ callExprParams->size() };
+    if(providedParams != expectedParams){
         analyzerContext.semanticErrors.push_back(
             std::format("Line {}, Column {}: SEMANTIC ERROR -> invalid function call '{}': provided arguments '{}', expected '{}'", 
-                callExpr->getToken().line, 
-                callExpr->getToken().column, 
-                callExpr->getToken().value, 
-                callExpr->getArgumentCount(), 
+                callExprToken.line, 
+                callExprToken.column, 
+                callExprToken.value, 
+                providedParams, 
                 expectedParams
             )
         );
-        callExpr->setType(globalScopeManager.getSymbol(callExpr->getToken().value).getType());
-        // number of provided arguments differs from expected, no type checking
-        return;
+        return; // number of provided arguments differs from expected, no type checking
     }
-    callExpr->setType(globalScopeManager.getSymbol(callExpr->getToken().value).getType());
     
-    const auto* functionParameters{ globalScopeManager.getSymbol(callExpr->getToken().value).getParameters() };
     const auto& arguments{ callExpr->getArguments() };
-
-    for(size_t i = 0; i < callExpr->getArgumentCount(); ++i){
-        arguments[i]->accept(*this);
+    for(size_t i{0}; i < providedParams; ++i){
+        const auto& arg{ arguments[i] };
+        arg->accept(*this);
 
         // type check of corresponding parameters in function and function call
-        Type ltype{ arguments[i]->getType() };
-        Type rtype{ (*functionParameters)[i]->getType() };
+        Type ltype{ arg->getType() };
+        Type rtype{ (*callExprParams)[i]->getType() };
 
         // no point checking for types if argument is invalid
-        if(ltype == Type::NO_TYPE) return;
+        if(ltype == Type::NO_TYPE) continue;
 
         if(ltype != rtype){
+            const auto& argToken{ arg->getToken() };
             analyzerContext.semanticErrors.push_back(
-                std::format("Line {}, Column {}: SEMANTIC ERROR -> invalid argument - type mismatch: expected '{}', got '{} {}'",
-                    arguments[i]->getToken().line, 
-                    arguments[i]->getToken().column, 
+                std::format("Line {}, Column {}: SEMANTIC ERROR -> invalid argument {} - type mismatch: expected '{}', got '{} {}'",
+                    argToken.line, 
+                    argToken.column,
+                    i,
                     typeToString.at(rtype), 
                     typeToString.at(ltype), 
-                    arguments[i]->getToken().value
+                    argToken.value
                 )
             );
         }
@@ -486,37 +509,54 @@ void Analyzer::visit(ASTFunctionCallExpr* callExpr){
 }
 
 void Analyzer::visit(ASTIdExpr* idExpr){
-    std::string name{ idExpr->getToken().value };
+    const auto& idExprToken{ idExpr->getToken() };
     
     // check if id exists
-    if(!analyzerContext.scopeManager->lookupSymbol(name, {Kind::VAR, Kind::PAR})){
+    const auto* idExprSymbol{ analyzerContext.scopeManager->lookupSymbol(idExprToken.value, {Kind::VAR, Kind::PAR}) };
+    if(!idExprSymbol){
         analyzerContext.semanticErrors.push_back(
             std::format("Line {}, Column {}: SEMANTIC ERROR -> undefined variable '{}'", 
-                idExpr->getToken().line, idExpr->getToken().column, name)
+                idExprToken.line, idExprToken.column, idExprToken.value)
         );
         idExpr->setType(Type::NO_TYPE);
         return;
     }
-    idExpr->setType(analyzerContext.scopeManager->getSymbol(name).getType());
+    idExpr->setType(idExprSymbol->getType());
 }
 
 void Analyzer::visit(ASTLiteralExpr* literalExpr){
-    std::string name{ literalExpr->getToken().value };
+    const auto& literalExprToken{ literalExpr->getToken() };
+
     // invalid literal check
-    if((literalExpr->getType() == Type::UNSIGNED && (name.back() != 'u' || name.front() == '-')) || 
-        (literalExpr->getType() == Type::INT && name.back() == 'u')
-    ){
+    if(isInvalidLiteral(literalExpr->getType(), literalExprToken.value)){
         analyzerContext.semanticErrors.push_back(
             std::format("Line {}, Column {}: SEMANTIC ERROR -> invalid literal '{}'", 
-                literalExpr->getToken().line, literalExpr->getToken().column, name)
+                literalExprToken.line, literalExprToken.column, literalExprToken.value)
         );
     }
 }
 
+bool Analyzer::isInvalidLiteral(Type type, const std::string& value) const {
+    if (value.empty()) [[unlikely]] return true;
+
+    const char last = value.back();
+    const char first = value.front();
+
+    if (type == Type::UNSIGNED) {
+        return last != 'u' || first == '-';
+    }
+
+    if (type == Type::INT) {
+        return last == 'u';
+    }
+
+    return false;
+}
+
 
 bool Analyzer::hasSemanticErrors(const ASTProgram* program) const noexcept {
-    for(const auto& _function : program->getFunctions()){
-        const std::string& funcName = _function->getToken().value;
+    for(const auto& function : program->getFunctions()){
+        const std::string& funcName{ function->getToken().value };
         if(!semanticErrors.at(funcName).empty()){
             return true;
         }   
@@ -535,10 +575,10 @@ std::string Analyzer::getSemanticErrors(const ASTProgram* program) const noexcep
     }
 
     std::stringstream errors{"Semantic check failed:\n"};
-    size_t errLen = errors.str().length();
+    size_t errLen{ errors.str().length() };
 
     for(const auto& function : program->getFunctions()){
-        const std::string& funcName = function->getToken().value;
+        const std::string& funcName{ function->getToken().value };
         if(!semanticErrors.at(funcName).empty()){
             for(const auto& error : semanticErrors.at(funcName)){
                 errors << error << "\n";
@@ -551,7 +591,7 @@ std::string Analyzer::getSemanticErrors(const ASTProgram* program) const noexcep
         }
     }
 
-    std::string strErrors = errors.str(); 
+    std::string strErrors{ errors.str() }; 
 
     return strErrors.length() != errLen ? strErrors : "";
 }

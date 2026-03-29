@@ -32,7 +32,7 @@ Symbol& ScopeManager::getSymbol(const std::string& name) const {
     return symbolTable.getSymbol(name);
 }
 
-bool ScopeManager::lookupSymbol(const std::string& name, std::initializer_list<Kind> kind) const {
+const Symbol* ScopeManager::lookupSymbol(const std::string& name, std::initializer_list<Kind> kind) const {
     return symbolTable.lookupSymbol(name, kind);
 }
 

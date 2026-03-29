@@ -204,6 +204,13 @@ private:
     /// thread pool for parallel function code analysis
     ThreadPool& threadPool;
 
+    /**
+     * @brief helper for literal expr validation
+     * @param type - type of the literal
+     * @param value - value of the literal
+    */
+    bool isInvalidLiteral(Type type, const std::string& value) const;
+
 protected:
     /// thread local context of the function
     static thread_local AnalyzerThreadContext analyzerContext;
