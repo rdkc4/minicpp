@@ -1,10 +1,10 @@
 #include "symbol_table.hpp"
 
-const Symbol* SymbolTable::lookupSymbol(const std::string& name, std::initializer_list<Kind> kind) const {
+const Symbol* SymbolTable::lookupSymbol(const std::string& name, std::initializer_list<Kind> kinds) const {
     auto it{ symbolTable.find(name) };
     if(it != symbolTable.end()){
-        for(const auto& _kind : kind){
-            if(it->second.getKind() == _kind){
+        for(const auto& kind : kinds){
+            if(it->second.getKind() == kind){
                 return &it->second;
             }
         }

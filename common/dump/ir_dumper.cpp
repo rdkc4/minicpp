@@ -112,12 +112,12 @@ void IRDumper::visit(IRFunctionCallStmt* callStmt){
 void IRDumper::visit(IRIfStmt* ifStmt){
     dumpNode(ifStmt);
 
-    const auto& conditions = ifStmt->getConditionExprs();
-    const auto& statements = ifStmt->getStmts();
-    const auto& temporaries = ifStmt->getTemporaryExprs();
+    const auto& conditions{ ifStmt->getConditionExprs() };
+    const auto& statements{ ifStmt->getStmts() };
+    const auto& temporaries{ ifStmt->getTemporaryExprs() };
 
     IndentGuard ifGuard{indent};
-    for(size_t i = 0; i < conditions.size(); ++i){
+    for(size_t i{0}; i < conditions.size(); ++i){
         if(temporaries[i]){
             temporaries[i]->accept(*this);
         }
@@ -214,11 +214,11 @@ void IRDumper::visit(IRBinaryExpr* binaryExpr){
 void IRDumper::visit(IRFunctionCallExpr* callExpr){
     dumpNode(callExpr, std::format(" | {}", callExpr->getCallName()));
 
-    const auto& arguments = callExpr->getArguments();
-    const auto& temporaries = callExpr->getTemporaryExprs();
+    const auto& arguments{ callExpr->getArguments() };
+    const auto& temporaries{ callExpr->getTemporaryExprs() };
 
     IndentGuard callGuard{indent};
-    for(size_t i = 0; i < arguments.size(); ++i){
+    for(size_t i{0}; i < arguments.size(); ++i){
         if(temporaries[i]){
             temporaries[i]->accept(*this);
         }
@@ -243,11 +243,11 @@ void IRDumper::visit(IRLiteralExpr* literalExpr){
 void IRDumper::visit(IRTemporaryExpr* tempExpr){
     dumpNode(tempExpr);
 
-    const auto& names = tempExpr->getTemporaryNames();
-    const auto& exprs = tempExpr->getTemporaryExprs();
+    const auto& names{ tempExpr->getTemporaryNames() };
+    const auto& exprs{ tempExpr->getTemporaryExprs() };
 
     IndentGuard tempGuard{indent};
-    for(size_t i = 0; i < exprs.size(); ++i){
+    for(size_t i{0}; i < exprs.size(); ++i){
         dumpNode(names[i]);
         IndentGuard exprGuard{indent};
         exprs[i]->accept(*this);

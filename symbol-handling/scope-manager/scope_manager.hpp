@@ -51,10 +51,10 @@ public:
     /** 
      * @brief checks if symbol exists in a table
      * @param name - name of the symbol
-     * @param kind - list of kinds that symbol is allowed to have
+     * @param kinds - list of kinds that symbol is allowed to have
      * @returns const pointer to symbol if symbol exists, nullptr otherwise
     */
-    const Symbol* lookupSymbol(const std::string& name, std::initializer_list<Kind> kind) const;
+    const Symbol* lookupSymbol(const std::string& name, std::initializer_list<Kind> kinds) const;
 
     /**
      * @brief clears all scopes

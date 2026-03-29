@@ -8,8 +8,8 @@
 #include "../common/preprocessing/preprocessing_libs.hpp"
 
 void Preprocessor::preprocess(const std::string& source) {
-    size_t index = 0;
-    size_t len = source.length();
+    size_t index{0};
+    size_t len{ source.length() };
 
     while(index < len){
         if(source[index] == '#'){
@@ -45,7 +45,7 @@ std::string Preprocessor::getPreprocessErrors() const noexcept {
 }
 
 void Preprocessor::handleDirective(const std::string& source, size_t& idx){
-    size_t start = ++idx;
+    size_t start{++idx};
     while(std::isalpha(source[idx])){
         ++idx;
     }
@@ -54,7 +54,7 @@ void Preprocessor::handleDirective(const std::string& source, size_t& idx){
         return;
     }
 
-    std::string directive = std::string{ source.substr(start, idx - start) };
+    std::string directive{ source.substr(start, idx - start) };
     if(directive == "include"){
         handleInclude(source, idx);
     }
@@ -65,7 +65,7 @@ void Preprocessor::handleInclude(const std::string& source, size_t& idx){
         return;
     }
 
-    size_t start = ++idx;
+    size_t start{ ++idx };
     while(std::isalnum(source[idx])){
         ++idx;
     }
@@ -74,8 +74,8 @@ void Preprocessor::handleInclude(const std::string& source, size_t& idx){
         return;
     }
 
-    std::string includeLib = std::string{ source.substr(start, idx - start) };
-    std::string includeLibPath = Preprocessing::Libs::generateLibSourcePath(includeLib);
+    std::string includeLib{ source.substr(start, idx - start) };
+    std::string includeLibPath{ Preprocessing::Libs::generateLibSourcePath(includeLib) };
 
     if(!includedLibraries.contains(includeLib)){
         includedLibraries.insert(includeLib);

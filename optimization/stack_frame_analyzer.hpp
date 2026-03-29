@@ -163,7 +163,7 @@ private:
     static thread_local size_t variableCounter;
 
     /// size of the register
-    constexpr static size_t regSize = 8;
+    constexpr static size_t regSize{8};
 
 };
 

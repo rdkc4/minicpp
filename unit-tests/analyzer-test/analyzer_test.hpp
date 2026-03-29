@@ -15,7 +15,7 @@ class AnalyzerTest : public Analyzer {
             return globalScopeManager;
         }
 
-        constexpr const char* getGlobalErrLabel() const noexcept {
+        const char* getGlobalErrLabel() const noexcept {
             return globalError;
         }
 

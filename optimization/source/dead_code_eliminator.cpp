@@ -22,7 +22,7 @@ void DeadCodeEliminator::visit(IRProgram* program){
 void DeadCodeEliminator::visit(IRFunction* function){
     alwaysReturns = false;
 
-    size_t stmtIdx = 0;
+    size_t stmtIdx{ 0 };
     for(const auto& stmt : function->getBody()){
         stmt->accept(*this);
         if(alwaysReturns){
@@ -48,7 +48,7 @@ void DeadCodeEliminator::visit([[maybe_unused]] IRAssignStmt* assignStmt){
 void DeadCodeEliminator::visit(IRCompoundStmt* compoundStmt){
     alwaysReturns = false;
 
-    size_t stmtIdx = 0;
+    size_t stmtIdx{ 0 };
     for(const auto& stmt : compoundStmt->getStmts()){
         stmt->accept(*this);
         if(alwaysReturns){
@@ -117,7 +117,7 @@ void DeadCodeEliminator::visit(IRDefaultStmt* defaultStmt){
 void DeadCodeEliminator::visit(IRSwitchBlockStmt* switchBlockStmt){
     alwaysReturns = false;
 
-    size_t stmtIdx = 0;
+    size_t stmtIdx{ 0 };
     for(const auto& stmt : switchBlockStmt->getStmts()){
         stmt->accept(*this);
         if(alwaysReturns){

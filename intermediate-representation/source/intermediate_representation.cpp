@@ -14,23 +14,25 @@ IntermediateRepresentation::IntermediateRepresentation(ThreadPool& threadPool)
     : threadPool{ threadPool }, funcIR{ exceptions } {}
 
 std::unique_ptr<IRProgram> IntermediateRepresentation::transformProgram(const ASTProgram* program){
-    std::unique_ptr<IRProgram> irProgram = std::make_unique<IRProgram>();
+    std::unique_ptr<IRProgram> irProgram{ std::make_unique<IRProgram>() };
 
     dirIR.transformDir(irProgram.get(), program);
     
-    const size_t total = program->getFunctionCount();
+    const size_t total{ program->getFunctionCount() };
     irProgram->resizeFunctions(total);
 
     std::latch doneLatch{ static_cast<std::ptrdiff_t>(total) };
 
-    for(size_t i = 0; i < total; ++i){
-        threadPool.enqueue([&, irProgram=irProgram.get(), i, function=program->getFunctionAtN(i)]{
-            // generating ir of a function
-            std::unique_ptr<IRFunction> irFunction = funcIR.transformFunction(function);
-            irProgram->setFunctionAtN(std::move(irFunction), i);
+    for(size_t i{0}; i < total; ++i){
+        threadPool.enqueue(
+            [&, irProgram =irProgram.get(), i, function=program->getFunctionAtN(i)] -> void {
+                // generating ir of a function
+                std::unique_ptr<IRFunction> irFunction{ funcIR.transformFunction(function) };
+                irProgram->setFunctionAtN(std::move(irFunction), i);
 
-            doneLatch.count_down();
-        });
+                doneLatch.count_down();
+            }
+        );
     }
 
     doneLatch.wait();
@@ -67,16 +69,16 @@ std::string IntermediateRepresentation::getErrors(const IRProgram* program) cons
     }
 
     std::stringstream errors{"Forming Intermediate Representation failed:\n"};
-    size_t errLen = errors.str().length();
+    size_t errLen{ errors.str().length() };
 
     for(const auto& function : program->getFunctions()){
-        const std::vector<std::string>& funcErrors = exceptions.at(function->getFunctionName());
+        const std::vector<std::string>& funcErrors{ exceptions.at(function->getFunctionName()) };
         for(const auto& error : funcErrors){
             errors << error << "\n";
         }
     }
 
-    std::string strErrors = errors.str(); 
+    std::string strErrors{ errors.str() }; 
 
     return strErrors.length() != errLen ? strErrors : "";
 }

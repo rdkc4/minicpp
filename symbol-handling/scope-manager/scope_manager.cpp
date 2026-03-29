@@ -32,8 +32,8 @@ Symbol& ScopeManager::getSymbol(const std::string& name) const {
     return symbolTable.getSymbol(name);
 }
 
-const Symbol* ScopeManager::lookupSymbol(const std::string& name, std::initializer_list<Kind> kind) const {
-    return symbolTable.lookupSymbol(name, kind);
+const Symbol* ScopeManager::lookupSymbol(const std::string& name, std::initializer_list<Kind> kinds) const {
+    return symbolTable.lookupSymbol(name, kinds);
 }
 
 void ScopeManager::clear() noexcept {

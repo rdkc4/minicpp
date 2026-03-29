@@ -11,6 +11,7 @@
 #include "../lexer/lexer.hpp"
 #include "../parser/parser.hpp"
 #include "../symbol-handling/scope-manager/scope_manager.hpp"
+#include "../analyzer/analyzer.hpp"
 #include "../intermediate-representation/intermediate_representation.hpp"
 #include "../code-generator/code-generator/code_generator.hpp"
 #include "../common/dump/ast_dumper.hpp"
@@ -18,8 +19,8 @@
 
 Compiler::CompileOptions Compiler::parseOptions(int argc, char** argv){
     Compiler::CompileOptions options;
-    for(int i = 1; i < argc; ++i){
-        std::string arg = argv[i];
+    for(int i{1}; i < argc; ++i){
+        std::string arg{ argv[i] };
 
         if(arg == "--dump-ast"){
             options.dumpAST = true;
@@ -76,13 +77,15 @@ const Compiler::PreprocessResult Compiler::preprocess(const std::string& source)
     Preprocessor preprocessor;
     preprocessor.preprocess(source);
 
-    bool isInvalid = preprocessor.hasErrors();
+    bool isInvalid{ preprocessor.hasErrors() };
     if(isInvalid){
         std::cerr << preprocessor.getPreprocessErrors();
     }
     
     return {
-        .exitCode = isInvalid ? Compiler::ExitCode::PREPROCESS_ERR : Compiler::ExitCode::NO_ERR,
+        .exitCode = isInvalid 
+            ? Compiler::ExitCode::PREPROCESS_ERR 
+            : Compiler::ExitCode::NO_ERR,
         .source = preprocessor.getPreprocessed()
     };
 }
@@ -112,14 +115,12 @@ Compiler::ExitCode Compiler::syntaxAnalysis(Lexer& lexer, std::unique_ptr<ASTPro
 
     return Compiler::ExitCode::NO_ERR;
 }
-#include "../analyzer/analyzer.hpp"
+
 Compiler::ExitCode Compiler::semanticAnalysis(std::unique_ptr<ASTProgram>& astProgram, ThreadPool& threadPool){
     SymbolTable symbolTable {};
     ScopeManager scopeManager{ symbolTable };
     Analyzer analyzer{scopeManager, threadPool};
     astProgram->accept(analyzer);
-    //Analyzer analyzer{ scopeManager };
-    //analyzer.semanticCheck(astProgram.get());
 
     if(analyzer.hasSemanticErrors(astProgram.get())){
         std::cerr << analyzer.getSemanticErrors(astProgram.get());
@@ -142,7 +143,7 @@ Compiler::ExitCode Compiler::transformASTToIRT(std::unique_ptr<ASTProgram>& astP
 }
 
 Compiler::ExitCode Compiler::generateProgram(const IRProgram* irProgram, const std::string_view output, ThreadPool& threadPool){
-    std::string outputFilePath = std::string{ output } + ".s";
+    std::string outputFilePath{ std::format("{}.s", output) };
     CodeGenerator codeGenerator{ outputFilePath, threadPool };
     try{
         codeGenerator.generateProgram(irProgram);
@@ -160,9 +161,16 @@ Compiler::ExitCode Compiler::generateProgram(const IRProgram* irProgram, const s
 }
 
 Compiler::ExitCode Compiler::assembleAndLink(const IRProgram* irProgram, const std::string_view output){
-    std::string cmd = std::format("clang {}.s{} -o {} -nostdlib", output, irProgram->getLinkedLibs(), output);
+    std::string cmd{ 
+        std::format(
+            "clang {}.s{} -o {} -nostdlib", 
+            output, 
+            irProgram->getLinkedLibs(), 
+            output
+        ) 
+    };
 
-    int result = std::system(cmd.c_str());
+    int result{ std::system(cmd.c_str()) };
     if(result != 0){
         std::cerr << "Error: compilation/linking failed\n";
         return Compiler::ExitCode::ASM_LINK_ERR;
@@ -171,7 +179,7 @@ Compiler::ExitCode Compiler::assembleAndLink(const IRProgram* irProgram, const s
 }
 
 Compiler::ExitCode Compiler::compile(Compiler::CompileOptions options) {
-    std::string source = readSourceCode(options.input);
+    std::string source{ readSourceCode(options.input) };
 
     Compiler::PreprocessResult preprocessResult{ preprocess(source) };
     if(preprocessResult.exitCode != Compiler::ExitCode::NO_ERR){

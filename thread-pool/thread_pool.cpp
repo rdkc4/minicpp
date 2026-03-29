@@ -3,7 +3,7 @@
 #include <condition_variable>
 
 ThreadPool::ThreadPool(size_t numberOfThreads) : stop{ false } {
-    for(size_t i = 0; i < numberOfThreads; ++i){
+    for(size_t i{0}; i < numberOfThreads; ++i){
         threads.emplace_back([this](){
             while(true){
                 std::function<void()> f;

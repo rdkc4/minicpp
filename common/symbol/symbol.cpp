@@ -20,20 +20,20 @@ const std::vector<std::unique_ptr<ASTParameter>>* Symbol::getParameters() const 
     return parameters;
 }
 
-void Symbol::setName(std::string_view _name){
-    name = _name;
+void Symbol::setName(std::string_view symName){
+    name = symName;
 }
 
-void Symbol::setKind(Kind _kind) noexcept {
-    kind = _kind;
+void Symbol::setKind(Kind symKind) noexcept {
+    kind = symKind;
 }
 
-void Symbol::setType(Type _type) noexcept {
-    type = _type;
+void Symbol::setType(Type symType) noexcept {
+    type = symType;
 }
 
-void Symbol::setParameters(const std::vector<std::unique_ptr<ASTParameter>>* par) noexcept {
-    parameters = par;
+void Symbol::setParameters(const std::vector<std::unique_ptr<ASTParameter>>* symParams) noexcept {
+    parameters = symParams;
 }
 
 std::string Symbol::symbolToString() const {

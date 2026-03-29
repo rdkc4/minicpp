@@ -22,8 +22,12 @@ std::unique_ptr<IRExpr> ExpressionIntermediateRepresentation::transformNumerical
 }
 
 std::unique_ptr<IRExpr> ExpressionIntermediateRepresentation::transformBinaryExpr(const ASTBinaryExpr* astBinaryExpr){
-    std::unique_ptr<IRExpr> leftOperand{ transformNumericalExpr(astBinaryExpr->getLeftOperandExpr()) };
-    std::unique_ptr<IRExpr> rightOperand{ transformNumericalExpr(astBinaryExpr->getRightOperandExpr()) };
+    std::unique_ptr<IRExpr> leftOperand{ 
+        transformNumericalExpr(astBinaryExpr->getLeftOperandExpr()) 
+    };
+    std::unique_ptr<IRExpr> rightOperand{ 
+        transformNumericalExpr(astBinaryExpr->getRightOperandExpr()) 
+    };
 
     if(leftOperand->getNodeType() == IRNodeType::LITERAL && rightOperand->getNodeType() == IRNodeType::LITERAL){
 
@@ -45,7 +49,7 @@ std::unique_ptr<IRExpr> ExpressionIntermediateRepresentation::transformBinaryExp
 
         assert(res.result != nullptr);
         if(!res.error.empty()){
-            auto& irContext = FunctionIntermediateRepresentation::getContext();
+            auto& irContext{ FunctionIntermediateRepresentation::getContext() };
             irContext.errors.push_back(res.error);
         }
 
@@ -67,11 +71,14 @@ std::unique_ptr<IRExpr> ExpressionIntermediateRepresentation::transformBinaryExp
 }
 
 std::unique_ptr<IRBinaryExpr> ExpressionIntermediateRepresentation::transformRelationalExpr(const ASTExpr* astRelationalExpr) {
-    const ASTBinaryExpr* astBinaryExpr = static_cast<const ASTBinaryExpr*>(astRelationalExpr);
+    const ASTBinaryExpr* astBinaryExpr{ static_cast<const ASTBinaryExpr*>(astRelationalExpr) };
     
-    IRNodeType irNodeType{ operatorToIRNodeType.at(astBinaryExpr->getOperator()).getOperation(astBinaryExpr->getType()) };
-    std::unique_ptr<IRBinaryExpr> irBinaryExpr = 
-        std::make_unique<IRBinaryExpr>(irNodeType, astBinaryExpr->getType());
+    IRNodeType irNodeType{ 
+        operatorToIRNodeType.at(astBinaryExpr->getOperator()).getOperation(astBinaryExpr->getType()) 
+    };
+    std::unique_ptr<IRBinaryExpr> irBinaryExpr{ 
+        std::make_unique<IRBinaryExpr>(irNodeType, astBinaryExpr->getType())
+    };
 
     irBinaryExpr->setBinaryExpr(
         transformNumericalExpr(astBinaryExpr->getLeftOperandExpr()), 
@@ -82,16 +89,25 @@ std::unique_ptr<IRBinaryExpr> ExpressionIntermediateRepresentation::transformRel
 }
 
 std::unique_ptr<IRIdExpr> ExpressionIntermediateRepresentation::transformIdExpr(const ASTIdExpr* astIdExpr) const {
-    return std::make_unique<IRIdExpr>(astIdExpr->getToken().value, astIdExpr->getType());
+    return std::make_unique<IRIdExpr>(
+        astIdExpr->getToken().value, 
+        astIdExpr->getType()
+    );
 }
 
 std::unique_ptr<IRLiteralExpr> ExpressionIntermediateRepresentation::transformLiteralExpr(const ASTLiteralExpr* astLiteralExpr) const {
-    return std::make_unique<IRLiteralExpr>(astLiteralExpr->getToken().value, astLiteralExpr->getType());
+    return std::make_unique<IRLiteralExpr>(
+        astLiteralExpr->getToken().value, 
+        astLiteralExpr->getType()
+    );
 }
 
 std::unique_ptr<IRFunctionCallExpr> ExpressionIntermediateRepresentation::transformFunctionCallExpr(const ASTFunctionCallExpr* astCallExpr){
-    std::unique_ptr<IRFunctionCallExpr> irCallExpr = 
-        std::make_unique<IRFunctionCallExpr>(astCallExpr->getToken().value, astCallExpr->getType());
+    std::unique_ptr<IRFunctionCallExpr> irCallExpr{ 
+        std::make_unique<IRFunctionCallExpr>(
+            astCallExpr->getToken().value, astCallExpr->getType()
+        )
+    };
     transformArguments(irCallExpr.get(), astCallExpr);
 
     return irCallExpr;
@@ -100,7 +116,10 @@ std::unique_ptr<IRFunctionCallExpr> ExpressionIntermediateRepresentation::transf
 void ExpressionIntermediateRepresentation::transformArguments(IRFunctionCallExpr* irCallExpr, const ASTFunctionCallExpr* astCallExpr){
     for(const auto& astArgument : astCallExpr->getArguments()){
         auto temps{ initiateTemporaries(astArgument.get()) };
-        irCallExpr->addArgument(transformNumericalExpr(astArgument.get()), std::move(temps));
+        irCallExpr->addArgument(
+            transformNumericalExpr(astArgument.get()), 
+            std::move(temps)
+        );
     }
 }
 
@@ -116,15 +135,16 @@ size_t ExpressionIntermediateRepresentation::countTemporaries(const ASTExpr* ast
         return 0;
     }
     else{
-        const ASTBinaryExpr* binExp = static_cast<const ASTBinaryExpr*>(astExpr); 
-        return countTemporaries(binExp->getLeftOperandExpr()) + countTemporaries(binExp->getRightOperandExpr());
+        const ASTBinaryExpr* binExp{ static_cast<const ASTBinaryExpr*>(astExpr) }; 
+        return countTemporaries(binExp->getLeftOperandExpr()) + 
+            countTemporaries(binExp->getRightOperandExpr());
     }
 }
 
 // generating temporary variables
 std::string ExpressionIntermediateRepresentation::generateTemporaries(){
-    auto& irContext = FunctionIntermediateRepresentation::getContext();
-    std::string name = std::format("_t{}", ++irContext.temporaries);
+    auto& irContext{ FunctionIntermediateRepresentation::getContext() };
+    std::string name{ std::format("_t{}", ++irContext.temporaries) };
     irContext.temporaryNames.push(name);
     return name;
 }
@@ -132,7 +152,7 @@ std::string ExpressionIntermediateRepresentation::generateTemporaries(){
 // assigning a returned value to temporary variables
 void ExpressionIntermediateRepresentation::assignTemporaries(IRTemporaryExpr* temporaryRoot, const ASTExpr* astExpr, size_t& idx){
     if(astExpr->getNodeType() == ASTNodeType::FUNCTION_CALL_EXPR){
-        const ASTFunctionCallExpr* funcCall = static_cast<const ASTFunctionCallExpr*>(astExpr);
+    const ASTFunctionCallExpr* funcCall{ static_cast<const ASTFunctionCallExpr*>(astExpr) };
 
         temporaryRoot->setTemporaryExprAtN(
             transformFunctionCallExpr(funcCall), 
@@ -147,7 +167,7 @@ void ExpressionIntermediateRepresentation::assignTemporaries(IRTemporaryExpr* te
         return;
     }
     else{
-        const ASTBinaryExpr* binExp = static_cast<const ASTBinaryExpr*>(astExpr);
+        const ASTBinaryExpr* binExp{ static_cast<const ASTBinaryExpr*>(astExpr) };
         assignTemporaries(temporaryRoot, binExp->getLeftOperandExpr(), idx);
         assignTemporaries(temporaryRoot, binExp->getRightOperandExpr(), idx);
     }
@@ -155,19 +175,19 @@ void ExpressionIntermediateRepresentation::assignTemporaries(IRTemporaryExpr* te
 
 // replacing function calls with temporary variables in numerical expression
 std::unique_ptr<IRIdExpr> ExpressionIntermediateRepresentation::replaceFunctionCallExpr(const ASTFunctionCallExpr* astCallExpr){
-    auto& irContext = FunctionIntermediateRepresentation::getContext(); 
+    auto& irContext{ FunctionIntermediateRepresentation::getContext() }; 
     assert(!irContext.temporaryNames.empty());
-    std::string name = irContext.temporaryNames.top();
+    std::string name{ irContext.temporaryNames.top() };
     irContext.temporaryNames.pop();
     return std::make_unique<IRIdExpr>(name, astCallExpr->getType());
 }
 
 std::unique_ptr<IRTemporaryExpr> ExpressionIntermediateRepresentation::initiateTemporaries(const ASTExpr* astExpr){
-    size_t tmpCount = countTemporaries(astExpr);
+    size_t tmpCount{ countTemporaries(astExpr) };
     if(tmpCount > 0){
         std::unique_ptr<IRTemporaryExpr> temporaryRoot = std::make_unique<IRTemporaryExpr>();
         size_t firstTemporaryIndex = 0;
-        for(size_t i = 0; i < tmpCount; ++i){
+        for(size_t i{0}; i < tmpCount; ++i){
             temporaryRoot->addTemporaryExpr(generateTemporaries());
         }
         assignTemporaries(temporaryRoot.get(), astExpr, firstTemporaryIndex);

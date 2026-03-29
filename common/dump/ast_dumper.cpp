@@ -109,10 +109,10 @@ void ASTDumper::visit(ASTIfStmt* ifStmt){
     dumpNode(ifStmt);
 
     IndentGuard ifGuard{indent};
-    const auto& conditions = ifStmt->getConditionExprs();
-    const auto& statements = ifStmt->getStmts();
+    const auto& conditions{ ifStmt->getConditionExprs() };
+    const auto& statements{ ifStmt->getStmts() };
 
-    for(size_t i = 0; i < conditions.size(); ++i){
+    for(size_t i{0}; i < conditions.size(); ++i){
         conditions[i]->accept(*this);
         statements[i]->accept(*this);
     }

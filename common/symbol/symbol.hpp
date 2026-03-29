@@ -48,27 +48,27 @@ public:
 
     /** 
      * @brief initializes symbol name
-     * @param _name - name of the symbol
+     * @param symName - name of the symbol
     */
-    void setName(std::string_view _name);
+    void setName(std::string_view symName);
 
     /** 
      * @brief initializes symbol kind
-     * @param _kind - kind of the symbol
+     * @param symKind - kind of the symbol
     */    
-    void setKind(Kind _kind) noexcept;
+    void setKind(Kind symKind) noexcept;
 
     /** 
      * @brief initializes symbol type
-     * @param _type - type of the symbol
+     * @param symType - type of the symbol
     */
-    void setType(Type _type) noexcept;
+    void setType(Type symType) noexcept;
 
     /** 
      * @brief initializes symbol parameters (if the symbol is a function)
-     * @param _parameters - pointer to a vector of pointers to the parameters of the symbol
+     * @param symParams - pointer to a vector of pointers to the parameters of the symbol
     */
-    void setParameters(const std::vector<std::unique_ptr<ASTParameter>>* _parameters) noexcept;
+    void setParameters(const std::vector<std::unique_ptr<ASTParameter>>* symParams) noexcept;
 
     /** 
      * @brief formats the fields of the symbol
