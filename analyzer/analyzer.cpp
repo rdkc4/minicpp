@@ -48,7 +48,7 @@ void Analyzer::visit(ASTProgram* program){
 
 void Analyzer::visit(ASTIncludeDir* includeDir){
     if(!std::filesystem::exists(Preprocessing::Libs::generateLibSourcePath(includeDir->getLibName()))){
-        const auto& token = includeDir->getToken();
+        const auto& token{ includeDir->getToken() };
         semanticErrors.at(globalError).push_back(
             std::format("Line {}, Column {}: SEMANTIC ERROR -> unknown library '{}'", 
                 token.line, token.column, includeDir->getLibName())
@@ -308,7 +308,7 @@ void Analyzer::visit(ASTIfStmt* ifStmt){
     const auto& conditions{ ifStmt->getConditionExprs() };
     const auto& stmts{ ifStmt->getStmts() };
 
-    const size_t size = conditions.size();
+    const size_t size{ conditions.size() };
     for(size_t i{0}; i < size; ++i){
         conditions[i]->accept(*this);
         stmts[i]->accept(*this);
@@ -539,8 +539,8 @@ void Analyzer::visit(ASTLiteralExpr* literalExpr){
 bool Analyzer::isInvalidLiteral(Type type, const std::string& value) const {
     if (value.empty()) [[unlikely]] return true;
 
-    const char last = value.back();
-    const char first = value.front();
+    const char last{ value.back() };
+    const char first{ value.front() };
 
     if (type == Type::UNSIGNED) {
         return last != 'u' || first == '-';

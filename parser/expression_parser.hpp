@@ -66,7 +66,7 @@ public:
      * @param root - pointer to the root of the (sub)expression 
      * @returns pointer to the transformed expression node
     */
-    std::unique_ptr<ASTExpr> rpnToTree(std::stack<std::unique_ptr<ASTExpr>>& rpn, std::unique_ptr<ASTExpr>& root) const;
+    std::unique_ptr<ASTExpr> rpnToTree(std::stack<std::unique_ptr<ASTExpr>>& rpn, std::unique_ptr<ASTExpr> root) const;
 
     /** 
      * @brief parses expression
@@ -124,7 +124,7 @@ public:
             {"/", 8}
         };
 
-        auto it = precedence.find(op);
+        auto it{ precedence.find(op) };
         return it != precedence.end() ? it->second : 0;
     }
 

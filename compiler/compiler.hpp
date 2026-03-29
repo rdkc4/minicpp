@@ -30,19 +30,19 @@ namespace Compiler {
     */
     struct CompileOptions {
         /// flag if compiler should dump ast structure
-        bool dumpAST = false;
+        bool dumpAST{false};
 
         /// flag if compiler should dump ir structure
-        bool dumpIR = false;
+        bool dumpIR{false};
 
         /// flag if .s file should be compiled into executable
-        bool stopAfterAssembly = false;
+        bool stopAfterAssembly{false};
 
         /// relative path to input file, .mcpp extension
         std::string input;
 
         /// relative path for the output (optional), no extension
-        std::string output = "output";
+        std::string output{"output"};
     };
 
     /**

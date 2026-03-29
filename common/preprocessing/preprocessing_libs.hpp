@@ -9,13 +9,13 @@
 */
 namespace Preprocessing::Libs {
     /// relative path to standard library
-    inline constexpr const char* relativeLibPath = "./libmcpp/";
+    inline constexpr const char* relativeLibPath{ "./libmcpp/" };
 
     /// extension of the object file
-    inline constexpr const char* objExt = ".o";
+    inline constexpr const char* objExt{ ".o" };
 
     /// extension of the source file
-    inline constexpr const char* mcppExt = ".mcpp";
+    inline constexpr const char* mcppExt{ ".mcpp" };
 
     /**
      * @brief generates the relative path to the source file

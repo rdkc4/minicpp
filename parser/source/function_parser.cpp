@@ -9,9 +9,13 @@ std::unique_ptr<ASTFunction> FunctionParser::parseFunction(){
             : Type::NO_TYPE 
     };
     tokenConsumer.consume(GeneralTokenType::TYPE);
-    const Token token{ tokenConsumer.getToken() };
+
+    const Token& token{ tokenConsumer.getToken() };
     tokenConsumer.consume(TokenType::_ID);
-    std::unique_ptr<ASTFunction> function = std::make_unique<ASTFunction>(token, type);
+    
+    std::unique_ptr<ASTFunction> function{ 
+        std::make_unique<ASTFunction>(token, type) 
+    };
 
     tokenConsumer.consume(TokenType::_LPAREN);
     parseParameters(function.get());
@@ -29,20 +33,25 @@ std::unique_ptr<ASTFunction> FunctionParser::parseFunction(){
 }
 
 void FunctionParser::parseParameters(ASTFunction* function){
-    while(tokenConsumer.getToken().gtype == GeneralTokenType::TYPE){
+    if(tokenConsumer.getToken().gtype != GeneralTokenType::TYPE){
+        return;
+    }
+
+    auto parseParameter = [&]() -> void {
         Type type{ tokenTypeToType.at(tokenConsumer.getToken().type) };
         tokenConsumer.consume(GeneralTokenType::TYPE);
-        const Token token{ tokenConsumer.getToken() };
-        tokenConsumer.consume(TokenType::_ID);
-        
-        function->addParameter(std::make_unique<ASTParameter>(token, type));
 
-        if(tokenConsumer.getToken().type == TokenType::_COMMA && tokenConsumer.peek().gtype == GeneralTokenType::TYPE){
-            tokenConsumer.consume(TokenType::_COMMA);
-        }
-        else{
-            break;
-        }
+        const auto& token{ tokenConsumer.getToken() };
+        tokenConsumer.consume(TokenType::_ID);
+
+        function->addParameter(std::make_unique<ASTParameter>(token, type));
+    };
+
+    parseParameter();
+    
+    while(tokenConsumer.getToken().type == TokenType::_COMMA){
+        tokenConsumer.consume(TokenType::_COMMA);
+        parseParameter();
     }
 }
 

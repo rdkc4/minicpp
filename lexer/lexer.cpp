@@ -11,7 +11,7 @@
 Lexer::Lexer(const std::vector<std::string>& input) : input{ input }, nextTokenIdx{ 1 } {}
 
 void Lexer::tokenize(){
-    const size_t fileCount = input.size();
+    const size_t fileCount{ input.size() };
 
     for(fileIndex = 0; fileIndex < fileCount; ++fileIndex){
         position = 0;
