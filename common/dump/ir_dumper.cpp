@@ -8,7 +8,9 @@
 IRDumper::IRDumper(std::ostream& out) : out{ out }, indent{ 0 } {}
 
 void IRDumper::visit(IRProgram* program){
-    dumpNode(program, std::format(" | libs: {}", program->getLinkedLibs()));
+    dumpNode(program);
+
+    dumpLibs(program);
 
     IndentGuard programGuard{indent};
     for(const auto& function : program->getFunctions()){
@@ -266,4 +268,14 @@ void IRDumper::dumpNode(const IRNode* node, std::string_view details){
 void IRDumper::dumpNode(std::string_view nodeLabel){
     dumpIndent();
     out << "|-> " << nodeLabel << "\n";
+}
+
+void IRDumper::dumpLibs(const IRProgram* program){
+    IndentGuard libsGuard{indent};
+    dumpNode("LIBS");
+
+    IndentGuard libGuard{indent};
+    for(const auto& lib : program->getLinkedLibs()){
+        dumpNode(lib);
+    }
 }

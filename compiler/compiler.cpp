@@ -1,11 +1,14 @@
 #include "compiler.hpp"
 
-#include <cstdlib>
+#include <cstring>
 #include <format>
 #include <cassert>
 #include <stdexcept>
 #include <filesystem>
 #include <fstream>
+#include <spawn.h>
+#include <sys/wait.h>
+#include <unistd.h>
 
 #include "../preprocessor/preprocessor.hpp"
 #include "../lexer/lexer.hpp"
@@ -16,6 +19,10 @@
 #include "../code-generator/code-generator/code_generator.hpp"
 #include "../common/dump/ast_dumper.hpp"
 #include "../common/dump/ir_dumper.hpp"
+
+extern "C" {
+    extern char **environ;
+}
 
 Compiler::CompileOptions Compiler::parseOptions(int argc, char** argv){
     Compiler::CompileOptions options;
@@ -161,20 +168,39 @@ Compiler::ExitCode Compiler::generateProgram(const IRProgram* irProgram, const s
 }
 
 Compiler::ExitCode Compiler::assembleAndLink(const IRProgram* irProgram, const std::string_view output){
-    std::string cmd{ 
-        std::format(
-            "clang {}.s{} -o {} -nostdlib", 
-            output, 
-            irProgram->getLinkedLibs(), 
-            output
-        ) 
-    };
+    std::string source{ std::format("{}.s", output) };
 
-    int result{ std::system(cmd.c_str()) };
-    if(result != 0){
-        std::cerr << "Error: compilation/linking failed\n";
+    std::vector<std::string> args{ 
+        { "clang", source, "-o", std::string{output}}
+    };
+    auto libs{ irProgram->getLinkedLibs() };
+    args.insert(args.end(), libs.begin(), libs.end());
+    args.push_back("-nostdlib");
+
+    std::vector<char*> argv;
+    argv.reserve(args.size() + 1);
+    for (auto& arg : args) {
+        argv.push_back(arg.data());
+    }
+    argv.push_back(nullptr);
+
+    pid_t pid;
+    if(posix_spawnp(&pid, "clang", nullptr, nullptr, argv.data(), environ) != 0){
+        std::cerr << "Error: Failed to spawn clang process\n";
         return Compiler::ExitCode::ASM_LINK_ERR;
     }
+
+    int status;
+    if (waitpid(pid, &status, 0) == -1) {
+        std::cerr << "Error: waitpid failed: " << strerror(errno) << "\n";
+        return Compiler::ExitCode::ASM_LINK_ERR;
+    }
+
+    if (WIFEXITED(status) && WEXITSTATUS(status) != 0) {
+        std::cerr << "Error: Clang returned non-zero exit code\n";
+        return Compiler::ExitCode::ASM_LINK_ERR;
+    }
+
     return Compiler::ExitCode::NO_ERR;
 }
 

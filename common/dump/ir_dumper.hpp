@@ -197,6 +197,12 @@ private:
     */ 
     void dumpNode(std::string_view nodeLabel);
 
+    /**
+     * @brief dumps all included libs
+     * @param program - const pointer to a program
+    */
+    void dumpLibs(const IRProgram* program);
+
 };
 
 #endif

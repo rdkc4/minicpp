@@ -61,9 +61,9 @@ public:
 
     /** 
      * @brief getter for the linked libraries
-     * @returns linked libraries separated by ' '
+     * @returns vector of linked libraries
     */
-    std::string getLinkedLibs() const noexcept;
+    std::vector<std::string> getLinkedLibs() const noexcept;
     
     /**
      * @brief accepts the ir visitor
