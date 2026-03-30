@@ -1,5 +1,4 @@
 #include <gtest/gtest.h>
-#include <cstdlib>
 #include <format>
 
 #include "../../compiler/compiler.hpp"
@@ -17,12 +16,9 @@ TEST(CodeGenTest, ReturnsNumExp){
     
     Compiler::compile({.input = input, .output = output});
 
-    std::string cmd = std::format("clang {}.s -o {} -nostdlib", output, output);
-    int assembleAndLink = system(cmd.c_str());
-    ASSERT_EQ(assembleAndLink, 0) << std::format("{} failed\n", cmd);
-
-    std::string runCmd = std::format("./{}", output);
-    int run_status = system(runCmd.c_str());
+    int run_status = __test__runCommand({
+        std::format("./{}", output)
+    });
     ASSERT_TRUE(WIFEXITED(run_status)) << "Process didn't exit normally.\n";
 
     int exitCode = WEXITSTATUS(run_status);
@@ -44,12 +40,9 @@ TEST(CodeGenTest, ReturnsFuncCall){
     
     Compiler::compile({.input = input, .output = output});
 
-    std::string cmd = std::format("clang {}.s -o {} -nostdlib", output, output);
-    int assembleAndLink = system(cmd.c_str());
-    ASSERT_EQ(assembleAndLink, 0) << std::format("{} failed\n", cmd);
-
-    std::string runCmd = std::format("./{}", output);
-    int run_status = system(runCmd.c_str());
+    int run_status = __test__runCommand({
+        std::format("./{}", output)
+    });
     ASSERT_TRUE(WIFEXITED(run_status)) << "Process didn't exit normally.\n";
 
     int exitCode = WEXITSTATUS(run_status);
@@ -71,12 +64,9 @@ TEST(CodeGenTest, ReturnsRecursiveFuncCall){
 
     Compiler::compile({.input = input, .output = output});
 
-    std::string cmd = std::format("clang {}.s -o {} -nostdlib", output, output);
-    int assembleAndLink = system(cmd.c_str());
-    ASSERT_EQ(assembleAndLink, 0) << std::format("{} failed\n", cmd);
-
-    std::string runCmd = std::format("./{}", output);
-    int run_status = system(runCmd.c_str());
+    int run_status = __test__runCommand({
+        std::format("./{}", output)
+    });
     ASSERT_TRUE(WIFEXITED(run_status)) << "Process didn't exit normally.\n";
 
     int exitCode = WEXITSTATUS(run_status);
@@ -98,12 +88,9 @@ TEST(CodeGenTest, SwitchStatementCase){
 
     Compiler::compile({.input = input, .output = output});
 
-    std::string cmd = std::format("clang {}.s -o {} -nostdlib", output, output);
-    int assembleAndLink = system(cmd.c_str());
-    ASSERT_EQ(assembleAndLink, 0) << std::format("{} failed\n", cmd);
-
-    std::string runCmd = std::format("./{}", output);
-    int run_status = system(runCmd.c_str());
+    int run_status = __test__runCommand({
+        std::format("./{}", output)
+    });
     ASSERT_TRUE(WIFEXITED(run_status)) << "Process didn't exit normally.\n";
 
     int exitCode = WEXITSTATUS(run_status);
@@ -125,12 +112,9 @@ TEST(CodeGenTest, SwitchStatementDefault){
 
     Compiler::compile({.input = input, .output = output});
 
-    std::string cmd = std::format("clang {}.s -o {} -nostdlib", output, output);
-    int assembleAndLink = system(cmd.c_str());
-    ASSERT_EQ(assembleAndLink, 0) << std::format("{} failed\n", cmd);
-
-    std::string runCmd = std::format("./{}", output);
-    int run_status = system(runCmd.c_str());
+    int run_status = __test__runCommand({
+        std::format("./{}", output)
+    });
     ASSERT_TRUE(WIFEXITED(run_status)) << "Process didn't exit normally.\n";
 
     int exitCode = WEXITSTATUS(run_status);
@@ -152,12 +136,9 @@ TEST(CodeGenTest, WhileStatement){
 
     Compiler::compile({.input = input, .output = output});
 
-    std::string cmd = std::format("clang {}.s -o {} -nostdlib", output, output);
-    int assembleAndLink = system(cmd.c_str());
-    ASSERT_EQ(assembleAndLink, 0) << std::format("{} failed\n", cmd);
-
-    std::string runCmd = std::format("./{}", output);
-    int run_status = system(runCmd.c_str());
+    int run_status = __test__runCommand({
+        std::format("./{}", output)
+    });
     ASSERT_TRUE(WIFEXITED(run_status)) << "Process didn't exit normally.\n";
 
     int exitCode = WEXITSTATUS(run_status);
@@ -179,12 +160,9 @@ TEST(CodeGenTest, DoWhileStatement){
 
     Compiler::compile({.input = input, .output = output});
 
-    std::string cmd = std::format("clang {}.s -o {} -nostdlib", output, output);
-    int assembleAndLink = system(cmd.c_str());
-    ASSERT_EQ(assembleAndLink, 0) << std::format("{} failed\n", cmd);
-
-    std::string runCmd = std::format("./{}", output);
-    int run_status = system(runCmd.c_str());
+    int run_status = __test__runCommand({
+        std::format("./{}", output)
+    });
     ASSERT_TRUE(WIFEXITED(run_status)) << "Process didn't exit normally.\n";
 
     int exitCode = WEXITSTATUS(run_status);
@@ -206,12 +184,9 @@ TEST(CodeGenTest, ForStatement){
 
     Compiler::compile({.input = input, .output = output});
 
-    std::string cmd = std::format("clang {}.s -o {} -nostdlib", output, output);
-    int assembleAndLink = system(cmd.c_str());
-    ASSERT_EQ(assembleAndLink, 0) << std::format("{} failed\n", cmd);
-
-    std::string runCmd = std::format("./{}", output);
-    int run_status = system(runCmd.c_str());
+    int run_status = __test__runCommand({
+        std::format("./{}", output)
+    });
     ASSERT_TRUE(WIFEXITED(run_status)) << "Process didn't exit normally.\n";
 
     int exitCode = WEXITSTATUS(run_status);

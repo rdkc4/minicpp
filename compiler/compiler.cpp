@@ -21,7 +21,7 @@
 #include "../common/dump/ir_dumper.hpp"
 
 extern "C" {
-    extern char **environ;
+    extern char** environ;
 }
 
 Compiler::CompileOptions Compiler::parseOptions(int argc, char** argv){
