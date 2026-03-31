@@ -35,7 +35,7 @@ void StatementCodeGenerator::generateStmt(const IRStmt* stmt){
         case IRNodeType::SWITCH:
             generateSwitchStmt(static_cast<const IRSwitchStmt*>(stmt));
             break;
-        case IRNodeType::CALL:
+        case IRNodeType::CALL_STMT:
             generateFunctionCallStmt(static_cast<const IRFunctionCallStmt*>(stmt));
             return;
         default:

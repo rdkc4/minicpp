@@ -2,6 +2,7 @@
 
 #include <format>
 #include <sstream>
+#include <cctype>
 
 Lexer::Lexer(const std::vector<std::string>& input) 
     : input{ input }, nextTokenIdx{ 1 } {}
@@ -34,7 +35,7 @@ bool Lexer::completedTokenization() const noexcept {
     return tokens.size() > 0 && tokens.back().type == TokenType::_EOF;
 }
 
-bool Lexer::hasErrors() const noexcept{
+bool Lexer::hasErrors() const noexcept {
     return !lexicalErrors.empty();
 }
 
@@ -51,27 +52,11 @@ std::string Lexer::getErrors() const noexcept {
     return errors.str();
 }
 
-void Lexer::next() noexcept {
-    ++nextTokenIdx;
-}
-
-const Token& Lexer::peek() const noexcept {
-    return nextTokenIdx >= tokens.size()
-        ? tokens.back()
-        : tokens[nextTokenIdx];
-}
-
-const Token& Lexer::current() const noexcept {
-    return nextTokenIdx >= tokens.size()
-        ? tokens.back()
-        : tokens[nextTokenIdx - 1];
-}
-
 void Lexer::addToken(std::string_view val, size_t lineNumber, size_t col, TokenType type, GeneralTokenType gtype){
     tokens.emplace_back(Token{ val, lineNumber, col, type, gtype });
 }
 
-void Lexer::handleError(std::string_view msg, size_t lineNumber, size_t col) {
+void Lexer::handleError(std::string_view msg, size_t lineNumber, size_t col){
     lexicalErrors.push_back(
         std::format(
             "Line {}, Column {}: {}\n", 
@@ -81,7 +66,7 @@ void Lexer::handleError(std::string_view msg, size_t lineNumber, size_t col) {
 }
 
 bool Lexer::handleNewline(char c) noexcept {
-    if (isNewLine(c)) {
+    if(isNewLine(c)){
         advanceLine();
         return true;
     }
@@ -89,7 +74,7 @@ bool Lexer::handleNewline(char c) noexcept {
 }
 
 bool Lexer::handleWhitespace(char c) noexcept {
-    if (std::isspace(static_cast<unsigned char>(c))) {
+    if(std::isspace(static_cast<unsigned char>(c))){
         advance();
         return true;
     }
@@ -97,39 +82,45 @@ bool Lexer::handleWhitespace(char c) noexcept {
 }
 
 bool Lexer::handleIdentifier(char c){
-    if (!std::isalpha(static_cast<unsigned char>(c))) return false;
+    if (!isAlpha(c)){
+        return false;
+    }
 
     size_t start{ position };
     size_t col{ column() };
-    while (isValidIndex() && isIdentifierSequence(getChar(position))) {
+    while(isValidIndex() && isIdentifierSequence(getChar(position))){
         advance();
     }
 
-    std::string value{ getSequence(start, position - start) };
+    std::string_view value{ getSequence(start, position - start) };
 
-    if (isKeyword(value)) {
-        auto type{ keywords.at(value) };
-        GeneralTokenType gtype {
-            types.contains(type) 
-                ? GeneralTokenType::TYPE 
-                : GeneralTokenType::OTHER
-        };
-
+    if(isKeyword(value)){
+        handleKeyword(value, line, col);
+    } 
+    else {
         tokens.emplace_back(Token{
-            value, line, col, type, gtype
-        });
-
-    } else {
-        tokens.emplace_back(Token{
-            value, line, col, TokenType::_ID, GeneralTokenType::VALUE
+            value, line, col, TokenType::ID, GeneralTokenType::VALUE
         });
     }
 
     return true;
 }
 
-bool Lexer::handleNumber(char c) {
-    bool sign{ isSignedLiteral() };
+void Lexer::handleKeyword(std::string_view keyword, size_t lineNumber, size_t col){
+    auto type{ keywords.at(keyword) };
+    GeneralTokenType gtype {
+        types.find(type) != types.end() 
+            ? GeneralTokenType::TYPE 
+            : GeneralTokenType::OTHER
+    };
+
+    tokens.emplace_back(Token{
+        keyword, lineNumber, col, type, gtype
+    });
+}
+
+bool Lexer::handleNumber(char c){
+    bool sign{ isSignedNumber() };
     if(!isDigit(c) && !sign){
         return false;
     }
@@ -141,11 +132,11 @@ bool Lexer::handleNumber(char c) {
         advance();
     }
 
-    if(isValidIndex() && getChar(position) == 'u') {
+    if(isValidIndex() && getChar(position) == 'u'){
         advance();
     }
 
-    if(sign && getChar(start - 1) == '-') {
+    if(sign && getChar(start - 1) == '-'){
         --start;
     }
 
@@ -153,7 +144,7 @@ bool Lexer::handleNumber(char c) {
         getSequence(start, position - start),
         line,
         col,
-        TokenType::_LITERAL,
+        TokenType::LITERAL,
         GeneralTokenType::VALUE
     );
 
@@ -161,130 +152,145 @@ bool Lexer::handleNumber(char c) {
 }
 
 bool Lexer::handleComment(){
-    if (isSingleLineComment()){
-        advance(2);
-        while (isValidIndex() && !isNewLine(getChar(position))){
-            advance();
-        }
+    if(isSingleLineComment()){
+        handleSingleLineComment();
         return true;
     }
 
     if(isMultiLineCommentStart()){
-        size_t startLine{ line };
-        size_t startCol{ column() };
-
-        advance(2);
-        while(isValidIndex(1)) {
-            if (isMultiLineCommentEnd()) {
-                advance(2);
-                return true;
-            }
-
-            if (isNewLine(getChar(position))){ 
-                advanceLine();
-            }
-            else {
-                advance();
-            }
-        }
-
-        handleError(
-            std::format(
-                "SYNTAX ERROR -> multi-line comment not closed (started at line {}, column {})",
-                startLine, startCol
-            ),
-            line,
-            column()
-        );
+        handleMultiLineComment();
         return true;
     }
 
     return false;
 }
 
+void Lexer::handleSingleLineComment() noexcept {
+    advance(2);
+    while (isValidIndex() && !isNewLine(getChar(position))){
+        advance();
+    }
+}
+
+void Lexer::handleMultiLineComment(){
+    size_t startLine{ line };
+    size_t startCol{ column() };
+
+    advance(2);
+    while(isValidIndex(1)){
+        if(isMultiLineCommentEnd()){
+            advance(2);
+            return;
+        }
+
+        if(!handleNewline(getChar(position))){
+            advance();
+        }
+    }
+
+    handleError(
+        std::format(
+            "SYNTAX ERROR -> multi-line comment not closed (started at line {}, column {})",
+            startLine, startCol
+        ),
+        line,
+        column()
+    );
+}
+
 bool Lexer::handleOperator(){
-    size_t start{ position };
-    size_t col{ column() };
+    size_t opLen{};
 
-    size_t relopLen{ isRelOperator() };
-    if(relopLen > 0){
-        advance(relopLen);
-
-        addToken(
-            getSequence(start, position - start),
-            line, 
-            col, 
-            TokenType::_RELOP
-        );
+    if(opLen = isRelationalOperator(); opLen > 0){
+        handleRelationalOperator(opLen);
         return true;
     }
 
     if(isAssignOperator()){
-        addToken(
-            getSequence(start, 1), 
-            line, 
-            col, 
-            TokenType::_ASSIGN
-        );
-        advance();
+        handleAssignOperator();
         return true;
     }
 
-    size_t bitopLen{ isBitwiseOperator() };
-    if(bitopLen > 0){
-        advance(bitopLen);
-
-        addToken(getSequence(start, position - start),
-            line,
-            col,
-            TokenType::_BITWISE,
-            GeneralTokenType::OPERATOR
-        );
+    if(opLen = isBitwiseOperator(); opLen > 0){
+        handleBitwiseOperator(opLen);
         return true;
     }
 
-    if (isAritOperator()) {
-        addToken(
-            getSequence(start, 1), 
-            line, 
-            col, 
-            TokenType::_AROP,
-            GeneralTokenType::OPERATOR
-        );
-        advance();
-
+    if (isArithmeticOperator()) {
+        handleArithmeticOperator();
         return true;
     }
 
     return false;
+}
+
+void Lexer::handleRelationalOperator(size_t opLen){
+    addToken(
+        getSequence(position, opLen),
+        line, 
+        column(), 
+        TokenType::RELATIONAL
+    );
+    advance(opLen);
+}
+
+void Lexer::handleAssignOperator(){
+    addToken(
+        getSequence(position, 1), 
+        line, 
+        column(), 
+        TokenType::ASSIGN
+    );
+    advance();
+}
+
+void Lexer::handleBitwiseOperator(size_t opLen){
+    addToken(getSequence(position, opLen),
+        line,
+        column(),
+        TokenType::BITWISE,
+        GeneralTokenType::OPERATOR
+    );
+    advance(opLen);
+}
+
+void Lexer::handleArithmeticOperator(){
+    addToken(
+        getSequence(position, 1), 
+        line, 
+        column(), 
+        TokenType::ARITHMETIC,
+        GeneralTokenType::OPERATOR
+    );
+    advance();
 }
 
 bool Lexer::handleDelimiter(char c){
     size_t col{ column() };
     switch(c){
         case '(': 
-            addToken(getSequence(position, 1), line, col, TokenType::_LPAREN); 
+            addToken(getSequence(position, 1), line, col, TokenType::LPAREN); 
             break;
         case ')': 
-            addToken(getSequence(position, 1), line, col, TokenType::_RPAREN); 
+            addToken(getSequence(position, 1), line, col, TokenType::RPAREN); 
             break;
         case '{': 
-            addToken(getSequence(position, 1), line, col, TokenType::_LBRACKET); 
+            addToken(getSequence(position, 1), line, col, TokenType::LBRACKET); 
             break;
         case '}': 
-            addToken(getSequence(position, 1), line, col, TokenType::_RBRACKET); 
+            addToken(getSequence(position, 1), line, col, TokenType::RBRACKET); 
             break;
         case ',': 
-            addToken(getSequence(position, 1), line, col, TokenType::_COMMA); 
+            addToken(getSequence(position, 1), line, col, TokenType::COMMA); 
             break;
         case ';': 
-            addToken(getSequence(position, 1), line, col, TokenType::_SEMICOLON); 
+            addToken(getSequence(position, 1), line, col, TokenType::SEMICOLON); 
             break;
         case ':': 
-            addToken(getSequence(position, 1), line, col, TokenType::_COLON); 
+            addToken(getSequence(position, 1), line, col, TokenType::COLON); 
             break;
         case '#': 
-            addToken(getSequence(position, 1), line, col, TokenType::_HASH); 
+            addToken(getSequence(position, 1), line, col, TokenType::HASH); 
             break;
         default: 
             return false;
@@ -303,6 +309,6 @@ void Lexer::handleInvalid(){
         line, 
         col
     );
-    addToken(getSequence(position, 1), line, col, TokenType::_INVALID);
+    addToken(getSequence(position, 1), line, col, TokenType::INVALID);
     advance();
 }

@@ -5,13 +5,6 @@
 
 TokenConsumer::TokenConsumer(Lexer& lexer) : lexer{ lexer } {} 
 
-void TokenConsumer::next() noexcept {
-    lexer.next();
-}
-const Token& TokenConsumer::peek() const noexcept {
-    return lexer.peek();
-}
-
 void TokenConsumer::consume(TokenType expectedType) {
     const auto& token{ getToken() };
     if(token.type != expectedType){

@@ -11,18 +11,18 @@ std::unique_ptr<ASTFunction> FunctionParser::parseFunction(){
     tokenConsumer.consume(GeneralTokenType::TYPE);
 
     const Token& token{ tokenConsumer.getToken() };
-    tokenConsumer.consume(TokenType::_ID);
+    tokenConsumer.consume(TokenType::ID);
     
     std::unique_ptr<ASTFunction> function{ 
         std::make_unique<ASTFunction>(token, type) 
     };
 
-    tokenConsumer.consume(TokenType::_LPAREN);
+    tokenConsumer.consume(TokenType::LPAREN);
     parseParameters(function.get());
-    tokenConsumer.consume(TokenType::_RPAREN);
+    tokenConsumer.consume(TokenType::RPAREN);
 
-    if(tokenConsumer.getToken().type == TokenType::_SEMICOLON){
-        tokenConsumer.consume(TokenType::_SEMICOLON);
+    if(tokenConsumer.getToken().type == TokenType::SEMICOLON){
+        tokenConsumer.consume(TokenType::SEMICOLON);
         function->setPredefined(true);
         return function;
     }
@@ -42,23 +42,23 @@ void FunctionParser::parseParameters(ASTFunction* function){
         tokenConsumer.consume(GeneralTokenType::TYPE);
 
         const auto& token{ tokenConsumer.getToken() };
-        tokenConsumer.consume(TokenType::_ID);
+        tokenConsumer.consume(TokenType::ID);
 
         function->addParameter(std::make_unique<ASTParameter>(token, type));
     };
 
     parseParameter();
     
-    while(tokenConsumer.getToken().type == TokenType::_COMMA){
-        tokenConsumer.consume(TokenType::_COMMA);
+    while(tokenConsumer.getToken().type == TokenType::COMMA){
+        tokenConsumer.consume(TokenType::COMMA);
         parseParameter();
     }
 }
 
 void FunctionParser::parseBody(ASTFunction* function){
-    tokenConsumer.consume(TokenType::_LBRACKET);
-    while(tokenConsumer.getToken().type != TokenType::_RBRACKET){
+    tokenConsumer.consume(TokenType::LBRACKET);
+    while(tokenConsumer.getToken().type != TokenType::RBRACKET){
         function->addStatement(stmtParser.parseStmt());
     }
-    tokenConsumer.consume(TokenType::_RBRACKET);
+    tokenConsumer.consume(TokenType::RBRACKET);
 }

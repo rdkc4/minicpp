@@ -6,10 +6,10 @@
 DirectiveParser::DirectiveParser(TokenConsumer& tokenConsumer) : tokenConsumer{ tokenConsumer } {}
 
 std::unique_ptr<ASTDir> DirectiveParser::parseDir() {
-    tokenConsumer.consume(TokenType::_HASH);
+    tokenConsumer.consume(TokenType::HASH);
     const auto& token{ tokenConsumer.getToken() };
 
-    if(token.type == TokenType::_INCLUDE){
+    if(token.type == TokenType::INCLUDE){
         return parseIncludeDir();
     }
 
@@ -26,11 +26,11 @@ std::unique_ptr<ASTIncludeDir> DirectiveParser::parseIncludeDir() {
         std::make_unique<ASTIncludeDir>(Token{ tokenConsumer.getToken() }) 
     };
 
-    tokenConsumer.consume(TokenType::_INCLUDE);
-    tokenConsumer.consume(TokenType::_COLON);
+    tokenConsumer.consume(TokenType::INCLUDE);
+    tokenConsumer.consume(TokenType::COLON);
 
     const std::string libName{ tokenConsumer.getToken().value };
-    tokenConsumer.consume(TokenType::_ID);
+    tokenConsumer.consume(TokenType::ID);
 
     includeDir->setLibName(libName);
 

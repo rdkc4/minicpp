@@ -13,30 +13,55 @@
  * @enum IRNodeType
  * @brief types of the irt nodes
 */
-enum class IRNodeType{
-    PROGRAM, 
-    FUNCTION, 
-    PARAMETER, 
-    VARIABLE, 
-    ARGUMENT, 
-    ID, 
-    LITERAL, 
-    IF, 
+enum class IRNodeType {
+    /// program structure
+    PROGRAM,         //< root of ir
+    FUNCTION,        //< function definition
+    PARAMETER,       //< function parameter
+
+    /// statements
+    VARIABLE,        //< variable declaration
+
+    /// control flow statements
+    IF,
     WHILE, 
-    FOR, 
     DO_WHILE, 
+    FOR, 
+    COMPOUND, 
+    ASSIGN, 
+    RETURN, 
+    CALL_STMT, 
     SWITCH, 
     CASE, 
     SWITCH_BLOCK,
     DEFAULT, 
     BREAK, 
-    ASSIGN, 
-    COMPOUND, 
-    CALL, 
-    RETURN, 
-    TEMPORARY, 
-    ADD, SUB, DIV, MUL, CMP, AND, OR, XOR, SHL, SAL, SHR, SAR,
-    JG, JA, JL, JB, JGE, JAE, JLE, JBE, JE, JNE, NONE
+
+    /// values
+    TEMPORARY,       //< compiler-generated temporaries
+    CALL,            //< function call returning value
+    ARGUMENT,        //< function call argument
+    ID,              //< identifier reference
+    LITERAL,         //< constant value
+
+    /// arithmetic operations
+    ADD, SUB, DIV, MUL, 
+    
+    /// bitwise operations
+    AND, OR, XOR, SHL, SAL, SHR, SAR,
+    
+    /// comparison
+    CMP, 
+
+    /// conditional jumps
+    JG, JA,          //< greater (signed / unsigned)
+    JL, JB,          //< less (signed, unsigned)
+    JGE, JAE,        //< greater or equal (signed, unsigned)
+    JLE, JBE,        //< less or equal (signed, unsigned)
+    JE, JNE,         //< equal / not equal
+    
+    /// special 
+    NONE 
 };
 
 /** 
@@ -46,9 +71,15 @@ enum class IRNodeType{
 struct Operation {
     /// irt node type specified for int 
     IRNodeType _int;
+
     /// irt node type specified for unsigned
     IRNodeType _unsigned;
 
+    /**
+     * @brief creates the instance of the operation
+     * @param i - operation for signed integers
+     * @param uns - operation for unsigned integers
+    */
     Operation(IRNodeType i, IRNodeType uns) : _int{ i }, _unsigned{ uns }{}
 
     /** 

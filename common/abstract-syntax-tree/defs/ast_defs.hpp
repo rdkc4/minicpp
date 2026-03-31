@@ -8,18 +8,25 @@
  * @enum ASTNodeType
  * @brief types of the ast nodes
 */
-enum class ASTNodeType{
-    PROGRAM, 
-    FUNCTION, 
-    PARAMETER, 
-    DIR, 
-    INCLUDE_DIR,
-    STMT, 
-    VARIABLE_DECL_STMT, 
-    COMPOUND_STMT, 
-    SWITCH_BLOCK_STMT, 
-    ASSIGN_STMT, 
-    RETURN_STMT, 
+enum class ASTNodeType {
+    /// program structure
+    PROGRAM,                //< root node of the ast 
+    FUNCTION,               //< function definition
+    PARAMETER,              //< function parameter
+
+    /// preprocessor / directives
+    DIR,                    //< generic directive
+    INCLUDE_DIR,            //< #include directive
+    
+    /// statements
+    STMT,                   //< generic statement
+    VARIABLE_DECL_STMT,     //< variable declaration
+    COMPOUND_STMT,          //< block { ... }
+    ASSIGN_STMT,            //< assignment statement
+    RETURN_STMT,            //< return statement
+    FUNCTION_CALL_STMT,     //< function call as statement
+
+    /// control flow statements
     IF_STMT, 
     WHILE_STMT, 
     FOR_STMT, 
@@ -27,13 +34,15 @@ enum class ASTNodeType{
     SWITCH_STMT,
     CASE_STMT, 
     DEFAULT_STMT,
+    SWITCH_BLOCK_STMT, 
     BREAK_STMT, 
-    FUNCTION_CALL_STMT,
-    EXPR, 
-    BINARY_EXPR, 
-    FUNCTION_CALL_EXPR,
-    LITERAL_EXPR, 
-    ID_EXPR
+
+    /// expressions
+    EXPR,                   //< generic expression
+    BINARY_EXPR,            //< binary expression
+    FUNCTION_CALL_EXPR,     //< function call returning a value
+    LITERAL_EXPR,           //< literal value
+    ID_EXPR                 //< identifier reference
 };
 
 /// maps ast node type to a string

@@ -2,7 +2,7 @@
 
 #include "../defs/ir_defs.hpp"
 
-IRFunctionCallStmt::IRFunctionCallStmt() : IRStmt{ IRNodeType::CALL } {}
+IRFunctionCallStmt::IRFunctionCallStmt() : IRStmt{ IRNodeType::CALL_STMT } {}
 
 void IRFunctionCallStmt::setFunctionCallStmt(std::unique_ptr<IRFunctionCallExpr> callExpr){
     functionCallExpr = std::move(callExpr);

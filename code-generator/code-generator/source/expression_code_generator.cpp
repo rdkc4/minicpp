@@ -42,7 +42,8 @@ void ExpressionCodeGenerator::generateNumericalExpr(const IRExpr* numericalExpr)
             );
         }
         codeGenContext.takeGpReg();
-    }else if (numericalExpr->getNodeType() == IRNodeType::CALL){
+    }
+    else if (numericalExpr->getNodeType() == IRNodeType::CALL){
         generateFunctionCallExpr(static_cast<const IRFunctionCallExpr*>(numericalExpr));
         if(codeGenContext.gpFreeRegPos < gpRegisters.size()){
             AsmGenerator::Instruction::genMov(

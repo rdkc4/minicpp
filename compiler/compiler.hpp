@@ -22,7 +22,18 @@ namespace Compiler {
      * @enum ExitCode
      * @brief exit codes of the compiler
     */
-    enum class ExitCode { NO_ERR, PREPROCESS_ERR, LEXICAL_ERR, SYNTAX_ERR, SEMANTIC_ERR, IR_ERR, CODEGEN_ERR, ASM_LINK_ERR };
+    enum class ExitCode { 
+        NO_ERR,             //< successful compilation
+
+        PREPROCESS_ERR,     //< error during preprocessing stage
+        LEXICAL_ERR,        //< error during lexical analysis (tokenization)
+        SYNTAX_ERR,         //< error during syntax analysis (parsing)
+        SEMANTIC_ERR,       //< error during semantic analysis
+
+        IR_ERR,             //< error during intermediate representation generation 
+        CODEGEN_ERR,        //< error during code generation
+        ASM_LINK_ERR        //< error during assembly or linking stage
+    };
 
     /**
      * @struct CompileOptions

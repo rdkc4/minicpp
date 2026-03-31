@@ -1,15 +1,20 @@
 #include "defs.hpp"
 
 const std::unordered_map<std::string, Operator> stringToOperator {
+    /// arithmetic
     {"+", Operator::ADD},
     {"-", Operator::SUB},
     {"*", Operator::MUL},
     {"/", Operator::DIV},
+
+    /// bitwise
     {"&", Operator::ANDB},
     {"|", Operator::ORB},
     {"^", Operator::XOR},
     {"<<", Operator::LSHIFT},
     {">>", Operator::RSHIFT},
+
+    /// comparison
     {"<", Operator::LESS},
     {">", Operator::GREATER},
     {"<=", Operator::LEQUAL},
@@ -27,10 +32,10 @@ const std::unordered_map<Type, std::string> typeToString {
 };
 
 const std::unordered_map<TokenType, Type> tokenTypeToType {
-    {TokenType::_INT, Type::INT},
-    {TokenType::_UNSIGNED, Type::UNSIGNED},
-    {TokenType::_VOID, Type::VOID},
-    {TokenType::_AUTO, Type::AUTO}
+    {TokenType::INT, Type::INT},
+    {TokenType::UNSIGNED, Type::UNSIGNED},
+    {TokenType::VOID, Type::VOID},
+    {TokenType::AUTO, Type::AUTO}
 };
 
 const std::unordered_map<Kind, std::string> kindToString {
@@ -42,15 +47,20 @@ const std::unordered_map<Kind, std::string> kindToString {
 };
 
 const std::unordered_map<Operator, std::string> operatorToString {
+    /// arithmetic
     {Operator::ADD, "+"},
     {Operator::SUB, "-"},
     {Operator::MUL, "*"},
     {Operator::DIV, "/"},
+
+    /// bitwise
     {Operator::ANDB, "&"},
     {Operator::ORB, "|"},
     {Operator::XOR, "^"},
     {Operator::LSHIFT, "<<"},
     {Operator::RSHIFT, ">>"},
+
+    /// comparison
     {Operator::LESS, "<"},
     {Operator::GREATER, ">"},
     {Operator::LEQUAL, "<="},

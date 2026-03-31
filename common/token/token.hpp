@@ -9,7 +9,7 @@
  * @struct Token
  * @brief description of a token
 */
-struct Token{
+struct Token {
     /// literal value of the token
     std::string value;
 

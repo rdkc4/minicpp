@@ -4,7 +4,6 @@
 #include <string>
 #include <vector>
 #include <string_view>
-#include <cctype>
 
 #include "../common/token/token.hpp"
 #include "defs/lexer_defs.hpp"
@@ -29,19 +28,25 @@ public:
     /**
      * @brief increases nextTokenIdx
     */
-    void next() noexcept;
+    inline void next() noexcept {
+        ++nextTokenIdx;
+    }
 
     /**
      * @brief gets the token that is next in line for parsing
      * @returns const reference of the next token
     */
-    const Token& peek() const noexcept;
+    inline const Token& peek() const noexcept {
+        return nextTokenIdx >= tokens.size() ? tokens.back() : tokens[nextTokenIdx];
+    }
 
     /**
      * @brief gets the token that should be parsed at the moment
      * @returns const reference of the current token
     */
-    const Token& current() const noexcept;
+    inline const Token& current() const noexcept {
+        return nextTokenIdx >= tokens.size() ? tokens.back() : tokens[nextTokenIdx - 1];
+    }
 
     /** 
      * @brief asserts that the tokenization has been completed
@@ -186,6 +191,14 @@ private:
     bool handleIdentifier(char c);
 
     /**
+     * @brief handles keywords
+     * @param keyword - identifier of the keyword
+     * @param lineNumber - line where keyword appears
+     * @param col - column where keyword starts
+    */
+    void handleKeyword(std::string_view keyword, size_t lineNumber, size_t col);
+
+    /**
      * @brief handles numbers, updates position
      * @param c - current character
      * @returns true if sequence is a number, false otherwise
@@ -199,10 +212,42 @@ private:
     bool handleComment();
 
     /**
+     * @brief handles single line comment
+    */
+    void handleSingleLineComment() noexcept;
+
+    /**
+     * @brief handles multi line comment
+    */
+    void handleMultiLineComment();
+
+    /**
      * @brief handles operators, updates position
      * @returns true if sequence is an operator, false otherwise
     */
     bool handleOperator();
+
+    /**
+     * @brief handles relational operator
+     * @param opLen - length of the operator
+    */
+    void handleRelationalOperator(size_t opLen);
+
+    /**
+     * @brief handles assign operator
+    */
+    void handleAssignOperator();
+
+    /**
+     * @brief handles bitwise operator
+     * @param opLen - length of the operator
+    */
+    void handleBitwiseOperator(size_t opLen);
+
+    /**
+     * @brief handles arithmetic operator
+    */
+    void handleArithmeticOperator();
 
     /**
      * @brief handles delimiters, updates position
@@ -221,15 +266,20 @@ private:
      * @param value - const string representing id or keyword
      * @returns true if sequence matches keyword, false otherwise
     */
-    inline bool isKeyword(const std::string& value) const noexcept {
+    inline bool isKeyword(std::string_view value) const noexcept {
         return keywords.find(value) != keywords.end();
     }
 
+    /**
+     * @brief checks if type can precede signed literal
+     * @param type - type of the token
+     * @returns true if type can precede signed literal, false otherwise
+    */
     inline bool canPrecedeSignedLiteral(TokenType type) const noexcept {
         switch(type){
-            case TokenType::_LITERAL:
-            case TokenType::_ID:
-            case TokenType::_RPAREN:
+            case TokenType::LITERAL:
+            case TokenType::ID:
+            case TokenType::RPAREN:
                 return false;
             
             default:
@@ -241,7 +291,7 @@ private:
      * @brief checks if the current sequence of characters is a signed literal
      * @returns true if sequence matches signed literal, false otherwise
     */
-    inline bool isSignedLiteral() const noexcept {
+    inline bool isSignedNumber() const noexcept {
         char c{ getChar(position) };
 
         if(c != '+' && c != '-') return false;
@@ -264,7 +314,7 @@ private:
      * @details arithmetic operators: +, -, *, /
      * @returns true if sequence matches arithmetic operator, false otherwise
     */
-    inline bool isAritOperator() const noexcept {
+    inline bool isArithmeticOperator() const noexcept {
         switch(getChar(position)){
             case '+':
             case '-':
@@ -314,7 +364,7 @@ private:
      * @details relational operators: <, >, <=, >=, ==, !=
      * @returns length of the relational operator, 0 when it is not the relational operator
     */
-    inline size_t isRelOperator() const noexcept {
+    inline size_t isRelationalOperator() const noexcept {
         char c1{ getChar(position) };
         char c2{ isValidIndex(1) ? getChar(position + 1) : '\0'};
         
@@ -355,8 +405,17 @@ private:
      * @param c - current character
      * @returns true if character is a part of id sequence, false otherwise
     */
-    inline bool isIdentifierSequence(char c) const noexcept {
-        return std::isalnum(static_cast<unsigned char>(c)) || c == '_';
+    inline constexpr bool isIdentifierSequence(char c) const noexcept {
+        return isAlpha(c) || isDigit(c) || c == '_';
+    }
+
+    /**
+     * @brief checks if character is a letter [a-z][A-Z]
+     * @param c - current character
+     * @returns true if character is a letter, false otherwise
+    */
+    inline constexpr bool isAlpha(char c) const noexcept {
+        return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
     }
 
     /**
@@ -364,8 +423,8 @@ private:
      * @param c - current character
      * @returns true if character is a digit, false otherwise
     */
-    inline bool isDigit(char c) const noexcept {
-        return std::isdigit(static_cast<unsigned char>(c));
+    inline constexpr bool isDigit(char c) const noexcept {
+        return c >= '0' && c <= '9';
     }
 
     /**

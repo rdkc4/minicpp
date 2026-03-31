@@ -5,11 +5,7 @@
 
 /**
  * @class TokenConsumer
- * @brief Lexer wrapper
- * 
- * shared across parsers
- *
- * non-owning
+ * @brief Lexer wrapper, shared across parsers, non-owning
 */
 class TokenConsumer {
 public:
@@ -23,13 +19,17 @@ public:
     /** 
      * @brief moving on to the next token
     */
-    void next() noexcept;
+    inline void next() noexcept {
+        lexer.next();
+    }
 
     /** 
      * @brief peeking at the next token
      * @returns const reference to the next token
     */
-    const Token& peek() const noexcept;
+    inline const Token& peek() const noexcept {
+        return lexer.peek();
+    }
 
     /** 
      * @brief compares current token's type to expected

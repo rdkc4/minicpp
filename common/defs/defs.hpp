@@ -10,19 +10,54 @@
  * @enum Type
  * @brief types supported by the compiler
 */
-enum class Type{NO_TYPE, INT, UNSIGNED, VOID, AUTO};
+enum class Type {
+    NO_TYPE,   //< absence of a type / invalid state
+    INT,       //< signed integer
+    UNSIGNED,  //< unsigned integer
+    VOID,      //< no value / function return type
+    AUTO       //< type deduced automatically
+};
 
 /** 
  * @enum Kind
  * @brief kinds of symbols
 */
-enum class Kind{NO_KIND, LIT, FUN, VAR, PAR};
+enum class Kind {
+    NO_KIND,   //< undefined kind, invalid state
+    LIT,       //< literal constant
+    FUN,       //< function
+    VAR,       //< variable
+    PAR        //< function parameter
+};
 
 /** 
  * @enum Operator
  * @brief operators supported by the compiler
 */
-enum class Operator{NO_OP, ADD, SUB, MUL, DIV, ANDB, ORB, XOR, LSHIFT, RSHIFT, GREATER, LESS, LEQUAL, GEQUAL, EQUAL, NEQUAL};
+enum class Operator {
+    NO_OP,     //< no operator / invalid state
+
+    /// arithmetic
+    ADD,       //< +
+    SUB,       //< -
+    MUL,       //< *
+    DIV,       //< /
+
+    /// bitwise
+    ANDB,      //< &
+    ORB,       //< |
+    XOR,       //< ^
+    LSHIFT,    //< <<
+    RSHIFT,    //< >>
+
+    /// relational
+    LESS,      //< <
+    GREATER,   //< >
+    LEQUAL,    //< <=
+    GEQUAL,    //< >=
+    EQUAL,     //< ==
+    NEQUAL     //< !=
+};
 
 /// maps string to an operator
 extern const std::unordered_map<std::string, Operator> stringToOperator;

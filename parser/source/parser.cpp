@@ -17,7 +17,7 @@ std::unique_ptr<ASTProgram> Parser::parseProgram(){
         if(token.gtype == GeneralTokenType::TYPE){
             program->addFunction(funcParser.parseFunction());
         }
-        else if(token.type == TokenType::_HASH){
+        else if(token.type == TokenType::HASH){
             program->addDir(dirParser.parseDir());
         }
         else {

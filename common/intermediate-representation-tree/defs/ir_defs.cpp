@@ -1,10 +1,13 @@
 #include "ir_defs.hpp"
 
 const std::unordered_set<IRNodeType> irOperator {
+    /// arithmetic
     IRNodeType::ADD, 
     IRNodeType::SUB, 
     IRNodeType::DIV, 
     IRNodeType::MUL, 
+
+    /// bitwise
     IRNodeType::AND, 
     IRNodeType::OR, 
     IRNodeType::XOR, 
@@ -15,13 +18,16 @@ const std::unordered_set<IRNodeType> irOperator {
 };
 
 const std::unordered_map<IRNodeType, std::string> irNodeToString {
+    /// program structure
     {IRNodeType::PROGRAM, "PROGRAM"}, 
     {IRNodeType::FUNCTION, "FUNCTION"},
     {IRNodeType::PARAMETER, "PARAMETER"},
+
+    /// statements
     {IRNodeType::VARIABLE, "VARIABLE"},
-    {IRNodeType::ARGUMENT, "ARGUMENT"},
-    {IRNodeType::ID, "ID"},
-    {IRNodeType::LITERAL, "LITERAL"},
+    {IRNodeType::ASSIGN, "ASSIGN"},
+
+    /// control flow statements
     {IRNodeType::IF, "IF"},
     {IRNodeType::WHILE, "WHILE"},
     {IRNodeType::FOR, "FOR"},
@@ -31,16 +37,24 @@ const std::unordered_map<IRNodeType, std::string> irNodeToString {
     {IRNodeType::DEFAULT, "DEFAULT"},
     {IRNodeType::SWITCH_BLOCK, "SW_BLOCK"},
     {IRNodeType::BREAK, "BREAK"},
-    {IRNodeType::ASSIGN, "ASSIGN"},
     {IRNodeType::COMPOUND, "COMPOUND"},
-    {IRNodeType::CALL, "CALL"},
+    {IRNodeType::CALL_STMT, "CALL_STMT"},
     {IRNodeType::RETURN, "RETURN"},
-    {IRNodeType::ASSIGN, "ASSIGN"},
+
+    /// values
+    {IRNodeType::ID, "ID"},
+    {IRNodeType::LITERAL, "LITERAL"},
+    {IRNodeType::CALL, "CALL"},
+    {IRNodeType::ARGUMENT, "ARGUMENT"},
+    {IRNodeType::TEMPORARY, "TMP"},
+
+    /// arithmetic operators
     {IRNodeType::ADD, "add"},
     {IRNodeType::SUB, "sub"},
     {IRNodeType::MUL, "mul"},
     {IRNodeType::DIV, "div"},
-    {IRNodeType::CMP, "cmp"},
+
+    /// bitwise operators
     {IRNodeType::AND, "and"},
     {IRNodeType::OR, "or"},
     {IRNodeType::XOR, "xor"},
@@ -48,6 +62,11 @@ const std::unordered_map<IRNodeType, std::string> irNodeToString {
     {IRNodeType::SAL, "sal"},
     {IRNodeType::SHR, "shr"},
     {IRNodeType::SAR, "sar"},
+    
+    /// comparison
+    {IRNodeType::CMP, "cmp"},
+
+    /// jumps
     {IRNodeType::JG, "jg"},
     {IRNodeType::JA, "ja"},
     {IRNodeType::JL, "jl"},
@@ -57,8 +76,7 @@ const std::unordered_map<IRNodeType, std::string> irNodeToString {
     {IRNodeType::JLE, "jle"},
     {IRNodeType::JBE, "jbe"},
     {IRNodeType::JE, "je"},
-    {IRNodeType::JNE, "jne"},
-    {IRNodeType::TEMPORARY, "TMP"}
+    {IRNodeType::JNE, "jne"}
 };
 
 const std::unordered_map<std::string, IRNodeType> stringToArop {
