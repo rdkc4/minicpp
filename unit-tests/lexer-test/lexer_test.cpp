@@ -75,12 +75,12 @@ TEST(LexerTest, ThrowsOnInvalidTokens){
     std::vector<std::string> input{"int x. = 123;"};
     LexerTest lexer{ input };
     lexer.tokenize();
-    ASSERT_TRUE(lexer.hasLexicalErrors());
+    ASSERT_TRUE(lexer.hasErrors());
 }
 
 TEST(LexerTest, ThrowsOnInvalidMultiLineComment){
     std::vector<std::string> input{"/* int x = 3;"};
     LexerTest lexer{ input };
     lexer.tokenize();
-    ASSERT_TRUE(lexer.hasLexicalErrors());
+    ASSERT_TRUE(lexer.hasErrors());
 }

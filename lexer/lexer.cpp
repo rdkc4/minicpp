@@ -1,157 +1,44 @@
 #include "lexer.hpp"
 
-#include <cctype>
 #include <format>
 #include <sstream>
-#include <string_view>
 
-#include "../common/defs/defs.hpp"
-#include "defs/lexer_defs.hpp"
-
-Lexer::Lexer(const std::vector<std::string>& input) : input{ input }, nextTokenIdx{ 1 } {}
+Lexer::Lexer(const std::vector<std::string>& input) 
+    : input{ input }, nextTokenIdx{ 1 } {}
 
 void Lexer::tokenize(){
     const size_t fileCount{ input.size() };
 
-    for(fileIndex = 0; fileIndex < fileCount; ++fileIndex){
-        position = 0;
-        lineNumber = 1;
-        prevLineLen = 0;
-        fileLength = input[fileIndex].length();
+    for (fileIndex = 0; fileIndex < fileCount; ++fileIndex) {
+        resetState();
 
-        while(position < fileLength){
-            if(input[fileIndex][position] == '\n'){
-                updateLine();
-            }
-            else if(std::isspace(input[fileIndex][position])){
-                updatePosition();
-            }
-            else if(std::isalpha(input[fileIndex][position])){
-                pushID();
-            }
-            else if(std::isdigit(input[fileIndex][position])){
-                pushLiteral();
-            }
-            else if(isSignedLiteral()){
-                pushLiteral(true);
-            }
-            else if(input[fileIndex][position] == '/' && position < fileLength - 1 && input[fileIndex][position + 1] == '/'){
-                singleLineComment();
-            }
-            else if(input[fileIndex][position] == '/' && position < fileLength - 1 && input[fileIndex][position + 1] == '*'){
-                multiLineComment();
-            }
-            else if(isBitwiseOperator()){
-                pushBitwiseOperator();
-            }
-            else if(isAritOperator()){
-                pushAritOperator();
-            }
-            else if(isAssignOperator()){
-                pushAssignOperator();
-            }
-            else if(isRelOperator()){
-                pushRelOperator();
-            }
-            else if(input[fileIndex][position] == '('){
-                tokens.push_back(Token{
-                    std::string_view{&input[fileIndex][position],1},
-                    lineNumber, 
-                    position + 1 - prevLineLen, 
-                    TokenType::_LPAREN
-                });
-                updatePosition();
-            }
-            else if(input[fileIndex][position] == ')'){
-                tokens.push_back(Token{
-                    std::string_view{&input[fileIndex][position],1}, 
-                    lineNumber, 
-                    position + 1 - prevLineLen, 
-                    TokenType::_RPAREN
-                });
-                updatePosition();
-            }
-            else if(input[fileIndex][position] == '{'){
-                tokens.push_back(Token{
-                    std::string_view{&input[fileIndex][position], 1}, 
-                    lineNumber, 
-                    position + 1 - prevLineLen, 
-                    TokenType::_LBRACKET
-                });
-                updatePosition();
-            }
-            else if(input[fileIndex][position] == '}'){
-                tokens.push_back(Token{
-                    std::string_view{&input[fileIndex][position],1}, 
-                    lineNumber, 
-                    position + 1 - prevLineLen, 
-                    TokenType::_RBRACKET
-                });
-                updatePosition();
-            }
-            else if(input[fileIndex][position] == ','){
-                tokens.push_back(Token{
-                    std::string_view{&input[fileIndex][position],1}, 
-                    lineNumber, 
-                    position + 1 - prevLineLen, 
-                    TokenType::_COMMA
-                });
-                updatePosition();
-            }
-            else if(input[fileIndex][position] == ';'){
-                tokens.push_back(Token{
-                    std::string_view{&input[fileIndex][position],1}, 
-                    lineNumber, 
-                    position + 1 - prevLineLen, 
-                    TokenType::_SEMICOLON
-                });
-                updatePosition();
-            }
-            else if(input[fileIndex][position] == ':'){
-                tokens.push_back(Token{
-                    std::string_view{&input[fileIndex][position], 1}, 
-                    lineNumber, 
-                    position + 1 - prevLineLen, 
-                    TokenType::_COLON
-                });
-                updatePosition();
-            }
-            else if(input[fileIndex][position] == '#'){
-                tokens.push_back(Token{ 
-                    std::string_view{&input[fileIndex][position], 1}, 
-                    lineNumber, 
-                    position + 1 - prevLineLen, 
-                    TokenType::_HASH
-                });
-                updatePosition();
-            }
-            else{
-                tokens.push_back(Token{
-                    std::string_view{&input[fileIndex][position], 1}, 
-                    lineNumber, 
-                    position + 1 - prevLineLen, 
-                    TokenType::_INVALID
-                });
-                lexicalErrors.push_back(
-                    std::format("Line {}, Column {}: LEXICAL ERROR -> unknown symbol '{}'\n", 
-                        lineNumber, position - prevLineLen, std::string_view{&input[fileIndex][position], 1})
-                );
-                updatePosition();
-            }
+        while (position < fileLength) {
+            char c{ getChar(position) };
+
+            if(handleNewline(c)) continue;
+            if(handleWhitespace(c)) continue;
+            if(handleIdentifier(c)) continue;
+            if(handleNumber(c)) continue;
+            if(handleComment()) continue;
+            if(handleOperator()) continue;
+            if(handleDelimiter(c)) continue;
+
+            handleInvalid();
         }
     }
-    tokens.push_back(Token{"", lineNumber, position - prevLineLen, TokenType::_EOF});
+
+    addToken("", line, column(), TokenType::_EOF);
 }
 
 bool Lexer::completedTokenization() const noexcept {
     return tokens.size() > 0 && tokens.back().type == TokenType::_EOF;
 }
 
-bool Lexer::hasLexicalErrors() const noexcept{
+bool Lexer::hasErrors() const noexcept{
     return !lexicalErrors.empty();
 }
 
-std::string Lexer::getLexicalErrors() const noexcept {
+std::string Lexer::getErrors() const noexcept {
     if(lexicalErrors.empty()){
         return "";
     }
@@ -169,209 +56,253 @@ void Lexer::next() noexcept {
 }
 
 const Token& Lexer::peek() const noexcept {
-    if(nextTokenIdx >= tokens.size()){
-        return tokens.back();
-    }
-    return tokens[nextTokenIdx];
+    return nextTokenIdx >= tokens.size()
+        ? tokens.back()
+        : tokens[nextTokenIdx];
 }
 
 const Token& Lexer::current() const noexcept {
-    if(nextTokenIdx >= tokens.size()){
-        return tokens.back();
+    return nextTokenIdx >= tokens.size()
+        ? tokens.back()
+        : tokens[nextTokenIdx - 1];
+}
+
+void Lexer::addToken(std::string_view val, size_t lineNumber, size_t col, TokenType type, GeneralTokenType gtype){
+    tokens.emplace_back(Token{ val, lineNumber, col, type, gtype });
+}
+
+void Lexer::handleError(std::string_view msg, size_t lineNumber, size_t col) {
+    lexicalErrors.push_back(
+        std::format(
+            "Line {}, Column {}: {}\n", 
+            lineNumber, col, msg
+        )
+    );
+}
+
+bool Lexer::handleNewline(char c) noexcept {
+    if (isNewLine(c)) {
+        advanceLine();
+        return true;
     }
-    return tokens[nextTokenIdx - 1];
+    return false;
 }
 
-void Lexer::updatePosition() noexcept {
-    ++position;
-}
-
-void Lexer::updatePosition(size_t n) noexcept {
-    position += n;
-}
-
-void Lexer::updateLine() noexcept {
-    updatePosition();
-    ++lineNumber;
-    prevLineLen = position;
-}
-
-/// ID ([A-Za-z][A-Za-z0-9_]*)
-void Lexer::pushID(){
-    const size_t start{ position };
-    while(position < fileLength && (std::isalnum(input[fileIndex][position]) || input[fileIndex][position] == '_')){
-        updatePosition(); 
+bool Lexer::handleWhitespace(char c) noexcept {
+    if (std::isspace(static_cast<unsigned char>(c))) {
+        advance();
+        return true;
     }
-    std::string id{ input[fileIndex].substr(start, position - start) };
+    return false;
+}
 
-    if(isKeyword(id)){
-        GeneralTokenType gtype{ 
-            types.find(keywords.at(id)) != types.end() 
+bool Lexer::handleIdentifier(char c){
+    if (!std::isalpha(static_cast<unsigned char>(c))) return false;
+
+    size_t start{ position };
+    size_t col{ column() };
+    while (isValidIndex() && isIdentifierSequence(getChar(position))) {
+        advance();
+    }
+
+    std::string value{ getSequence(start, position - start) };
+
+    if (isKeyword(value)) {
+        auto type{ keywords.at(value) };
+        GeneralTokenType gtype {
+            types.contains(type) 
                 ? GeneralTokenType::TYPE 
-                : GeneralTokenType::OTHER 
+                : GeneralTokenType::OTHER
         };
-        tokens.push_back(Token{
-            id, 
-            lineNumber, 
-            position - prevLineLen, 
-            keywords.at(id), 
-            gtype
+
+        tokens.emplace_back(Token{
+            value, line, col, type, gtype
+        });
+
+    } else {
+        tokens.emplace_back(Token{
+            value, line, col, TokenType::_ID, GeneralTokenType::VALUE
         });
     }
-    else{
-        tokens.push_back(Token{ 
-            id, 
-            lineNumber, 
-            position - prevLineLen, 
-            TokenType::_ID, 
-            GeneralTokenType::VALUE
-        });
-    }
+
+    return true;
 }
 
-/// literal ([+-]?[0-9][0-9]*[u]?)
-void Lexer::pushLiteral(bool sign){
-    size_t start{ sign ? ++position : position };
-    while(position < fileLength && std::isdigit(input[fileIndex][position])){
-        updatePosition();
+bool Lexer::handleNumber(char c) {
+    bool sign{ isSignedLiteral() };
+    if(!isDigit(c) && !sign){
+        return false;
     }
-    if(position < fileLength && input[fileIndex][position] == 'u'){
-        updatePosition();
+
+    size_t col{ column() };
+    size_t start{ sign ? position++ : position };
+
+    while(isValidIndex() && isDigit(getChar(position))){
+        advance();
     }
-    if(sign && input[fileIndex][start-1] == '-'){
+
+    if(isValidIndex() && getChar(position) == 'u') {
+        advance();
+    }
+
+    if(sign && getChar(start - 1) == '-') {
         --start;
     }
-    tokens.push_back(Token{
-        std::string_view{&input[fileIndex][start], position - start}, 
-        lineNumber, 
-        position - prevLineLen, 
-        TokenType::_LITERAL, 
+
+    addToken(
+        getSequence(start, position - start),
+        line,
+        col,
+        TokenType::_LITERAL,
         GeneralTokenType::VALUE
-    });
-}
-
-/// assign [=]
-void Lexer::pushAssignOperator(){
-    tokens.push_back(Token{
-        std::string_view{&input[fileIndex][position], 1}, 
-        lineNumber, 
-        position + 1 - prevLineLen, 
-        TokenType::_ASSIGN
-    });
-    updatePosition();
-}
-
-/// bitwise operators (&, |, ^, <<, >>)
-void Lexer::pushBitwiseOperator(){
-    const size_t start{ position };
-    if(input[fileIndex][position] == '<' || input[fileIndex][position] == '>'){
-        updatePosition();
-    }
-    updatePosition();
-    tokens.push_back(Token{
-        std::string_view{&input[fileIndex][start], position - start}, 
-        lineNumber, 
-        position - prevLineLen, 
-        TokenType::_BITWISE, 
-        GeneralTokenType::OPERATOR
-    });
-}
-
-/// arithmetic operators (+, -, *, /)
-void Lexer::pushAritOperator(){
-    tokens.push_back(Token{
-        std::string_view{&input[fileIndex][position], 1}, 
-        lineNumber, 
-        position + 1 - prevLineLen, 
-        TokenType::_AROP, 
-        GeneralTokenType::OPERATOR
-    });
-    updatePosition();
-}
-
-/// relational operators (<, >, <=, >=, ==, !=)
-void Lexer::pushRelOperator(){
-    const size_t start{ position };
-    if(position < fileLength - 1 && 
-        relationalOperators.find(std::string{&input[fileIndex][position], 2}) != relationalOperators.end()
-    ){
-        updatePosition(2);
-    }
-    else{
-        updatePosition();
-    }
-    // general token type is OTHER, not yet included in numerical expressions 
-    tokens.push_back(Token{
-        std::string_view{&input[fileIndex][start], position - start}, 
-        lineNumber, 
-        position - prevLineLen, 
-        TokenType::_RELOP
-    });
-}
-
-bool Lexer::isKeyword(const std::string& value) const noexcept {
-    return keywords.find(value) != keywords.end();
-}
-
-bool Lexer::isSignedLiteral() const noexcept {
-    return (
-        (input[fileIndex][position] == '-' || input[fileIndex][position] == '+') && 
-        position < fileLength - 1 && std::isdigit(input[fileIndex][position + 1]) &&
-        (!tokens.empty() && tokens.back().type != TokenType::_LITERAL &&
-            tokens.back().type != TokenType::_ID && tokens.back().type != TokenType::_RPAREN
-        )
     );
+
+    return true;
 }
 
-bool Lexer::isAssignOperator() const noexcept {
-    return input[fileIndex][position] == '=' && (position + 1 >= fileLength || input[fileIndex][position + 1] != '=');
-}
-
-bool Lexer::isAritOperator() const {
-    return arithmeticOperators.find(std::string{&input[fileIndex][position], 1}) != arithmeticOperators.end();
-}
-
-bool Lexer::isBitwiseOperator() const {
-    return (bitwiseOperators.find(std::string{&input[fileIndex][position], 1}) != bitwiseOperators.end() || 
-        (position + 1 < fileLength && 
-            bitwiseOperators.find(std::string{&input[fileIndex][position], 2}) != bitwiseOperators.end()
-        )
-    );
-}
-
-bool Lexer::isRelOperator() const {
-    return (relationalOperators.find(std::string{&input[fileIndex][position], 1}) != relationalOperators.end() || 
-        (position + 1 < fileLength && 
-            relationalOperators.find(std::string{&input[fileIndex][position], 2}) != relationalOperators.end()
-        )
-    );
-}
-
-void Lexer::singleLineComment(){
-    updatePosition(2);
-    while(position < fileLength && input[fileIndex][position] != '\n'){
-        updatePosition();
-    }
-}
-
-void Lexer::multiLineComment(){
-    const size_t startLine{ lineNumber };
-    const size_t startColumn{ position - prevLineLen };
-
-    updatePosition(2);
-    while(position < fileLength - 1){
-        if(input[fileIndex][position] == '*' && input[fileIndex][position + 1] == '/'){
-            updatePosition(2);
-            return;
+bool Lexer::handleComment(){
+    if (isSingleLineComment()){
+        advance(2);
+        while (isValidIndex() && !isNewLine(getChar(position))){
+            advance();
         }
-        if(input[fileIndex][position] == '\n'){
-            updateLine();
-        }
-        updatePosition();
+        return true;
     }
-    lexicalErrors.push_back(
-        std::format("Line {}, Column {}: SYNTAX ERROR -> multi-line comment starting at line {}, column {}: not closed\n",
-            lineNumber, position - prevLineLen, startLine, startColumn
-        )
+
+    if(isMultiLineCommentStart()){
+        size_t startLine{ line };
+        size_t startCol{ column() };
+
+        advance(2);
+        while(isValidIndex(1)) {
+            if (isMultiLineCommentEnd()) {
+                advance(2);
+                return true;
+            }
+
+            if (isNewLine(getChar(position))){ 
+                advanceLine();
+            }
+            else {
+                advance();
+            }
+        }
+
+        handleError(
+            std::format(
+                "SYNTAX ERROR -> multi-line comment not closed (started at line {}, column {})",
+                startLine, startCol
+            ),
+            line,
+            column()
+        );
+        return true;
+    }
+
+    return false;
+}
+
+bool Lexer::handleOperator(){
+    size_t start{ position };
+    size_t col{ column() };
+
+    size_t relopLen{ isRelOperator() };
+    if(relopLen > 0){
+        advance(relopLen);
+
+        addToken(
+            getSequence(start, position - start),
+            line, 
+            col, 
+            TokenType::_RELOP
+        );
+        return true;
+    }
+
+    if(isAssignOperator()){
+        addToken(
+            getSequence(start, 1), 
+            line, 
+            col, 
+            TokenType::_ASSIGN
+        );
+        advance();
+        return true;
+    }
+
+    size_t bitopLen{ isBitwiseOperator() };
+    if(bitopLen > 0){
+        advance(bitopLen);
+
+        addToken(getSequence(start, position - start),
+            line,
+            col,
+            TokenType::_BITWISE,
+            GeneralTokenType::OPERATOR
+        );
+        return true;
+    }
+
+    if (isAritOperator()) {
+        addToken(
+            getSequence(start, 1), 
+            line, 
+            col, 
+            TokenType::_AROP,
+            GeneralTokenType::OPERATOR
+        );
+        advance();
+
+        return true;
+    }
+
+    return false;
+}
+
+bool Lexer::handleDelimiter(char c){
+    size_t col{ column() };
+    switch(c){
+        case '(': 
+            addToken(getSequence(position, 1), line, col, TokenType::_LPAREN); 
+            break;
+        case ')': 
+            addToken(getSequence(position, 1), line, col, TokenType::_RPAREN); 
+            break;
+        case '{': 
+            addToken(getSequence(position, 1), line, col, TokenType::_LBRACKET); 
+            break;
+        case '}': 
+            addToken(getSequence(position, 1), line, col, TokenType::_RBRACKET); 
+            break;
+        case ',': 
+            addToken(getSequence(position, 1), line, col, TokenType::_COMMA); 
+            break;
+        case ';': 
+            addToken(getSequence(position, 1), line, col, TokenType::_SEMICOLON); 
+            break;
+        case ':': 
+            addToken(getSequence(position, 1), line, col, TokenType::_COLON); 
+            break;
+        case '#': 
+            addToken(getSequence(position, 1), line, col, TokenType::_HASH); 
+            break;
+        default: 
+            return false;
+    }
+
+    advance();
+    return true;
+}
+
+void Lexer::handleInvalid(){
+    size_t col{ column() };
+    handleError(
+        std::format("LEXICAL ERROR -> unknown symbol '{}'", 
+            getChar(position)
+        ), 
+        line, 
+        col
     );
+    addToken(getSequence(position, 1), line, col, TokenType::_INVALID);
+    advance();
 }

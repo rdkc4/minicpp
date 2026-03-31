@@ -100,8 +100,8 @@ const Compiler::PreprocessResult Compiler::preprocess(const std::string& source)
 Compiler::ExitCode Compiler::lexicalAnalysis(Lexer& lexer){
     lexer.tokenize();
     
-    if(lexer.hasLexicalErrors()){
-        std::cerr << lexer.getLexicalErrors();
+    if(lexer.hasErrors()){
+        std::cerr << lexer.getErrors();
         return Compiler::ExitCode::LEXICAL_ERR;
     }
 

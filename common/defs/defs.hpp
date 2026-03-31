@@ -3,7 +3,6 @@
 
 #include <string>
 #include <unordered_map>
-#include <unordered_set>
 
 #include "../token/defs/token_defs.hpp"
 
@@ -24,15 +23,6 @@ enum class Kind{NO_KIND, LIT, FUN, VAR, PAR};
  * @brief operators supported by the compiler
 */
 enum class Operator{NO_OP, ADD, SUB, MUL, DIV, ANDB, ORB, XOR, LSHIFT, RSHIFT, GREATER, LESS, LEQUAL, GEQUAL, EQUAL, NEQUAL};
-
-/// set of relational operators as strings
-extern const std::unordered_set<std::string> relationalOperators;
-
-/// set of arithmetic operators as strings
-extern const std::unordered_set<std::string> arithmeticOperators;
-
-/// set of bitwise operators as strings
-extern const std::unordered_set<std::string> bitwiseOperators;
 
 /// maps string to an operator
 extern const std::unordered_map<std::string, Operator> stringToOperator;

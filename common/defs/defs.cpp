@@ -1,11 +1,5 @@
 #include "defs.hpp"
 
-const std::unordered_set<std::string> relationalOperators {"<", ">", "<=", ">=", "==", "!=" };
-
-const std::unordered_set<std::string> arithmeticOperators {"+", "-", "*", "/"};
-
-const std::unordered_set<std::string> bitwiseOperators {"&", "|", "^", "<<", ">>"};
-
 const std::unordered_map<std::string, Operator> stringToOperator {
     {"+", Operator::ADD},
     {"-", Operator::SUB},
