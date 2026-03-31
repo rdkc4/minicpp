@@ -1,8 +1,10 @@
 #include "lexer.hpp"
+#include "defs/lexer_defs.hpp"
 
 #include <format>
 #include <sstream>
 #include <cctype>
+#include <cassert>
 
 Lexer::Lexer(const std::vector<std::string>& input) 
     : input{ input }, nextTokenIdx{ 1 } {}
@@ -14,15 +16,14 @@ void Lexer::tokenize(){
         resetState();
 
         while (position < fileLength) {
-            char c{ getChar(position) };
 
-            if(handleNewline(c)) continue;
-            if(handleWhitespace(c)) continue;
-            if(handleIdentifier(c)) continue;
-            if(handleNumber(c)) continue;
+            if(handleNewline()) continue;
+            if(handleWhitespace()) continue;
+            if(handleIdentifier()) continue;
+            if(handleNumber()) continue;
             if(handleComment()) continue;
             if(handleOperator()) continue;
-            if(handleDelimiter(c)) continue;
+            if(handlePunctuation()) continue;
 
             handleInvalid();
         }
@@ -65,15 +66,18 @@ void Lexer::handleError(std::string_view msg, size_t lineNumber, size_t col){
     );
 }
 
-bool Lexer::handleNewline(char c) noexcept {
-    if(isNewLine(c)){
+bool Lexer::handleNewline() noexcept {
+    if(isNewLine(getRelativeChar())){
         advanceLine();
         return true;
     }
     return false;
 }
 
-bool Lexer::handleWhitespace(char c) noexcept {
+bool Lexer::handleWhitespace() noexcept {
+    char c{ getRelativeChar() };
+    assert(c != '\n');
+
     if(std::isspace(static_cast<unsigned char>(c))){
         advance();
         return true;
@@ -81,23 +85,20 @@ bool Lexer::handleWhitespace(char c) noexcept {
     return false;
 }
 
-bool Lexer::handleIdentifier(char c){
-    if (!isAlpha(c)){
+bool Lexer::handleIdentifier(){
+    if (!isAlpha(getRelativeChar())){
         return false;
     }
 
     size_t start{ position };
     size_t col{ column() };
-    while(isValidIndex() && isIdentifierSequence(getChar(position))){
+    while(isValidIndex() && isIdentifierSequence(getRelativeChar())){
         advance();
     }
 
-    std::string_view value{ getSequence(start, position - start) };
+    std::string_view value{ getSequence(start, sequenceLength(start)) };
 
-    if(isKeyword(value)){
-        handleKeyword(value, line, col);
-    } 
-    else {
+    if(!handleKeyword(value, line, col)){
         tokens.emplace_back(Token{
             value, line, col, TokenType::ID, GeneralTokenType::VALUE
         });
@@ -106,7 +107,11 @@ bool Lexer::handleIdentifier(char c){
     return true;
 }
 
-void Lexer::handleKeyword(std::string_view keyword, size_t lineNumber, size_t col){
+bool Lexer::handleKeyword(std::string_view keyword, size_t lineNumber, size_t col){
+    if(!isKeyword(keyword)){
+        return false;
+    }
+
     auto type{ keywords.at(keyword) };
     GeneralTokenType gtype {
         types.find(type) != types.end() 
@@ -117,31 +122,37 @@ void Lexer::handleKeyword(std::string_view keyword, size_t lineNumber, size_t co
     tokens.emplace_back(Token{
         keyword, lineNumber, col, type, gtype
     });
+
+    return true;
 }
 
-bool Lexer::handleNumber(char c){
+bool Lexer::handleNumber(){
     bool sign{ isSignedNumber() };
-    if(!isDigit(c) && !sign){
+    if(!isDigit(getRelativeChar()) && !sign){
         return false;
     }
 
     size_t col{ column() };
-    size_t start{ sign ? position++ : position };
+    size_t start{ position };
 
-    while(isValidIndex() && isDigit(getChar(position))){
+    if(sign){
         advance();
     }
 
-    if(isValidIndex() && getChar(position) == 'u'){
+    while(isValidIndex() && isDigit(getRelativeChar())){
         advance();
     }
 
-    if(sign && getChar(start - 1) == '-'){
-        --start;
+    if(isValidIndex() && getRelativeChar() == 'u'){
+        advance();
+    }
+
+    if(sign && getChar(start) == '+'){
+        ++start;
     }
 
     addToken(
-        getSequence(start, position - start),
+        getSequence(start, sequenceLength(start)),
         line,
         col,
         TokenType::LITERAL,
@@ -152,27 +163,35 @@ bool Lexer::handleNumber(char c){
 }
 
 bool Lexer::handleComment(){
-    if(isSingleLineComment()){
-        handleSingleLineComment();
+    if(handleSingleLineComment()){
         return true;
     }
 
-    if(isMultiLineCommentStart()){
-        handleMultiLineComment();
+    if(handleMultiLineComment()){
         return true;
     }
 
     return false;
 }
 
-void Lexer::handleSingleLineComment() noexcept {
+bool Lexer::handleSingleLineComment() noexcept {
+    if(!isSingleLineComment()){
+        return false;
+    }
+
     advance(2);
-    while (isValidIndex() && !isNewLine(getChar(position))){
+    while (isValidIndex() && !isNewLine(getRelativeChar())){
         advance();
     }
+
+    return true;
 }
 
-void Lexer::handleMultiLineComment(){
+bool Lexer::handleMultiLineComment(){
+    if(!isMultiLineCommentStart()){
+        return false;
+    }
+
     size_t startLine{ line };
     size_t startCol{ column() };
 
@@ -180,10 +199,10 @@ void Lexer::handleMultiLineComment(){
     while(isValidIndex(1)){
         if(isMultiLineCommentEnd()){
             advance(2);
-            return;
+            return true;
         }
 
-        if(!handleNewline(getChar(position))){
+        if(!handleNewline()){
             advance();
         }
     }
@@ -196,101 +215,124 @@ void Lexer::handleMultiLineComment(){
         line,
         column()
     );
+
+    return true;
 }
 
 bool Lexer::handleOperator(){
-    size_t opLen{};
-
-    if(opLen = isRelationalOperator(); opLen > 0){
-        handleRelationalOperator(opLen);
+    if(handleRelationalOperator()){
         return true;
     }
 
-    if(isAssignOperator()){
-        handleAssignOperator();
+    if(handleAssignOperator()){
         return true;
     }
 
-    if(opLen = isBitwiseOperator(); opLen > 0){
-        handleBitwiseOperator(opLen);
+    if(handleBitwiseOperator()){
         return true;
     }
 
-    if (isArithmeticOperator()) {
-        handleArithmeticOperator();
+    if(handleArithmeticOperator()){
         return true;
     }
 
     return false;
 }
 
-void Lexer::handleRelationalOperator(size_t opLen){
+bool Lexer::handleRelationalOperator(){
+    size_t opLen{ isRelationalOperator() };
+    if(opLen == 0){
+        return false;
+    }
+
     addToken(
-        getSequence(position, opLen),
+        getRelativeSequence(opLen),
         line, 
         column(), 
         TokenType::RELATIONAL
     );
+
     advance(opLen);
+    return true;
 }
 
-void Lexer::handleAssignOperator(){
+bool Lexer::handleAssignOperator(){
+    if(!isAssignOperator()){
+        return false;
+    }
+
     addToken(
-        getSequence(position, 1), 
+        getRelativeSequence(1), 
         line, 
         column(), 
         TokenType::ASSIGN
     );
+
     advance();
+    return true;
 }
 
-void Lexer::handleBitwiseOperator(size_t opLen){
-    addToken(getSequence(position, opLen),
+bool Lexer::handleBitwiseOperator(){
+    size_t opLen{ isBitwiseOperator() };
+    if(opLen == 0){
+        return false;
+    }
+
+    addToken(
+        getRelativeSequence(opLen),
         line,
         column(),
         TokenType::BITWISE,
         GeneralTokenType::OPERATOR
     );
+
     advance(opLen);
+    return true;
 }
 
-void Lexer::handleArithmeticOperator(){
+bool Lexer::handleArithmeticOperator(){
+    if(!isArithmeticOperator()){
+        return false;
+    }
+
     addToken(
-        getSequence(position, 1), 
+        getRelativeSequence(1), 
         line, 
         column(), 
         TokenType::ARITHMETIC,
         GeneralTokenType::OPERATOR
     );
+
     advance();
+    return true;
 }
 
-bool Lexer::handleDelimiter(char c){
+bool Lexer::handlePunctuation(){
     size_t col{ column() };
-    switch(c){
+    switch(getRelativeChar()){
         case '(': 
-            addToken(getSequence(position, 1), line, col, TokenType::LPAREN); 
+            addToken(getRelativeSequence(1), line, col, TokenType::LPAREN); 
             break;
         case ')': 
-            addToken(getSequence(position, 1), line, col, TokenType::RPAREN); 
+            addToken(getRelativeSequence(1), line, col, TokenType::RPAREN); 
             break;
         case '{': 
-            addToken(getSequence(position, 1), line, col, TokenType::LBRACKET); 
+            addToken(getRelativeSequence(1), line, col, TokenType::LBRACKET); 
             break;
         case '}': 
-            addToken(getSequence(position, 1), line, col, TokenType::RBRACKET); 
+            addToken(getRelativeSequence(1), line, col, TokenType::RBRACKET); 
             break;
         case ',': 
-            addToken(getSequence(position, 1), line, col, TokenType::COMMA); 
+            addToken(getRelativeSequence(1), line, col, TokenType::COMMA); 
             break;
         case ';': 
-            addToken(getSequence(position, 1), line, col, TokenType::SEMICOLON); 
+            addToken(getRelativeSequence(1), line, col, TokenType::SEMICOLON); 
             break;
         case ':': 
-            addToken(getSequence(position, 1), line, col, TokenType::COLON); 
+            addToken(getRelativeSequence(1), line, col, TokenType::COLON); 
             break;
         case '#': 
-            addToken(getSequence(position, 1), line, col, TokenType::HASH); 
+            addToken(getRelativeSequence(1), line, col, TokenType::HASH); 
             break;
         default: 
             return false;
@@ -304,11 +346,11 @@ void Lexer::handleInvalid(){
     size_t col{ column() };
     handleError(
         std::format("LEXICAL ERROR -> unknown symbol '{}'", 
-            getChar(position)
+            getRelativeChar()
         ), 
         line, 
         col
     );
-    addToken(getSequence(position, 1), line, col, TokenType::INVALID);
+    addToken(getRelativeSequence(1), line, col, TokenType::INVALID);
     advance();
 }

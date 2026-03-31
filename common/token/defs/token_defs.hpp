@@ -19,7 +19,7 @@ enum class TokenType{
     RELATIONAL,   //< <, >, <=, >=, ==, !=
     ASSIGN,       //< =
 
-    /// delimiters and punctuations
+    /// punctuations
     LPAREN,       //< (
     RPAREN,       //< )
     LBRACKET,     //< {

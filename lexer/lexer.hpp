@@ -108,9 +108,18 @@ private:
     }
 
     /**
-     * @brief getter for the char at the current position
+     * @brief getter for the char relative to the current position
+     * @param offset - offset from current position, defaults to 0
+     * @returns char relative to current position
+    */
+    inline char getRelativeChar(size_t offset = 0) const noexcept {
+        return input[fileIndex][position + offset];
+    }
+
+    /**
+     * @brief getter for the char at the absolute position
      * @param index - index of the character in a file
-     * @returns char at the current position
+     * @returns char at the absolute position
     */
     inline char getChar(size_t index) const noexcept {
         return input[fileIndex][index];
@@ -118,12 +127,31 @@ private:
 
     /**
      * @brief getter for the sequence of characters
+     * @param len - length of the sequence
+     * @param offset - offset from the current position, defaults to 0
+     * @returns sequence of characters at current position, with provided length
+    */
+    inline std::string_view getRelativeSequence(size_t len, size_t offset = 0) const noexcept {
+        return std::string_view{&input[fileIndex][position + offset], len};
+    }
+
+    /**
+     * @brief getter for the sequence of characters
      * @param startIndex - start index of the sequence
      * @param len - length of the sequence
-     * @returns sequence of characters at current index, with provided length
+     * @returns sequence of characters at given index, with provided length
     */
     inline std::string_view getSequence(size_t startIndex, size_t len) const noexcept {
         return std::string_view{&input[fileIndex][startIndex], len};
+    }
+
+    /**
+     * @brief getter for the length of the sequence
+     * @param start - position where sequence starts
+     * @returns length of the sequence
+    */
+    inline size_t sequenceLength(size_t start) const noexcept {
+        return position - start;
     }
 
     /**
@@ -171,39 +199,36 @@ private:
 
     /**
      * @brief handles new lines, updates positions
-     * @param c - current character
      * @returns true if character is a new line, false otherwise
     */
-    bool handleNewline(char c) noexcept;
+    bool handleNewline() noexcept;
 
     /**
      * @brief handles whitespaces, updates position
-     * @param c - current character
      * @returns true if character is a whitespace, false otherwise
     */
-    bool handleWhitespace(char c) noexcept;
+    bool handleWhitespace() noexcept;
 
     /**
      * @brief handles identifiers, updates position
-     * @param c - current character
      * @returns true if sequence is an identifier, false otherwise
     */
-    bool handleIdentifier(char c);
+    bool handleIdentifier();
 
     /**
      * @brief handles keywords
      * @param keyword - identifier of the keyword
      * @param lineNumber - line where keyword appears
      * @param col - column where keyword starts
+     * @returns true if sequence is a keyword, false otherwise
     */
-    void handleKeyword(std::string_view keyword, size_t lineNumber, size_t col);
+    bool handleKeyword(std::string_view keyword, size_t lineNumber, size_t col);
 
     /**
      * @brief handles numbers, updates position
-     * @param c - current character
      * @returns true if sequence is a number, false otherwise
     */
-    bool handleNumber(char c);
+    bool handleNumber();
 
     /**
      * @brief handles comments, updates position
@@ -213,13 +238,15 @@ private:
 
     /**
      * @brief handles single line comment
+     * @returns true if sequence is a single line comment, false otherwise
     */
-    void handleSingleLineComment() noexcept;
+    bool handleSingleLineComment() noexcept;
 
     /**
      * @brief handles multi line comment
+     * @returns true if sequence is a multi line comment, false otherwise
     */
-    void handleMultiLineComment();
+    bool handleMultiLineComment();
 
     /**
      * @brief handles operators, updates position
@@ -230,31 +257,34 @@ private:
     /**
      * @brief handles relational operator
      * @param opLen - length of the operator
+     * @returns true if sequence is a relational operator, false otherwise
     */
-    void handleRelationalOperator(size_t opLen);
+    bool handleRelationalOperator();
 
     /**
      * @brief handles assign operator
+     * @returns true if sequence is an assign operator, false otherwise
     */
-    void handleAssignOperator();
+    bool handleAssignOperator();
 
     /**
      * @brief handles bitwise operator
-     * @param opLen - length of the operator
+     * @returns true if a sequence is a bitwise operator, false otherwise
     */
-    void handleBitwiseOperator(size_t opLen);
+    bool handleBitwiseOperator();
 
     /**
      * @brief handles arithmetic operator
+     * @returns true if a sequence is an arithmetic operator, false otherwise
     */
-    void handleArithmeticOperator();
+    bool handleArithmeticOperator();
 
     /**
-     * @brief handles delimiters, updates position
+     * @brief handles punctuations, updates position
      * @param c - current character
-     * @returns true if character is a delimiter, false otherwise
+     * @returns true if character is a punctuation, false otherwise
     */
-    bool handleDelimiter(char c);
+    bool handlePunctuation();
 
     /**
      * @brief handles invalid characters, updates position

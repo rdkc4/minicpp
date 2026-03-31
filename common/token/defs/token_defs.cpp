@@ -32,7 +32,7 @@ const std::unordered_map<TokenType, std::string> tokenTypeToString {
     {TokenType::VOID, "VOID"},
     {TokenType::AUTO, "AUTO"},
 
-    /// punctuation and delimiter tokens
+    /// punctuation tokens
     {TokenType::LPAREN, "LPAREN"},
     {TokenType::RPAREN, "RPAREN"},
     {TokenType::LBRACKET, "LBRACKET"},
