@@ -1,8 +1,10 @@
 #ifndef ANALYZER_HPP
 #define ANALYZER_HPP
 
+#include <format>
 #include <unordered_map>
 #include <string>
+#include <string_view>
 #include <vector>
 #include <mutex>
 
@@ -210,6 +212,41 @@ private:
      * @param value - value of the literal
     */
     bool isInvalidLiteral(Type type, const std::string& value) const;
+
+    /**
+     * @brief reports new semantic error
+     * @param token - const reference to a token that caused error
+     * @param message - error message
+    */
+    inline void reportError(const Token& token, std::string_view message){
+        analyzerContext.semanticErrors.emplace_back(
+            formattedError(token, message)
+        );
+    }
+
+    /**
+     * @brief reports new semantic error
+     * @param token - const reference to a token that caused error
+     * @param message - error message
+     * @param errorIdentifier - global error or name of the function where error occured
+    */
+    inline void reportError(const Token& token, std::string_view message, const std::string& errorIdentifier){
+        semanticErrors[errorIdentifier].emplace_back(
+            formattedError(token, message)
+        );
+    }
+
+    /**
+     * @brief generates formatted error
+     * @param token - const reference to a token, for obtaining line and column where error occured
+     * @param message - error message
+    */
+    inline std::string formattedError(const Token& token, std::string_view message){
+        return std::format(
+            "Line {}, Column {}: SEMANTIC ERROR -> {}",
+            token.line, token.column, message
+        );
+    }
 
 protected:
     /// thread local context of the function
