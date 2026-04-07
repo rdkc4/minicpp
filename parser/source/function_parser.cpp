@@ -37,14 +37,16 @@ void FunctionParser::parseParameters(ASTFunction* function){
         return;
     }
 
-    auto parseParameter = [&]() -> void {
-        Type type{ tokenTypeToType.at(tokenConsumer.getToken().type) };
-        tokenConsumer.consume(GeneralTokenType::TYPE);
+    auto parseParameter{ 
+        [this, function]() -> void {
+            Type type{ tokenTypeToType.at(tokenConsumer.getToken().type) };
+            tokenConsumer.consume(GeneralTokenType::TYPE);
 
-        const auto& token{ tokenConsumer.getToken() };
-        tokenConsumer.consume(TokenType::ID);
+            const auto& token{ tokenConsumer.getToken() };
+            tokenConsumer.consume(TokenType::ID);
 
-        function->addParameter(std::make_unique<ASTParameter>(token, type));
+            function->addParameter(std::make_unique<ASTParameter>(token, type));
+        }
     };
 
     parseParameter();

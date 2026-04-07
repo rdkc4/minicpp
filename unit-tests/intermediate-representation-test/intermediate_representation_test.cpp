@@ -181,7 +181,7 @@ TEST(IRTest, NumExpConstantFolding){
 
     TokenConsumer tokenConsumer { lexer };
     ExpressionParserTest parser{ tokenConsumer };
-    std::unique_ptr<ASTExpr> astExpr = parser.parseNumericalExpr();
+    std::unique_ptr<ASTExpr> astExpr = parser.parseArithmeticExpr();
 
     ExpressionIntermediateRepresentationTest intermediateRepresentation;
     std::unique_ptr<IRExpr> irExpr = intermediateRepresentation.transformNumericalExpr(astExpr.get());

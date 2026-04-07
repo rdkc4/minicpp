@@ -335,7 +335,7 @@ TEST(ParserTest, NumericalExpression){
     ExpressionParserTest parser{ tokenConsumer };
 
     std::unique_ptr<ASTExpr> numericalExpr;
-    ASSERT_NO_THROW(numericalExpr = parser.parseNumericalExpr());
+    ASSERT_NO_THROW(numericalExpr = parser.parseArithmeticExpr());
     ASSERT_EQ(numericalExpr->getNodeType(), ASTNodeType::BINARY_EXPR);
     ASSERT_EQ(static_cast<ASTBinaryExpr*>(numericalExpr.get())->getOperator(), Operator::ADD);
 }

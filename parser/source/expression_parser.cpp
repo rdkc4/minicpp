@@ -2,104 +2,53 @@
 #include "../token_consumer.hpp"
 
 #include <format>
-#include <memory>
+#include <stack>
+#include <cassert>
 
 ExpressionParser::ExpressionParser(TokenConsumer& consumer) : tokenConsumer{ consumer } {}
 
-/** 
- * organized in a tree as reverse polish notation (RPN)
- * ast is built on the run (per subexpression)
-*/
-std::unique_ptr<ASTExpr> ExpressionParser::parseNumericalExpr(){
-    // expression captures (subexpression) so there is no need to handle LPAREN and RPAREN
-    std::unique_ptr<ASTExpr> expr{ parseExpr() };
+std::unique_ptr<ASTExpr> ExpressionParser::parseArithmeticExpr(){
+    std::stack<std::unique_ptr<ASTExpr>> values;
+    std::stack<std::unique_ptr<ASTBinaryExpr>> operators;
 
-    // holding the expression
-    std::stack<std::unique_ptr<ASTExpr>> rpn;
-    // handling the order of the operators
-    std::stack<std::unique_ptr<ASTBinaryExpr>> weakOps;
-    
-    rpn.push(std::move(expr));
-    // if there are no operators, this part will be skipped and expression will be returned
+    auto reduce {
+        [&values, &operators]() -> void {
+            assert(values.size() > 1);
+            assert(!operators.empty());
+
+            auto op{ std::move(operators.top()) };
+            operators.pop();
+
+            auto right{ std::move(values.top()) };
+            values.pop();
+
+            auto left{ std::move(values.top()) };
+            values.pop();
+
+            op->setOperandExprs(std::move(left), std::move(right));
+            values.push(std::move(op));
+        }
+    };
+
+    values.push(parseExpr());
     while(tokenConsumer.getToken().gtype == GeneralTokenType::OPERATOR){
-        std::unique_ptr<ASTBinaryExpr> op{ parseOperator() };
+        auto currentOp{ parseOperator() };
+        const auto& currentOpToken{ currentOp->getToken() };
 
-        expr = parseExpr();
-        rpn.push(std::move(expr));
+        while(!operators.empty() && 
+            getPrecedence(operators.top()->getToken().value) >= 
+            getPrecedence(currentOpToken.value)
+        ){ reduce(); }
 
-        weakOps.push(std::move(op));
-        // if stronger operator comes up next, weak operators still need to wait
-        while(getPrecedence(weakOps.top()->getToken().value) < getPrecedence(tokenConsumer.getToken().value)){
-            std::unique_ptr<ASTBinaryExpr> nextOp{ parseOperator() };
-
-            std::unique_ptr<ASTExpr> nextExpr{ parseExpr() };
-            rpn.push(std::move(nextExpr));
-            
-            if(getPrecedence(nextOp->getToken().value) < getPrecedence(tokenConsumer.getToken().value)){
-                weakOps.push(std::move(nextOp));
-            }
-            else{
-                rpn.push(std::move(nextOp));
-            }
-
-        }
-        // if operator of weaker precedence comes next, retrieve operators that have equal or stronger precedence
-        while(!weakOps.empty() && 
-            getPrecedence(weakOps.top()->getToken().value) >= 
-            getPrecedence(tokenConsumer.getToken().value)
-        ){
-            rpn.push(std::move(weakOps.top()));
-            weakOps.pop();
-        }
+        operators.push(std::move(currentOp));
+        values.push(parseExpr());
     }
 
-    std::unique_ptr<ASTExpr> numericalExprRoot{ std::move(rpn.top()) };
-    rpn.pop();
-
-    return rpnToTree(rpn, std::move(numericalExprRoot));
-}
-
-/** 
- * recursive top-down tree building from rpn based stack
- * child is not binary expression - leaf
- * if parent has children - subtree handled
-*/
-std::unique_ptr<ASTExpr> ExpressionParser::rpnToTree(std::stack<std::unique_ptr<ASTExpr>>& rpn, std::unique_ptr<ASTExpr> root) const {
-    switch(root->getNodeType()){
-        case ASTNodeType::ID_EXPR:
-        case ASTNodeType::LITERAL_EXPR:
-        case ASTNodeType::FUNCTION_CALL_EXPR:
-            return root;
-        case ASTNodeType::BINARY_EXPR: {
-            auto* binaryExpr{ static_cast<ASTBinaryExpr*>(root.get()) };
-            if(binaryExpr->initialized()){
-                return root;
-            }
-
-            auto popNode = [&]() -> std::unique_ptr<ASTExpr> {
-                auto node{ std::move(rpn.top()) };
-                rpn.pop();
-                return node;
-            };
-
-            auto rightSubtree{ 
-                rpnToTree(rpn, popNode()) 
-            };
-            auto leftSubtree{ 
-                rpnToTree(rpn, popNode()) 
-            };
-
-            binaryExpr->setOperandExprs(
-                std::move(leftSubtree), 
-                std::move(rightSubtree)
-            );
-            break;
-        }
-        default:
-            break;
+    while(!operators.empty()){
+        reduce();
     }
 
-    return root;
+    return std::move(values.top());
 }
 
 std::unique_ptr<ASTExpr> ExpressionParser::parseExpr(){
@@ -116,7 +65,7 @@ std::unique_ptr<ASTExpr> ExpressionParser::parseExpr(){
 
         case TokenType::LPAREN:{
             tokenConsumer.consume(TokenType::LPAREN);
-            auto expr{ parseNumericalExpr() };
+            auto expr{ parseArithmeticExpr() };
             tokenConsumer.consume(TokenType::RPAREN);
             return expr;
         }
@@ -133,11 +82,11 @@ std::unique_ptr<ASTExpr> ExpressionParser::parseExpr(){
 }
 
 std::unique_ptr<ASTExpr> ExpressionParser::parseRelationalExpr(){
-    std::unique_ptr<ASTExpr> leftOperand{ parseNumericalExpr() };
+    std::unique_ptr<ASTExpr> leftOperand{ parseArithmeticExpr() };
     std::unique_ptr<ASTBinaryExpr> relationalExpr{ parseOperator(true) };
     relationalExpr->setOperandExprs(
         std::move(leftOperand), 
-        parseNumericalExpr()
+        parseArithmeticExpr()
     );
     return relationalExpr;
 }
@@ -160,10 +109,10 @@ void ExpressionParser::parseArguments(ASTFunctionCallExpr* callExpr){
         return;
     }
 
-    callExpr->addArgument(parseNumericalExpr());
+    callExpr->addArgument(parseArithmeticExpr());
     while(tokenConsumer.getToken().type == TokenType::COMMA){
         tokenConsumer.consume(TokenType::COMMA);
-        callExpr->addArgument(parseNumericalExpr());
+        callExpr->addArgument(parseArithmeticExpr());
     }
 }
 

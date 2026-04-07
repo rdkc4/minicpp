@@ -69,7 +69,7 @@ std::unique_ptr<ASTVariableDeclStmt> StatementParser::parseVariableDeclStmt(){
     
     if(tokenConsumer.getToken().type == TokenType::ASSIGN){
         tokenConsumer.consume(TokenType::ASSIGN);
-        variableDecl->setAssignExpr(exprParser.parseNumericalExpr());
+        variableDecl->setAssignExpr(exprParser.parseArithmeticExpr());
     }
     tokenConsumer.consume(TokenType::SEMICOLON);
 
@@ -107,7 +107,7 @@ std::unique_ptr<ASTAssignStmt> StatementParser::parseAssignStmt(bool expectsSemi
     tokenConsumer.consume(TokenType::ASSIGN);
     
     assignStmt->setVariableIdExpr(std::move(variableExpr));
-    assignStmt->setAssignedExpr(exprParser.parseNumericalExpr());
+    assignStmt->setAssignedExpr(exprParser.parseArithmeticExpr());
 
     if(expectsSemicolon){
         tokenConsumer.consume(TokenType::SEMICOLON);
@@ -127,7 +127,7 @@ std::unique_ptr<ASTReturnStmt> StatementParser::parseReturnStmt(){
     tokenConsumer.consume(TokenType::RETURN);
 
     if(tokenConsumer.getToken().type != TokenType::SEMICOLON){
-        returnStmt->setReturnExpr(exprParser.parseNumericalExpr());
+        returnStmt->setReturnExpr(exprParser.parseArithmeticExpr());
     }
     tokenConsumer.consume(TokenType::SEMICOLON);
 

@@ -4,12 +4,12 @@
 
 ThreadPool::ThreadPool(size_t numberOfThreads) : stop{ false } {
     for(size_t i{0}; i < numberOfThreads; ++i){
-        threads.emplace_back([this](){
+        threads.emplace_back([this]() -> void {
             while(true){
                 std::function<void()> f;
                 {
                     std::unique_lock<std::mutex> lock(mtx);
-                    cv.wait(lock, [this]{
+                    cv.wait(lock, [this] -> bool {
                         return stop || !tasks.empty();
                     });
 

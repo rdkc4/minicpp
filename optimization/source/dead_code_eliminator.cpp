@@ -10,10 +10,12 @@ void DeadCodeEliminator::visit(IRProgram* program){
     std::latch doneLatch{ static_cast<std::ptrdiff_t>(program->getFunctionCount()) };
 
     for(const auto& function : program->getFunctions()){
-        threadPool.enqueue([this, function=function.get(), &doneLatch]{
-            function->accept(*this);
-            doneLatch.count_down();
-        });
+        threadPool.enqueue(
+            [this, function=function.get(), &doneLatch] -> void {
+                function->accept(*this);
+                doneLatch.count_down();
+            }
+        );
     }
 
     doneLatch.wait();

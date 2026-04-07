@@ -25,7 +25,7 @@ std::unique_ptr<IRProgram> IntermediateRepresentation::transformProgram(const AS
 
     for(size_t i{0}; i < total; ++i){
         threadPool.enqueue(
-            [&, irProgram =irProgram.get(), i, function=program->getFunctionAtN(i)] -> void {
+            [this, irProgram=irProgram.get(), function=program->getFunctionAtN(i), &doneLatch, i] -> void {
                 // generating ir of a function
                 std::unique_ptr<IRFunction> irFunction{ funcIR.transformFunction(function) };
                 irProgram->setFunctionAtN(std::move(irFunction), i);

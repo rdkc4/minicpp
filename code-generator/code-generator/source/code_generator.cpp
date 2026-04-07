@@ -24,11 +24,12 @@ void CodeGenerator::generateProgram(const IRProgram* program){
     std::latch doneLatch{ static_cast<ptrdiff_t>(program->getFunctionCount()) };
 
     for(const auto& function : program->getFunctions()){
-        threadPool.enqueue([&, function=function.get()]{
-            funcGenerator.generateFunction(function);
-            
-            doneLatch.count_down();
-        });
+        threadPool.enqueue(
+            [this, function=function.get(), &doneLatch] -> void {
+                funcGenerator.generateFunction(function);
+                doneLatch.count_down();
+            }
+        );
     }
 
     doneLatch.wait();

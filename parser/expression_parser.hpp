@@ -2,8 +2,8 @@
 #define EXPRESSION_PARSER_HPP
 
 #include <memory>
-#include <stack>
 #include <unordered_map>
+#include <string_view>
 
 #include "../common/abstract-syntax-tree/ast_expr.hpp"
 #include "../common/abstract-syntax-tree/ast_function_call_expr.hpp"
@@ -26,11 +26,11 @@ public:
     ExpressionParser(TokenConsumer& consumer);
 
     /** 
-     * @brief parses numerical expression
-     * @details NUMERICAL_EXPRESSION : EXPRESSION (OPERATOR EXPRESSION)*
+     * @brief parses arithmetic expression
+     * @details ARITHMETIC_EXPRESSION : EXPRESSION (OPERATOR EXPRESSION)*
      * @returns pointer to an expression node
     */
-    std::unique_ptr<ASTExpr> parseNumericalExpr();
+    std::unique_ptr<ASTExpr> parseArithmeticExpr();
 
     /** 
      * @brief parses relational expression
@@ -59,14 +59,6 @@ public:
      * @returns pointer to a function call node
     */
     std::unique_ptr<ASTFunctionCallExpr> parseFunctionCallExpr();
-
-    /** 
-     * @brief transforms rpn stack to a tree
-     * @param rpn - reference to a rpn stack
-     * @param root - pointer to the root of the (sub)expression 
-     * @returns pointer to the transformed expression node
-    */
-    std::unique_ptr<ASTExpr> rpnToTree(std::stack<std::unique_ptr<ASTExpr>>& rpn, std::unique_ptr<ASTExpr> root) const;
 
     /** 
      * @brief parses expression
@@ -105,8 +97,8 @@ public:
      * @param op - operator
      * @returns strength of the precedence of the operator
     */
-    int getPrecedence(const std::string& op) const noexcept {
-        const static std::unordered_map<std::string, int> precedence {
+    int getPrecedence(std::string_view op) const noexcept {
+        const static std::unordered_map<std::string_view, int> precedence {
             {"|", 1},
             {"^", 2},
             {"&", 3},
