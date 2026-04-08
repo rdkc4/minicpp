@@ -30,11 +30,11 @@ To compile a source file, run:
 ```
 
 Where:
-- <source-file> - file you want to compile (e.g. testfile.mcpp)
-- -o <output-file> - output file name, no extension (optional, defaults to "output" if not provided)
-- --dump-ast - dumps the structure of the abstract syntax tree (optional)
-- --dump-ir - dumps the structure of the intermediate representation (optional)
-- -s - stop compilation after generating .s file
+- `<source-file>` - file you want to compile (e.g. testfile.mcpp)
+- `-o <output-file>` - output file name, no extension (optional, defaults to "output" if not provided)
+- `--dump-ast` - dumps the structure of the abstract syntax tree (optional)
+- `--dump-ir` - dumps the structure of the intermediate representation (optional)
+- `-s` - stop compilation after generating .s file
 
 #### Unit Tests
 Running the tests:
