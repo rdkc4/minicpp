@@ -21,7 +21,7 @@ public:
 
     /** 
      * @brief getter for the condition of the while statement
-     * @returns pointer or const pointer to relational expression
+     * @returns pointer or const pointer to condition of the while statement
     */
     template<typename Self>
     decltype(auto) getConditionExpr(this Self&& self) noexcept {
@@ -39,7 +39,7 @@ public:
 
     /** 
      * @brief initializes the while statement
-     * @param condExpr - pointer to the relational expression
+     * @param condExpr - pointer to the condition of the while statement
      * @param statement - pointer to the statement
      * @param tempExpr - pointer to the temporary, default nullptr
     */
@@ -67,7 +67,7 @@ public:
     void accept(IRVisitor& visitor) override;
 
 private:
-    /// pointer to the relational expression of the while-statement
+    /// pointer to the condition of the while-statement
     std::unique_ptr<IRExpr> conditionExpr;
 
     /// pointer to the statement of the while-statement
@@ -77,6 +77,5 @@ private:
     std::unique_ptr<IRTemporaryExpr> temporaryExpr;
     
 };
-
 
 #endif

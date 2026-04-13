@@ -7,11 +7,23 @@
 
 #include "../../common/intermediate-representation-tree/defs/ir_defs.hpp"
 
+/**
+ * @enum ExprContext
+ * @brief context in which expression appears
+*/
+enum class ExprContext {
+    VALUE,
+    BRANCH
+};
+
 /// translates jump ir node types into strings
 extern const std::unordered_map<IRNodeType, std::string> nodeToJMP;
 
 /// translates jump ir node types into opposite jumps as string
 extern const std::unordered_map<IRNodeType, std::string> nodeToOppJMP;
+
+/// translates jump ir node types into extensions for set
+extern const std::unordered_map<IRNodeType, std::string> nodeToSetExt;
 
 /// const vector of names of the general-purpose registers
 extern const std::vector<std::string> gpRegisters;

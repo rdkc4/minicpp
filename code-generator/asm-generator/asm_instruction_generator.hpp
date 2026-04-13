@@ -29,6 +29,24 @@ namespace AsmGenerator::Instruction {
     */
     void genMov(std::vector<std::string>& asmCode, std::string_view l, std::string_view r, std::string_view ext = "");
 
+    /**
+     * @brief generates the set instruction
+     * @param asmCode - reference to a vector that contains asm code of the current function
+     * @param r - operand that is being set
+     * @param ext - extension for the set instruction
+     * @details setext r
+    */
+    void genSet(std::vector<std::string>& asmCode, std::string_view r, std::string_view ext = "");
+
+    /** 
+     * @brief generates the test instruction
+     * @param asmCode - reference to a vector that contains asm code of the current function
+     * @param r - operand that is being tested
+     * @param ext - extension for the mov instruction
+     * @details testext r, r
+    */
+    void genTest(std::vector<std::string>& asmCode, std::string_view r, std::string_view ext = "");
+
     /** 
      * @brief generates the cmp instruction
      * @param asmCode - reference to a vector that contains asm code of the current function

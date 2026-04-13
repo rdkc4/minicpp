@@ -1,5 +1,4 @@
 #include "lexer.hpp"
-#include "defs/lexer_defs.hpp"
 
 #include <format>
 #include <sstream>
@@ -224,6 +223,10 @@ bool Lexer::handleOperator(){
         return true;
     }
 
+    if(handleLogicalOperator()){
+        return true;
+    }
+
     if(handleAssignOperator()){
         return true;
     }
@@ -240,71 +243,53 @@ bool Lexer::handleOperator(){
 }
 
 bool Lexer::handleRelationalOperator(){
-    size_t opLen{ isRelationalOperator() };
-    if(opLen == 0){
+    Lexeme opLexeme{ isRelationalOperator() };
+    if(opLexeme.length == 0){
         return false;
     }
+    emitOperator(opLexeme.type, opLexeme.length);
+    return true;
+}
 
-    addToken(
-        getRelativeSequence(opLen),
-        line, 
-        column(), 
-        TokenType::RELATIONAL
-    );
-
-    advance(opLen);
+bool Lexer::handleLogicalOperator(){
+    Lexeme opLexeme{ isLogicalOperator() };
+    if(opLexeme.length == 0){
+        return false;
+    }
+    emitOperator(opLexeme.type, opLexeme.length);
     return true;
 }
 
 bool Lexer::handleAssignOperator(){
-    if(!isAssignOperator()){
+    Lexeme opLexeme{ isAssignOperator() };
+    if(opLexeme.length == 0){
         return false;
     }
-
-    addToken(
-        getRelativeSequence(1), 
-        line, 
-        column(), 
-        TokenType::ASSIGN
-    );
-
-    advance();
+    emitOperator(opLexeme.type, opLexeme.length);
     return true;
 }
 
 bool Lexer::handleBitwiseOperator(){
-    size_t opLen{ isBitwiseOperator() };
-    if(opLen == 0){
+    Lexeme opLexeme{ isBitwiseOperator() };
+    if(opLexeme.length == 0){
         return false;
     }
-
-    addToken(
-        getRelativeSequence(opLen),
-        line,
-        column(),
-        TokenType::BITWISE,
-        GeneralTokenType::OPERATOR
-    );
-
-    advance(opLen);
+    emitOperator(opLexeme.type, opLexeme.length);
     return true;
 }
 
 bool Lexer::handleArithmeticOperator(){
-    if(!isArithmeticOperator()){
+    Lexeme opLexeme{ isArithmeticOperator() };
+    if(opLexeme.length == 0){
         return false;
     }
-
-    addToken(
-        getRelativeSequence(1), 
-        line, 
-        column(), 
-        TokenType::ARITHMETIC,
-        GeneralTokenType::OPERATOR
-    );
-
-    advance();
+    emitOperator(opLexeme.type, opLexeme.length);
     return true;
+}
+
+void Lexer::emitOperator(TokenType type, size_t length, GeneralTokenType gtype){
+    addToken(getRelativeSequence(length), line, column(), type, gtype);
+    advance(length);
 }
 
 bool Lexer::handlePunctuation(){
@@ -317,10 +302,10 @@ bool Lexer::handlePunctuation(){
             addToken(getRelativeSequence(1), line, col, TokenType::RPAREN); 
             break;
         case '{': 
-            addToken(getRelativeSequence(1), line, col, TokenType::LBRACKET); 
+            addToken(getRelativeSequence(1), line, col, TokenType::LBRACE); 
             break;
         case '}': 
-            addToken(getRelativeSequence(1), line, col, TokenType::RBRACKET); 
+            addToken(getRelativeSequence(1), line, col, TokenType::RBRACE); 
             break;
         case ',': 
             addToken(getRelativeSequence(1), line, col, TokenType::COMMA); 

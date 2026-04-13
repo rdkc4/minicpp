@@ -21,10 +21,30 @@ const std::unordered_map<TokenType, std::string> tokenTypeToString {
     {TokenType::ID, "ID"},
     {TokenType::LITERAL, "LITERAL"},
 
-    /// operation tokens
-    {TokenType::ARITHMETIC, "ARITHMETIC"},
-    {TokenType::BITWISE, "BITWISE"},
-    {TokenType::RELATIONAL, "RELATIONAL"},
+    /// arithmetic operators
+    {TokenType::PLUS, "PLUS"},
+    {TokenType::MINUS, "MINUS"},
+    {TokenType::STAR, "STAR"},
+    {TokenType::SLASH, "SLASH"},
+
+    /// bitwise operators
+    {TokenType::AMPERSEND, "AMPERSEND"},
+    {TokenType::PIPE, "PIPE"},
+    {TokenType::CARET, "CARET"},
+    {TokenType::LSHIFT, "LSHIFT"},
+    {TokenType::RSHIFT, "RSHIFT"},
+
+    /// relational operators
+    {TokenType::LESS, "LESS"},
+    {TokenType::GREATER, "GREATER"},
+    {TokenType::LESS_EQ, "LESS_EQ"},
+    {TokenType::GREATER_EQ, "GREATER_EQ"},
+    {TokenType::EQUAL, "EQUAL"},
+    {TokenType::NOT_EQ, "NOT_EQ"},
+
+    /// logical operators
+    {TokenType::LOGICAL_AND, "LOGICAL_AND"},
+    {TokenType::LOGICAL_OR, "LOGICAL_OR"},
 
     /// type tokens
     {TokenType::INT, "INT"},
@@ -35,8 +55,8 @@ const std::unordered_map<TokenType, std::string> tokenTypeToString {
     /// punctuation tokens
     {TokenType::LPAREN, "LPAREN"},
     {TokenType::RPAREN, "RPAREN"},
-    {TokenType::LBRACKET, "LBRACKET"},
-    {TokenType::RBRACKET, "RBRACKET"},
+    {TokenType::LBRACE, "LBRACE"},
+    {TokenType::RBRACE, "RBRACE"},
     {TokenType::SEMICOLON, "SEMICOLON"},
     {TokenType::COLON, "COLON"},
     {TokenType::COMMA, "COMMA"},

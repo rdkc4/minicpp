@@ -50,6 +50,10 @@ enum class Operator {
     LSHIFT,    //< <<
     RSHIFT,    //< >>
 
+    /// logical
+    ANDL,      //< &&
+    ORL,       //< ||
+
     /// relational
     LESS,      //< <
     GREATER,   //< >
@@ -60,7 +64,7 @@ enum class Operator {
 };
 
 /// maps string to an operator
-extern const std::unordered_map<std::string, Operator> stringToOperator;
+extern const std::unordered_map<TokenType, Operator> tokenTypeToOperator;
 
 /// maps type to a string
 extern const std::unordered_map<Type, std::string> typeToString;

@@ -11,7 +11,6 @@
 
 #include "../common/intermediate-representation-tree/ir_expr.hpp"
 #include "../common/intermediate-representation-tree/ir_literal_expr.hpp"
-#include "../common/intermediate-representation-tree/ir_binary_expr.hpp"
 #include "../common/intermediate-representation-tree/ir_id_expr.hpp"
 #include "../common/intermediate-representation-tree/ir_function_call_expr.hpp"
 
@@ -27,11 +26,11 @@ public:
     ExpressionIntermediateRepresentation() = default;
 
     /**
-     * @brief turns ast numerical expression into irt numerical expression
-     * @param astNumericalExpr - const pointer to the ast numerical expression
-     * @returns pointer to the irt numerical expression
+     * @brief turns ast expression into irt expression
+     * @param astExpr - const pointer to the ast expression
+     * @returns pointer to the irt expression
     */
-    std::unique_ptr<IRExpr> transformNumericalExpr(const ASTExpr* astNumericalExpr);
+    std::unique_ptr<IRExpr> transformExpr(const ASTExpr* astExpr);
 
     /**
      * @brief turns ast binary expression into irt binary expression
@@ -39,14 +38,6 @@ public:
      * @returns pointer to the irt expression
     */
     std::unique_ptr<IRExpr> transformBinaryExpr(const ASTBinaryExpr* astBinaryExpr);
-
-    /**
-     * @brief turns ast relational expression into irt relational expression
-     * @param astRelationalExpr - const pointer to the ast relational expression
-     * @returns pointer to the irt relational expression
-     * @note at the moment only binary expression
-    */
-    std::unique_ptr<IRBinaryExpr> transformRelationalExpr(const ASTExpr* astRelationalExpr);
 
     /**
      * @brief turns ast id into irt id
@@ -63,8 +54,8 @@ public:
     std::unique_ptr<IRLiteralExpr> transformLiteralExpr(const ASTLiteralExpr* astLiteralExpr) const;
 
     /**
-     * @brief generates temporary variables for runction calls of the numerical expression
-     * @param astExpr - const pointer to the ast numerical expression
+     * @brief generates temporary variables for runction calls of the expression
+     * @param astExpr - const pointer to the ast expression
      * @returns pointer to the temporary variables
     */
     std::unique_ptr<IRTemporaryExpr> initiateTemporaries(const ASTExpr* astExpr);

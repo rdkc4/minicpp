@@ -21,7 +21,7 @@ public:
 
     /**
      * @brief getter for the condition of the do-while statement
-     * @returns pointer or const pointer to the relational expression
+     * @returns pointer or const pointer to the condition of the dowhile statement
     */
     template<typename Self>
     decltype(auto) getConditionExpr(this Self&& self) noexcept {
@@ -67,7 +67,7 @@ public:
     void accept(IRVisitor& visitor) override;
 
 private:
-    /// pointer to the relational expression of the do-while statement
+    /// pointer to the condition of the do-while statement
     std::unique_ptr<IRExpr> conditionExpr;
 
     /// pointer to the statement of the do-while statement

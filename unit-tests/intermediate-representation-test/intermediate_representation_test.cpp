@@ -181,10 +181,10 @@ TEST(IRTest, NumExpConstantFolding){
 
     TokenConsumer tokenConsumer { lexer };
     ExpressionParserTest parser{ tokenConsumer };
-    std::unique_ptr<ASTExpr> astExpr = parser.parseArithmeticExpr();
+    std::unique_ptr<ASTExpr> astExpr = parser.parseExpr();
 
     ExpressionIntermediateRepresentationTest intermediateRepresentation;
-    std::unique_ptr<IRExpr> irExpr = intermediateRepresentation.transformNumericalExpr(astExpr.get());
+    std::unique_ptr<IRExpr> irExpr = intermediateRepresentation.transformExpr(astExpr.get());
 
     ASSERT_TRUE(irExpr->getNodeType() == IRNodeType::LITERAL);
     ASSERT_EQ(static_cast<IRLiteralExpr*>(irExpr.get())->getValue(), "6");

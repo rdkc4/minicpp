@@ -18,7 +18,7 @@ std::unique_ptr<ASTStmt> StatementParser::parseStmt(){
         case TokenType::IF:
             return parseIfStmt();
 
-        case TokenType::LBRACKET:
+        case TokenType::LBRACE:
             return parseCompoundStmt();
 
         case TokenType::WHILE:
@@ -69,7 +69,7 @@ std::unique_ptr<ASTVariableDeclStmt> StatementParser::parseVariableDeclStmt(){
     
     if(tokenConsumer.getToken().type == TokenType::ASSIGN){
         tokenConsumer.consume(TokenType::ASSIGN);
-        variableDecl->setAssignExpr(exprParser.parseArithmeticExpr());
+        variableDecl->setAssignExpr(exprParser.parseExpr());
     }
     tokenConsumer.consume(TokenType::SEMICOLON);
 
@@ -85,11 +85,11 @@ std::unique_ptr<ASTCompoundStmt> StatementParser::parseCompoundStmt(){
         })
     };
 
-    tokenConsumer.consume(TokenType::LBRACKET);
-    while(tokenConsumer.getToken().type != TokenType::RBRACKET){
+    tokenConsumer.consume(TokenType::LBRACE);
+    while(tokenConsumer.getToken().type != TokenType::RBRACE){
         compoundStmt->addStmt(parseStmt());
     }
-    tokenConsumer.consume(TokenType::RBRACKET);
+    tokenConsumer.consume(TokenType::RBRACE);
     
     return compoundStmt;
 }
@@ -107,7 +107,7 @@ std::unique_ptr<ASTAssignStmt> StatementParser::parseAssignStmt(bool expectsSemi
     tokenConsumer.consume(TokenType::ASSIGN);
     
     assignStmt->setVariableIdExpr(std::move(variableExpr));
-    assignStmt->setAssignedExpr(exprParser.parseArithmeticExpr());
+    assignStmt->setAssignedExpr(exprParser.parseExpr());
 
     if(expectsSemicolon){
         tokenConsumer.consume(TokenType::SEMICOLON);
@@ -127,7 +127,7 @@ std::unique_ptr<ASTReturnStmt> StatementParser::parseReturnStmt(){
     tokenConsumer.consume(TokenType::RETURN);
 
     if(tokenConsumer.getToken().type != TokenType::SEMICOLON){
-        returnStmt->setReturnExpr(exprParser.parseArithmeticExpr());
+        returnStmt->setReturnExpr(exprParser.parseExpr());
     }
     tokenConsumer.consume(TokenType::SEMICOLON);
 
@@ -146,7 +146,7 @@ std::unique_ptr<ASTIfStmt> StatementParser::parseIfStmt(){
     tokenConsumer.consume(TokenType::IF);
 
     tokenConsumer.consume(TokenType::LPAREN);
-    auto condition{ exprParser.parseRelationalExpr() };
+    auto condition{ exprParser.parseExpr() };
     tokenConsumer.consume(TokenType::RPAREN);
     
     ifStmt->addIfStmt(std::move(condition), parseStmt());
@@ -156,7 +156,7 @@ std::unique_ptr<ASTIfStmt> StatementParser::parseIfStmt(){
         tokenConsumer.consume(TokenType::IF);
 
         tokenConsumer.consume(TokenType::LPAREN);
-        condition = exprParser.parseRelationalExpr();
+        condition = exprParser.parseExpr();
         tokenConsumer.consume(TokenType::RPAREN);
         
         ifStmt->addIfStmt(std::move(condition), parseStmt());
@@ -182,7 +182,7 @@ std::unique_ptr<ASTWhileStmt> StatementParser::parseWhileStmt(){
     tokenConsumer.consume(TokenType::WHILE);
     
     tokenConsumer.consume(TokenType::LPAREN);
-    auto condition{ exprParser.parseRelationalExpr() };
+    auto condition{ exprParser.parseExpr() };
     tokenConsumer.consume(TokenType::RPAREN);
     
     whileStmt->setWhileStmt(std::move(condition), parseStmt());
@@ -212,7 +212,7 @@ std::unique_ptr<ASTForStmt> StatementParser::parseForStmt(){
 
     // optional condition (default: true)
     if(tokenConsumer.getToken().type != TokenType::SEMICOLON){
-        condition = exprParser.parseRelationalExpr();
+        condition = exprParser.parseExpr();
     }
     tokenConsumer.consume(TokenType::SEMICOLON);
 
@@ -247,7 +247,7 @@ std::unique_ptr<ASTDoWhileStmt> StatementParser::parseDoWhileStmt(){
 
     tokenConsumer.consume(TokenType::WHILE);
     tokenConsumer.consume(TokenType::LPAREN);
-    dowhileStmt->setDoWhile(exprParser.parseRelationalExpr(), std::move(stmt));
+    dowhileStmt->setDoWhile(exprParser.parseExpr(), std::move(stmt));
     tokenConsumer.consume(TokenType::RPAREN);
 
     tokenConsumer.consume(TokenType::SEMICOLON);
@@ -284,7 +284,7 @@ std::unique_ptr<ASTSwitchStmt> StatementParser::parseSwitchStmt(){
     switchStmt->setVariableIdExpr(exprParser.parseIdExpr());
     tokenConsumer.consume(TokenType::RPAREN);
 
-    tokenConsumer.consume(TokenType::LBRACKET);
+    tokenConsumer.consume(TokenType::LBRACE);
     
     // switch must have at least 1 case
     do{
@@ -295,7 +295,7 @@ std::unique_ptr<ASTSwitchStmt> StatementParser::parseSwitchStmt(){
         switchStmt->setDefaultStmt(parseDefaultStmt());
     }
 
-    tokenConsumer.consume(TokenType::RBRACKET);
+    tokenConsumer.consume(TokenType::RBRACE);
     return switchStmt;
 }
 
@@ -313,7 +313,7 @@ std::unique_ptr<ASTSwitchBlockStmt> StatementParser::parseSwitchBlockStmt(){
         const auto& current{ tokenConsumer.getToken() };
         if(current.type == TokenType::CASE ||
             current.type == TokenType::DEFAULT ||
-            current.type == TokenType::RBRACKET ||
+            current.type == TokenType::RBRACE ||
             current.type == TokenType::BREAK
         ){
             break;

@@ -1,10 +1,8 @@
 #ifndef IRTREE_DEFS_HPP
 #define IRTREE_DEFS_HPP
 
-#include <unordered_set>
 #include <unordered_map>
 #include <string>
-#include <vector>
 #include <cassert>
 
 #include "../../defs/defs.hpp"
@@ -49,7 +47,10 @@ enum class IRNodeType {
     
     /// bitwise operations
     AND, OR, XOR, SHL, SAL, SHR, SAR,
-    
+
+    /// logical operations
+    ANDL, ORL,
+
     /// comparison
     CMP, 
 
@@ -99,17 +100,8 @@ struct Operation {
     }
 };
 
-/// set of all irt operators
-extern const std::unordered_set<IRNodeType> irOperators;
-
 /// translates irt node types to string
 extern const std::unordered_map<IRNodeType, std::string> irNodeToString;
-
-/// translates strings to arithmetic operator nodes
-extern const std::unordered_map<std::string, IRNodeType> stringToArop;
-
-/// translates strings to bitwise operators
-extern const std::unordered_map<std::string, std::vector<IRNodeType>> stringToBitop;
 
 /// maps the operators to the operation
 extern const std::unordered_map<Operator, Operation> operatorToIRNodeType;

@@ -58,9 +58,9 @@ void FunctionParser::parseParameters(ASTFunction* function){
 }
 
 void FunctionParser::parseBody(ASTFunction* function){
-    tokenConsumer.consume(TokenType::LBRACKET);
-    while(tokenConsumer.getToken().type != TokenType::RBRACKET){
+    tokenConsumer.consume(TokenType::LBRACE);
+    while(tokenConsumer.getToken().type != TokenType::RBRACE){
         function->addStatement(stmtParser.parseStmt());
     }
-    tokenConsumer.consume(TokenType::RBRACKET);
+    tokenConsumer.consume(TokenType::RBRACE);
 }

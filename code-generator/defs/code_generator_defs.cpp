@@ -26,6 +26,19 @@ const std::unordered_map<IRNodeType, std::string> nodeToOppJMP {
     {IRNodeType::JNE, "je"}
 };
 
+const std::unordered_map<IRNodeType, std::string> nodeToSetExt {
+    {IRNodeType::JG, "g"},
+    {IRNodeType::JA, "a"},
+    {IRNodeType::JL, "l"},
+    {IRNodeType::JB, "b"},
+    {IRNodeType::JGE, "ge"},
+    {IRNodeType::JAE, "ae"},
+    {IRNodeType::JLE, "le"},
+    {IRNodeType::JBE, "be"},
+    {IRNodeType::JE, "e"},
+    {IRNodeType::JNE, "ne"}
+};
+
 /// general purpose registers (x86_64 architecture)
 const std::vector<std::string> gpRegisters {
     "%r8", 
