@@ -36,7 +36,7 @@ public:
     /** 
      * @brief parses body of the function
      * @param function - pointer to a function that owns the body
-     * @details BODY : LBRACKET (STATEMENT)? RBRACKET
+     * @details BODY : LBRACE (STATEMENT)? RBRACE
     */
     void parseBody(ASTFunction* function);
 

@@ -174,18 +174,34 @@ TEST(IRTest, SwitchCaseDeadCodeElimination){
     ASSERT_EQ(caseStmt->getSwitchBlockStmt()->getStmts().size(), expectedStmtCount);
 }
 
-TEST(IRTest, NumExpConstantFolding){
+TEST(IRTest, ExprConstantFolding){
     std::vector<std::string> input{"5 + 3 - 1 * 2"};
     LexerTest lexer{ input };
     lexer.tokenize();
 
     TokenConsumer tokenConsumer { lexer };
     ExpressionParserTest parser{ tokenConsumer };
-    std::unique_ptr<ASTExpr> astExpr = parser.parseArithmeticExpr();
+    std::unique_ptr<ASTExpr> astExpr = parser.parseExpr();
 
     ExpressionIntermediateRepresentationTest intermediateRepresentation;
-    std::unique_ptr<IRExpr> irExpr = intermediateRepresentation.transformNumericalExpr(astExpr.get());
+    std::unique_ptr<IRExpr> irExpr = intermediateRepresentation.transformExpr(astExpr.get());
 
     ASSERT_TRUE(irExpr->getNodeType() == IRNodeType::LITERAL);
     ASSERT_EQ(static_cast<IRLiteralExpr*>(irExpr.get())->getValue(), "6");
+}
+
+TEST(IRTest, ConditionConstantFolding){
+    std::vector<std::string> input{"5 > 3 && 2 < 3"};
+    LexerTest lexer{ input };
+    lexer.tokenize();
+
+    TokenConsumer tokenConsumer { lexer };
+    ExpressionParserTest parser{ tokenConsumer };
+    std::unique_ptr<ASTExpr> astExpr = parser.parseExpr();
+
+    ExpressionIntermediateRepresentationTest intermediateRepresentation;
+    std::unique_ptr<IRExpr> irExpr = intermediateRepresentation.transformExpr(astExpr.get());
+
+    ASSERT_TRUE(irExpr->getNodeType() == IRNodeType::LITERAL);
+    ASSERT_EQ(static_cast<IRLiteralExpr*>(irExpr.get())->getValue(), "1");
 }

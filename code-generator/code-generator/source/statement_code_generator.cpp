@@ -71,7 +71,7 @@ void StatementCodeGenerator::generateVariableDeclStmt(const IRVariableDeclStmt* 
             exprGenerator.generateTemporaryExprs(variableDecl->getTemporaryExpr());
         }
 
-        exprGenerator.generateNumericalExpr(variableDecl->getAssignExpr());
+        exprGenerator.generateExpr(variableDecl->getAssignExpr());
         codeGenContext.freeGpReg();
         AsmGenerator::Instruction::genMov(
             codeGenContext.asmCode, 
@@ -94,7 +94,18 @@ void StatementCodeGenerator::generateVariableDeclStmt(const IRVariableDeclStmt* 
 void StatementCodeGenerator::generateIfStmt(const IRIfStmt* ifStmt){
     size_t labNum{ CodeGenerator::getNextLabelNum() };
     size_t size{ ifStmt->getConditionCount() };
+
     std::string jmpLabel{ "" };
+    std::string bodyStartLabel{ "" };
+    std::string elseLabel{ std::format("_else{}", labNum) };
+    std::string endLabel{ std::format("_if{}_end", labNum) };
+
+    auto conditionLabel = [labNum](size_t i) -> std::string {
+        return std::format("_if{}_{}", labNum, i);
+    };
+    auto bodyLabel = [labNum](size_t i) -> std::string {
+        return std::format("_if{}_body{}", labNum, i);
+    };
 
     auto& codeGenContext{ FunctionCodeGenerator::getContext() };
 
@@ -104,84 +115,99 @@ void StatementCodeGenerator::generateIfStmt(const IRIfStmt* ifStmt){
         };
         AsmGenerator::Instruction::genLabel(
             codeGenContext.asmCode, 
-            std::format("_if{}_{}", labNum, i)
+            conditionLabel(i)
         );
         
         if(tempExpr != nullptr){
             exprGenerator.generateTemporaryExprs(tempExpr);
         }
-        exprGenerator.generateRelationalExpr(condition);
 
         if(i == size - 1 && ifStmt->hasElseStmt()){
-            jmpLabel = std::format("_else{}", labNum);
+            jmpLabel = elseLabel;
         }
         else if(i < size - 1){
-            jmpLabel = std::format("_if{}_{}", labNum, i + 1);
+            jmpLabel = conditionLabel(i + 1);
         }
         else {
-            jmpLabel = std::format("_if{}_end", labNum);
+            jmpLabel = endLabel;
         }
-
-        AsmGenerator::Instruction::genJmp(
-            codeGenContext.asmCode, 
-            nodeToOppJMP.at(condition->getNodeType()), 
+        bodyStartLabel = bodyLabel(i + 1);
+        exprGenerator.generateConditionExpr(
+            condition, 
+            bodyStartLabel, 
             jmpLabel
+        );
+
+        AsmGenerator::Instruction::genLabel(
+            codeGenContext.asmCode, 
+            bodyStartLabel
         );
 
         generateStmt(stmt);
         AsmGenerator::Instruction::genJmp(
             codeGenContext.asmCode, 
             "jmp", 
-            std::format("_if{}_end", labNum)
+            endLabel
         );
     }
 
     if(ifStmt->hasElseStmt()){
         AsmGenerator::Instruction::genLabel(
             codeGenContext.asmCode, 
-            std::format("_else{}", labNum)
+            elseLabel
         );
         generateStmt(ifStmt->getElseStmt());
     }
     AsmGenerator::Instruction::genLabel(
         codeGenContext.asmCode, 
-        std::format("_if{}_end", labNum)
+        endLabel
     );
 }
 
 void StatementCodeGenerator::generateWhileStmt(const IRWhileStmt* whileStmt){
     size_t labNum{ CodeGenerator::getNextLabelNum() };
 
+    std::string startLabel{ std::format("_while{}", labNum) };
+    std::string bodyLabel{ std::format("_while{}_body", labNum) };
+    std::string endLabel{ std::format("_while{}_end", labNum) };
+
     auto& codeGenContext{ FunctionCodeGenerator::getContext() };
     AsmGenerator::Instruction::genLabel(
         codeGenContext.asmCode, 
-        std::format("_while{}", labNum)
+        startLabel
     );
     if(whileStmt->hasTemporaryExpr()){
         exprGenerator.generateTemporaryExprs(whileStmt->getTemporaryExpr());
     }
-    exprGenerator.generateRelationalExpr(whileStmt->getConditionExpr());
-
-    AsmGenerator::Instruction::genJmp(
-        codeGenContext.asmCode, 
-        nodeToOppJMP.at(whileStmt->getConditionExpr()->getNodeType()), 
-        std::format("_while{}_end", labNum)
+    exprGenerator.generateConditionExpr(
+        whileStmt->getConditionExpr(), 
+        bodyLabel, 
+        endLabel
     );
 
+    AsmGenerator::Instruction::genLabel(
+        codeGenContext.asmCode, 
+        bodyLabel
+    );
     generateStmt(whileStmt->getStmt());
     AsmGenerator::Instruction::genJmp(
         codeGenContext.asmCode, 
         "jmp", 
-        std::format("_while{}", labNum)
+        startLabel
     );
+
     AsmGenerator::Instruction::genLabel(
         codeGenContext.asmCode, 
-        std::format("_while{}_end", labNum)
+        endLabel
     );
 }
 
 void StatementCodeGenerator::generateForStmt(const IRForStmt* forStmt){
     size_t labNum{ CodeGenerator::getNextLabelNum() };
+
+    std::string startLabel{ std::format("_for{}", labNum) };
+    std::string bodyLabel{ std::format("_for{}_body", labNum) };
+    std::string endLabel{ std::format("_for{}_end", labNum) };
 
     auto& codeGenContext{ FunctionCodeGenerator::getContext() };
     // initializer
@@ -190,7 +216,7 @@ void StatementCodeGenerator::generateForStmt(const IRForStmt* forStmt){
     }
     AsmGenerator::Instruction::genLabel(
         codeGenContext.asmCode, 
-        std::format("_for{}", labNum)
+        startLabel
     );
 
     // no condition is treated as true
@@ -198,13 +224,16 @@ void StatementCodeGenerator::generateForStmt(const IRForStmt* forStmt){
         if(forStmt->hasTemporaryExpr()){
             exprGenerator.generateTemporaryExprs(forStmt->getTemporaryExpr());
         }
-        exprGenerator.generateRelationalExpr(forStmt->getConditionExpr());
 
-        // condition jump
-        AsmGenerator::Instruction::genJmp(
+        exprGenerator.generateConditionExpr(
+            forStmt->getConditionExpr(), 
+            bodyLabel, 
+            endLabel
+        );
+
+        AsmGenerator::Instruction::genLabel(
             codeGenContext.asmCode, 
-            nodeToOppJMP.at(forStmt->getConditionExpr()->getNodeType()), 
-            std::format("_for{}_end", labNum)
+            bodyLabel
         );
     }
 
@@ -217,22 +246,26 @@ void StatementCodeGenerator::generateForStmt(const IRForStmt* forStmt){
     AsmGenerator::Instruction::genJmp(
         codeGenContext.asmCode, 
         "jmp", 
-        std::format("_for{}", labNum)
+        startLabel
     );
 
     AsmGenerator::Instruction::genLabel(
         codeGenContext.asmCode, 
-        std::format("_for{}_end", labNum)
+        endLabel
     );
 }
 
 void StatementCodeGenerator::generateDoWhileStmt(const IRDoWhileStmt* dowhileStmt){
     size_t labNum{ CodeGenerator::getNextLabelNum() };
+    
+    std::string startLabel{ std::format("_do_while{}", labNum) };
+    std::string endLabel{ std::format("_do_while{}_end", labNum) };
+
     auto& codeGenContext{ FunctionCodeGenerator::getContext() };
 
     AsmGenerator::Instruction::genLabel(
         codeGenContext.asmCode, 
-        std::format("_do_while{}", labNum)
+        startLabel
     );
     generateStmt(dowhileStmt->getStmt());
     
@@ -240,11 +273,15 @@ void StatementCodeGenerator::generateDoWhileStmt(const IRDoWhileStmt* dowhileStm
         exprGenerator.generateTemporaryExprs(dowhileStmt->getTemporaryExpr());
     }
 
-    exprGenerator.generateRelationalExpr(dowhileStmt->getConditionExpr());
-    AsmGenerator::Instruction::genJmp(
+    exprGenerator.generateConditionExpr(
+        dowhileStmt->getConditionExpr(), 
+        startLabel, 
+        endLabel
+    );
+
+    AsmGenerator::Instruction::genLabel(
         codeGenContext.asmCode, 
-        nodeToJMP.at(dowhileStmt->getConditionExpr()->getNodeType()), 
-        std::format("_do_while{}", labNum)
+        endLabel
     );
 }
 
@@ -262,12 +299,12 @@ void StatementCodeGenerator::generateAssignStmt(const IRAssignStmt* assignStmt){
     }
 
     auto& codeGenContext{ FunctionCodeGenerator::getContext() };
-    exprGenerator.generateNumericalExpr(assignStmt->getAssignedExpr());
+    exprGenerator.generateExpr(assignStmt->getAssignedExpr());
     codeGenContext.freeGpReg();
     AsmGenerator::Instruction::genMov(
         codeGenContext.asmCode, 
         gpRegisters.at(codeGenContext.gpFreeRegPos), 
-        exprGenerator.generateIDExpr(assignStmt->getVariableIdExpr()), 
+        exprGenerator.getIdExprAddress(assignStmt->getVariableIdExpr()), 
         "q"
     );
 }
@@ -281,7 +318,7 @@ void StatementCodeGenerator::generateReturnStmt(const IRReturnStmt* returnStmt){
             exprGenerator.generateTemporaryExprs(returnStmt->getTemporaryExpr());
         }
 
-        exprGenerator.generateNumericalExpr(returnStmt->getReturnExpr());
+        exprGenerator.generateExpr(returnStmt->getReturnExpr());
         codeGenContext.freeGpReg();
         AsmGenerator::Instruction::genMov(
             codeGenContext.asmCode, 
@@ -299,21 +336,30 @@ void StatementCodeGenerator::generateReturnStmt(const IRReturnStmt* returnStmt){
     AsmGenerator::Instruction::genJmp(
         codeGenContext.asmCode, 
         "jmp", 
-        std::format("{}_end", codeGenContext.functionName)
+        std::format("_{}_end", codeGenContext.functionName)
     );
 }
 
 void StatementCodeGenerator::generateFunctionCallStmt(const IRFunctionCallStmt* callStmt){
-    exprGenerator.generateFunctionCallExpr(callStmt->getFunctionCallExpr());
+    exprGenerator.generateFunctionCallExpr(callStmt->getFunctionCallExpr(), false);
 }
 
 void StatementCodeGenerator::generateSwitchStmt(const IRSwitchStmt* switchStmt){
     size_t labNum{ CodeGenerator::getNextLabelNum() };
+
+    std::string startLabel{ std::format("_switch{}", labNum) };
+    std::string defaultLabel{ std::format("_switch{}_default", labNum) };
+    std::string endLabel{ std::format("_switch{}_end", labNum) };
+
+    auto caseLabel = [labNum](size_t i) -> std::string {
+        return std::format("_switch{}_case{}", labNum, i);
+    };
+
     auto& codeGenContext{ FunctionCodeGenerator::getContext() };
 
     AsmGenerator::Instruction::genLabel(
         codeGenContext.asmCode, 
-        std::format("_switch{}", labNum)
+        startLabel
     );
 
     size_t size{ switchStmt->getCaseCount() };
@@ -325,7 +371,7 @@ void StatementCodeGenerator::generateSwitchStmt(const IRSwitchStmt* switchStmt){
 
         AsmGenerator::Instruction::genLabel(
             codeGenContext.asmCode, 
-            std::format("_switch{}_case{}", labNum, i)
+            caseLabel(i)
         );
         AsmGenerator::Instruction::genMov(
             codeGenContext.asmCode, 
@@ -335,7 +381,7 @@ void StatementCodeGenerator::generateSwitchStmt(const IRSwitchStmt* switchStmt){
         );
         AsmGenerator::Instruction::genMov(
             codeGenContext.asmCode, 
-            exprGenerator.generateLiteralExpr(caseStmt->getLiteralExpr()), 
+            exprGenerator.formatLiteral(caseStmt->getLiteralExpr()), 
             "%rdx", 
             "q"
         );
@@ -343,13 +389,13 @@ void StatementCodeGenerator::generateSwitchStmt(const IRSwitchStmt* switchStmt){
         
         std::string jmpLabel{""};
         if(i < size - 1){
-            jmpLabel = std::format("_switch{}_{}", labNum, ("case" + std::to_string(i + 1)));
+            jmpLabel = caseLabel(i + 1);
         }
         else if(switchStmt->hasDefaultStmt()){
-            jmpLabel = std::format("_switch{}_default", labNum);
+            jmpLabel = defaultLabel;
         }
         else{
-            jmpLabel = std::format("_switch{}_end", labNum);
+            jmpLabel = endLabel;
         }
         AsmGenerator::Instruction::genJmp(codeGenContext.asmCode, "jne", jmpLabel);
         
@@ -361,21 +407,22 @@ void StatementCodeGenerator::generateSwitchStmt(const IRSwitchStmt* switchStmt){
             AsmGenerator::Instruction::genJmp(
                 codeGenContext.asmCode, 
                 "jmp", 
-                std::format("_switch{}_end", labNum)
+                endLabel
             );
         }
     }
     if(switchStmt->hasDefaultStmt()){
         AsmGenerator::Instruction::genLabel(
             codeGenContext.asmCode, 
-            std::format("_switch{}_default", labNum)
+            defaultLabel
         );
-        for(const auto& stmt : switchStmt->getDefaultStmt()->getSwitchBlockStmt()->getStmts()){
+        const auto& defaultStmt{ switchStmt->getDefaultStmt() };
+        for(const auto& stmt : defaultStmt->getSwitchBlockStmt()->getStmts()){
             generateStmt(stmt.get());
         }
     }
     AsmGenerator::Instruction::genLabel(
         codeGenContext.asmCode, 
-        std::format("_switch{}_end", labNum)
+        endLabel
     );
 }

@@ -23,7 +23,7 @@ public:
 
     /** 
      * @brief getter for the conditions of the if-statement
-     * @returns reference to a const vector of pointers to the relational expressions
+     * @returns reference to a const vector of pointers to the conditions of the if-statement
     */
     const std::vector<std::unique_ptr<IRExpr>>& getConditionExprs() const noexcept;
 
@@ -47,7 +47,7 @@ public:
 
     /** 
      * @brief initializes if/else-if statement
-     * @param condExpr - pointer to a relational expression of the if/else-if statement
+     * @param condExpr - pointer to a condition of the if/else-if statement
      * @param statement - pointer to a statement of the if/else-if statement
      * @param tempExpr - pointer to a temporary of the if/else-if statement, default nullptr
     */
@@ -85,7 +85,7 @@ public:
     void accept(IRVisitor& visitor) override;
 
 private:
-    /// vector of pointers to relational expressions of the if-statement
+    /// vector of pointers to condition of the if-statement
     std::vector<std::unique_ptr<IRExpr>> conditionExprs;
 
     /// vector of pointers to statements of the if-statement

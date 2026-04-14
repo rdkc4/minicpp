@@ -4,29 +4,29 @@
 
 #include "../function_intermediate_representation.hpp"
 #include "../../optimization/constant_folding.hpp"
+#include "../../common/intermediate-representation-tree/ir_binary_expr.hpp"
 
-// NUMEXP - reduced to (id, literal, function call) or arithmetic operation (add, sub, mul, div)
-std::unique_ptr<IRExpr> ExpressionIntermediateRepresentation::transformNumericalExpr(const ASTExpr* astNumericalExpr){
-    if(astNumericalExpr->getNodeType() == ASTNodeType::ID_EXPR){
-        return transformIdExpr(static_cast<const ASTIdExpr*>(astNumericalExpr));
+std::unique_ptr<IRExpr> ExpressionIntermediateRepresentation::transformExpr(const ASTExpr* astExpr){
+    if(astExpr->getNodeType() == ASTNodeType::ID_EXPR){
+        return transformIdExpr(static_cast<const ASTIdExpr*>(astExpr));
     }
-    else if(astNumericalExpr->getNodeType() == ASTNodeType::LITERAL_EXPR){
-        return transformLiteralExpr(static_cast<const ASTLiteralExpr*>(astNumericalExpr));
+    else if(astExpr->getNodeType() == ASTNodeType::LITERAL_EXPR){
+        return transformLiteralExpr(static_cast<const ASTLiteralExpr*>(astExpr));
     }
-    else if(astNumericalExpr->getNodeType() == ASTNodeType::FUNCTION_CALL_EXPR){
-        return replaceFunctionCallExpr(static_cast<const ASTFunctionCallExpr*>(astNumericalExpr));
+    else if(astExpr->getNodeType() == ASTNodeType::FUNCTION_CALL_EXPR){
+        return replaceFunctionCallExpr(static_cast<const ASTFunctionCallExpr*>(astExpr));
     }
     else{
-        return transformBinaryExpr(static_cast<const ASTBinaryExpr*>(astNumericalExpr));
+        return transformBinaryExpr(static_cast<const ASTBinaryExpr*>(astExpr));
     }
 }
 
 std::unique_ptr<IRExpr> ExpressionIntermediateRepresentation::transformBinaryExpr(const ASTBinaryExpr* astBinaryExpr){
     std::unique_ptr<IRExpr> leftOperand{ 
-        transformNumericalExpr(astBinaryExpr->getLeftOperandExpr()) 
+        transformExpr(astBinaryExpr->getLeftOperandExpr()) 
     };
     std::unique_ptr<IRExpr> rightOperand{ 
-        transformNumericalExpr(astBinaryExpr->getRightOperandExpr()) 
+        transformExpr(astBinaryExpr->getRightOperandExpr()) 
     };
 
     if(leftOperand->getNodeType() == IRNodeType::LITERAL && rightOperand->getNodeType() == IRNodeType::LITERAL){
@@ -56,7 +56,6 @@ std::unique_ptr<IRExpr> ExpressionIntermediateRepresentation::transformBinaryExp
         return std::move(res.result);
     }
     
-    std::string val{ astBinaryExpr->getToken().value };
     Type type{ leftOperand->getType() };
     IRNodeType iNodeType{ operatorToIRNodeType.at(astBinaryExpr->getOperator()).getOperation(type) };
 
@@ -67,24 +66,6 @@ std::unique_ptr<IRExpr> ExpressionIntermediateRepresentation::transformBinaryExp
         astBinaryExpr->getOperator()
     );
 
-    return irBinaryExpr;
-}
-
-std::unique_ptr<IRBinaryExpr> ExpressionIntermediateRepresentation::transformRelationalExpr(const ASTExpr* astRelationalExpr) {
-    const ASTBinaryExpr* astBinaryExpr{ static_cast<const ASTBinaryExpr*>(astRelationalExpr) };
-    
-    IRNodeType irNodeType{ 
-        operatorToIRNodeType.at(astBinaryExpr->getOperator()).getOperation(astBinaryExpr->getType()) 
-    };
-    std::unique_ptr<IRBinaryExpr> irBinaryExpr{ 
-        std::make_unique<IRBinaryExpr>(irNodeType, astBinaryExpr->getType())
-    };
-
-    irBinaryExpr->setBinaryExpr(
-        transformNumericalExpr(astBinaryExpr->getLeftOperandExpr()), 
-        transformNumericalExpr(astBinaryExpr->getRightOperandExpr()), 
-        astBinaryExpr->getOperator()
-    );
     return irBinaryExpr;
 }
 
@@ -117,7 +98,7 @@ void ExpressionIntermediateRepresentation::transformArguments(IRFunctionCallExpr
     for(const auto& astArgument : astCallExpr->getArguments()){
         auto temps{ initiateTemporaries(astArgument.get()) };
         irCallExpr->addArgument(
-            transformNumericalExpr(astArgument.get()), 
+            transformExpr(astArgument.get()), 
             std::move(temps)
         );
     }
@@ -173,7 +154,7 @@ void ExpressionIntermediateRepresentation::assignTemporaries(IRTemporaryExpr* te
     }
 }
 
-// replacing function calls with temporary variables in numerical expression
+// replacing function calls with temporary variables in expression
 std::unique_ptr<IRIdExpr> ExpressionIntermediateRepresentation::replaceFunctionCallExpr(const ASTFunctionCallExpr* astCallExpr){
     auto& irContext{ FunctionIntermediateRepresentation::getContext() }; 
     assert(!irContext.temporaryNames.empty());

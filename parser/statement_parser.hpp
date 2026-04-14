@@ -59,14 +59,14 @@ public:
 
     /** 
      * @brief parses variable declaration
-     * @details VARIABLE_DECL : TYPE ID (ASSIGN NUMERICAL_EXPRESSION)? SEMICOLON
+     * @details VARIABLE_DECL : TYPE ID (ASSIGN EXPRESSION)? SEMICOLON
      * @returns pointer to a variable declaration node
     */
     std::unique_ptr<ASTVariableDeclStmt> parseVariableDeclStmt();
 
     /** 
      * @brief parses compound statement
-     * @details COMPOUND_STATEMENT : LBRACKET (STATEMENT)? RBRACKET
+     * @details COMPOUND_STATEMENT : LBRACE (STATEMENT)? RBRACE
      * @returns pointer to a compound statement node
     */
     std::unique_ptr<ASTCompoundStmt> parseCompoundStmt();
@@ -74,14 +74,14 @@ public:
     /** 
      * @brief parses assignment statement
      * @param expectsSemicolon - flag whether assignment statement ends with semicolon
-     * @details ASSIGNMENT_STATEMENT : ID ASSIGN NUMERICAL_EXPRESSION SEMICOLON
+     * @details ASSIGNMENT_STATEMENT : ID ASSIGN EXPRESSION SEMICOLON
      * @returns pointer to an assignment statement node
     */
     std::unique_ptr<ASTAssignStmt> parseAssignStmt(bool expectsSemicolon = true);
 
     /** 
      * @brief parses return statement
-     * @details RETURN_STATEMENT : RETURN (NUMERICAL_EXPRESSION)? SEMICOLON
+     * @details RETURN_STATEMENT : RETURN (EXPRESSION)? SEMICOLON
      * @returns pointer to a return statement node
     */
     std::unique_ptr<ASTReturnStmt> parseReturnStmt();
@@ -92,7 +92,7 @@ public:
      *
      * IF_STATEMENT
      *
-     * : IF LPAREN RELATIONAL_EXPRESSION RPAREN STATEMENT
+     * : IF LPAREN EXPRESSION RPAREN STATEMENT
      *
      * | IF_STATEMENT ELSE IF STATEMENT
      *
@@ -103,21 +103,21 @@ public:
 
     /** 
      * @brief parses while statement
-     * @details WHILE_STATEMENT : WHILE LPAREN RELATIONAL_EXPRESSION RPAREN STATEMENT
+     * @details WHILE_STATEMENT : WHILE LPAREN EXPRESSION RPAREN STATEMENT
      * @returns pointer to a while statement node
     */
     std::unique_ptr<ASTWhileStmt> parseWhileStmt();
 
     /** 
      * @brief parses for statement
-     * @details FOR_STATEMENT : FOR LPAREN (ASSIGN_STATEMENT SEMICOLON)? (RELATIONAL_EXPRESSION SEMICOLON)? (ASSIGNMENT_STATEMENT)? RPAREN STATEMENT
+     * @details FOR_STATEMENT : FOR LPAREN (ASSIGN_STATEMENT SEMICOLON)? (EXPRESSION SEMICOLON)? (ASSIGNMENT_STATEMENT)? RPAREN STATEMENT
      * @returns pointer to a for statement node
     */
     std::unique_ptr<ASTForStmt> parseForStmt();
 
     /** 
      * @brief parses do-while statement
-     * @details DO_WHILE_STATEMENT : DO STATEMENT WHILE LPAREN RELATIONAL_EXPRESSION RPAREN SEMICOLON
+     * @details DO_WHILE_STATEMENT : DO STATEMENT WHILE LPAREN EXPRESSION RPAREN SEMICOLON
      * @returns pointer to a do-while statement node
     */
     std::unique_ptr<ASTDoWhileStmt> parseDoWhileStmt();
@@ -131,7 +131,7 @@ public:
 
     /** 
      * @brief parses switch statement
-     * @details SWITCH_STATEMENT : SWITCH LPAREN ID RPAREN LBRACKET (_CASE)+ (_DEFAULT)? RBRACKET
+     * @details SWITCH_STATEMENT : SWITCH LPAREN ID RPAREN LBRACE (_CASE)+ (_DEFAULT)? RBRACE
      * @returns pointer to a switch statement node
     */
     std::unique_ptr<ASTSwitchStmt> parseSwitchStmt();

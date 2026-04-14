@@ -6,7 +6,7 @@
 
 #if defined(__x86_64__) && defined(__clang__)
 
-TEST(CodeGenTest, ReturnsNumExp){
+TEST(CodeGenTest, ReturnsExpr){
     std::vector<std::string> ext = {".mcpp", ".s", ".o", ""};
 
     const std::string input{"tmp1.mcpp"};
@@ -191,6 +191,126 @@ TEST(CodeGenTest, ForStatement){
 
     int exitCode = WEXITSTATUS(run_status);
     EXPECT_EQ(exitCode, 15);
+
+    // cleanup files
+    for(const auto& e : ext){
+        __test__removeFile(std::format("{}{}", output, e));
+    }
+}
+
+TEST(CodeGenTest, ReturnsLogicalExpr){
+    std::vector<std::string> ext = {".mcpp", ".s", ".o", ""};
+
+    const std::string input{"tmp9.mcpp"};
+    const std::string output{ "tmp9" };
+
+    __test__writeSourceToFile("int main(){ return 1 < 2 && 3 > 4 || 2 <= 3; }", input);
+    
+    Compiler::compile({.input = input, .output = output});
+
+    int run_status = __test__runCommand({
+        std::format("./{}", output)
+    });
+    ASSERT_TRUE(WIFEXITED(run_status)) << "Process didn't exit normally.\n";
+
+    int exitCode = WEXITSTATUS(run_status);
+    EXPECT_EQ(exitCode, 1);
+
+    // cleanup files
+    for(const auto& e : ext){
+        __test__removeFile(std::format("{}{}", output, e));
+    }
+}
+
+TEST(CodeGenTest, IfStatementLiteralCondition){
+    std::vector<std::string> ext = {".mcpp", ".s", ".o", ""};
+
+    const std::string input{"tmp10.mcpp"};
+    const std::string output{ "tmp10" };
+
+    __test__writeSourceToFile("int main(){ if(1) return 0; return 1; }", input);
+    
+    Compiler::compile({.input = input, .output = output});
+
+    int run_status = __test__runCommand({
+        std::format("./{}", output)
+    });
+    ASSERT_TRUE(WIFEXITED(run_status)) << "Process didn't exit normally.\n";
+
+    int exitCode = WEXITSTATUS(run_status);
+    EXPECT_EQ(exitCode, 0);
+
+    // cleanup files
+    for(const auto& e : ext){
+        __test__removeFile(std::format("{}{}", output, e));
+    }
+}
+
+TEST(CodeGenTest, DoWhileStatementIdCondition){
+    std::vector<std::string> ext = {".mcpp", ".s", ".o", ""};
+
+    const std::string input{"tmp11.mcpp"};
+    const std::string output{ "tmp11" };
+
+    __test__writeSourceToFile("int main(){ int x = 3; do{ x = x - 1; }while(x); return x; }", input);
+    
+    Compiler::compile({.input = input, .output = output});
+
+    int run_status = __test__runCommand({
+        std::format("./{}", output)
+    });
+    ASSERT_TRUE(WIFEXITED(run_status)) << "Process didn't exit normally.\n";
+
+    int exitCode = WEXITSTATUS(run_status);
+    EXPECT_EQ(exitCode, 0);
+
+    // cleanup files
+    for(const auto& e : ext){
+        __test__removeFile(std::format("{}{}", output, e));
+    }
+}
+
+TEST(CodeGenTest, WhileStatementFunctionCallCondition){
+    std::vector<std::string> ext = {".mcpp", ".s", ".o", ""};
+
+    const std::string input{"tmp12.mcpp"};
+    const std::string output{ "tmp12" };
+
+    __test__writeSourceToFile("int fn(int x){ return x; } int main(){ int x = 3; while(fn(x)) x = x - 1; return x; }", input);
+    
+    Compiler::compile({.input = input, .output = output});
+
+    int run_status = __test__runCommand({
+        std::format("./{}", output)
+    });
+    ASSERT_TRUE(WIFEXITED(run_status)) << "Process didn't exit normally.\n";
+
+    int exitCode = WEXITSTATUS(run_status);
+    EXPECT_EQ(exitCode, 0);
+
+    // cleanup files
+    for(const auto& e : ext){
+        __test__removeFile(std::format("{}{}", output, e));
+    }
+}
+
+TEST(CodeGenTest, ForStatementComplexConditionExpression){
+    std::vector<std::string> ext = {".mcpp", ".s", ".o", ""};
+
+    const std::string input{"tmp13.mcpp"};
+    const std::string output{ "tmp13" };
+
+    __test__writeSourceToFile("int main(){ int a = 5; int b = 10; int c = 3; int d = 8; int sum = 0; int i; for(i = 0;((i < 20) && ((a + b * c - d / 2) > 0) && ((i << 1) < (b >> 1)) && ((a ^ b) != (c | d)) && ((a & d) <= (b + c))) || ((i & 3) == 0); i = i + 1){ sum = sum + (i * 2 + (a - c)); } return sum; }", input);
+    
+    Compiler::compile({.input = input, .output = output});
+
+    int run_status = __test__runCommand({
+        std::format("./{}", output)
+    });
+    ASSERT_TRUE(WIFEXITED(run_status)) << "Process didn't exit normally.\n";
+
+    int exitCode = WEXITSTATUS(run_status);
+    EXPECT_EQ(exitCode, 12);
 
     // cleanup files
     for(const auto& e : ext){

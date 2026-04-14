@@ -327,30 +327,30 @@ TEST(ParserTest, SwitchStatementNoCaseThrows){
     ASSERT_THROW(switchStmt = parser.parseSwitchStmt(), std::runtime_error);
 }
 
-TEST(ParserTest, NumericalExpression){
+TEST(ParserTest, Expression){
     std::vector<std::string> input{"1 + 2"};
     LexerTest lexer{ input };
     lexer.tokenize();
     TokenConsumer tokenConsumer { lexer };
     ExpressionParserTest parser{ tokenConsumer };
 
-    std::unique_ptr<ASTExpr> numericalExpr;
-    ASSERT_NO_THROW(numericalExpr = parser.parseArithmeticExpr());
-    ASSERT_EQ(numericalExpr->getNodeType(), ASTNodeType::BINARY_EXPR);
-    ASSERT_EQ(static_cast<ASTBinaryExpr*>(numericalExpr.get())->getOperator(), Operator::ADD);
+    std::unique_ptr<ASTExpr> expr;
+    ASSERT_NO_THROW(expr = parser.parseExpr());
+    ASSERT_EQ(expr->getNodeType(), ASTNodeType::BINARY_EXPR);
+    ASSERT_EQ(static_cast<ASTBinaryExpr*>(expr.get())->getOperator(), Operator::ADD);
 }
 
-TEST(ParserTest, RelationalExpression){
+TEST(ParserTest, ConditionExpression){
     std::vector<std::string> input{"1 + 2 > a + b"};
     LexerTest lexer{ input };
     lexer.tokenize();
     TokenConsumer tokenConsumer { lexer };
     ExpressionParserTest parser{ tokenConsumer };
 
-    std::unique_ptr<ASTExpr> relationalExpr;
-    ASSERT_NO_THROW(relationalExpr = parser.parseRelationalExpr());
-    ASSERT_EQ(relationalExpr->getNodeType(), ASTNodeType::BINARY_EXPR);
-    ASSERT_EQ(static_cast<ASTBinaryExpr*>(relationalExpr.get())->getOperator(), Operator::GREATER);
+    std::unique_ptr<ASTExpr> conditionExpr;
+    ASSERT_NO_THROW(conditionExpr = parser.parseExpr());
+    ASSERT_EQ(conditionExpr->getNodeType(), ASTNodeType::BINARY_EXPR);
+    ASSERT_EQ(static_cast<ASTBinaryExpr*>(conditionExpr.get())->getOperator(), Operator::GREATER);
 }
 
 TEST(ParserTest, FunctionCallNoArgs){

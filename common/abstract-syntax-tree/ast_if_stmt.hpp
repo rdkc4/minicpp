@@ -23,7 +23,7 @@ public:
 
     /** 
      * @brief getter for conditions
-     * @returns reference to a vector of pointers to relational expression
+     * @returns reference to a vector of pointers to conditions of the if statement
     */
     const std::vector<std::unique_ptr<ASTExpr>>& getConditionExprs() const noexcept;
 
@@ -35,7 +35,7 @@ public:
 
     /** 
      * @brief adds new if/else-if statement
-     * @param condExpr - pointer to a relational expression
+     * @param condExpr - pointer to a condition of the if statement
      * @param statement - pointer to a statement of if/else-if statement
     */
     void addIfStmt(std::unique_ptr<ASTExpr> condExpr, std::unique_ptr<ASTStmt> statement);
@@ -59,7 +59,7 @@ public:
     void accept(ASTVisitor& visitor) override;
 
 private:
-    /// vector of pointers to relational expressions of the if-statement
+    /// vector of pointers to conditions of the if-statement
     std::vector<std::unique_ptr<ASTExpr>> conditionExprs;
     
     /// vector of pointers to statements of the if-statement

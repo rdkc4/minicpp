@@ -21,8 +21,8 @@ public:
     ASTDoWhileStmt(const Token& token);
 
     /** 
-     * @brief getter for relational expression node
-     * @returns pointer or const pointer to a relational expression node
+     * @brief getter for condition node
+     * @returns pointer or const pointer to a condition node
     */
     template<typename Self>
     decltype(auto) getConditionExpr(this Self&& self) noexcept {
@@ -40,7 +40,7 @@ public:
 
     /** 
      * @brief initializes do-while statement node
-     * @param condExpr - pointer to a relational expression node
+     * @param condExpr - pointer to a condition node
      * @param statement - pointer to a statement node
     */
     void setDoWhile(std::unique_ptr<ASTExpr> condExpr, std::unique_ptr<ASTStmt> statement);
@@ -52,7 +52,7 @@ public:
     void accept(ASTVisitor& visitor) override;
 
 private:
-    /// pointer to the relational expression of the do-while statement
+    /// pointer to the condition of the do-while statement
     std::unique_ptr<ASTExpr> conditionExpr;
 
     /// pointer to the statement of the do-while statement

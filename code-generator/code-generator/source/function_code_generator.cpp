@@ -51,7 +51,7 @@ void FunctionCodeGenerator::generateFunction(const IRFunction* function){
     // function end label
     AsmGenerator::Instruction::genLabel(
         codeGenContext.asmCode, 
-        std::format("{}_end", codeGenContext.functionName)
+        std::format("_{}_end", codeGenContext.functionName)
     );
     
     // free local variables 

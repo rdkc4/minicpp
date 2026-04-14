@@ -7,6 +7,7 @@
 
 #include "../common/token/token.hpp"
 #include "defs/lexer_defs.hpp"
+#include "defs/lexeme.hpp"
 
 /**
  * @class Lexer
@@ -256,10 +257,15 @@ private:
 
     /**
      * @brief handles relational operator
-     * @param opLen - length of the operator
      * @returns true if sequence is a relational operator, false otherwise
     */
     bool handleRelationalOperator();
+
+    /**
+     * @brief handles logical operator
+     * @returns true if sequence is a logical operator, false otherwise
+    */    
+    bool handleLogicalOperator();
 
     /**
      * @brief handles assign operator
@@ -278,6 +284,14 @@ private:
      * @returns true if a sequence is an arithmetic operator, false otherwise
     */
     bool handleArithmeticOperator();
+
+    /**
+     * @brief generates the operator token
+     * @param type - type of the token
+     * @param length - length of the token
+     * @param gtype - general token type of the token
+    */
+    void emitOperator(TokenType type, size_t length, GeneralTokenType gtype = GeneralTokenType::OPERATOR);
 
     /**
      * @brief handles punctuations, updates position
@@ -333,92 +347,145 @@ private:
 
     /** 
      * @brief checks if current sequence of characters is an assignment operator
-     * @returns true if sequence matches assign operator, false otherwise
+     * @returns lexeme of assign operator if sequence matches assign operator, invalid lexeme otherwise
     */
-    bool isAssignOperator() const noexcept {
-        return getChar(position) == '=' && (!isValidIndex(1) || getChar(position + 1) != '=');
+    Lexeme isAssignOperator() const noexcept {
+        if(getChar(position) == '=' && (!isValidIndex(1) || getChar(position + 1) != '=')){
+            return {.type = TokenType::ASSIGN, .length = 1};
+        }
+        return {.type = TokenType::INVALID, .length = 0};
     }
 
     /** 
      * @brief checks if the current sequence of characters is an arithmetic operator
      * @details arithmetic operators: +, -, *, /
-     * @returns true if sequence matches arithmetic operator, false otherwise
+     * @returns lexeme of arithmetic operator if sequence matches arithmetic operator, invalid lexeme otherwise
     */
-    inline bool isArithmeticOperator() const noexcept {
+    inline Lexeme isArithmeticOperator() const noexcept {
         switch(getChar(position)){
             case '+':
+                return {.type = TokenType::PLUS, .length = 1};
             case '-':
+                return {.type = TokenType::MINUS, .length = 1};
             case '*':
+                return {.type = TokenType::STAR, .length = 1};
             case '/':
-                return true;
+                return {.type = TokenType::SLASH, .length = 1};
 
             default:
-                return false;
+                return {.type = TokenType::INVALID, .length = 0};
         }
     }
 
     /** 
      * @brief checks if the current sequence of characters is a bitwise operator
      * @details bitwise operators: <<, >>, &, |, ^
-     * @returns length of the bitwise operator, 0 when it is not a bitwise operator
+     * @returns lexeme of the bitwise operator when sequence is a bitwise operator, invalid lexeme otherwise
     */
-    inline size_t isBitwiseOperator() const noexcept {
+    inline Lexeme isBitwiseOperator() const noexcept {
         char c1{ getChar(position) };
         char c2{ isValidIndex(1) ? getChar(position + 1) : '\0'};
 
         switch(c1){
             case '<':
                 if(c2 == '<'){
-                    return 2;
+                    return {.type = TokenType::LSHIFT, .length = 2};
                 }
-                return 0;
+                break;
 
             case '>':
                 if(c2 == '>'){
-                    return 2;
+                    return {.type = TokenType::RSHIFT, .length = 2};
                 }
-                return 0;
+                break;
 
             case '&':
+                if(c2 != '&'){
+                    return {.type = TokenType::AMPERSEND, .length = 1};
+                }
+                break;
+
             case '|':
+                if(c2 != '|'){
+                    return {.type = TokenType::PIPE, .length = 1};
+                }
+                break;
+
             case '^':
-                return 1;
-            
-            default:
-                return 0;
+                return {.type = TokenType::CARET, .length = 1};
         }
+
+        return {.type = TokenType::INVALID, .length = 0};
+    }
+
+    /** 
+     * @brief checks if the current sequence of characters is a logical operator
+     * @details logical operators: &&, ||
+     * @returns lexeme of the logical operator when sequence is a logical operator, invalid lexeme otherwise
+    */
+    inline Lexeme isLogicalOperator() const noexcept {
+        char c1{ getChar(position) };
+        char c2{ isValidIndex(1) ? getChar(position + 1) : '\0' };
+
+        switch(c1){
+            case '&':
+                if(c2 == '&'){
+                    return {.type = TokenType::LOGICAL_AND, .length = 2};
+                }
+                break;
+
+            case '|':
+                if(c2 == '|'){
+                    return {.type = TokenType::LOGICAL_OR, .length = 2};
+                }
+                break;
+        }
+
+        return {.type = TokenType::INVALID, .length = 0};
     }
 
     /** 
      * @brief checks if the current sequence of characters is a relational operator
      * @details relational operators: <, >, <=, >=, ==, !=
-     * @returns length of the relational operator, 0 when it is not the relational operator
+     * @returns lexeme of the relational operator if sequence matches relational operatr, invalid lexeme otherwise
     */
-    inline size_t isRelationalOperator() const noexcept {
+    inline Lexeme isRelationalOperator() const noexcept {
         char c1{ getChar(position) };
         char c2{ isValidIndex(1) ? getChar(position + 1) : '\0'};
         
         switch(c1){
             case '<':
+                if(c2 == '='){
+                    return {.type = TokenType::LESS_EQ, .length = 2};
+                }
+                else if(c2 != '<'){
+                    return {.type = TokenType::LESS, .length = 1};
+                }
+                break;
+
             case '>':
                 if(c2 == '='){
-                    return 2;
+                    return {.type = TokenType::GREATER_EQ, .length = 2};
                 }
-                else if(c2 != '<' && c2 != '>'){
-                    return 1;
+                else if(c2 != '>'){
+                    return {.type = TokenType::GREATER, .length = 1};
                 }
-                return 0;
+                break;
             
             case '=':
+                if(c2 == '='){
+                    return {.type = TokenType::EQUAL, .length = 2};
+                }
+                break;
+
             case '!':
                 if(c2 == '='){
-                    return 2;
+                    return {.type = TokenType::NOT_EQ, .length = 2};
                 }
-                return 0;
-
-            default:
-                return 0;
+                break;
         }
+
+        return {.type = TokenType::INVALID, .length = 0};
     }
 
     /**

@@ -22,7 +22,7 @@ public:
 
     /** 
      * @brief getter for the condition of the while statement
-     * @returns pointer or const pointer to the relational expression
+     * @returns pointer or const pointer to the conditions of the while statement
     */
     template<typename Self>
     decltype(auto) getConditionExpr(this Self&& self) noexcept {
@@ -40,7 +40,7 @@ public:
 
     /** 
      * @brief initializes while node
-     * @param condExpr - pointer to the relational expression
+     * @param condExpr - pointer to the conditions of the while statement
      * @param statement - pointer to the statement
     */
     void setWhileStmt(std::unique_ptr<ASTExpr> condExpr, std::unique_ptr<ASTStmt> statement);
@@ -52,7 +52,7 @@ public:
     void accept(ASTVisitor& visitor) override;
 
 private:
-    /// pointer to the relational expression of the while-statement
+    /// pointer to the condition of the while-statement
     std::unique_ptr<ASTExpr> conditionExpr;
     
     /// pointer to the statement of the while-statement

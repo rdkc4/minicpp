@@ -3,7 +3,6 @@
 
 #include <memory>
 #include <unordered_map>
-#include <string_view>
 
 #include "../common/abstract-syntax-tree/ast_expr.hpp"
 #include "../common/abstract-syntax-tree/ast_function_call_expr.hpp"
@@ -27,17 +26,10 @@ public:
 
     /** 
      * @brief parses arithmetic expression
-     * @details ARITHMETIC_EXPRESSION : EXPRESSION (OPERATOR EXPRESSION)*
+     * @details EXPRESSION : EXPRESSION (OPERATOR EXPRESSION)*
      * @returns pointer to an expression node
     */
-    std::unique_ptr<ASTExpr> parseArithmeticExpr();
-
-    /** 
-     * @brief parses relational expression
-     * @details RELATIONAL EXPRESSION : NUMERICAL_EXPRESSION RELOP NUMERICAL_EXPRESSION
-     * @returns pointer to an expression node
-    */
-    std::unique_ptr<ASTExpr> parseRelationalExpr();
+    std::unique_ptr<ASTExpr> parseExpr();
 
     /** 
      * @brief parses id expression
@@ -64,7 +56,7 @@ public:
      * @brief parses expression
      * @details
      *
-     * EXPRESSION
+     * PRIMARY_EXPRESSION
      * 
      * : LITERAL
      *
@@ -72,51 +64,52 @@ public:
      *
      * | ID
      *
-     * | LPAREN NUMERICAL_EXPRESSION RPAREN
+     * | LPAREN EXPRESSION RPAREN
      * @returns pointer to an expression node
     */
-    std::unique_ptr<ASTExpr> parseExpr();
+    std::unique_ptr<ASTExpr> parsePrimaryExpr();
 
     /** 
      * @brief parses argument of the function call
      * @param callExpr - function call that owns arguments
-     * @details (NUMERICAL_EXPRESSION (COMMA NUMERICAL_EXPRESSION)*)?
+     * @details (EXPRESSION (COMMA EXPRESSION)*)?
     */
     void parseArguments(ASTFunctionCallExpr* callExpr);
 
     /** 
      * @brief parses the root of the binary expression node (only operator)
-     * @param isRel - flag if operator is relational or not
      * @returns pointer to a binary expression node
     */
-    std::unique_ptr<ASTBinaryExpr> parseOperator(bool isRel = false);
+    std::unique_ptr<ASTBinaryExpr> parseOperator();
 
     /** 
      * @brief calculates the precedence of the operator
      * @note higher value means stronger precedence
-     * @param op - operator
+     * @param type - type of the operator
      * @returns strength of the precedence of the operator
     */
-    int getPrecedence(std::string_view op) const noexcept {
-        const static std::unordered_map<std::string_view, int> precedence {
-            {"|", 1},
-            {"^", 2},
-            {"&", 3},
-            {"==", 4},
-            {"!=", 4},
-            {">", 5},
-            {"<", 5},
-            {">=", 5},
-            {"<=", 5},
-            {"<<", 6},
-            {">>", 6},
-            {"-", 7},
-            {"+", 7},
-            {"*", 8},
-            {"/", 8}
+    int getPrecedence(TokenType type) const noexcept {
+        const static std::unordered_map<TokenType, int> precedence {
+            {TokenType::LOGICAL_OR, 1},
+            {TokenType::LOGICAL_AND, 2},
+            {TokenType::PIPE, 3},
+            {TokenType::CARET, 4},
+            {TokenType::AMPERSEND, 5},
+            {TokenType::EQUAL, 6},
+            {TokenType::NOT_EQ, 6},
+            {TokenType::GREATER, 7},
+            {TokenType::LESS, 7},
+            {TokenType::GREATER_EQ, 7},
+            {TokenType::LESS_EQ, 7},
+            {TokenType::LSHIFT, 8},
+            {TokenType::RSHIFT, 8},
+            {TokenType::MINUS, 9},
+            {TokenType::PLUS, 9},
+            {TokenType::STAR, 10},
+            {TokenType::SLASH, 10}
         };
 
-        auto it{ precedence.find(op) };
+        auto it{ precedence.find(type) };
         return it != precedence.end() ? it->second : 0;
     }
 

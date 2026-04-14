@@ -32,7 +32,7 @@ public:
     /**
      * @brief getter for the condition of the for-statement node
      * @warning nullable
-     * @returns pointer const pointer to the relational expression
+     * @returns pointer const pointer to the condition of the for statement
     */
     template<typename Self>
     decltype(auto) getConditionExpr(this Self&& self) noexcept {
@@ -61,7 +61,7 @@ public:
     /**
      * @brief initializes the for-statement node
      * @param initStmt - pointer to the assignment statement
-     * @param condExpr - pointer to the relational expression
+     * @param condExpr - pointer to the condition of the for statement
      * @param incStmt - pointer to the assignment statement
      * @param statement - pointer to the statement
      * @param tempExpr - pointer to the temporaries, default nullptr
@@ -111,7 +111,7 @@ private:
     /// pointer to the assignment statement of the initializer
     std::unique_ptr<IRAssignStmt> initializerStmt;
 
-    /// pointer to the relational expression of the for-statement
+    /// pointer to the condition of the for-statement
     std::unique_ptr<IRExpr> conditionExpr;
 
     /// pointer to the assignment statement of the incrementer

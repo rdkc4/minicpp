@@ -13,17 +13,39 @@ enum class TokenType{
     ID,           //< identifier (variables, function names etc.) 
     LITERAL,      //< numeric literals
 
-    /// operators
-    ARITHMETIC,   //< +, -, *, /
-    BITWISE,      //< &, |, ^, <<, >>
-    RELATIONAL,   //< <, >, <=, >=, ==, !=
+    /// arithmetic operators
+    PLUS,         //< +
+    MINUS,        //< -
+    STAR,         //< *
+    SLASH,        //< /
+
+    /// bitwise operators
+    AMPERSEND,    //< &
+    PIPE,         //< |
+    CARET,        //< ^
+    LSHIFT,       //< <<
+    RSHIFT,       //< >>
+
+    /// relational operators
+    LESS,         //< <
+    GREATER,      //< >
+    LESS_EQ,      //< <=
+    GREATER_EQ,   //< >=
+    EQUAL,        //< ==
+    NOT_EQ,       //< !=
+
+    /// logical operators
+    LOGICAL_AND,  //< &&
+    LOGICAL_OR,   //< ||
+
+    /// assign operators
     ASSIGN,       //< =
 
     /// punctuations
     LPAREN,       //< (
     RPAREN,       //< )
-    LBRACKET,     //< {
-    RBRACKET,     //< }
+    LBRACE,       //< {
+    RBRACE,       //< }
     SEMICOLON,    //< ;
     COLON,        //< :
     HASH,         //< #

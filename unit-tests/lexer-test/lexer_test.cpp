@@ -11,8 +11,8 @@ TEST(LexerTest, TokenizationOfAssignmentStatement){
     lexer.tokenize();
 
     std::vector<std::pair<TokenType, std::string>> expectedTokens{ {TokenType::INT, "int"}, {TokenType::ID, "x"}, 
-        {TokenType::ASSIGN, "="}, {TokenType::LITERAL, "-1"}, {TokenType::ARITHMETIC, "+"}, {TokenType::LITERAL, "2"}, 
-        {TokenType::BITWISE, "<<"}, {TokenType::LITERAL, "3u"}, {TokenType::SEMICOLON, ";"}, {TokenType::_EOF, ""}
+        {TokenType::ASSIGN, "="}, {TokenType::LITERAL, "-1"}, {TokenType::PLUS, "+"}, {TokenType::LITERAL, "2"}, 
+        {TokenType::LSHIFT, "<<"}, {TokenType::LITERAL, "3u"}, {TokenType::SEMICOLON, ";"}, {TokenType::_EOF, ""}
     };
     const size_t expectedSize = expectedTokens.size();
 
@@ -30,9 +30,9 @@ TEST(LexerTest, TokenizationOfIfStatement){
     lexer.tokenize();
 
     std::vector<std::pair<TokenType, std::string>> expectedTokens{ {TokenType::IF, "if"}, {TokenType::LPAREN, "("}, 
-        {TokenType::ID, "a"}, {TokenType::RELATIONAL, ">"}, {TokenType::ID, "b"}, {TokenType::RPAREN, ")"}, 
-        {TokenType::LBRACKET, "{"}, {TokenType::RETURN, "return"}, {TokenType::ID, "a"}, {TokenType::SEMICOLON, ";"},
-        {TokenType::RBRACKET, "}"}, {TokenType::_EOF, ""}
+        {TokenType::ID, "a"}, {TokenType::GREATER, ">"}, {TokenType::ID, "b"}, {TokenType::RPAREN, ")"}, 
+        {TokenType::LBRACE, "{"}, {TokenType::RETURN, "return"}, {TokenType::ID, "a"}, {TokenType::SEMICOLON, ";"},
+        {TokenType::RBRACE, "}"}, {TokenType::_EOF, ""}
     };
     const size_t expectedSize = expectedTokens.size();
 

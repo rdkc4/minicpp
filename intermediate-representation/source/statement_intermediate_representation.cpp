@@ -41,7 +41,7 @@ std::unique_ptr<IRVariableDeclStmt> StatementIntermediateRepresentation::transfo
     if(astVariableDecl->hasAssignExpr()){
         auto temps{ exprIR.initiateTemporaries(astVariableDecl->getAssignExpr()) };
         irVariableDecl->setAssignExpr(
-            exprIR.transformNumericalExpr(astVariableDecl->getAssignExpr()), 
+            exprIR.transformExpr(astVariableDecl->getAssignExpr()), 
             std::move(temps)
         );
     }
@@ -58,7 +58,7 @@ std::unique_ptr<IRIfStmt> StatementIntermediateRepresentation::transformIfStmt(c
     for(size_t i{0}; i < conditionCount; ++i){
         auto temps{ exprIR.initiateTemporaries(astConds[i].get()) };
         irIfStmt->addIfStmt(
-            exprIR.transformRelationalExpr(astConds[i].get()), 
+            exprIR.transformExpr(astConds[i].get()), 
             transformStmt(astStmts[i].get()), 
             std::move(temps)
         );
@@ -91,7 +91,7 @@ std::unique_ptr<IRAssignStmt> StatementIntermediateRepresentation::transformAssi
     auto tempExpr{ exprIR.initiateTemporaries(astAssignStmt->getAssignedExpr()) };
     irAssignStmt->setAssignStmt(
         exprIR.transformIdExpr(astAssignStmt->getVariableIdExpr()), 
-        exprIR.transformNumericalExpr(astAssignStmt->getAssignedExpr()), 
+        exprIR.transformExpr(astAssignStmt->getAssignedExpr()), 
         std::move(tempExpr)
     );
 
@@ -105,7 +105,7 @@ std::unique_ptr<IRReturnStmt> StatementIntermediateRepresentation::transformRetu
         auto temps{ exprIR.initiateTemporaries(astReturnStmt->getReturnExpr()) };
 
         irReturnStmt->setReturnExpr(
-            exprIR.transformNumericalExpr(astReturnStmt->getReturnExpr()), 
+            exprIR.transformExpr(astReturnStmt->getReturnExpr()), 
             std::move(temps)
         );
     }
@@ -127,7 +127,7 @@ std::unique_ptr<IRWhileStmt> StatementIntermediateRepresentation::transformWhile
     std::unique_ptr<IRWhileStmt> irWhileStmt{ std::make_unique<IRWhileStmt>() };
     auto temps{ exprIR.initiateTemporaries(astWhileStmt->getConditionExpr()) };
     irWhileStmt->setWhileStmt(
-        exprIR.transformRelationalExpr(astWhileStmt->getConditionExpr()), 
+        exprIR.transformExpr(astWhileStmt->getConditionExpr()), 
         transformStmt(astWhileStmt->getStmt()), 
         std::move(temps)
     );
@@ -147,7 +147,7 @@ std::unique_ptr<IRForStmt> StatementIntermediateRepresentation::transformForStmt
     }
     if(astForStmt->hasConditionExpr()){
         temps = exprIR.initiateTemporaries(astForStmt->getConditionExpr());
-        irForCondition = exprIR.transformRelationalExpr(astForStmt->getConditionExpr());
+        irForCondition = exprIR.transformExpr(astForStmt->getConditionExpr());
     }
     if(astForStmt->hasIncrementerStmt()){
         irForInc = transformAssignStmt(astForStmt->getIncrementerStmt());
@@ -168,7 +168,7 @@ std::unique_ptr<IRDoWhileStmt> StatementIntermediateRepresentation::transformDoW
     std::unique_ptr<IRDoWhileStmt> irDowhileStmt{ std::make_unique<IRDoWhileStmt>() };
     auto temps{ exprIR.initiateTemporaries(astDowhileStmt->getConditionExpr()) };
     irDowhileStmt->setDoWhileStmt(
-        exprIR.transformRelationalExpr(astDowhileStmt->getConditionExpr()), 
+        exprIR.transformExpr(astDowhileStmt->getConditionExpr()), 
         transformStmt(astDowhileStmt->getStmt()), std::move(temps)
     );
 

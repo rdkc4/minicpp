@@ -73,6 +73,12 @@ namespace Optimization::ConstantFolding {
             case Operator::RSHIFT:
                 constFold.result = l >> r;
                 return constFold;
+            case Operator::ANDL:
+                constFold.result = l && r;
+                return constFold;
+            case Operator::ORL:
+                constFold.result = l || r;
+                return constFold;
             case Operator::GREATER:
                 constFold.result = static_cast<T>(l > r);
                 return constFold;
@@ -112,8 +118,8 @@ namespace Optimization::ConstantFolding {
     /**
      * @brief merges literals of the expression
      * @note reduces the depth of the expression subtree when all children are literals
-     * @param leftOperand - const pointer to the irt numerical expression
-     * @param rightOperand - const pointer to the irt numerical expression
+     * @param leftOperand - const pointer to the irt literal expression
+     * @param rightOperand - const pointer to the irt literal expression
      * @param binExp - const pointer to the ast binary expression, contains operation
      * @returns result of the merge operation
     */
