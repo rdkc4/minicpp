@@ -2,25 +2,25 @@
 
 #include "../defs/ir_defs.hpp"
 
-IRParameter::IRParameter(std::string_view parName, Type type) 
-    : IRNode(IRNodeType::PARAMETER), parameterName{ parName }, type{ type } {}
+IR::node::IRParameter::IRParameter(std::string_view parName, Type type) 
+    : IRNode(IR::defs::IRNodeType::PARAMETER), parameterName{ parName }, type{ type } {}
 
-const std::string& IRParameter::getParameterName() const noexcept {
+const std::string& IR::node::IRParameter::getParameterName() const noexcept {
     return parameterName;
 }
 
-void IRParameter::setParameterName(const std::string& parName){
+void IR::node::IRParameter::setParameterName(const std::string& parName){
     parameterName = parName;
 }
 
-Type IRParameter::getType() const noexcept {
+Type IR::node::IRParameter::getType() const noexcept {
     return type;
 }
 
-void IRParameter::setType(Type parameterType) noexcept {
+void IR::node::IRParameter::setType(Type parameterType) noexcept {
     type = parameterType;
 }
 
-void IRParameter::accept(IRVisitor& visitor){
+void IR::node::IRParameter::accept(IR::visitor::IRVisitor& visitor){
     visitor.visit(this);
 }

@@ -27,14 +27,14 @@ public:
      * @param expr - const pointer to the irt expression
      * @param ctx - context of the expression, defaults to value
     */
-    void generateExpr(const IRExpr* expr, ExprContext ctx = ExprContext::VALUE);
+    void generateExpr(const IR::node::IRExpr* expr, ExprContext ctx = ExprContext::VALUE);
 
     /** 
      * @brief generates the asm code for the binary expression
      * @param binaryExpr - const pointer to the irt binary expression
      * @param ctx - context of the expression, defaults to value
     */
-    void generateBinaryExpr(const IRBinaryExpr* binaryExpr, ExprContext ctx = ExprContext::VALUE);
+    void generateBinaryExpr(const IR::node::IRBinaryExpr* binaryExpr, ExprContext ctx = ExprContext::VALUE);
 
     /** 
      * @brief generates the asm code for the relational expression
@@ -42,51 +42,51 @@ public:
      * @param trueLabel - label when expression is true
      * @param falseLabel - label when expression is false
     */
-    void generateConditionExpr(const IRExpr* expr, std::string_view trueLabel, std::string_view falseLabel);
+    void generateConditionExpr(const IR::node::IRExpr* expr, std::string_view trueLabel, std::string_view falseLabel);
 
     /** 
      * @brief generates the asm code for the id expression
      * @param idExpr - const pointer to the irt id expression
     */
-    void generateIdExpr(const IRIdExpr* idExpr) const;
+    void generateIdExpr(const IR::node::IRIdExpr* idExpr) const;
 
     /**
      * @brief getter for the address of the id
      * @param idExpr - const pointer to the id expression
      * @returns address of the id expression
     */
-    std::string_view getIdExprAddress(const IRIdExpr* idExpr) const;
+    std::string_view getIdExprAddress(const IR::node::IRIdExpr* idExpr) const;
 
     /** 
      * @brief generates literal expression
      * @param literalExpr - const pointer to irt literal expression
     */
-    void generateLiteralExpr(const IRLiteralExpr* literalExpr);
+    void generateLiteralExpr(const IR::node::IRLiteralExpr* literalExpr);
 
     /** 
      * @brief generates the format of the literal expression
      * @param literalExpr - const pointer to irt literal expression
      * @returns formatted literal
     */
-    std::string formatLiteral(const IRLiteralExpr* literalExpr) const;
+    std::string formatLiteral(const IR::node::IRLiteralExpr* literalExpr) const;
 
     /** 
      * @brief generates the asm code for assigning values to temporary variables
      * @param temporaryExpr - const irt pointer to the irt temporary
     */
-    void generateTemporaryExprs(const IRTemporaryExpr* temporaryExpr);
+    void generateTemporaryExprs(const IR::node::IRTemporaryExpr* temporaryExpr);
 
     /** 
      * @brief generates the asm code for the function call
      * @param callExpr - const pointer to the irt function call
     */
-    void generateFunctionCallExpr(const IRFunctionCallExpr* callExpr, bool expectsReturnVal = true);
+    void generateFunctionCallExpr(const IR::node::IRFunctionCallExpr* callExpr, bool expectsReturnVal = true);
 
     /** 
      * @brief generates the asm code for the arguments of the function call
      * @param callExpr - const pointer to the irt function call
     */
-    void generateArguments(const IRFunctionCallExpr* callExpr);
+    void generateArguments(const IR::node::IRFunctionCallExpr* callExpr);
 
     /** 
      * @brief generates the asm code for removing arguments from the stack after function call is done
@@ -114,14 +114,14 @@ private:
      * @param binaryExpr - const pointer to the irt binary expression
      * @param operands - left and right operand of the binary expression
     */
-    void generateMultiplicativeExpr(const IRBinaryExpr* binaryExpr, BinaryOperands operands);
+    void generateMultiplicativeExpr(const IR::node::IRBinaryExpr* binaryExpr, BinaryOperands operands);
 
     /**
      * @brief generates shift binary expression
      * @param binaryExpr - const pointer to the irt binary expression
      * @param operands - left and right operand of the binary expression
     */
-    void generateShiftExpr(const IRBinaryExpr* binaryExpr, BinaryOperands operands);
+    void generateShiftExpr(const IR::node::IRBinaryExpr* binaryExpr, BinaryOperands operands);
 
     /**
      * @brief generates logical and binary expression
@@ -141,14 +141,14 @@ private:
      * @param ctx - context of the expression, defaults to value
      * @param operands - left and right operand of the binary expression
     */
-    void generateRelationalExpr(const IRBinaryExpr* binaryExpr, BinaryOperands operands, ExprContext ctx = ExprContext::VALUE);
+    void generateRelationalExpr(const IR::node::IRBinaryExpr* binaryExpr, BinaryOperands operands, ExprContext ctx = ExprContext::VALUE);
 
     /**
      * @brief generates ALU expressions (add, sub, and, or, xor)
      * @param binaryExpr - const pointer to the irt binary expression
      * @param operands - left and right operand of the binary expression
     */
-    void generateALUExpr(const IRBinaryExpr* binaryExpr, BinaryOperands operands);
+    void generateALUExpr(const IR::node::IRBinaryExpr* binaryExpr, BinaryOperands operands);
 
 };
 

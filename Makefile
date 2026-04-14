@@ -41,7 +41,6 @@ SRCS = main.cpp \
 	common/dump/ast_dumper.cpp \
 	common/dump/ir_dumper.cpp \
 	common/symbol/symbol.cpp \
-	common/intermediate-representation-tree/defs/ir_defs.cpp \
 	common/intermediate-representation-tree/source/ir_node.cpp \
 	common/intermediate-representation-tree/source/ir_expr.cpp \
 	common/intermediate-representation-tree/source/ir_binary_expr.cpp \

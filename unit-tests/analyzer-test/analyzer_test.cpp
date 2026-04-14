@@ -1,623 +1,225 @@
 #include <gtest/gtest.h>
 
-#include "analyzer_test.hpp"
-#include "../lexer-test/lexer_test.hpp"
-#include "../parser-test/parser_test.hpp"
+#include "analyzer_fixture.hpp"
 
-TEST(AnalyzerTest, SemanticCheck){
-    std::vector<std::string> input{"int fun(){ return 1; } int main(){ return fun();}"};
-    LexerTest lexer{ input };
-    lexer.tokenize();
+TEST_F(AnalyzerFixture, SemanticCheck){
+    input = {"int fun(){ return 1; } int main(){ return fun();}"};
+    initAnalyzer();
 
-    TokenConsumer tokenConsumer { lexer };
-    ParserTest parser{ tokenConsumer };
-    auto ast = parser.parseProgram();
-
-    ThreadPool tp{1};
-    SymbolTable symtab;
-    ScopeManager scopeManager{ symtab };
-    AnalyzerTest analyzer{scopeManager, tp};
-
-    ast->accept(analyzer);
-    ASSERT_FALSE(analyzer.hasSemanticErrors(ast.get()));
+    ASSERT_FALSE(analyzer->hasSemanticErrors(program.get()));
 }
 
-TEST(AnalyzerTest, SemanticCheckInvalidFunctionCallThrows){
-    std::vector<std::string> input{"int fun(){ return 1; } int main(){ return fun(1);}"};
-    LexerTest lexer{ input };
-    lexer.tokenize();
+TEST_F(AnalyzerFixture, SemanticCheckInvalidFunctionCallThrows){
+    input = {"int fun(){ return 1; } int main(){ return fun(1);}"};
+    initAnalyzer();
 
-    TokenConsumer tokenConsumer { lexer };
-    ParserTest parser{ tokenConsumer };
-    auto ast = parser.parseProgram();
-
-    ThreadPool tp{1};
-    SymbolTable symtab;
-    ScopeManager scopeManager{ symtab };
-    AnalyzerTest analyzer{scopeManager, tp};
-    
-    ast->accept(analyzer);
-    ASSERT_TRUE(analyzer.hasSemanticErrors(ast.get()));
-    ASSERT_TRUE(analyzer.getErrors("main")[0].contains("invalid function call"));
+    EXPECT_TRUE(analyzer->hasSemanticErrors(program.get()));
+    EXPECT_TRUE(analyzer->getErrors("main")[0].contains("invalid function call"));
 }
 
-TEST(AnalyzerTest, SemanticCheckTypeMismatchThrows){
-    std::vector<std::string> input{"int fun(){ return 1u; } int main(){ return fun();}"};
-    LexerTest lexer{ input };
-    lexer.tokenize();
+TEST_F(AnalyzerFixture, SemanticCheckTypeMismatchThrows){
+    input = {"int fun(){ return 1u; } int main(){ return fun();}"};
+    initAnalyzer();
 
-    TokenConsumer tokenConsumer { lexer };
-    ParserTest parser{ tokenConsumer };
-    auto ast = parser.parseProgram();
-
-    ThreadPool tp{1};
-    SymbolTable symtab;
-    ScopeManager scopeManager{ symtab };
-    AnalyzerTest analyzer{scopeManager, tp};
-
-    ast->accept(analyzer);
-    ASSERT_TRUE(analyzer.hasSemanticErrors(ast.get()));
+    EXPECT_TRUE(analyzer->hasSemanticErrors(program.get()));
 }
 
-TEST(AnalyzerTest, SemanticCheckNoMainThrows){
-    std::vector<std::string> input{"int fun(){ return 1; } int abc(){ return fun();}"};
-    LexerTest lexer{ input };
-    lexer.tokenize();
+TEST_F(AnalyzerFixture, SemanticCheckNoMainThrows){
+    input = {"int fun(){ return 1; } int abc(){ return fun();}"};
+    initAnalyzer();
 
-    TokenConsumer tokenConsumer { lexer };
-    ParserTest parser{ tokenConsumer };
-    auto ast = parser.parseProgram();
-
-    ThreadPool tp{1};
-    SymbolTable symtab;
-    ScopeManager scopeManager{ symtab };
-    AnalyzerTest analyzer{scopeManager, tp};
-
-    ast->accept(analyzer);
-    ASSERT_TRUE(analyzer.hasSemanticErrors(ast.get()));
+    EXPECT_TRUE(analyzer->hasSemanticErrors(program.get()));
 }
 
-TEST(AnalyzerTest, CheckFunctionSignatures){
-    std::vector<std::string> input{"int rectArea(int x, int y){ return x * y; } int sq(int x){ return x * x; }"};
-    LexerTest lexer{ input };
-    lexer.tokenize();
+TEST_F(AnalyzerFixture, CheckFunctionSignatures){
+    input = {"int rectArea(int x, int y){ return x * y; } int sq(int x){ return x * x; }"};
+    initAnalyzer();
 
-    TokenConsumer tokenConsumer { lexer };
-    ParserTest parser{ tokenConsumer };
-    auto program = parser.parseProgram();
-
-    ThreadPool tp{1};
-    SymbolTable symtab;
-    ScopeManager scopeManager{ symtab };
-    scopeManager.pushScope();
-    AnalyzerTest analyzer{scopeManager, tp};
-
-    program->accept(analyzer);
-    ASSERT_TRUE(analyzer.getErrors("rectArea").empty());
-    ASSERT_TRUE(analyzer.getErrors("sq").empty());
-
-    scopeManager.popScope();
+    EXPECT_TRUE(analyzer->getErrors("rectArea").empty());
+    EXPECT_TRUE(analyzer->getErrors("sq").empty());
 }
 
-TEST(AnalyzerTest, CheckFunctionSignaturesFunctionRedefError){
-    std::vector<std::string> input{"int rectArea(int x, int y){ return x * y; } int rectArea(int x){ return x * x; }"};
-    LexerTest lexer{ input };
-    lexer.tokenize();
+TEST_F(AnalyzerFixture, CheckFunctionSignaturesFunctionRedefError){
+    input = {"int rectArea(int x, int y){ return x * y; } int rectArea(int x){ return x * x; }"};
+    initAnalyzer();
 
-    TokenConsumer tokenConsumer { lexer };
-    ParserTest parser{ tokenConsumer };
-    auto program = parser.parseProgram();
-
-    ThreadPool tp{1};
-    SymbolTable symtab;
-    ScopeManager scopeManager{ symtab };
-    scopeManager.pushScope();
-    AnalyzerTest analyzer{scopeManager, tp};
-
-    program->accept(analyzer);
-    ASSERT_FALSE(analyzer.getErrors(analyzer.getGlobalErrLabel()).empty());
-    ASSERT_TRUE(analyzer.getErrors(analyzer.getGlobalErrLabel())[0].contains("redefined"));
-
-    scopeManager.popScope();
+    EXPECT_FALSE(analyzer->getErrors(analyzer->getGlobalErrLabel()).empty());
+    EXPECT_TRUE(analyzer->getErrors(analyzer->getGlobalErrLabel())[0].contains("redefined"));
 }
 
-TEST(AnalyzerTest, CheckFunctionSignaturesParameterRedefError){
-    std::vector<std::string> input{"int rectArea(int x, int x){ return x * x; } int main(){ return x * x; }"};
-    LexerTest lexer{ input };
-    lexer.tokenize();
+TEST_F(AnalyzerFixture, CheckFunctionSignaturesParameterRedefError){
+    input = {"int rectArea(int x, int x){ return x * x; } int main(){ return x * x; }"};
+    initAnalyzer();
 
-    TokenConsumer tokenConsumer { lexer };
-    ParserTest parser{ tokenConsumer };
-    auto program = parser.parseProgram();
-
-    ThreadPool tp{1};
-    SymbolTable symtab;
-    ScopeManager scopeManager{ symtab };
-    scopeManager.pushScope();
-    AnalyzerTest analyzer{scopeManager, tp};
-
-    program->accept(analyzer);
-    ASSERT_FALSE(analyzer.getErrors("rectArea").empty());
-    ASSERT_TRUE(analyzer.getErrors("rectArea")[0].contains("redefined"));
-
-    scopeManager.popScope();
+    EXPECT_FALSE(analyzer->getErrors("rectArea").empty());
+    EXPECT_TRUE(analyzer->getErrors("rectArea")[0].contains("redefined"));
 }
 
-TEST(AnalyzerTest, CheckFunctionSignaturesMainParamsError){
-    std::vector<std::string> input{"int main(int x){ return 0; }"};
-    LexerTest lexer{ input };
-    lexer.tokenize();
+TEST_F(AnalyzerFixture, CheckFunctionSignaturesMainParamsError){
+    input = {"int main(int x){ return 0; }"};
+    initAnalyzer();
 
-    TokenConsumer tokenConsumer { lexer };
-    ParserTest parser{ tokenConsumer };
-    auto program = parser.parseProgram();
-
-    ThreadPool tp{1};
-    SymbolTable symtab;
-    ScopeManager scopeManager{ symtab };
-    scopeManager.pushScope();
-    AnalyzerTest analyzer{scopeManager, tp};
-
-    program->accept(analyzer);
-    ASSERT_FALSE(analyzer.getErrors("main").empty());
-    ASSERT_TRUE(analyzer.getErrors("main")[0].contains("parameter"));
-
-    scopeManager.popScope();
+    EXPECT_FALSE(analyzer->getErrors("main").empty());
+    EXPECT_TRUE(analyzer->getErrors("main")[0].contains("parameter"));
 }
 
-TEST(AnalyzerTest, CheckFunction){
-    std::vector<std::string> input{"int fun(){ return 1; }"};
-    LexerTest lexer{ input };
-    lexer.tokenize();
-
-    TokenConsumer tokenConsumer { lexer };
-    FunctionParserTest parser{ tokenConsumer };
-    auto function = parser.parseFunction();
-
-    ThreadPool tp{1};
-    SymbolTable symtab;
-    ScopeManager scopeManager{ symtab };
-    scopeManager.pushScope();
+TEST_F(FunctionAnalyzerFixture, CheckFunction){
+    input = {"int fun(){ return 1; }"};
     scopeManager.pushSymbol(Symbol{"fun", Kind::FUN, Type::INT});
-    AnalyzerTest analyzer{scopeManager, tp};
+    initAnalyzer();
 
-    function->accept(analyzer);
-    ASSERT_TRUE(analyzer.getErrors("fun").empty());
-    scopeManager.popScope();
+    EXPECT_TRUE(analyzer->getErrors("fun").empty());
 }
 
-TEST(AnalyzerTest, CheckFunctionNotAllIfPathsReturnError){
-    std::vector<std::string> input{"int fun(int x){ if(x > 0) return 1; }"};
-    LexerTest lexer{ input };
-    lexer.tokenize();
-
-    TokenConsumer tokenConsumer { lexer };
-    FunctionParserTest parser{ tokenConsumer };
-    auto function = parser.parseFunction();
-
-    ThreadPool tp{1};
-    SymbolTable symtab;
-    ScopeManager scopeManager{ symtab };
-    scopeManager.pushScope();
+TEST_F(FunctionAnalyzerFixture, CheckFunctionNotAllIfPathsReturnError){
+    input = {"int fun(int x){ if(x > 0) return 1; }"};
     scopeManager.pushSymbol(Symbol{"fun", Kind::FUN, Type::INT});
-    AnalyzerTest analyzer{scopeManager, tp};
+    initAnalyzer();
 
-    function->accept(analyzer);
-    ASSERT_FALSE(analyzer.getErrors("fun").empty());
-    ASSERT_TRUE(analyzer.getErrors("fun")[0].contains("not all paths return"));
-    scopeManager.popScope();
+    EXPECT_FALSE(analyzer->getErrors("fun").empty());
+    EXPECT_TRUE(analyzer->getErrors("fun")[0].contains("not all paths return"));
 }
 
-TEST(AnalyzerTest, CheckFunctionNotAllSwitchPathsReturnError){
-    std::vector<std::string> input{"int fun(int x){ switch(x){ case 0: return 0; case 1: return 1; } }"};
-    LexerTest lexer{ input };
-    lexer.tokenize();
-
-    TokenConsumer tokenConsumer { lexer };
-    FunctionParserTest parser{ tokenConsumer };
-    auto function = parser.parseFunction();
-
-    ThreadPool tp{1};
-    SymbolTable symtab;
-    ScopeManager scopeManager{ symtab };
-    scopeManager.pushScope();
+TEST_F(FunctionAnalyzerFixture, CheckFunctionNotAllSwitchPathsReturnError){
+    input = {"int fun(int x){ switch(x){ case 0: return 0; case 1: return 1; } }"};
     scopeManager.pushSymbol(Symbol{"fun", Kind::FUN, Type::INT});
-    AnalyzerTest analyzer{scopeManager, tp};
+    initAnalyzer();
 
-    function->accept(analyzer);
-    ASSERT_FALSE(analyzer.getErrors("fun").empty());
-    ASSERT_TRUE(analyzer.getErrors("fun")[0].contains("not all paths return"));
-    scopeManager.popScope();
+    EXPECT_FALSE(analyzer->getErrors("fun").empty());
+    EXPECT_TRUE(analyzer->getErrors("fun")[0].contains("not all paths return"));
 }
 
-TEST(AnalyzerTest, CheckFunctionParameterRedefError){
-    std::vector<std::string> input{"int fun(int x){ int x = 1; return 0; }"};
-    LexerTest lexer{ input };
-    lexer.tokenize();
-
-    TokenConsumer tokenConsumer { lexer };
-    FunctionParserTest parser{ tokenConsumer };
-    auto function = parser.parseFunction();
-
-    ThreadPool tp{1};
-    SymbolTable symtab;
-    ScopeManager scopeManager{ symtab };
-    scopeManager.pushScope();
+TEST_F(FunctionAnalyzerFixture, CheckFunctionParameterRedefError){
+    input = {"int fun(int x){ int x = 1; return 0; }"};
     scopeManager.pushSymbol(Symbol{"fun", Kind::FUN, Type::INT});
-    AnalyzerTest analyzer{scopeManager, tp};
+    initAnalyzer();
 
-    function->accept(analyzer);
-    ASSERT_FALSE(analyzer.getErrors("fun").empty());
-    ASSERT_TRUE(analyzer.getErrors("fun")[0].contains("redefined"));
-    scopeManager.popScope();
+    EXPECT_FALSE(analyzer->getErrors("fun").empty());
+    EXPECT_TRUE(analyzer->getErrors("fun")[0].contains("redefined"));
 }
 
-TEST(AnalyzerTest, CheckFunctionVoidReturnsTypeError){
-    std::vector<std::string> input{"void fun(){ return 1; }"};
-    LexerTest lexer{ input };
-    lexer.tokenize();
-
-    TokenConsumer tokenConsumer { lexer };
-    FunctionParserTest parser{ tokenConsumer };
-    auto function = parser.parseFunction();
-
-    ThreadPool tp{1};
-    SymbolTable symtab;
-    ScopeManager scopeManager{ symtab };
-    scopeManager.pushScope();
+TEST_F(FunctionAnalyzerFixture, CheckFunctionVoidReturnsTypeError){
+    input = {"void fun(){ return 1; }"};
     scopeManager.pushSymbol(Symbol{"fun", Kind::FUN, Type::VOID});
-    AnalyzerTest analyzer{scopeManager, tp};
+    initAnalyzer();
 
-    function->accept(analyzer);
-    ASSERT_FALSE(analyzer.getErrors("fun").empty());
-    ASSERT_TRUE(analyzer.getErrors("fun")[0].contains("type mismatch"));
-    scopeManager.popScope();
+    EXPECT_FALSE(analyzer->getErrors("fun").empty());
+    EXPECT_TRUE(analyzer->getErrors("fun")[0].contains("type mismatch"));
 }
 
-TEST(AnalyzerTest, CheckFunctionVoidTypeMismatchError){
-    std::vector<std::string> input{"int fun(){ return 1u; }"};
-    LexerTest lexer{ input };
-    lexer.tokenize();
-
-    TokenConsumer tokenConsumer { lexer };
-    FunctionParserTest parser{ tokenConsumer };
-    auto function = parser.parseFunction();
-
-    ThreadPool tp{1};
-    SymbolTable symtab;
-    ScopeManager scopeManager{ symtab };
-    scopeManager.pushScope();
+TEST_F(FunctionAnalyzerFixture, CheckFunctionVoidTypeMismatchError){
+    input = {"int fun(){ return 1u; }"};
     scopeManager.pushSymbol(Symbol{"fun", Kind::FUN, Type::INT});
-    AnalyzerTest analyzer{scopeManager, tp};
+    initAnalyzer();
 
-    function->accept(analyzer);
-    ASSERT_FALSE(analyzer.getErrors("fun").empty());
-    ASSERT_TRUE(analyzer.getErrors("fun")[0].contains("type mismatch"));
-    scopeManager.popScope();
+    EXPECT_FALSE(analyzer->getErrors("fun").empty());
+    EXPECT_TRUE(analyzer->getErrors("fun")[0].contains("type mismatch"));
 }
 
-TEST(AnalyzerTest, CheckVariable){
-    std::vector<std::string> input{"int x = 3;"};
-    LexerTest lexer{ input };
-    lexer.tokenize();
-
-    TokenConsumer tokenConsumer { lexer };
-    StatementParserTest parser{ tokenConsumer };
-    auto variableDecl = parser.parseVariableDeclStmt();
-
-    ThreadPool tp{1};
-    SymbolTable symtab;
-    ScopeManager scopeManager{ symtab };
-    AnalyzerTest analyzer{scopeManager, tp};
+TEST_F(StatementAnalyzerFixture, CheckVariable){
+    input = {"int x = 3;"};
+    initAnalyzer();
     
-    analyzer.getContext().init("tmp", &scopeManager);
-    analyzer.getContext().scopeManager->pushScope();
-
-    variableDecl->accept(analyzer);
-    ASSERT_TRUE(analyzer.getContext().semanticErrors.empty());
-    ASSERT_TRUE(scopeManager.lookupSymbol("x", {Kind::VAR}));
-    
-    analyzer.getContext().scopeManager->popScope();
-    analyzer.getContext().reset();
+    ASSERT_TRUE(analyzer->getContext().semanticErrors.empty());
+    EXPECT_TRUE(scopeManager.lookupSymbol("x", {Kind::VAR}));
 }
 
-TEST(AnalyzerTest, CheckVariableExitedScope){
-    std::vector<std::string> input{"{ { int x = 3; } int x = 5; }"};
-    LexerTest lexer{ input };
-    lexer.tokenize();
+TEST_F(StatementAnalyzerFixture, CheckVariableExitedScope){
+    input = {"{ { int x = 3; } int x = 5; }"};
+    initAnalyzer();
 
-    TokenConsumer tokenConsumer { lexer };
-    StatementParserTest parser{ tokenConsumer };
-    auto compoundStmt = parser.parseCompoundStmt();
-
-    ThreadPool tp{1};
-    SymbolTable symtab;
-    ScopeManager scopeManager{ symtab };
-    AnalyzerTest analyzer{ scopeManager, tp };
-    
-    analyzer.getContext().init("tmp", &scopeManager);
-
-    compoundStmt->accept(analyzer);
-    ASSERT_TRUE(analyzer.getContext().semanticErrors.empty());
-    analyzer.getContext().reset();
+    ASSERT_TRUE(analyzer->getContext().semanticErrors.empty());
 }
 
-TEST(AnalyzerTest, CheckVariableRedefError){
-    std::vector<std::string> input{"int x = 5;"};
-    LexerTest lexer{ input };
-    lexer.tokenize();
+TEST_F(StatementAnalyzerFixture, CheckVariableRedefError){
+    input = {"int x = 5;"};
+    scopeManager.pushSymbol(Symbol{"x", Kind::VAR, Type::INT});
+    initAnalyzer();
 
-    TokenConsumer tokenConsumer { lexer };
-    StatementParserTest parser{ tokenConsumer };
-    auto variableDecl = parser.parseVariableDeclStmt();
-
-    ThreadPool tp{1};
-    SymbolTable symtab;
-    ScopeManager scopeManager{ symtab };
-    AnalyzerTest analyzer{scopeManager, tp};
-    
-    analyzer.getContext().init("tmp", &scopeManager);
-    analyzer.getContext().scopeManager->pushScope();
-    analyzer.getContext().scopeManager->pushSymbol(Symbol{"x", Kind::VAR, Type::INT});
-
-    variableDecl->accept(analyzer);
-    ASSERT_FALSE(analyzer.getContext().semanticErrors.empty());
-    ASSERT_TRUE(analyzer.getContext().semanticErrors[0].contains("redefined"));
-    
-    analyzer.getContext().scopeManager->popScope();
-    analyzer.getContext().reset();
+    ASSERT_FALSE(analyzer->getContext().semanticErrors.empty());
+    EXPECT_TRUE(analyzer->getContext().semanticErrors[0].contains("redefined"));
 }
 
-TEST(AnalyzerTest, CheckVariableTypeMismatchError){
-    std::vector<std::string> input{"int x = 5u;"};
-    LexerTest lexer{ input };
-    lexer.tokenize();
-
-    TokenConsumer tokenConsumer { lexer };
-    StatementParserTest parser{ tokenConsumer };
-    auto variableDecl = parser.parseVariableDeclStmt();
-
-    ThreadPool tp{1};
-    SymbolTable symtab;
-    ScopeManager scopeManager{ symtab };
-    AnalyzerTest analyzer{scopeManager, tp};
+TEST_F(StatementAnalyzerFixture, CheckVariableTypeMismatchError){
+    input = {"int x = 5u;"};
+    initAnalyzer();
     
-    analyzer.getContext().init("tmp", &scopeManager);
-    analyzer.getContext().scopeManager->pushScope();
-
-    variableDecl->accept(analyzer);
-    ASSERT_FALSE(analyzer.getContext().semanticErrors.empty());
-    ASSERT_TRUE(analyzer.getContext().semanticErrors[0].contains("type mismatch"));
-    
-    analyzer.getContext().scopeManager->popScope();
-    analyzer.getContext().reset();
+    ASSERT_FALSE(analyzer->getContext().semanticErrors.empty());
+    EXPECT_TRUE(analyzer->getContext().semanticErrors[0].contains("type mismatch"));
 }
 
-TEST(AnalyzerTest, CheckVariableAutoType){
-    std::vector<std::string> input{"auto x = 5u;"};
-    LexerTest lexer{ input };
-    lexer.tokenize();
+TEST_F(StatementAnalyzerFixture, CheckVariableAutoType){
+    input = {"auto x = 5u;"};
+    initAnalyzer();
 
-    TokenConsumer tokenConsumer { lexer };
-    StatementParserTest parser{ tokenConsumer };
-    auto variableDecl = parser.parseVariableDeclStmt();
-
-    ThreadPool tp{1};
-    SymbolTable symtab;
-    ScopeManager scopeManager{ symtab };
-    AnalyzerTest analyzer{scopeManager, tp};
-    
-    analyzer.getContext().init("tmp", &scopeManager);
-    analyzer.getContext().scopeManager->pushScope();
-
-    variableDecl->accept(analyzer);
-    ASSERT_TRUE(analyzer.getContext().semanticErrors.empty());
-    ASSERT_TRUE(analyzer.getContext().scopeManager->lookupSymbol("x", {Kind::VAR}));
-    ASSERT_EQ(analyzer.getContext().scopeManager->getSymbol("x").getType(), Type::UNSIGNED);
-    
-    analyzer.getContext().scopeManager->popScope();
-    analyzer.getContext().reset();
+    ASSERT_TRUE(analyzer->getContext().semanticErrors.empty());
+    EXPECT_TRUE(analyzer->getContext().scopeManager->lookupSymbol("x", {Kind::VAR}));
+    EXPECT_EQ(analyzer->getContext().scopeManager->getSymbol("x").getType(), Type::UNSIGNED);
 }
 
-TEST(AnalyzerTest, CheckVariableAutoError){
-    std::vector<std::string> input{"auto x;"};
-    LexerTest lexer{ input };
-    lexer.tokenize();
+TEST_F(StatementAnalyzerFixture, CheckVariableAutoError){
+    input = {"auto x;"};
+    initAnalyzer();
 
-    TokenConsumer tokenConsumer { lexer };
-    StatementParserTest parser{ tokenConsumer };
-    auto variableDecl = parser.parseVariableDeclStmt();
-
-    ThreadPool tp{1};
-    SymbolTable symtab;
-    ScopeManager scopeManager{ symtab };
-    AnalyzerTest analyzer{scopeManager, tp};
-    
-    analyzer.getContext().init("tmp", &scopeManager);
-    analyzer.getContext().scopeManager->pushScope();
-
-    variableDecl->accept(analyzer);
-    ASSERT_FALSE(analyzer.getContext().semanticErrors.empty());
-    ASSERT_TRUE(analyzer.getContext().semanticErrors[0].contains("deduction"));
-    
-    analyzer.getContext().scopeManager->popScope();
-    analyzer.getContext().reset();
+    ASSERT_FALSE(analyzer->getContext().semanticErrors.empty());
+    EXPECT_TRUE(analyzer->getContext().semanticErrors[0].contains("deduction"));
 }
 
-TEST(AnalyzerTest, CheckVariableUndefinedVariableError){
-    std::vector<std::string> input{"int x = y;"};
-    LexerTest lexer{ input };
-    lexer.tokenize();
-
-    TokenConsumer tokenConsumer { lexer };
-    StatementParserTest parser{ tokenConsumer };
-    auto variableDecl = parser.parseVariableDeclStmt();
-
-    ThreadPool tp{1};
-    SymbolTable symtab;
-    ScopeManager scopeManager{ symtab };
-    AnalyzerTest analyzer{scopeManager, tp};
-
-    analyzer.getContext().init("tmp", &scopeManager);
-    analyzer.getContext().scopeManager->pushScope();
-
-    variableDecl->accept(analyzer);
-    ASSERT_FALSE(analyzer.getContext().semanticErrors.empty());
-    ASSERT_TRUE(analyzer.getContext().semanticErrors[0].contains("undefined"));
+TEST_F(StatementAnalyzerFixture, CheckVariableUndefinedVariableError){
+    input = {"int x = y;"};
+    initAnalyzer();
     
-    analyzer.getContext().scopeManager->popScope();
-    analyzer.getContext().reset();
+    ASSERT_FALSE(analyzer->getContext().semanticErrors.empty());
+    EXPECT_TRUE(analyzer->getContext().semanticErrors[0].contains("undefined"));
 }
 
-TEST(AnalyzerTest, ForStatement){
-    std::vector<std::string> input{"for(i = 0; i < 2; i = i + 1) i = i + 1;"};
-    LexerTest lexer{ input };
-    lexer.tokenize();
+TEST_F(StatementAnalyzerFixture, ForStatement){
+    input = {"for(i = 0; i < 2; i = i + 1) i = i + 1;"};
+    scopeManager.pushSymbol(Symbol{"i", Kind::VAR, Type::INT});
+    initAnalyzer();
 
-    TokenConsumer tokenConsumer { lexer };
-    StatementParserTest parser{ tokenConsumer };
-    auto forStmt = parser.parseForStmt();
-
-    ThreadPool tp{1};
-    SymbolTable symtab;
-    ScopeManager scopeManager{ symtab };
-    AnalyzerTest analyzer{scopeManager, tp};
-
-    analyzer.getContext().init("tmp", &scopeManager);
-    analyzer.getContext().scopeManager->pushScope();
-    analyzer.getContext().scopeManager->pushSymbol(Symbol{"i", Kind::VAR, Type::INT}); // initialize i;
-
-    forStmt->accept(analyzer);
-    ASSERT_TRUE(analyzer.getContext().semanticErrors.empty());
-
-    analyzer.getContext().scopeManager->popScope();
-    analyzer.getContext().reset();
+    EXPECT_TRUE(analyzer->getContext().semanticErrors.empty());
 }
 
-TEST(AnalyzerTest, ForStatementUndefVarError){
-    std::vector<std::string> input{"for(i = 0; i < 10; i = i + 1) i = i + 1;"};
-    LexerTest lexer{ input };
-    lexer.tokenize();
+TEST_F(StatementAnalyzerFixture, ForStatementUndefVarError){
+    input = {"for(i = 0; i < 10; i = i + 1) i = i + 1;"};
+    initAnalyzer();
 
-    TokenConsumer tokenConsumer { lexer };
-    StatementParserTest parser{ tokenConsumer };
-    auto forStmt = parser.parseForStmt();
-
-    ThreadPool tp{1};
-    SymbolTable symtab;
-    ScopeManager scopeManager{ symtab };
-    AnalyzerTest analyzer{scopeManager, tp};
-    
-    analyzer.getContext().init("tmp", &scopeManager);
-    analyzer.getContext().scopeManager->pushScope();
-
-    forStmt->accept(analyzer);
-    ASSERT_FALSE(analyzer.getContext().semanticErrors.empty());
-    ASSERT_TRUE(analyzer.getContext().semanticErrors[0].contains("undefined"));
-    
-    analyzer.getContext().scopeManager->popScope();
-    analyzer.getContext().reset();
+    ASSERT_FALSE(analyzer->getContext().semanticErrors.empty());
+    EXPECT_TRUE(analyzer->getContext().semanticErrors[0].contains("undefined"));
 }
 
-TEST(AnalyzerTest, ForStatementTypeMismatchError){
-    std::vector<std::string> input{"for(i = 0u; i < 10; i = i + 1) i = i + 1;"};
-    LexerTest lexer{ input };
-    lexer.tokenize();
+TEST_F(StatementAnalyzerFixture, ForStatementTypeMismatchError){
+    input = {"for(i = 0u; i < 10; i = i + 1) i = i + 1;"};
+    scopeManager.pushSymbol(Symbol{"i", Kind::VAR, Type::INT});
+    initAnalyzer();
 
-    TokenConsumer tokenConsumer { lexer };
-    StatementParserTest parser{ tokenConsumer };
-    auto forStmt = parser.parseForStmt();
-
-    ThreadPool tp{1};
-    SymbolTable symtab;
-    ScopeManager scopeManager{ symtab };
-    AnalyzerTest analyzer{scopeManager, tp};
-    
-    analyzer.getContext().init("tmp", &scopeManager);
-    analyzer.getContext().scopeManager->pushScope();
-    analyzer.getContext().scopeManager->pushSymbol(Symbol{"i", Kind::VAR, Type::INT}); // initialize i;
-
-    forStmt->accept(analyzer);
-    ASSERT_FALSE(analyzer.getContext().semanticErrors.empty());
-    ASSERT_TRUE(analyzer.getContext().semanticErrors[0].contains("type mismatch"));
-    
-    analyzer.getContext().scopeManager->popScope();
-    analyzer.getContext().reset();
+    ASSERT_FALSE(analyzer->getContext().semanticErrors.empty());
+    EXPECT_TRUE(analyzer->getContext().semanticErrors[0].contains("type mismatch"));
 }
 
-TEST(AnalyzerTest, SwitchStatement){
-    std::vector<std::string> input{"switch(x){ case 1: break; default: break; }"};
-    LexerTest lexer{ input };
-    lexer.tokenize();
+TEST_F(StatementAnalyzerFixture, SwitchStatement){
+    input = {"switch(x){ case 1: break; default: break; }"};
+    scopeManager.pushSymbol(Symbol{"x", Kind::VAR, Type::INT});
+    initAnalyzer();
 
-    TokenConsumer tokenConsumer { lexer };
-    StatementParserTest parser{ tokenConsumer };
-    auto switchStmt = parser.parseSwitchStmt();
-
-    ThreadPool tp{1};
-    SymbolTable symtab;
-    ScopeManager scopeManager{ symtab };
-    AnalyzerTest analyzer{scopeManager, tp};
-    
-    analyzer.getContext().init("tmp", &scopeManager);
-    analyzer.getContext().scopeManager->pushScope();
-    analyzer.getContext().scopeManager->pushSymbol(Symbol{"x", Kind::VAR, Type::INT}); // initialize x;
-
-    switchStmt->accept(analyzer);
-    ASSERT_TRUE(analyzer.getContext().semanticErrors.empty());
-    
-    analyzer.getContext().scopeManager->popScope();   
-    analyzer.getContext().reset();
+    EXPECT_TRUE(analyzer->getContext().semanticErrors.empty());
 }
 
-TEST(AnalyzerTest, SwitchStatementTypeMismatchError){
-    std::vector<std::string> input{"switch(x){ case 1u: break; default: break; }"};
-    LexerTest lexer{ input };
-    lexer.tokenize();
+TEST_F(StatementAnalyzerFixture, SwitchStatementTypeMismatchError){
+    input = {"switch(x){ case 1u: break; default: break; }"};
+    scopeManager.pushSymbol(Symbol{"x", Kind::VAR, Type::INT});
+    initAnalyzer();
 
-    TokenConsumer tokenConsumer { lexer };
-    StatementParserTest parser{ tokenConsumer };
-    auto switchStmt = parser.parseSwitchStmt();
-
-    ThreadPool tp{1};
-    SymbolTable symtab;
-    ScopeManager scopeManager{ symtab };
-    AnalyzerTest analyzer{scopeManager, tp};
-    
-    analyzer.getContext().init("tmp", &scopeManager);
-    analyzer.getContext().scopeManager->pushScope();
-    analyzer.getContext().scopeManager->pushSymbol(Symbol{"x", Kind::VAR, Type::INT}); // initialize x;
-
-    switchStmt->accept(analyzer);
-    ASSERT_FALSE(analyzer.getContext().semanticErrors.empty());
-    ASSERT_TRUE(analyzer.getContext().semanticErrors[0].contains("type mismatch"));
-    
-    analyzer.getContext().scopeManager->popScope();   
-    analyzer.getContext().reset();
+    ASSERT_FALSE(analyzer->getContext().semanticErrors.empty());
+    EXPECT_TRUE(analyzer->getContext().semanticErrors[0].contains("type mismatch"));
 }
 
-TEST(AnalyzerTest, SwitchStatementCaseDuplicateError){
-    std::vector<std::string> input{"switch(x){ case 1: break; case 1: break; }"};
-    LexerTest lexer{ input };
-    lexer.tokenize();
+TEST_F(StatementAnalyzerFixture, SwitchStatementCaseDuplicateError){
+    input = {"switch(x){ case 1: break; case 1: break; }"};
+    scopeManager.pushSymbol(Symbol{"x", Kind::VAR, Type::INT});
+    initAnalyzer();
 
-    TokenConsumer tokenConsumer { lexer };
-    StatementParserTest parser{ tokenConsumer };
-    auto switchStmt = parser.parseSwitchStmt();
-
-    ThreadPool tp{1};
-    SymbolTable symtab;
-    ScopeManager scopeManager{ symtab };
-    AnalyzerTest analyzer{scopeManager, tp};
-    
-    analyzer.getContext().init("tmp", &scopeManager);
-    analyzer.getContext().scopeManager->pushScope();
-    analyzer.getContext().scopeManager->pushSymbol(Symbol{"x", Kind::VAR, Type::INT}); // initialize x;
-
-    switchStmt->accept(analyzer);
-    ASSERT_FALSE(analyzer.getContext().semanticErrors.empty());
-    ASSERT_TRUE(analyzer.getContext().semanticErrors[0].contains("duplicate case"));
-    
-    analyzer.getContext().scopeManager->popScope();   
-    analyzer.getContext().reset();
+    ASSERT_FALSE(analyzer->getContext().semanticErrors.empty());
+    EXPECT_TRUE(analyzer->getContext().semanticErrors[0].contains("duplicate case"));
 }

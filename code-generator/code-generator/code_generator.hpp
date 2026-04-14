@@ -31,7 +31,7 @@ public:
      * @brief starts the code generation of the program
      * @param program - const pointer to the irt program
     */
-    void generateProgram(const IRProgram* program);
+    void generateProgram(const IR::node::IRProgram* program);
 
     /** 
      * @brief checks if the code generation was successful
@@ -59,7 +59,7 @@ private:
      * @brief writes generated code into asm file
      * @param program - const pointer to the root of the program
     */
-    void writeCode(const IRProgram* program);
+    void writeCode(const IR::node::IRProgram* program);
 
 };
 

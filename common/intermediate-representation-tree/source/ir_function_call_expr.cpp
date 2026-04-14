@@ -2,38 +2,38 @@
 
 #include "../defs/ir_defs.hpp"
 
-IRFunctionCallExpr::IRFunctionCallExpr(const std::string& callName, Type type) 
-    : IRExpr(IRNodeType::CALL, type), functionCallName{ callName } {}
+IR::node::IRFunctionCallExpr::IRFunctionCallExpr(const std::string& callName, Type type) 
+    : IRExpr(IR::defs::IRNodeType::CALL, type), functionCallName{ callName } {}
 
-const std::vector<std::unique_ptr<IRExpr>>& IRFunctionCallExpr::getArguments() const noexcept {
+const std::vector<std::unique_ptr<IR::node::IRExpr>>& IR::node::IRFunctionCallExpr::getArguments() const noexcept {
     return arguments;
 }
 
-const IRExpr* IRFunctionCallExpr::getArgumentAtN(size_t n) const noexcept {
+const IR::node::IRExpr* IR::node::IRFunctionCallExpr::getArgumentAtN(size_t n) const noexcept {
     return arguments[n].get();
 }
 
-const std::vector<std::unique_ptr<IRTemporaryExpr>>& IRFunctionCallExpr::getTemporaryExprs() const noexcept {
+const std::vector<std::unique_ptr<IR::node::IRTemporaryExpr>>& IR::node::IRFunctionCallExpr::getTemporaryExprs() const noexcept {
     return temporaryExprs;
 }
 
-void IRFunctionCallExpr::addArgument(std::unique_ptr<IRExpr> argument, std::unique_ptr<IRTemporaryExpr> tempExpr){
+void IR::node::IRFunctionCallExpr::addArgument(std::unique_ptr<IRExpr> argument, std::unique_ptr<IRTemporaryExpr> tempExpr){
     arguments.push_back(std::move(argument));
     temporaryExprs.push_back(std::move(tempExpr));
 }
 
-const std::string& IRFunctionCallExpr::getCallName() const noexcept {
+const std::string& IR::node::IRFunctionCallExpr::getCallName() const noexcept {
     return functionCallName;
 }
 
-void IRFunctionCallExpr::setCallName(const std::string& callName){
+void IR::node::IRFunctionCallExpr::setCallName(const std::string& callName){
     functionCallName = callName;
 }
 
-size_t IRFunctionCallExpr::getArgumentCount() const noexcept {
+size_t IR::node::IRFunctionCallExpr::getArgumentCount() const noexcept {
     return arguments.size();
 }
 
-void IRFunctionCallExpr::accept(IRVisitor& visitor){
+void IR::node::IRFunctionCallExpr::accept(IR::visitor::IRVisitor& visitor){
     visitor.visit(this);
 }

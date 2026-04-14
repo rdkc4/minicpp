@@ -1,17 +1,17 @@
 #include "../function_intermediate_representation.hpp"
 
-FunctionIntermediateRepresentation::FunctionIntermediateRepresentation(std::unordered_map<std::string, std::vector<std::string>>& exceptions) 
+IR::FunctionIntermediateRepresentation::FunctionIntermediateRepresentation(std::unordered_map<std::string, std::vector<std::string>>& exceptions) 
     : exceptions{ exceptions } {}
 
-thread_local IRThreadContext FunctionIntermediateRepresentation::irContext;
+thread_local IR::defs::ctx::IRThreadContext IR::FunctionIntermediateRepresentation::irContext;
 
-IRThreadContext& FunctionIntermediateRepresentation::getContext() noexcept {
+IR::defs::ctx::IRThreadContext& IR::FunctionIntermediateRepresentation::getContext() noexcept {
     return irContext;
 }
 
-std::unique_ptr<IRFunction> FunctionIntermediateRepresentation::transformFunction(const ASTFunction* astFunction){
-    std::unique_ptr<IRFunction> irFunction{ 
-        std::make_unique<IRFunction>(
+std::unique_ptr<IR::node::IRFunction> IR::FunctionIntermediateRepresentation::transformFunction(const ASTFunction* astFunction){
+    std::unique_ptr<IR::node::IRFunction> irFunction{ 
+        std::make_unique<IR::node::IRFunction>(
             astFunction->getToken().value, 
             astFunction->getType()
         )
@@ -38,10 +38,10 @@ std::unique_ptr<IRFunction> FunctionIntermediateRepresentation::transformFunctio
     return irFunction;
 }
 
-void FunctionIntermediateRepresentation::transformParameters(IRFunction* irFunction, const ASTFunction* astFunction){
+void IR::FunctionIntermediateRepresentation::transformParameters(IR::node::IRFunction* irFunction, const ASTFunction* astFunction){
     for(const auto& astParameter : astFunction->getParameters()){
         irFunction->addParameter(
-            std::make_unique<IRParameter>(
+            std::make_unique<IR::node::IRParameter>(
                 astParameter->getToken().value, 
                 astParameter->getType()
             )
@@ -49,7 +49,7 @@ void FunctionIntermediateRepresentation::transformParameters(IRFunction* irFunct
     }
 }
 
-void FunctionIntermediateRepresentation::transformBody(IRFunction* irFunction, const ASTFunction* astFunction){
+void IR::FunctionIntermediateRepresentation::transformBody(IR::node::IRFunction* irFunction, const ASTFunction* astFunction){
     for(const auto& astStmt : astFunction->getBody()){
         irFunction->addStatement(stmtIR.transformStmt(astStmt.get()));
 

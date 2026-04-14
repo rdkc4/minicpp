@@ -6,42 +6,45 @@
 #include "../defs/defs.hpp"
 #include "../visitor/ir_visitor.hpp"
 
-/**
- * @class IRExpr
- * @brief IRT representation for the expression node
- *
- * parent class of all expressions
-*/
-class IRExpr : public IRNode {
-public:
-    /** 
-     * @brief Creates the instance of the irt expression
-     * @param ntype - type of the irt node
-     * @param type - type of the expression
-    */
-    IRExpr(IRNodeType ntype, Type type);
-
+namespace IR::node {
     /**
-     * @brief getter for the type of the expression
-     * @returns type of the expression
+     * @class IRExpr
+     * @brief IRT representation for the expression node
+     *
+     * parent class of all expressions
     */
-    Type getType() const noexcept;
+    class IRExpr : public IRNode {
+    public:
+        /** 
+         * @brief Creates the instance of the irt expression
+         * @param ntype - type of the irt node
+         * @param type - type of the expression
+        */
+        IRExpr(IR::defs::IRNodeType ntype, Type type);
 
-    /**
-     * @brief initializes type of the expression node
-     * @param exprType - type of the expression
-    */
-    void setType(Type exprType) noexcept;
+        /**
+        * @brief getter for the type of the expression
+        * @returns type of the expression
+        */
+        Type getType() const noexcept;
 
-    /**
-     * @brief accepts the ir visitor
-     * @param visitor - reference to an ir visitor
-    */
-    virtual void accept(IRVisitor& visitor) = 0;
+        /**
+        * @brief initializes type of the expression node
+        * @param exprType - type of the expression
+        */
+        void setType(Type exprType) noexcept;
 
-private:
-    /// type of the expression
-    Type type;
-};
+        /**
+        * @brief accepts the ir visitor
+        * @param visitor - reference to an ir visitor
+        */
+        virtual void accept(IR::visitor::IRVisitor& visitor) = 0;
+
+    private:
+        /// type of the expression
+        Type type;
+    };
+
+}
 
 #endif

@@ -5,9 +5,9 @@
 #include "../defs/defs.hpp"
 #include "indent_guard.hpp"
 
-IRDumper::IRDumper(std::ostream& out) : out{ out }, indent{ 0 } {}
+IR::dump::IRDumper::IRDumper(std::ostream& out) : out{ out }, indent{ 0 } {}
 
-void IRDumper::visit(IRProgram* program){
+void IR::dump::IRDumper::visit(IR::node::IRProgram* program){
     dumpNode(program);
 
     dumpLibs(program);
@@ -18,7 +18,7 @@ void IRDumper::visit(IRProgram* program){
     }
 }
 
-void IRDumper::visit(IRFunction* function){
+void IR::dump::IRDumper::visit(IR::node::IRFunction* function){
     dumpNode(function, std::format(
         " | {} {} | req mem: {}", 
         typeToString.at(function->getType()), function->getFunctionName(), function->getRequiredMemory()
@@ -43,14 +43,14 @@ void IRDumper::visit(IRFunction* function){
     }
 }
 
-void IRDumper::visit(IRParameter* parameter){
+void IR::dump::IRDumper::visit(IR::node::IRParameter* parameter){
     dumpNode(parameter, std::format(
         " | {} {}", 
         typeToString.at(parameter->getType()), parameter->getParameterName()
     ));
 }
 
-void IRDumper::visit(IRVariableDeclStmt* variableDecl){
+void IR::dump::IRDumper::visit(IR::node::IRVariableDeclStmt* variableDecl){
     dumpNode(variableDecl, std::format(
         " | {} {} {}", 
         typeToString.at(variableDecl->getType()), variableDecl->getVarName(), variableDecl->getValue()
@@ -65,7 +65,7 @@ void IRDumper::visit(IRVariableDeclStmt* variableDecl){
     }
 }
 
-void IRDumper::visit(IRAssignStmt* assignStmt){
+void IR::dump::IRDumper::visit(IR::node::IRAssignStmt* assignStmt){
     dumpNode(assignStmt);
 
     IndentGuard assignGuard{indent};
@@ -76,7 +76,7 @@ void IRDumper::visit(IRAssignStmt* assignStmt){
     assignStmt->getAssignedExpr()->accept(*this);
 }
 
-void IRDumper::visit(IRCompoundStmt* compoundStmt){
+void IR::dump::IRDumper::visit(IR::node::IRCompoundStmt* compoundStmt){
     dumpNode(compoundStmt);
 
     IndentGuard compoundGuard{indent};
@@ -85,7 +85,7 @@ void IRDumper::visit(IRCompoundStmt* compoundStmt){
     }
 }
 
-void IRDumper::visit(IRForStmt* forStmt){
+void IR::dump::IRDumper::visit(IR::node::IRForStmt* forStmt){
     dumpNode(forStmt);
 
     IndentGuard forGuard{indent};
@@ -104,14 +104,14 @@ void IRDumper::visit(IRForStmt* forStmt){
     forStmt->getStmt()->accept(*this);
 }
 
-void IRDumper::visit(IRFunctionCallStmt* callStmt){
+void IR::dump::IRDumper::visit(IR::node::IRFunctionCallStmt* callStmt){
     dumpNode(callStmt);
 
     IndentGuard callGuard{indent};
     callStmt->getFunctionCallExpr()->accept(*this);
 }
 
-void IRDumper::visit(IRIfStmt* ifStmt){
+void IR::dump::IRDumper::visit(IR::node::IRIfStmt* ifStmt){
     dumpNode(ifStmt);
 
     const auto& conditions{ ifStmt->getConditionExprs() };
@@ -131,7 +131,7 @@ void IRDumper::visit(IRIfStmt* ifStmt){
     }
 }
 
-void IRDumper::visit(IRReturnStmt* returnStmt){
+void IR::dump::IRDumper::visit(IR::node::IRReturnStmt* returnStmt){
     dumpNode(returnStmt);
 
     IndentGuard returnGuard{indent};
@@ -143,7 +143,7 @@ void IRDumper::visit(IRReturnStmt* returnStmt){
     }
 }
 
-void IRDumper::visit(IRWhileStmt* whileStmt){
+void IR::dump::IRDumper::visit(IR::node::IRWhileStmt* whileStmt){
     dumpNode(whileStmt);
 
     IndentGuard whileGuard{indent};
@@ -154,7 +154,7 @@ void IRDumper::visit(IRWhileStmt* whileStmt){
     whileStmt->getStmt()->accept(*this);
 }
 
-void IRDumper::visit(IRDoWhileStmt* dowhileStmt){
+void IR::dump::IRDumper::visit(IR::node::IRDoWhileStmt* dowhileStmt){
     dumpNode(dowhileStmt);
 
     IndentGuard dowhileGuard{indent};
@@ -165,7 +165,7 @@ void IRDumper::visit(IRDoWhileStmt* dowhileStmt){
     dowhileStmt->getStmt()->accept(*this);
 }
 
-void IRDumper::visit(IRSwitchStmt* switchStmt){
+void IR::dump::IRDumper::visit(IR::node::IRSwitchStmt* switchStmt){
     dumpNode(switchStmt);
 
     IndentGuard switchGuard{indent};
@@ -178,7 +178,7 @@ void IRDumper::visit(IRSwitchStmt* switchStmt){
     }
 }
 
-void IRDumper::visit(IRCaseStmt* caseStmt){
+void IR::dump::IRDumper::visit(IR::node::IRCaseStmt* caseStmt){
     dumpNode(caseStmt);
 
     IndentGuard caseGuard{indent};
@@ -189,14 +189,14 @@ void IRDumper::visit(IRCaseStmt* caseStmt){
     }
 }
 
-void IRDumper::visit(IRDefaultStmt* defaultStmt){
+void IR::dump::IRDumper::visit(IR::node::IRDefaultStmt* defaultStmt){
     dumpNode(defaultStmt);
 
     IndentGuard defaultGuard{indent};
     defaultStmt->getSwitchBlockStmt()->accept(*this);
 }
 
-void IRDumper::visit(IRSwitchBlockStmt* switchBlockStmt){
+void IR::dump::IRDumper::visit(IR::node::IRSwitchBlockStmt* switchBlockStmt){
     dumpNode(switchBlockStmt);
 
     IndentGuard switchBlockGuard{indent};
@@ -205,7 +205,7 @@ void IRDumper::visit(IRSwitchBlockStmt* switchBlockStmt){
     }
 }
 
-void IRDumper::visit(IRBinaryExpr* binaryExpr){
+void IR::dump::IRDumper::visit(IR::node::IRBinaryExpr* binaryExpr){
     dumpNode(binaryExpr, std::format(" | {}", operatorToString.at(binaryExpr->getOperator())));
 
     IndentGuard binaryExprGuard{indent};
@@ -213,7 +213,7 @@ void IRDumper::visit(IRBinaryExpr* binaryExpr){
     binaryExpr->getRightOperandExpr()->accept(*this);
 }
 
-void IRDumper::visit(IRFunctionCallExpr* callExpr){
+void IR::dump::IRDumper::visit(IR::node::IRFunctionCallExpr* callExpr){
     dumpNode(callExpr, std::format(" | {}", callExpr->getCallName()));
 
     const auto& arguments{ callExpr->getArguments() };
@@ -228,21 +228,21 @@ void IRDumper::visit(IRFunctionCallExpr* callExpr){
     }
 }
 
-void IRDumper::visit(IRIdExpr* idExpr){
+void IR::dump::IRDumper::visit(IR::node::IRIdExpr* idExpr){
     dumpNode(idExpr, std::format(
         " | {} {}", 
         typeToString.at(idExpr->getType()), idExpr->getIdName()
     ));
 }
 
-void IRDumper::visit(IRLiteralExpr* literalExpr){
+void IR::dump::IRDumper::visit(IR::node::IRLiteralExpr* literalExpr){
     dumpNode(literalExpr, std::format(
         " | {} {}",
         typeToString.at(literalExpr->getType()), literalExpr->getValue()
     ));
 }
 
-void IRDumper::visit(IRTemporaryExpr* tempExpr){
+void IR::dump::IRDumper::visit(IR::node::IRTemporaryExpr* tempExpr){
     dumpNode(tempExpr);
 
     const auto& names{ tempExpr->getTemporaryNames() };
@@ -256,21 +256,21 @@ void IRDumper::visit(IRTemporaryExpr* tempExpr){
     }
 }
 
-void IRDumper::dumpIndent(){
+void IR::dump::IRDumper::dumpIndent(){
     out << std::string(indent * 2, ' ');
 }
 
-void IRDumper::dumpNode(const IRNode* node, std::string_view details){
+void IR::dump::IRDumper::dumpNode(const IR::node::IRNode* node, std::string_view details){
     dumpIndent();
-    out << "|-> " << irNodeToString.at(node->getNodeType()) << details << "\n";
+    out << "|-> " << IR::defs::nodeToStr[static_cast<size_t>(node->getNodeType())] << details << "\n";
 }
 
-void IRDumper::dumpNode(std::string_view nodeLabel){
+void IR::dump::IRDumper::dumpNode(std::string_view nodeLabel){
     dumpIndent();
     out << "|-> " << nodeLabel << "\n";
 }
 
-void IRDumper::dumpLibs(const IRProgram* program){
+void IR::dump::IRDumper::dumpLibs(const IR::node::IRProgram* program){
     IndentGuard libsGuard{indent};
     dumpNode("LIBS");
 

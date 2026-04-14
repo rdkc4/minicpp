@@ -63,6 +63,9 @@ enum class Operator {
     NEQUAL     //< !=
 };
 
+/// number of operators
+constexpr size_t OPERATOR_COUNT = static_cast<size_t>(Operator::NEQUAL) + 1;
+
 /// maps string to an operator
 extern const std::unordered_map<TokenType, Operator> tokenTypeToOperator;
 

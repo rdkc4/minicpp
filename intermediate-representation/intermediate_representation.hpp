@@ -13,51 +13,58 @@
 #include "../thread-pool/thread_pool.hpp"
 
 /**
- * @class IntermediateRepresentation
- * @brief turns abstract syntax tree into intermediate representation tree
+ * @namespace IR
+ * @brief module of the intermediate representation
 */
-class IntermediateRepresentation {
-public:
-    /** 
-     * @brief Creates the instance of the intermediate representation
-     * @param threadPool - reference to a thread pool
-    */
-    IntermediateRepresentation(ThreadPool& threadPool);
-
+namespace IR {
     /**
-     * @brief transforms ast program into irt program
-     * @param program - const pointer to the root of the ast program
-     * @returns pointer to the root of irt program
+     * @class IntermediateRepresentation
+     * @brief turns abstract syntax tree into intermediate representation tree
     */
-    [[nodiscard]] std::unique_ptr<IRProgram> transformProgram(const ASTProgram* program);
+    class IntermediateRepresentation {
+    public:
+        /** 
+         * @brief Creates the instance of the intermediate representation
+         * @param threadPool - reference to a thread pool
+        */
+        IntermediateRepresentation(ThreadPool& threadPool);
 
-    /**
-     * @brief checks if any errors are caught
-     * @param program - const pointer to the root of the irt
-     * @returns true if any error is caught, false otherwise
-    */
-    bool hasErrors(const IRProgram* program) const noexcept;
+        /**
+         * @brief transforms ast program into irt program
+         * @param program - const pointer to the root of the ast program
+         * @returns pointer to the root of irt program
+        */
+        [[nodiscard]] std::unique_ptr<node::IRProgram> transformProgram(const ASTProgram* program);
 
-    /**
-     * @brief getter for the ir errors
-     * @param program - pointer to the root of the irt program
-     * @returns errors merged into a string
-    */
-    std::string getErrors(const IRProgram* program) const noexcept;
+        /**
+         * @brief checks if any errors are caught
+         * @param program - const pointer to the root of the irt
+         * @returns true if any error is caught, false otherwise
+        */
+        bool hasErrors(const IR::node::IRProgram* program) const noexcept;
 
-private:
-    /// thread pool for parallel function ir transformation
-    ThreadPool& threadPool;
+        /**
+         * @brief getter for the ir errors
+         * @param program - pointer to the root of the irt program
+         * @returns errors merged into a string
+        */
+        std::string getErrors(const IR::node::IRProgram* program) const noexcept;
 
-    /// intermediate representation specialized for functions
-    FunctionIntermediateRepresentation funcIR;
+    private:
+        /// thread pool for parallel function ir transformation
+        ThreadPool& threadPool;
 
-    /// intermediate representation specialized for directives
-    DirectiveIntermediateRepresentation dirIR;
+        /// intermediate representation specialized for functions
+        FunctionIntermediateRepresentation funcIR;
 
-protected:
-    /// maps function name to its exceptions
-    std::unordered_map<std::string,std::vector<std::string>> exceptions;
-};
+        /// intermediate representation specialized for directives
+        DirectiveIntermediateRepresentation dirIR;
+
+    protected:
+        /// maps function name to its exceptions
+        std::unordered_map<std::string,std::vector<std::string>> exceptions;
+    };
+
+}
 
 #endif

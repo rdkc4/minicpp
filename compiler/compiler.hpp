@@ -135,7 +135,7 @@ namespace Compiler {
      * @param threadPool - reference to a thread pool
      * @returns IR_ERR if it captures any errors, NO_ERR otherwise
     */
-    ExitCode transformASTToIRT(std::unique_ptr<ASTProgram>& astProgram, std::unique_ptr<IRProgram>& irProgram, ThreadPool& threadPool);
+    ExitCode transformASTToIRT(std::unique_ptr<ASTProgram>& astProgram, std::unique_ptr<IR::node::IRProgram>& irProgram, ThreadPool& threadPool);
 
     /** 
      * @brief performs code generation
@@ -144,7 +144,7 @@ namespace Compiler {
      * @param threadPool - reference to a thread pool
      * @returns CODEGEN_ERR if it fails to generate code, NO_ERR otherwise
     */
-    ExitCode generateProgram(const IRProgram* irProgram, const std::string_view output, ThreadPool& threadPool);
+    ExitCode generateProgram(const IR::node::IRProgram* irProgram, const std::string_view output, ThreadPool& threadPool);
 
     /**
      * @brief translates assembly files into executable
@@ -152,7 +152,7 @@ namespace Compiler {
      * @param output - path of the output file
      * @returns ASM_LINK_ERR if it fails to generate executable, NO_ERR otherwise
     */
-    ExitCode assembleAndLink(const IRProgram* irProgram, const std::string_view output);
+    ExitCode assembleAndLink(const IR::node::IRProgram* irProgram, const std::string_view output);
 
     /** 
      * @brief performs compilation of the code
@@ -176,7 +176,7 @@ namespace Compiler {
      * @param program - const pointer to the ir program
      * @param out - output stream, defaults to std::cout
     */
-    void dumpIR(IRProgram* program, std::ostream& out = std::cout);
+    void dumpIR(IR::node::IRProgram* program, std::ostream& out = std::cout);
 };
 
 #endif

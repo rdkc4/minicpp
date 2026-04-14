@@ -18,7 +18,7 @@ size_t CodeGenerator::getNextLabelNum() noexcept {
     return labelNum.fetch_add(1);
 }
 
-void CodeGenerator::generateProgram(const IRProgram* program){
+void CodeGenerator::generateProgram(const IR::node::IRProgram* program){
     funcGenerator.initFunctions(program);
 
     std::latch doneLatch{ static_cast<ptrdiff_t>(program->getFunctionCount()) };
@@ -37,7 +37,7 @@ void CodeGenerator::generateProgram(const IRProgram* program){
     writeCode(program);
 }
 
-void CodeGenerator::writeCode(const IRProgram* program){
+void CodeGenerator::writeCode(const IR::node::IRProgram* program){
     std::ofstream file{ outputPath };
     if(!file.is_open()){
         return;

@@ -5,26 +5,29 @@
 #include "defs/ir_defs.hpp"
 #include "../visitor/ir_visitor.hpp"
 
-/** 
- * @class IRStmt
- * @brief IRT representation for all statements
- *
- * parent of all statement classes
-*/
-class IRStmt : public IRNode {
-public:
+namespace IR::node {
     /** 
-     * @brief Creates the instance of the irt statement
-     * @param ntype - type of the irt node
+     * @class IRStmt
+     * @brief IRT representation for all statements
+     *
+     * parent of all statement classes
     */
-    IRStmt(IRNodeType ntype);
-    
-    /**
-     * @brief accepts the ir visitor
-     * @param visitor - reference to an ir visitor
-    */
-    virtual void accept(IRVisitor& visitor) = 0;
+    class IRStmt : public IRNode {
+    public:
+        /** 
+         * @brief Creates the instance of the irt statement
+         * @param ntype - type of the irt node
+        */
+        IRStmt(IR::defs::IRNodeType ntype);
+        
+        /**
+         * @brief accepts the ir visitor
+         * @param visitor - reference to an ir visitor
+        */
+        virtual void accept(IR::visitor::IRVisitor& visitor) = 0;
 
-};
+    };
+
+}
 
 #endif

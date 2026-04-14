@@ -2,11 +2,11 @@
 
 #include <latch>
 
-DeadCodeEliminator::DeadCodeEliminator(ThreadPool& threadPool) : threadPool{threadPool} {}
+Optimization::dce::DeadCodeEliminator::DeadCodeEliminator(ThreadPool& threadPool) : threadPool{threadPool} {}
 
-thread_local bool DeadCodeEliminator::alwaysReturns{ false };
+thread_local bool Optimization::dce::DeadCodeEliminator::alwaysReturns{ false };
 
-void DeadCodeEliminator::visit(IRProgram* program){
+void Optimization::dce::DeadCodeEliminator::visit(IR::node::IRProgram* program){
     std::latch doneLatch{ static_cast<std::ptrdiff_t>(program->getFunctionCount()) };
 
     for(const auto& function : program->getFunctions()){
@@ -21,7 +21,7 @@ void DeadCodeEliminator::visit(IRProgram* program){
     doneLatch.wait();
 }
 
-void DeadCodeEliminator::visit(IRFunction* function){
+void Optimization::dce::DeadCodeEliminator::visit(IR::node::IRFunction* function){
     alwaysReturns = false;
 
     size_t stmtIdx{ 0 };
@@ -35,19 +35,19 @@ void DeadCodeEliminator::visit(IRFunction* function){
     }
 }
 
-void DeadCodeEliminator::visit([[maybe_unused]] IRParameter* parameter){
+void Optimization::dce::DeadCodeEliminator::visit([[maybe_unused]] IR::node::IRParameter* parameter){
     // intentionally empty
 }
 
-void DeadCodeEliminator::visit([[maybe_unused]] IRVariableDeclStmt* variableDecl){
+void Optimization::dce::DeadCodeEliminator::visit([[maybe_unused]] IR::node::IRVariableDeclStmt* variableDecl){
     // intentionally empty
 }
 
-void DeadCodeEliminator::visit([[maybe_unused]] IRAssignStmt* assignStmt){
+void Optimization::dce::DeadCodeEliminator::visit([[maybe_unused]] IR::node::IRAssignStmt* assignStmt){
     // intentionally empty
 }
 
-void DeadCodeEliminator::visit(IRCompoundStmt* compoundStmt){
+void Optimization::dce::DeadCodeEliminator::visit(IR::node::IRCompoundStmt* compoundStmt){
     alwaysReturns = false;
 
     size_t stmtIdx{ 0 };
@@ -61,15 +61,15 @@ void DeadCodeEliminator::visit(IRCompoundStmt* compoundStmt){
     }
 }
 
-void DeadCodeEliminator::visit([[maybe_unused]] IRForStmt* forStmt){
+void Optimization::dce::DeadCodeEliminator::visit([[maybe_unused]] IR::node::IRForStmt* forStmt){
     // intentionally empty
 }
 
-void DeadCodeEliminator::visit([[maybe_unused]] IRFunctionCallStmt* callStmt){
+void Optimization::dce::DeadCodeEliminator::visit([[maybe_unused]] IR::node::IRFunctionCallStmt* callStmt){
     // intentionally empty
 }
 
-void DeadCodeEliminator::visit(IRIfStmt* ifStmt){
+void Optimization::dce::DeadCodeEliminator::visit(IR::node::IRIfStmt* ifStmt){
     bool ifStmtAlwaysReturns{ true };
 
     for(const auto& stmt : ifStmt->getStmts()){
@@ -80,20 +80,20 @@ void DeadCodeEliminator::visit(IRIfStmt* ifStmt){
     alwaysReturns = ifStmtAlwaysReturns && ifStmt->hasElseStmt();
 }
 
-void DeadCodeEliminator::visit([[maybe_unused]] IRReturnStmt* returnStmt){
+void Optimization::dce::DeadCodeEliminator::visit([[maybe_unused]] IR::node::IRReturnStmt* returnStmt){
     alwaysReturns = true;
 }
 
-void DeadCodeEliminator::visit([[maybe_unused]] IRWhileStmt* whileStmt){
+void Optimization::dce::DeadCodeEliminator::visit([[maybe_unused]] IR::node::IRWhileStmt* whileStmt){
     // intentionally empty
 }
 
-void DeadCodeEliminator::visit(IRDoWhileStmt* dowhileStmt){
+void Optimization::dce::DeadCodeEliminator::visit(IR::node::IRDoWhileStmt* dowhileStmt){
     alwaysReturns = false;
     dowhileStmt->getStmt()->accept(*this);
 }
 
-void DeadCodeEliminator::visit(IRSwitchStmt* switchStmt){
+void Optimization::dce::DeadCodeEliminator::visit(IR::node::IRSwitchStmt* switchStmt){
     bool switchStmtAlwaysReturns{ true };
 
     for(const auto& caseStmt : switchStmt->getCaseStmts()){
@@ -108,15 +108,15 @@ void DeadCodeEliminator::visit(IRSwitchStmt* switchStmt){
     alwaysReturns = switchStmtAlwaysReturns && alwaysReturns;
 }
 
-void DeadCodeEliminator::visit(IRCaseStmt* caseStmt){
+void Optimization::dce::DeadCodeEliminator::visit(IR::node::IRCaseStmt* caseStmt){
     caseStmt->getSwitchBlockStmt()->accept(*this);
 }
 
-void DeadCodeEliminator::visit(IRDefaultStmt* defaultStmt){
+void Optimization::dce::DeadCodeEliminator::visit(IR::node::IRDefaultStmt* defaultStmt){
     defaultStmt->getSwitchBlockStmt()->accept(*this);
 }
 
-void DeadCodeEliminator::visit(IRSwitchBlockStmt* switchBlockStmt){
+void Optimization::dce::DeadCodeEliminator::visit(IR::node::IRSwitchBlockStmt* switchBlockStmt){
     alwaysReturns = false;
 
     size_t stmtIdx{ 0 };
@@ -130,22 +130,22 @@ void DeadCodeEliminator::visit(IRSwitchBlockStmt* switchBlockStmt){
     }
 }
 
-void DeadCodeEliminator::visit([[maybe_unused]] IRBinaryExpr* binaryExpr){
+void Optimization::dce::DeadCodeEliminator::visit([[maybe_unused]] IR::node::IRBinaryExpr* binaryExpr){
     // intentionally empty
 }
 
-void DeadCodeEliminator::visit([[maybe_unused]] IRFunctionCallExpr* callExpr){
+void Optimization::dce::DeadCodeEliminator::visit([[maybe_unused]] IR::node::IRFunctionCallExpr* callExpr){
     // intentionally empty
 }
 
-void DeadCodeEliminator::visit([[maybe_unused]] IRIdExpr* idExpr){
+void Optimization::dce::DeadCodeEliminator::visit([[maybe_unused]] IR::node::IRIdExpr* idExpr){
     // intentionally empty
 }
 
-void DeadCodeEliminator::visit([[maybe_unused]] IRLiteralExpr* literalExpr){
+void Optimization::dce::DeadCodeEliminator::visit([[maybe_unused]] IR::node::IRLiteralExpr* literalExpr){
     // intentionally empty
 }
 
-void DeadCodeEliminator::visit([[maybe_unused]] IRTemporaryExpr* tempExpr){
+void Optimization::dce::DeadCodeEliminator::visit([[maybe_unused]] IR::node::IRTemporaryExpr* tempExpr){
     // intentionally empty
 }

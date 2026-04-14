@@ -1,42 +1,42 @@
 #include "code_generator_defs.hpp"
 
-const std::unordered_map<IRNodeType, std::string> nodeToJMP {
-    {IRNodeType::JG, "jg"},
-    {IRNodeType::JA, "ja"},
-    {IRNodeType::JL, "jl"},
-    {IRNodeType::JB, "jb"},
-    {IRNodeType::JGE, "jge"},
-    {IRNodeType::JAE, "jae"},
-    {IRNodeType::JLE, "jle"},
-    {IRNodeType::JBE, "jbe"},
-    {IRNodeType::JE, "je"},
-    {IRNodeType::JNE, "jne"}
+const std::unordered_map<IR::defs::IRNodeType, std::string> nodeToJMP {
+    {IR::defs::IRNodeType::JG, "jg"},
+    {IR::defs::IRNodeType::JA, "ja"},
+    {IR::defs::IRNodeType::JL, "jl"},
+    {IR::defs::IRNodeType::JB, "jb"},
+    {IR::defs::IRNodeType::JGE, "jge"},
+    {IR::defs::IRNodeType::JAE, "jae"},
+    {IR::defs::IRNodeType::JLE, "jle"},
+    {IR::defs::IRNodeType::JBE, "jbe"},
+    {IR::defs::IRNodeType::JE, "je"},
+    {IR::defs::IRNodeType::JNE, "jne"}
 };
 
-const std::unordered_map<IRNodeType, std::string> nodeToOppJMP {
-    {IRNodeType::JG, "jle"},
-    {IRNodeType::JA, "jbe"},
-    {IRNodeType::JL, "jge"},
-    {IRNodeType::JB, "jae"},
-    {IRNodeType::JGE, "jl"},
-    {IRNodeType::JAE, "jb"},
-    {IRNodeType::JLE, "jg"},
-    {IRNodeType::JBE, "ja"},
-    {IRNodeType::JE, "jne"},
-    {IRNodeType::JNE, "je"}
+const std::unordered_map<IR::defs::IRNodeType, std::string> nodeToOppJMP {
+    {IR::defs::IRNodeType::JG, "jle"},
+    {IR::defs::IRNodeType::JA, "jbe"},
+    {IR::defs::IRNodeType::JL, "jge"},
+    {IR::defs::IRNodeType::JB, "jae"},
+    {IR::defs::IRNodeType::JGE, "jl"},
+    {IR::defs::IRNodeType::JAE, "jb"},
+    {IR::defs::IRNodeType::JLE, "jg"},
+    {IR::defs::IRNodeType::JBE, "ja"},
+    {IR::defs::IRNodeType::JE, "jne"},
+    {IR::defs::IRNodeType::JNE, "je"}
 };
 
-const std::unordered_map<IRNodeType, std::string> nodeToSetExt {
-    {IRNodeType::JG, "g"},
-    {IRNodeType::JA, "a"},
-    {IRNodeType::JL, "l"},
-    {IRNodeType::JB, "b"},
-    {IRNodeType::JGE, "ge"},
-    {IRNodeType::JAE, "ae"},
-    {IRNodeType::JLE, "le"},
-    {IRNodeType::JBE, "be"},
-    {IRNodeType::JE, "e"},
-    {IRNodeType::JNE, "ne"}
+const std::unordered_map<IR::defs::IRNodeType, std::string> nodeToSetExt {
+    {IR::defs::IRNodeType::JG, "g"},
+    {IR::defs::IRNodeType::JA, "a"},
+    {IR::defs::IRNodeType::JL, "l"},
+    {IR::defs::IRNodeType::JB, "b"},
+    {IR::defs::IRNodeType::JGE, "ge"},
+    {IR::defs::IRNodeType::JAE, "ae"},
+    {IR::defs::IRNodeType::JLE, "le"},
+    {IR::defs::IRNodeType::JBE, "be"},
+    {IR::defs::IRNodeType::JE, "e"},
+    {IR::defs::IRNodeType::JNE, "ne"}
 };
 
 /// general purpose registers (x86_64 architecture)

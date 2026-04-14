@@ -1,9 +1,9 @@
 #include "../ir_node.hpp"
 
-IRNode::IRNode(IRNodeType ntype) : nodeType{ ntype } {}
+IR::node::IRNode::IRNode(IR::defs::IRNodeType ntype) : nodeType{ ntype } {}
 
-IRNode::~IRNode() = default;
+IR::node::IRNode::~IRNode() = default;
 
-IRNodeType IRNode::getNodeType() const noexcept {
+IR::defs::IRNodeType IR::node::IRNode::getNodeType() const noexcept {
     return nodeType;
 }

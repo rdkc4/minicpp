@@ -4,38 +4,46 @@
 #include "defs/ir_defs.hpp"
 #include "../visitor/ir_visitor.hpp"
 
-/** 
- * @class IRNode
- * @brief parent class of all IRT nodes
+/**
+ * @namespace IR::node
+ * @brief module for the definitions of ir nodes
 */
-class IRNode {
-public:
+namespace IR::node {
     /** 
-     * @brief Creates the instance of the irt node
-     * @param ntype - type of the irt node
+     * @class IRNode
+     * @brief parent class of all IRT nodes
     */
-    IRNode(IRNodeType ntype);
+    class IRNode {
+    public:
+        /** 
+         * @brief Creates the instance of the irt node
+         * @param ntype - type of the irt node
+        */
+        IRNode(IR::defs::IRNodeType ntype);
 
-    /** 
-     * @brief Destructs the instance of the irt node
-    */
-    virtual ~IRNode();
+        /** 
+         * @brief Destructs the instance of the irt node
+        */
+        virtual ~IRNode();
 
-    /** 
-     * @brief getter for the node type
-     * @returns type of the node
-    */
-    IRNodeType getNodeType() const noexcept;
+        /** 
+         * @brief getter for the node type
+         * @returns type of the node
+        */
+        IR::defs::IRNodeType getNodeType() const noexcept;
 
-    /**
-     * @brief accepts the ir visitor
-     * @param visitor - reference to an ir visitor
-    */
-    virtual void accept(IRVisitor& visitor) = 0;
+        /**
+         * @brief accepts the ir visitor
+         * @param visitor - reference to an ir visitor
+        */
+        virtual void accept(IR::visitor::IRVisitor& visitor) = 0;
 
-private:
-    /// type of the irt node
-    IRNodeType nodeType;
-};
+    private:
+        /// type of the irt node
+        IR::defs::IRNodeType nodeType;
+
+    };
+
+}
 
 #endif

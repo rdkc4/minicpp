@@ -2,36 +2,36 @@
 
 #include "../defs/ir_defs.hpp"
 
-IRSwitchStmt::IRSwitchStmt() : IRStmt(IRNodeType::SWITCH) {}
+IR::node::IRSwitchStmt::IRSwitchStmt() : IRStmt(IR::defs::IRNodeType::SWITCH) {}
 
-void IRSwitchStmt::setVariableIdExpr(std::unique_ptr<IRIdExpr> idExpr){
+void IR::node::IRSwitchStmt::setVariableIdExpr(std::unique_ptr<IRIdExpr> idExpr){
     variableIdExpr = std::move(idExpr);
 }
 
-const std::vector<std::unique_ptr<IRCaseStmt>>& IRSwitchStmt::getCaseStmts() const noexcept {
+const std::vector<std::unique_ptr<IR::node::IRCaseStmt>>& IR::node::IRSwitchStmt::getCaseStmts() const noexcept {
     return caseStmts;
 }
 
-const IRCaseStmt* IRSwitchStmt::getCaseStmtAtN(size_t n) const noexcept {
+const IR::node::IRCaseStmt* IR::node::IRSwitchStmt::getCaseStmtAtN(size_t n) const noexcept {
     return caseStmts[n].get();
 }
 
-void IRSwitchStmt::addCaseStmt(std::unique_ptr<IRCaseStmt> caseStmt){
+void IR::node::IRSwitchStmt::addCaseStmt(std::unique_ptr<IRCaseStmt> caseStmt){
     caseStmts.push_back(std::move(caseStmt));
 }
 
-void IRSwitchStmt::setDefaultStmt(std::unique_ptr<IRDefaultStmt> swDefaultStmt) {
+void IR::node::IRSwitchStmt::setDefaultStmt(std::unique_ptr<IRDefaultStmt> swDefaultStmt) {
     defaultStmt = std::move(swDefaultStmt);
 }
 
-bool IRSwitchStmt::hasDefaultStmt() const noexcept {
+bool IR::node::IRSwitchStmt::hasDefaultStmt() const noexcept {
     return defaultStmt != nullptr;
 }
 
-size_t IRSwitchStmt::getCaseCount() const noexcept {
+size_t IR::node::IRSwitchStmt::getCaseCount() const noexcept {
     return caseStmts.size();
 }
 
-void IRSwitchStmt::accept(IRVisitor& visitor){
+void IR::node::IRSwitchStmt::accept(IR::visitor::IRVisitor& visitor){
     visitor.visit(this);
 }

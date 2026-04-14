@@ -17,13 +17,13 @@ enum class ExprContext {
 };
 
 /// translates jump ir node types into strings
-extern const std::unordered_map<IRNodeType, std::string> nodeToJMP;
+extern const std::unordered_map<IR::defs::IRNodeType, std::string> nodeToJMP;
 
 /// translates jump ir node types into opposite jumps as string
-extern const std::unordered_map<IRNodeType, std::string> nodeToOppJMP;
+extern const std::unordered_map<IR::defs::IRNodeType, std::string> nodeToOppJMP;
 
 /// translates jump ir node types into extensions for set
-extern const std::unordered_map<IRNodeType, std::string> nodeToSetExt;
+extern const std::unordered_map<IR::defs::IRNodeType, std::string> nodeToSetExt;
 
 /// const vector of names of the general-purpose registers
 extern const std::vector<std::string> gpRegisters;

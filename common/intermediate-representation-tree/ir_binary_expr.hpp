@@ -7,66 +7,70 @@
 #include "../defs/defs.hpp"
 #include "../visitor/ir_visitor.hpp"
 
-/**
- * @class IRBinaryExpr
- * @brief IRT representation of the binary expression node
-*/
-class IRBinaryExpr final : public IRExpr {
-public:
-    /** 
-     * @brief Creates the instance of the irt binary expression
-     * @param ntype - type of the irt node
-     * @param type - type of the binary expression
-    */
-    IRBinaryExpr(IRNodeType ntype, Type type);
-
+namespace IR::node {
     /**
-     * @brief getter for the left operand of the binary expression
-     * @returns pointer or const pointer to the expression node
+     * @class IRBinaryExpr
+     * @brief IRT representation of the binary expression node
     */
-    template<typename Self>
-    decltype(auto) getLeftOperandExpr(this Self&& self) noexcept {
-        return std::forward<Self>(self).leftOperandExpr.get();
-    }
+    class IRBinaryExpr final : public IRExpr {
+    public:
+        /** 
+         * @brief Creates the instance of the irt binary expression
+         * @param ntype - type of the irt node
+         * @param type - type of the binary expression
+        */
+        IRBinaryExpr(IR::defs::IRNodeType ntype, Type type);
 
-    /**
-     * @brief getter for the right operand of the binary expression 
-     * @returns pointer or const pointer to the expression node
-    */
-    template<typename Self>
-    decltype(auto) getRightOperandExpr(this Self&& self) noexcept {
-        return std::forward<Self>(self).rightOperandExpr.get();
-    }
+        /**
+         * @brief getter for the left operand of the binary expression
+         * @returns pointer or const pointer to the expression node
+        */
+        template<typename Self>
+        decltype(auto) getLeftOperandExpr(this Self&& self) noexcept {
+            return std::forward<Self>(self).leftOperandExpr.get();
+        }
 
-    /**
-     * @brief getter for the operator of the binary expression
-     * @returns operator of the binary expression
-    */
-    Operator getOperator() const noexcept;
+        /**
+         * @brief getter for the right operand of the binary expression 
+         * @returns pointer or const pointer to the expression node
+        */
+        template<typename Self>
+        decltype(auto) getRightOperandExpr(this Self&& self) noexcept {
+            return std::forward<Self>(self).rightOperandExpr.get();
+        }
 
-    /**
-     * @brief initializes the binary expression node
-     * @param leftOperand - pointer to the left operand
-     * @param rightOperand - pointer to the right operand
-     * @param op - operator of the binary expression
-    */
-    void setBinaryExpr(std::unique_ptr<IRExpr> leftOperand, std::unique_ptr<IRExpr> rightOperand, Operator op);
+        /**
+         * @brief getter for the operator of the binary expression
+         * @returns operator of the binary expression
+        */
+        Operator getOperator() const noexcept;
 
-    /**
-     * @brief accepts the ir visitor
-     * @param visitor - reference to an ir visitor
-    */
-    void accept(IRVisitor& visitor) override;
+        /**
+         * @brief initializes the binary expression node
+         * @param leftOperand - pointer to the left operand
+         * @param rightOperand - pointer to the right operand
+         * @param op - operator of the binary expression
+        */
+        void setBinaryExpr(std::unique_ptr<IRExpr> leftOperand, std::unique_ptr<IRExpr> rightOperand, Operator op);
 
-private:
-    /// pointer to the left operand of the binary expression
-    std::unique_ptr<IRExpr> leftOperandExpr;
+        /**
+         * @brief accepts the ir visitor
+         * @param visitor - reference to an ir visitor
+        */
+        void accept(IR::visitor::IRVisitor& visitor) override;
 
-    /// pointer to the right operand of the binary expression
-    std::unique_ptr<IRExpr> rightOperandExpr;
-    
-    /// operator of the binary expression
-    Operator exprOperator;
-};
+    private:
+        /// pointer to the left operand of the binary expression
+        std::unique_ptr<IRExpr> leftOperandExpr;
+
+        /// pointer to the right operand of the binary expression
+        std::unique_ptr<IRExpr> rightOperandExpr;
+        
+        /// operator of the binary expression
+        Operator exprOperator;
+
+    };
+
+}
 
 #endif

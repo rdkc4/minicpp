@@ -7,33 +7,40 @@
 #include <vector>
 
 /**
- * @struct IRThreadContext
- * @brief context of the thread performing the irt transformation
+ * @namespace IR::defs::ctx
+ * @brief module for the ir context
 */
-struct IRThreadContext{
-    /// number to make temporary name unique
-    size_t temporaries;
-
-    /// making sure nested temporary variables are handled properly
-    std::stack<std::string> temporaryNames;
-    
-    /// vector of the errors of the function
-    std::vector<std::string> errors;
-
-    /** 
-     * @brief initializes the context of the thread
+namespace IR::defs::ctx {
+    /**
+     * @struct IRThreadContext
+     * @brief context of the thread performing the irt transformation
     */
-    void init(){
-        temporaries = 0;
-    }
+    struct IRThreadContext{
+        /// number to make temporary name unique
+        size_t temporaries;
 
-    /** 
-     * @brief resets the context of the thread
-    */
-    void reset(){
-        errors.clear();
-    }
+        /// making sure nested temporary variables are handled properly
+        std::stack<std::string> temporaryNames;
+        
+        /// vector of the errors of the function
+        std::vector<std::string> errors;
 
-};
+        /** 
+         * @brief initializes the context of the thread
+        */
+        void init(){
+            temporaries = 0;
+        }
+
+        /** 
+         * @brief resets the context of the thread
+        */
+        void reset(){
+            errors.clear();
+        }
+
+    };
+
+}
 
 #endif
