@@ -336,7 +336,7 @@ void StatementCodeGenerator::generateReturnStmt(const IRReturnStmt* returnStmt){
     AsmGenerator::Instruction::genJmp(
         codeGenContext.asmCode, 
         "jmp", 
-        std::format("{}_end", codeGenContext.functionName)
+        std::format("_{}_end", codeGenContext.functionName)
     );
 }
 

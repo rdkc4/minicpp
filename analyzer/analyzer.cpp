@@ -355,7 +355,7 @@ void Analyzer::visit(ASTReturnStmt* returnStmt){
         returnType = returnExpr->getType();
     }
 
-    // if numexp inside of a return statement contains undef var, it will report it, no point checking for type mismatch
+    // if expr inside of a return statement contains undef var, it will report it, no point checking for type mismatch
     if(returnType == Type::NO_TYPE) return;
 
     // return type check
