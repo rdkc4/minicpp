@@ -5,6 +5,8 @@
 #include <cctype>
 #include <cassert>
 
+#include "../common/defs/defs.hpp"
+
 Lexer::Lexer(const std::vector<std::string>& input) 
     : input{ input }, nextTokenIdx{ 1 } {}
 
@@ -107,22 +109,22 @@ bool Lexer::handleIdentifier(){
 }
 
 bool Lexer::handleKeyword(std::string_view keyword, size_t lineNumber, size_t col){
-    if(!isKeyword(keyword)){
-        return false;
+    if(auto kwdType{ tryGetKeyword(keyword) }){
+        auto type{ *kwdType };
+        auto gtype{
+            tokenTypeToType(type) != Type::NO_TYPE
+                ? GeneralTokenType::TYPE
+                : GeneralTokenType::OTHER
+        };
+
+        tokens.emplace_back(Token{
+            keyword, lineNumber, col, type, gtype
+        });
+
+        return true;
     }
 
-    auto type{ keywords.at(keyword) };
-    GeneralTokenType gtype {
-        types.find(type) != types.end() 
-            ? GeneralTokenType::TYPE 
-            : GeneralTokenType::OTHER
-    };
-
-    tokens.emplace_back(Token{
-        keyword, lineNumber, col, type, gtype
-    });
-
-    return true;
+    return false;
 }
 
 bool Lexer::handleNumber(){
@@ -243,53 +245,55 @@ bool Lexer::handleOperator(){
 }
 
 bool Lexer::handleRelationalOperator(){
-    Lexeme opLexeme{ isRelationalOperator() };
-    if(opLexeme.length == 0){
-        return false;
+    if(auto opLexeme{ tryGetRelationalOperator() }){
+        emitOperator(*opLexeme);
+        return true;
     }
-    emitOperator(opLexeme.type, opLexeme.length);
-    return true;
+    return false;
 }
 
 bool Lexer::handleLogicalOperator(){
-    Lexeme opLexeme{ isLogicalOperator() };
-    if(opLexeme.length == 0){
-        return false;
+    if(auto opLexeme{ tryGetLogicalOperator() }){
+        emitOperator(*opLexeme);
+        return true;
     }
-    emitOperator(opLexeme.type, opLexeme.length);
-    return true;
+    return false;
 }
 
 bool Lexer::handleAssignOperator(){
-    Lexeme opLexeme{ isAssignOperator() };
-    if(opLexeme.length == 0){
-        return false;
+    if(auto opLexeme{ tryGetAssignOperator() }){
+        emitOperator(*opLexeme);
+        return true;
     }
-    emitOperator(opLexeme.type, opLexeme.length);
-    return true;
+    return false;
 }
 
 bool Lexer::handleBitwiseOperator(){
-    Lexeme opLexeme{ isBitwiseOperator() };
-    if(opLexeme.length == 0){
-        return false;
+    if(auto opLexeme{ tryGetBitwiseOperator() }){
+        emitOperator(*opLexeme);
+        return true;
     }
-    emitOperator(opLexeme.type, opLexeme.length);
-    return true;
+    return false;
 }
 
 bool Lexer::handleArithmeticOperator(){
-    Lexeme opLexeme{ isArithmeticOperator() };
-    if(opLexeme.length == 0){
-        return false;
+    if(auto opLexeme{ tryGetArithmeticOperator() }){
+        emitOperator(*opLexeme);
+        return true;
     }
-    emitOperator(opLexeme.type, opLexeme.length);
-    return true;
+
+    return false;
 }
 
-void Lexer::emitOperator(TokenType type, size_t length, GeneralTokenType gtype){
-    addToken(getRelativeSequence(length), line, column(), type, gtype);
-    advance(length);
+void Lexer::emitOperator(Lexeme operatorLexeme, GeneralTokenType gtype){
+    addToken(getRelativeSequence(
+        operatorLexeme.length), 
+        line, 
+        column(), 
+        operatorLexeme.type, 
+        gtype
+    );
+    advance(operatorLexeme.length);
 }
 
 bool Lexer::handlePunctuation(){

@@ -4,9 +4,9 @@
 #include <string>
 #include <vector>
 #include <string_view>
+#include <optional>
 
 #include "../common/token/token.hpp"
-#include "defs/lexer_defs.hpp"
 #include "defs/lexeme.hpp"
 
 /**
@@ -287,11 +287,10 @@ private:
 
     /**
      * @brief generates the operator token
-     * @param type - type of the token
-     * @param length - length of the token
+     * @param operatorLexeme - type and length of the operator
      * @param gtype - general token type of the token
     */
-    void emitOperator(TokenType type, size_t length, GeneralTokenType gtype = GeneralTokenType::OPERATOR);
+    void emitOperator(Lexeme operatorLexeme, GeneralTokenType gtype = GeneralTokenType::OPERATOR);
 
     /**
      * @brief handles punctuations, updates position
@@ -307,11 +306,54 @@ private:
 
     /** 
      * @brief checks if the current sequence of characters is a keyword
-     * @param value - const string representing id or keyword
-     * @returns true if sequence matches keyword, false otherwise
+     * @param value - string representing keyword
+     * @returns token type of the keyword if sequence is keyword, nullopt otherwise
     */
-    inline bool isKeyword(std::string_view value) const noexcept {
-        return keywords.find(value) != keywords.end();
+    inline std::optional<TokenType> tryGetKeyword(std::string_view value) const noexcept {
+        const size_t length{ value.size() };
+        if(length < 2 || length > 8){
+            return std::nullopt;
+        }
+
+        switch(length){
+            case 2:
+                if(value == "if") return TokenType::IF;
+                if(value == "do") return TokenType::DO;
+                break;
+
+            case 3:
+                if(value == "for") return TokenType::FOR;
+                if(value == "int") return TokenType::INT;
+                break;
+
+            case 4:
+                if(value == "else") return TokenType::ELSE;
+                if(value == "case") return TokenType::CASE;
+                if(value == "void") return TokenType::VOID;
+                if(value == "auto") return TokenType::AUTO;
+                break;
+
+            case 5:
+                if(value == "while") return TokenType::WHILE;
+                if(value == "break") return TokenType::BREAK;
+                break;
+
+            case 6:
+                if(value == "return") return TokenType::RETURN;
+                if(value == "switch") return TokenType::SWITCH;
+                break;
+
+            case 7:
+                if(value == "default") return TokenType::DEFAULT;
+                if(value == "include") return TokenType::INCLUDE;
+                break;
+
+            case 8:
+                if(value == "unsigned") return TokenType::UNSIGNED;
+                break;
+        }
+
+        return std::nullopt;
     }
 
     /**
@@ -347,145 +389,145 @@ private:
 
     /** 
      * @brief checks if current sequence of characters is an assignment operator
-     * @returns lexeme of assign operator if sequence matches assign operator, invalid lexeme otherwise
+     * @returns lexeme of assign operator if sequence matches assign operator, nullopt otherwise
     */
-    Lexeme isAssignOperator() const noexcept {
+    inline std::optional<Lexeme> tryGetAssignOperator() const noexcept {
         if(getChar(position) == '=' && (!isValidIndex(1) || getChar(position + 1) != '=')){
-            return {.type = TokenType::ASSIGN, .length = 1};
+            return Lexeme{.type = TokenType::ASSIGN, .length = 1};
         }
-        return {.type = TokenType::INVALID, .length = 0};
+        return std::nullopt;
     }
 
     /** 
      * @brief checks if the current sequence of characters is an arithmetic operator
      * @details arithmetic operators: +, -, *, /
-     * @returns lexeme of arithmetic operator if sequence matches arithmetic operator, invalid lexeme otherwise
+     * @returns lexeme of arithmetic operator if sequence matches arithmetic operator, nullopt otherwise
     */
-    inline Lexeme isArithmeticOperator() const noexcept {
+    inline std::optional<Lexeme> tryGetArithmeticOperator() const noexcept {
         switch(getChar(position)){
             case '+':
-                return {.type = TokenType::PLUS, .length = 1};
+                return Lexeme{.type = TokenType::PLUS, .length = 1};
             case '-':
-                return {.type = TokenType::MINUS, .length = 1};
+                return Lexeme{.type = TokenType::MINUS, .length = 1};
             case '*':
-                return {.type = TokenType::ASTERISK, .length = 1};
+                return Lexeme{.type = TokenType::ASTERISK, .length = 1};
             case '/':
-                return {.type = TokenType::SLASH, .length = 1};
+                return Lexeme{.type = TokenType::SLASH, .length = 1};
 
             default:
-                return {.type = TokenType::INVALID, .length = 0};
+                return std::nullopt;
         }
     }
 
     /** 
      * @brief checks if the current sequence of characters is a bitwise operator
      * @details bitwise operators: <<, >>, &, |, ^
-     * @returns lexeme of the bitwise operator when sequence is a bitwise operator, invalid lexeme otherwise
+     * @returns lexeme of the bitwise operator when sequence is a bitwise operator, nullopt otherwise
     */
-    inline Lexeme isBitwiseOperator() const noexcept {
+    inline std::optional<Lexeme> tryGetBitwiseOperator() const noexcept {
         char c1{ getChar(position) };
         char c2{ isValidIndex(1) ? getChar(position + 1) : '\0'};
 
         switch(c1){
             case '<':
                 if(c2 == '<'){
-                    return {.type = TokenType::LSHIFT, .length = 2};
+                    return Lexeme{.type = TokenType::LSHIFT, .length = 2};
                 }
                 break;
 
             case '>':
                 if(c2 == '>'){
-                    return {.type = TokenType::RSHIFT, .length = 2};
+                    return Lexeme{.type = TokenType::RSHIFT, .length = 2};
                 }
                 break;
 
             case '&':
                 if(c2 != '&'){
-                    return {.type = TokenType::AMPERSEND, .length = 1};
+                    return Lexeme{.type = TokenType::AMPERSEND, .length = 1};
                 }
                 break;
 
             case '|':
                 if(c2 != '|'){
-                    return {.type = TokenType::PIPE, .length = 1};
+                    return Lexeme{.type = TokenType::PIPE, .length = 1};
                 }
                 break;
 
             case '^':
-                return {.type = TokenType::CARET, .length = 1};
+                return Lexeme{.type = TokenType::CARET, .length = 1};
         }
 
-        return {.type = TokenType::INVALID, .length = 0};
+        return std::nullopt;
     }
 
     /** 
      * @brief checks if the current sequence of characters is a logical operator
      * @details logical operators: &&, ||
-     * @returns lexeme of the logical operator when sequence is a logical operator, invalid lexeme otherwise
+     * @returns lexeme of the logical operator when sequence is a logical operator, nullopt otherwise
     */
-    inline Lexeme isLogicalOperator() const noexcept {
+    inline std::optional<Lexeme> tryGetLogicalOperator() const noexcept {
         char c1{ getChar(position) };
         char c2{ isValidIndex(1) ? getChar(position + 1) : '\0' };
 
         switch(c1){
             case '&':
                 if(c2 == '&'){
-                    return {.type = TokenType::LOGICAL_AND, .length = 2};
+                    return Lexeme{.type = TokenType::LOGICAL_AND, .length = 2};
                 }
                 break;
 
             case '|':
                 if(c2 == '|'){
-                    return {.type = TokenType::LOGICAL_OR, .length = 2};
+                    return Lexeme{.type = TokenType::LOGICAL_OR, .length = 2};
                 }
                 break;
         }
 
-        return {.type = TokenType::INVALID, .length = 0};
+        return std::nullopt;
     }
 
     /** 
      * @brief checks if the current sequence of characters is a relational operator
      * @details relational operators: <, >, <=, >=, ==, !=
-     * @returns lexeme of the relational operator if sequence matches relational operatr, invalid lexeme otherwise
+     * @returns lexeme of the relational operator if sequence matches relational operatr, nullopt otherwise
     */
-    inline Lexeme isRelationalOperator() const noexcept {
+    inline std::optional<Lexeme> tryGetRelationalOperator() const noexcept {
         char c1{ getChar(position) };
         char c2{ isValidIndex(1) ? getChar(position + 1) : '\0'};
         
         switch(c1){
             case '<':
                 if(c2 == '='){
-                    return {.type = TokenType::LESS_EQ, .length = 2};
+                    return Lexeme{.type = TokenType::LESS_EQ, .length = 2};
                 }
                 else if(c2 != '<'){
-                    return {.type = TokenType::LESS, .length = 1};
+                    return Lexeme{.type = TokenType::LESS, .length = 1};
                 }
                 break;
 
             case '>':
                 if(c2 == '='){
-                    return {.type = TokenType::GREATER_EQ, .length = 2};
+                    return Lexeme{.type = TokenType::GREATER_EQ, .length = 2};
                 }
                 else if(c2 != '>'){
-                    return {.type = TokenType::GREATER, .length = 1};
+                    return Lexeme{.type = TokenType::GREATER, .length = 1};
                 }
                 break;
             
             case '=':
                 if(c2 == '='){
-                    return {.type = TokenType::EQUAL, .length = 2};
+                    return Lexeme{.type = TokenType::EQUAL, .length = 2};
                 }
                 break;
 
             case '!':
                 if(c2 == '='){
-                    return {.type = TokenType::NOT_EQ, .length = 2};
+                    return Lexeme{.type = TokenType::NOT_EQ, .length = 2};
                 }
                 break;
         }
 
-        return {.type = TokenType::INVALID, .length = 0};
+        return std::nullopt;
     }
 
     /**

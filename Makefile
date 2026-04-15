@@ -63,7 +63,6 @@ SRCS = main.cpp \
 	common/intermediate-representation-tree/source/ir_parameter.cpp \
 	common/intermediate-representation-tree/source/ir_function.cpp \
 	common/intermediate-representation-tree/source/ir_program.cpp \
-	lexer/defs/lexer_defs.cpp \
 	lexer/lexer.cpp \
 	parser/source/token_consumer.cpp \
 	parser/source/expression_parser.cpp \
