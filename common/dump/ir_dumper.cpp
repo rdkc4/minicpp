@@ -262,7 +262,7 @@ void IR::dump::IRDumper::dumpIndent(){
 
 void IR::dump::IRDumper::dumpNode(const IR::node::IRNode* node, std::string_view details){
     dumpIndent();
-    out << "|-> " << IR::defs::nodeToStr[static_cast<size_t>(node->getNodeType())] << details << "\n";
+    out << "|-> " << IR::defs::irNodeToStr(node->getNodeType()) << details << "\n";
 }
 
 void IR::dump::IRDumper::dumpNode(std::string_view nodeLabel){

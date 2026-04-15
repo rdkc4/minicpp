@@ -78,6 +78,9 @@ enum class TokenType{
     _EOF
 };
 
+/// number of token types
+constexpr size_t TOKEN_TYPE_COUNT{ static_cast<size_t>(TokenType::_EOF) + 1 };
+
 /** 
  * @enum GeneralTokenType
  * @brief general types of the tokens

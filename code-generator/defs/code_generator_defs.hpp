@@ -1,6 +1,7 @@
 #ifndef CODE_GENERATOR_DEFS_HPP
 #define CODE_GENERATOR_DEFS_HPP
 
+#include <array>
 #include <unordered_map>
 #include <vector>
 #include <string>
@@ -25,8 +26,17 @@ extern const std::unordered_map<IR::defs::IRNodeType, std::string> nodeToOppJMP;
 /// translates jump ir node types into extensions for set
 extern const std::unordered_map<IR::defs::IRNodeType, std::string> nodeToSetExt;
 
-/// const vector of names of the general-purpose registers
-extern const std::vector<std::string> gpRegisters;
+/// array of names of the general-purpose registers
+constexpr std::array<std::string_view, 8> gpRegisters {
+    "%r8", 
+    "%r9", 
+    "%r10", 
+    "%r11", 
+    "%r12", 
+    "%r13", 
+    "%r14", 
+    "%r15"
+};
 
 /** 
  * @struct CodeGeneratorThreadContext

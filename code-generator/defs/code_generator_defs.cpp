@@ -38,15 +38,3 @@ const std::unordered_map<IR::defs::IRNodeType, std::string> nodeToSetExt {
     {IR::defs::IRNodeType::JE, "e"},
     {IR::defs::IRNodeType::JNE, "ne"}
 };
-
-/// general purpose registers (x86_64 architecture)
-const std::vector<std::string> gpRegisters {
-    "%r8", 
-    "%r9", 
-    "%r10", 
-    "%r11", 
-    "%r12", 
-    "%r13", 
-    "%r14", 
-    "%r15"
-};

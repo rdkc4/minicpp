@@ -120,14 +120,14 @@ void ExpressionCodeGenerator::generateMultiplicativeExpr(const IR::node::IRBinar
     if(binaryExpr->getType() == Type::INT){
         AsmGenerator::Instruction::genOperation(
             codeGenContext.asmCode, 
-            std::format("i{}", IR::defs::nodeToStr[static_cast<size_t>(nodeType)]), 
+            std::format("i{}", IR::defs::irNodeToStr(nodeType)), 
             operands.leftOperand
         );
     }
     else{
         AsmGenerator::Instruction::genOperation(
             codeGenContext.asmCode, 
-            IR::defs::nodeToStr[static_cast<size_t>(nodeType)], 
+            IR::defs::irNodeToStr(nodeType), 
             operands.leftOperand
         );
     }
@@ -150,7 +150,7 @@ void ExpressionCodeGenerator::generateShiftExpr(const IR::node::IRBinaryExpr* bi
     );
     AsmGenerator::Instruction::genOperation(
         codeGenContext.asmCode, 
-        IR::defs::nodeToStr[static_cast<size_t>(nodeType)], 
+        IR::defs::irNodeToStr(nodeType), 
         "%cl", 
         operands.rightOperand
     );
@@ -317,7 +317,7 @@ void ExpressionCodeGenerator::generateALUExpr(const IR::node::IRBinaryExpr* bina
 
     AsmGenerator::Instruction::genOperation(
         codeGenContext.asmCode, 
-        IR::defs::nodeToStr[static_cast<size_t>(nodeType)], 
+        IR::defs::irNodeToStr(nodeType), 
         operands.leftOperand, 
         operands.rightOperand
     );
