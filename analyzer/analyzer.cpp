@@ -5,6 +5,7 @@
 #include <latch>
 
 #include "../common/preprocessing/preprocessing_libs.hpp"
+#include "../symbol-handling/scope-manager/scope_guard.hpp"
 #include "return_checker.hpp"
 
 Analyzer::Analyzer(ScopeManager& scopeManager, ThreadPool& threadPool)
@@ -16,7 +17,7 @@ void Analyzer::visit(ASTProgram* program){
     semanticErrors[globalError] = {};
 
     // global scope
-    globalScopeManager.pushScope();
+    ScopeGuard scopeGuard{ globalScopeManager };
 
     for(const auto& dir : program->getDirs()){
         dir->accept(*this);
@@ -43,8 +44,6 @@ void Analyzer::visit(ASTProgram* program){
     if(!globalScopeManager.lookupSymbol("main", {Kind::FUN})){
         semanticErrors[globalError].emplace_back("'main' function not found");
     }
-
-    globalScopeManager.popScope();
 }
 
 void Analyzer::visit(ASTIncludeDir* includeDir){
@@ -105,26 +104,27 @@ void Analyzer::checkFunctionSignature(const ASTFunction* function){
     ScopeManager signatureScopeManager{symTab};
     analyzerContext.init(funcToken.value, &signatureScopeManager);
 
-    analyzerContext.scopeManager->pushScope();
-    const auto& parameters{ function->getParameters() };
+    {
+        ScopeGuard scopeGuard{ *analyzerContext.scopeManager };
+        const auto& parameters{ function->getParameters() };
 
-    // pointer to parameters for easier function call type checking
-    globalScopeManager.getSymbol(funcToken.value).setParameters(&parameters);
-    
-    // parameter check for main
-    if(funcToken.value == "main" && parameters.size() > 0){
-        const auto& paramToken{ parameters[0]->getToken() };
-        reportError(
-            paramToken, 
-            "function 'main' cannot have any parameters",
-            funcToken.value
-        );
-    }
+        // pointer to parameters for easier function call type checking
+        globalScopeManager.getSymbol(funcToken.value).setParameters(&parameters);
+        
+        // parameter check for main
+        if(funcToken.value == "main" && parameters.size() > 0){
+            const auto& paramToken{ parameters[0]->getToken() };
+            reportError(
+                paramToken, 
+                "function 'main' cannot have any parameters",
+                funcToken.value
+            );
+        }
 
-    for(const auto& parameter : parameters){
-        parameter->accept(*this);
+        for(const auto& parameter : parameters){
+            parameter->accept(*this);
+        }
     }
-    analyzerContext.scopeManager->popScope();
 
     for(const auto& err : analyzerContext.semanticErrors){
         semanticErrors[funcToken.value].push_back(err);
@@ -143,31 +143,32 @@ void Analyzer::visit(ASTFunction* function){
     // initializing thread context
     analyzerContext.init(funcToken.value, &functionScopeManager);
 
-    // function scope
-    analyzerContext.scopeManager->pushScope();
-    defineParameters(function);
-    if(!function->isPredefined()){
-        for(const auto& stmt : function->getBody()){
-            stmt->accept(*this);
-        }
+    {
+        // function scope
+        ScopeGuard scopeGuard{ *analyzerContext.scopeManager };
+        defineParameters(function);
+        if(!function->isPredefined()){
+            for(const auto& stmt : function->getBody()){
+                stmt->accept(*this);
+            }
 
-        // function return type check
-        if(funcReturnType != Type::VOID){
-            ReturnChecker returnChecker;
-            function->accept(returnChecker);
+            // function return type check
+            if(funcReturnType != Type::VOID){
+                ReturnChecker returnChecker;
+                function->accept(returnChecker);
 
-            if(!function->alwaysReturnsValue()){
-                reportError(
-                    funcToken, 
-                    std::format(
-                        "function '{} {}' not all paths return value", 
-                        typeToStr(funcReturnType), funcToken.value
-                    )
-                );
+                if(!function->alwaysReturnsValue()){
+                    reportError(
+                        funcToken, 
+                        std::format(
+                            "function '{} {}' not all paths return value", 
+                            typeToStr(funcReturnType), funcToken.value
+                        )
+                    );
+                }
             }
         }
     }
-    analyzerContext.scopeManager->popScope();
 
     {
         std::lock_guard<std::mutex> lock(errorMtx);
@@ -307,11 +308,10 @@ void Analyzer::visit(ASTAssignStmt* assignStmt){
 }
 
 void Analyzer::visit(ASTCompoundStmt* compoundStmt){
-    analyzerContext.scopeManager->pushScope();
+    ScopeGuard scopeGuard{ *analyzerContext.scopeManager };
     for(const auto& stmt : compoundStmt->getStmts()){
         stmt->accept(*this);
     }
-    analyzerContext.scopeManager->popScope();
 }
 
 void Analyzer::visit(ASTForStmt* forStmt){
