@@ -2,9 +2,9 @@
 
 #include "../defs/ast_defs.hpp"
 
-ASTLiteralExpr::ASTLiteralExpr(const Token token, Type type) 
-    : ASTExpr(token, ASTNodeType::LITERAL_EXPR, type) {}
+AST::node::ASTLiteralExpr::ASTLiteralExpr(const Token token, Type type) 
+    : ASTExpr(token, AST::defs::ASTNodeType::LITERAL_EXPR, type) {}
 
-void ASTLiteralExpr::accept(ASTVisitor& visitor) {
+void AST::node::ASTLiteralExpr::accept(AST::visitor::ASTVisitor& visitor) {
     visitor.visit(this);
 }

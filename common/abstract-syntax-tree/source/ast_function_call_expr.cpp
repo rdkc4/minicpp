@@ -2,25 +2,25 @@
 
 #include "../defs/ast_defs.hpp"
 
-ASTFunctionCallExpr::ASTFunctionCallExpr(const Token& token, Type type) 
-    : ASTExpr(token, ASTNodeType::FUNCTION_CALL_EXPR, type) {}
+AST::node::ASTFunctionCallExpr::ASTFunctionCallExpr(const Token& token, Type type) 
+    : ASTExpr(token, AST::defs::ASTNodeType::FUNCTION_CALL_EXPR, type) {}
 
-const std::vector<std::unique_ptr<ASTExpr>>& ASTFunctionCallExpr::getArguments() const noexcept {
+const std::vector<std::unique_ptr<AST::node::ASTExpr>>& AST::node::ASTFunctionCallExpr::getArguments() const noexcept {
     return arguments;
 }
 
-const ASTExpr* ASTFunctionCallExpr::getArgumentAtN(size_t n) const noexcept{
+const AST::node::ASTExpr* AST::node::ASTFunctionCallExpr::getArgumentAtN(size_t n) const noexcept{
     return arguments[n].get();
 }
 
-void ASTFunctionCallExpr::addArgument(std::unique_ptr<ASTExpr> expr){
+void AST::node::ASTFunctionCallExpr::addArgument(std::unique_ptr<AST::node::ASTExpr> expr){
     arguments.push_back(std::move(expr));
 }
 
-size_t ASTFunctionCallExpr::getArgumentCount() const noexcept {
+size_t AST::node::ASTFunctionCallExpr::getArgumentCount() const noexcept {
     return arguments.size();
 }
 
-void ASTFunctionCallExpr::accept(ASTVisitor& visitor) {
+void AST::node::ASTFunctionCallExpr::accept(AST::visitor::ASTVisitor& visitor) {
     visitor.visit(this);
 }

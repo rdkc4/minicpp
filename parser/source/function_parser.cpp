@@ -2,15 +2,15 @@
 
 FunctionParser::FunctionParser(TokenConsumer& consumer) : stmtParser{ consumer }, tokenConsumer{ consumer } {}
 
-std::unique_ptr<ASTFunction> FunctionParser::parseFunction(){
+std::unique_ptr<AST::node::ASTFunction> FunctionParser::parseFunction(){
     Type type{ tokenTypeToType(tokenConsumer.getToken().type) };
     tokenConsumer.consume(GeneralTokenType::TYPE);
 
     const Token& token{ tokenConsumer.getToken() };
     tokenConsumer.consume(TokenType::ID);
     
-    std::unique_ptr<ASTFunction> function{ 
-        std::make_unique<ASTFunction>(token, type) 
+    std::unique_ptr<AST::node::ASTFunction> function{ 
+        std::make_unique<AST::node::ASTFunction>(token, type) 
     };
 
     tokenConsumer.consume(TokenType::LPAREN);
@@ -28,7 +28,7 @@ std::unique_ptr<ASTFunction> FunctionParser::parseFunction(){
     return function;
 }
 
-void FunctionParser::parseParameters(ASTFunction* function){
+void FunctionParser::parseParameters(AST::node::ASTFunction* function){
     if(tokenConsumer.getToken().gtype != GeneralTokenType::TYPE){
         return;
     }
@@ -41,7 +41,7 @@ void FunctionParser::parseParameters(ASTFunction* function){
             const auto& token{ tokenConsumer.getToken() };
             tokenConsumer.consume(TokenType::ID);
 
-            function->addParameter(std::make_unique<ASTParameter>(token, type));
+            function->addParameter(std::make_unique<AST::node::ASTParameter>(token, type));
         }
     };
 
@@ -53,7 +53,7 @@ void FunctionParser::parseParameters(ASTFunction* function){
     }
 }
 
-void FunctionParser::parseBody(ASTFunction* function){
+void FunctionParser::parseBody(AST::node::ASTFunction* function){
     tokenConsumer.consume(TokenType::LBRACE);
     while(tokenConsumer.getToken().type != TokenType::RBRACE){
         function->addStatement(stmtParser.parseStmt());

@@ -34,7 +34,7 @@ namespace IR {
          * @param program - const pointer to the root of the ast program
          * @returns pointer to the root of irt program
         */
-        [[nodiscard]] std::unique_ptr<node::IRProgram> transformProgram(const ASTProgram* program);
+        [[nodiscard]] std::unique_ptr<node::IRProgram> transformProgram(const AST::node::ASTProgram* program);
 
         /**
          * @brief checks if any errors are caught

@@ -2,13 +2,13 @@
 
 #include "../defs/ast_defs.hpp"
 
-ASTFunctionCallStmt::ASTFunctionCallStmt(const Token& token) 
-    : ASTStmt(token, ASTNodeType::FUNCTION_CALL_STMT) {}
+AST::node::ASTFunctionCallStmt::ASTFunctionCallStmt(const Token& token) 
+    : ASTStmt(token, AST::defs::ASTNodeType::FUNCTION_CALL_STMT) {}
 
-void ASTFunctionCallStmt::setFunctionCallStmt(std::unique_ptr<ASTFunctionCallExpr> callExpr) {
+void AST::node::ASTFunctionCallStmt::setFunctionCallStmt(std::unique_ptr<AST::node::ASTFunctionCallExpr> callExpr) {
     functionCallExpr = std::move(callExpr);
 }
 
-void ASTFunctionCallStmt::accept(ASTVisitor& visitor) {
+void AST::node::ASTFunctionCallStmt::accept(AST::visitor::ASTVisitor& visitor) {
     visitor.visit(this);
 }

@@ -5,7 +5,7 @@
 
 StatementParser::StatementParser(TokenConsumer& consumer) : exprParser{ consumer }, tokenConsumer{ consumer } {}
 
-std::unique_ptr<ASTStmt> StatementParser::parseStmt(){
+std::unique_ptr<AST::node::ASTStmt> StatementParser::parseStmt(){
     const auto& token{ tokenConsumer.getToken() };
     if(token.gtype == GeneralTokenType::TYPE){
         return parseVariableDeclStmt();
@@ -53,12 +53,12 @@ std::unique_ptr<ASTStmt> StatementParser::parseStmt(){
     );
 }
 
-std::unique_ptr<ASTVariableDeclStmt> StatementParser::parseVariableDeclStmt(){
+std::unique_ptr<AST::node::ASTVariableDeclStmt> StatementParser::parseVariableDeclStmt(){
     Type type{ tokenTypeToType(tokenConsumer.getToken().type) };
     tokenConsumer.consume(GeneralTokenType::TYPE);
 
-    std::unique_ptr<ASTVariableDeclStmt> variableDecl{ 
-        std::make_unique<ASTVariableDeclStmt>(tokenConsumer.getToken(), type)
+    std::unique_ptr<AST::node::ASTVariableDeclStmt> variableDecl{ 
+        std::make_unique<AST::node::ASTVariableDeclStmt>(tokenConsumer.getToken(), type)
     };
     tokenConsumer.consume(TokenType::ID);
     
@@ -71,9 +71,9 @@ std::unique_ptr<ASTVariableDeclStmt> StatementParser::parseVariableDeclStmt(){
     return variableDecl;
 }
 
-std::unique_ptr<ASTCompoundStmt> StatementParser::parseCompoundStmt(){
-    std::unique_ptr<ASTCompoundStmt> compoundStmt{ 
-        std::make_unique<ASTCompoundStmt>(Token{
+std::unique_ptr<AST::node::ASTCompoundStmt> StatementParser::parseCompoundStmt(){
+    std::unique_ptr<AST::node::ASTCompoundStmt> compoundStmt{ 
+        std::make_unique<AST::node::ASTCompoundStmt>(Token{
             "compound_stmt", 
             tokenConsumer.getToken().line, 
             tokenConsumer.getToken().column
@@ -89,11 +89,11 @@ std::unique_ptr<ASTCompoundStmt> StatementParser::parseCompoundStmt(){
     return compoundStmt;
 }
 
-std::unique_ptr<ASTAssignStmt> StatementParser::parseAssignStmt(bool expectsSemicolon){
-    std::unique_ptr<ASTIdExpr> variableExpr{ exprParser.parseIdExpr() };
+std::unique_ptr<AST::node::ASTAssignStmt> StatementParser::parseAssignStmt(bool expectsSemicolon){
+    std::unique_ptr<AST::node::ASTIdExpr> variableExpr{ exprParser.parseIdExpr() };
     
-    std::unique_ptr<ASTAssignStmt> assignStmt{ 
-        std::make_unique<ASTAssignStmt>(Token{
+    std::unique_ptr<AST::node::ASTAssignStmt> assignStmt{ 
+        std::make_unique<AST::node::ASTAssignStmt>(Token{
             "=", 
             tokenConsumer.getToken().line, 
             tokenConsumer.getToken().column
@@ -110,10 +110,10 @@ std::unique_ptr<ASTAssignStmt> StatementParser::parseAssignStmt(bool expectsSemi
     return assignStmt;
 }
 
-std::unique_ptr<ASTReturnStmt> StatementParser::parseReturnStmt(){
+std::unique_ptr<AST::node::ASTReturnStmt> StatementParser::parseReturnStmt(){
     const auto& returnToken{ tokenConsumer.getToken() };
-    std::unique_ptr<ASTReturnStmt> returnStmt{ 
-        std::make_unique<ASTReturnStmt>(Token{
+    std::unique_ptr<AST::node::ASTReturnStmt> returnStmt{ 
+        std::make_unique<AST::node::ASTReturnStmt>(Token{
             "return_stmt", 
             returnToken.line, 
             returnToken.column
@@ -129,10 +129,10 @@ std::unique_ptr<ASTReturnStmt> StatementParser::parseReturnStmt(){
     return returnStmt;
 }
 
-std::unique_ptr<ASTIfStmt> StatementParser::parseIfStmt(){
+std::unique_ptr<AST::node::ASTIfStmt> StatementParser::parseIfStmt(){
     const auto& ifToken{ tokenConsumer.getToken() };
-    std::unique_ptr<ASTIfStmt> ifStmt{ 
-        std::make_unique<ASTIfStmt>(Token{
+    std::unique_ptr<AST::node::ASTIfStmt> ifStmt{ 
+        std::make_unique<AST::node::ASTIfStmt>(Token{
             "if_stmt", 
             ifToken.line, 
             ifToken.column
@@ -165,10 +165,10 @@ std::unique_ptr<ASTIfStmt> StatementParser::parseIfStmt(){
     return ifStmt;
 }
 
-std::unique_ptr<ASTWhileStmt> StatementParser::parseWhileStmt(){
+std::unique_ptr<AST::node::ASTWhileStmt> StatementParser::parseWhileStmt(){
     const auto& whileToken{ tokenConsumer.getToken() };
-    std::unique_ptr<ASTWhileStmt> whileStmt{ 
-        std::make_unique<ASTWhileStmt>(Token{
+    std::unique_ptr<AST::node::ASTWhileStmt> whileStmt{ 
+        std::make_unique<AST::node::ASTWhileStmt>(Token{
             "while_stmt", 
             whileToken.line, 
             whileToken.column
@@ -185,10 +185,10 @@ std::unique_ptr<ASTWhileStmt> StatementParser::parseWhileStmt(){
     return whileStmt;
 }
 
-std::unique_ptr<ASTForStmt> StatementParser::parseForStmt(){
+std::unique_ptr<AST::node::ASTForStmt> StatementParser::parseForStmt(){
     const auto& forToken{ tokenConsumer.getToken() };
-    std::unique_ptr<ASTForStmt> forStmt{ 
-        std::make_unique<ASTForStmt>(Token{
+    std::unique_ptr<AST::node::ASTForStmt> forStmt{ 
+        std::make_unique<AST::node::ASTForStmt>(Token{
             "for_stmt", 
             forToken.line, 
             forToken.column
@@ -196,8 +196,8 @@ std::unique_ptr<ASTForStmt> StatementParser::parseForStmt(){
     };
     tokenConsumer.consume(TokenType::FOR);
 
-    std::unique_ptr<ASTAssignStmt> forInitializer{ nullptr }, forIncrementer{ nullptr };
-    std::unique_ptr<ASTExpr> condition{ nullptr };
+    std::unique_ptr<AST::node::ASTAssignStmt> forInitializer{ nullptr }, forIncrementer{ nullptr };
+    std::unique_ptr<AST::node::ASTExpr> condition{ nullptr };
 
     tokenConsumer.consume(TokenType::LPAREN);
     // optional initializer
@@ -227,10 +227,10 @@ std::unique_ptr<ASTForStmt> StatementParser::parseForStmt(){
     return forStmt;
 }
 
-std::unique_ptr<ASTDoWhileStmt> StatementParser::parseDoWhileStmt(){
+std::unique_ptr<AST::node::ASTDoWhileStmt> StatementParser::parseDoWhileStmt(){
     const auto& dowhileToken{ tokenConsumer.getToken() };
-    std::unique_ptr<ASTDoWhileStmt> dowhileStmt{
-        std::make_unique<ASTDoWhileStmt>(Token{
+    std::unique_ptr<AST::node::ASTDoWhileStmt> dowhileStmt{
+        std::make_unique<AST::node::ASTDoWhileStmt>(Token{
             "dowhile_statement", 
             dowhileToken.line, 
             dowhileToken.column
@@ -238,7 +238,7 @@ std::unique_ptr<ASTDoWhileStmt> StatementParser::parseDoWhileStmt(){
     };
     tokenConsumer.consume(TokenType::DO);
 
-    std::unique_ptr<ASTStmt> stmt{ parseStmt() };
+    std::unique_ptr<AST::node::ASTStmt> stmt{ parseStmt() };
 
     tokenConsumer.consume(TokenType::WHILE);
     tokenConsumer.consume(TokenType::LPAREN);
@@ -249,10 +249,10 @@ std::unique_ptr<ASTDoWhileStmt> StatementParser::parseDoWhileStmt(){
     return dowhileStmt;
 }
 
-std::unique_ptr<ASTFunctionCallStmt> StatementParser::parseFunctionCallStmt(){
+std::unique_ptr<AST::node::ASTFunctionCallStmt> StatementParser::parseFunctionCallStmt(){
     const auto& callToken{ tokenConsumer.getToken() };
-    std::unique_ptr<ASTFunctionCallStmt> callStmt{ 
-        std::make_unique<ASTFunctionCallStmt>(Token{
+    std::unique_ptr<AST::node::ASTFunctionCallStmt> callStmt{ 
+        std::make_unique<AST::node::ASTFunctionCallStmt>(Token{
             "call_stmt", 
             callToken.line, 
             callToken.column
@@ -264,10 +264,10 @@ std::unique_ptr<ASTFunctionCallStmt> StatementParser::parseFunctionCallStmt(){
     return callStmt;
 }
 
-std::unique_ptr<ASTSwitchStmt> StatementParser::parseSwitchStmt(){
+std::unique_ptr<AST::node::ASTSwitchStmt> StatementParser::parseSwitchStmt(){
     const auto& switchToken{ tokenConsumer.getToken() };
-    std::unique_ptr<ASTSwitchStmt> switchStmt{ 
-        std::make_unique<ASTSwitchStmt>(Token{
+    std::unique_ptr<AST::node::ASTSwitchStmt> switchStmt{ 
+        std::make_unique<AST::node::ASTSwitchStmt>(Token{
             "switch_stmt", 
             switchToken.line, 
             switchToken.column
@@ -294,10 +294,10 @@ std::unique_ptr<ASTSwitchStmt> StatementParser::parseSwitchStmt(){
     return switchStmt;
 }
 
-std::unique_ptr<ASTSwitchBlockStmt> StatementParser::parseSwitchBlockStmt(){
+std::unique_ptr<AST::node::ASTSwitchBlockStmt> StatementParser::parseSwitchBlockStmt(){
     const auto& swBlockToken{ tokenConsumer.getToken() };
-    std::unique_ptr<ASTSwitchBlockStmt> switchBlockStmt{ 
-        std::make_unique<ASTSwitchBlockStmt>(Token{
+    std::unique_ptr<AST::node::ASTSwitchBlockStmt> switchBlockStmt{ 
+        std::make_unique<AST::node::ASTSwitchBlockStmt>(Token{
             "switch_block_stmt", 
             swBlockToken.line, 
             swBlockToken.column
@@ -320,11 +320,11 @@ std::unique_ptr<ASTSwitchBlockStmt> StatementParser::parseSwitchBlockStmt(){
     return switchBlockStmt;
 }
 
-std::unique_ptr<ASTCaseStmt> StatementParser::parseCaseStmt(){
+std::unique_ptr<AST::node::ASTCaseStmt> StatementParser::parseCaseStmt(){
     bool hasBreak{ false };
     const auto& caseToken{ tokenConsumer.getToken() };
-    std::unique_ptr<ASTCaseStmt> caseStmt{ 
-        std::make_unique<ASTCaseStmt>(Token{
+    std::unique_ptr<AST::node::ASTCaseStmt> caseStmt{ 
+        std::make_unique<AST::node::ASTCaseStmt>(Token{
             "case", 
             caseToken.line, 
             caseToken.column
@@ -332,10 +332,10 @@ std::unique_ptr<ASTCaseStmt> StatementParser::parseCaseStmt(){
     };
     
     tokenConsumer.consume(TokenType::CASE);
-    std::unique_ptr<ASTLiteralExpr> literalExpr{ exprParser.parseLiteralExpr() };
+    std::unique_ptr<AST::node::ASTLiteralExpr> literalExpr{ exprParser.parseLiteralExpr() };
     tokenConsumer.consume(TokenType::COLON);
     
-    std::unique_ptr<ASTSwitchBlockStmt> switchBlockStmt{ parseSwitchBlockStmt() };
+    std::unique_ptr<AST::node::ASTSwitchBlockStmt> switchBlockStmt{ parseSwitchBlockStmt() };
     if(tokenConsumer.getToken().type == TokenType::BREAK){
         hasBreak = true;
         parseBreakStmt();
@@ -346,10 +346,10 @@ std::unique_ptr<ASTCaseStmt> StatementParser::parseCaseStmt(){
     return caseStmt;
 }
 
-std::unique_ptr<ASTDefaultStmt> StatementParser::parseDefaultStmt(){
+std::unique_ptr<AST::node::ASTDefaultStmt> StatementParser::parseDefaultStmt(){
     const auto& defaultToken{ tokenConsumer.getToken() };
-    std::unique_ptr<ASTDefaultStmt> defaultStmt{ 
-        std::make_unique<ASTDefaultStmt>(Token{
+    std::unique_ptr<AST::node::ASTDefaultStmt> defaultStmt{ 
+        std::make_unique<AST::node::ASTDefaultStmt>(Token{
             "default", 
             defaultToken.line, 
             defaultToken.column

@@ -2,28 +2,29 @@
 
 #include "../defs/ast_defs.hpp"
 
-ASTIfStmt::ASTIfStmt(const Token& token) : ASTStmt(token, ASTNodeType::IF_STMT) {}
+AST::node::ASTIfStmt::ASTIfStmt(const Token& token) 
+    : ASTStmt(token, AST::defs::ASTNodeType::IF_STMT) {}
 
-const std::vector<std::unique_ptr<ASTExpr>>& ASTIfStmt::getConditionExprs() const noexcept {
+const std::vector<std::unique_ptr<AST::node::ASTExpr>>& AST::node::ASTIfStmt::getConditionExprs() const noexcept {
     return conditionExprs;
 }
-const std::vector<std::unique_ptr<ASTStmt>>& ASTIfStmt::getStmts() const noexcept {
+const std::vector<std::unique_ptr<AST::node::ASTStmt>>& AST::node::ASTIfStmt::getStmts() const noexcept {
     return stmts;
 }
 
-void ASTIfStmt::addIfStmt(std::unique_ptr<ASTExpr> condition, std::unique_ptr<ASTStmt> statement){
+void AST::node::ASTIfStmt::addIfStmt(std::unique_ptr<AST::node::ASTExpr> condition, std::unique_ptr<AST::node::ASTStmt> statement){
     conditionExprs.push_back(std::move(condition));
     stmts.push_back(std::move(statement));
 }
 
-void ASTIfStmt::addElseStmt(std::unique_ptr<ASTStmt> statement){
+void AST::node::ASTIfStmt::addElseStmt(std::unique_ptr<AST::node::ASTStmt> statement){
     stmts.push_back(std::move(statement));
 }
 
-bool ASTIfStmt::hasElseStmt() const noexcept {
+bool AST::node::ASTIfStmt::hasElseStmt() const noexcept {
     return stmts.size() > conditionExprs.size();
 }
 
-void ASTIfStmt::accept(ASTVisitor& visitor) {
+void AST::node::ASTIfStmt::accept(AST::visitor::ASTVisitor& visitor) {
     visitor.visit(this);
 }

@@ -13,7 +13,7 @@ Analyzer::Analyzer(ScopeManager& scopeManager, ThreadPool& threadPool)
 
 thread_local AnalyzerThreadContext Analyzer::analyzerContext;
 
-void Analyzer::visit(ASTProgram* program){
+void Analyzer::visit(AST::node::ASTProgram* program){
     semanticErrors[globalError] = {};
 
     // global scope
@@ -46,7 +46,7 @@ void Analyzer::visit(ASTProgram* program){
     }
 }
 
-void Analyzer::visit(ASTIncludeDir* includeDir){
+void Analyzer::visit(AST::node::ASTIncludeDir* includeDir){
     if(!std::filesystem::exists(Preprocessing::Libs::generateLibSourcePath(includeDir->getLibName()))){
         const auto& token{ includeDir->getToken() };
         reportError(
@@ -60,7 +60,7 @@ void Analyzer::visit(ASTIncludeDir* includeDir){
     }
 }
 
-void Analyzer::checkFunctionSignature(const ASTFunction* function){
+void Analyzer::checkFunctionSignature(const AST::node::ASTFunction* function){
     Type returnType{ function->getType() };
     const auto& funcToken{ function->getToken() };
     semanticErrors[funcToken.value] = {};
@@ -133,7 +133,7 @@ void Analyzer::checkFunctionSignature(const ASTFunction* function){
     analyzerContext.reset();
 }
 
-void Analyzer::visit(ASTFunction* function){
+void Analyzer::visit(AST::node::ASTFunction* function){
     const auto& funcToken{ function->getToken() };
     const auto funcReturnType{ function->getType() };
 
@@ -177,7 +177,7 @@ void Analyzer::visit(ASTFunction* function){
     analyzerContext.reset();
 }
 
-void Analyzer::defineParameters(const ASTFunction* function){
+void Analyzer::defineParameters(const AST::node::ASTFunction* function){
     for(const auto& parameter : function->getParameters()){
         analyzerContext.scopeManager->pushSymbol(
             Symbol{parameter->getToken().value, Kind::PAR, parameter->getType()}
@@ -185,7 +185,7 @@ void Analyzer::defineParameters(const ASTFunction* function){
     }
 }
 
-void Analyzer::visit(ASTParameter* parameter){
+void Analyzer::visit(AST::node::ASTParameter* parameter){
     Type paramType{ parameter->getType() };
     const auto& paramToken{ parameter->getToken() };
 
@@ -220,7 +220,7 @@ void Analyzer::visit(ASTParameter* parameter){
     }
 }
 
-void Analyzer::visit(ASTVariableDeclStmt* variableDecl){
+void Analyzer::visit(AST::node::ASTVariableDeclStmt* variableDecl){
     // variable type check
     Type variableType{ variableDecl->getType() };
     const auto& variableToken{ variableDecl->getToken() };
@@ -278,9 +278,9 @@ void Analyzer::visit(ASTVariableDeclStmt* variableDecl){
     }
 }
 
-void Analyzer::visit(ASTAssignStmt* assignStmt){
-    ASTIdExpr* variableExpr{ assignStmt->getVariableIdExpr() };
-    ASTExpr* valueExpr{ assignStmt->getAssignedExpr() };
+void Analyzer::visit(AST::node::ASTAssignStmt* assignStmt){
+    AST::node::ASTIdExpr* variableExpr{ assignStmt->getVariableIdExpr() };
+    AST::node::ASTExpr* valueExpr{ assignStmt->getAssignedExpr() };
 
     variableExpr->accept(*this);
     valueExpr->accept(*this);
@@ -307,14 +307,14 @@ void Analyzer::visit(ASTAssignStmt* assignStmt){
     }
 }
 
-void Analyzer::visit(ASTCompoundStmt* compoundStmt){
+void Analyzer::visit(AST::node::ASTCompoundStmt* compoundStmt){
     ScopeGuard scopeGuard{ *analyzerContext.scopeManager };
     for(const auto& stmt : compoundStmt->getStmts()){
         stmt->accept(*this);
     }
 }
 
-void Analyzer::visit(ASTForStmt* forStmt){
+void Analyzer::visit(AST::node::ASTForStmt* forStmt){
     if(forStmt->hasInitializerStmt()){
         forStmt->getInitializerStmt()->accept(*this);
     }
@@ -327,11 +327,11 @@ void Analyzer::visit(ASTForStmt* forStmt){
     forStmt->getStmt()->accept(*this);
 }
 
-void Analyzer::visit(ASTFunctionCallStmt* callStmt){
+void Analyzer::visit(AST::node::ASTFunctionCallStmt* callStmt){
     callStmt->getFunctionCallExpr()->accept(*this);
 }
 
-void Analyzer::visit(ASTIfStmt* ifStmt){
+void Analyzer::visit(AST::node::ASTIfStmt* ifStmt){
     const auto& conditions{ ifStmt->getConditionExprs() };
     const auto& stmts{ ifStmt->getStmts() };
 
@@ -346,7 +346,7 @@ void Analyzer::visit(ASTIfStmt* ifStmt){
     }
 }
 
-void Analyzer::visit(ASTReturnStmt* returnStmt){
+void Analyzer::visit(AST::node::ASTReturnStmt* returnStmt){
     Type returnType{Type::VOID};
 
     if(returnStmt->hasReturnExpr()){
@@ -372,17 +372,17 @@ void Analyzer::visit(ASTReturnStmt* returnStmt){
     }
 }
 
-void Analyzer::visit(ASTWhileStmt* whileStmt){
+void Analyzer::visit(AST::node::ASTWhileStmt* whileStmt){
     whileStmt->getConditionExpr()->accept(*this);
     whileStmt->getStmt()->accept(*this);
 }
 
-void Analyzer::visit(ASTDoWhileStmt* dowhileStmt){
+void Analyzer::visit(AST::node::ASTDoWhileStmt* dowhileStmt){
     dowhileStmt->getStmt()->accept(*this);
     dowhileStmt->getConditionExpr()->accept(*this);
 }
 
-void Analyzer::visit(ASTSwitchStmt* switchStmt){
+void Analyzer::visit(AST::node::ASTSwitchStmt* switchStmt){
     auto* variableIdExpr{ switchStmt->getVariableIdExpr() };
     variableIdExpr->accept(*this);
 
@@ -429,7 +429,7 @@ void Analyzer::visit(ASTSwitchStmt* switchStmt){
 
 }
 
-void Analyzer::visit(ASTCaseStmt* caseStmt){
+void Analyzer::visit(AST::node::ASTCaseStmt* caseStmt){
     auto* literalExpr{ caseStmt->getLiteralExpr() };
     literalExpr->accept(*this);
     if(literalExpr->getType() == Type::NO_TYPE) return;
@@ -437,17 +437,17 @@ void Analyzer::visit(ASTCaseStmt* caseStmt){
     caseStmt->getSwitchBlockStmt()->accept(*this);
 }
 
-void Analyzer::visit(ASTDefaultStmt* defaultStmt){
+void Analyzer::visit(AST::node::ASTDefaultStmt* defaultStmt){
     defaultStmt->getSwitchBlockStmt()->accept(*this);
 }
 
-void Analyzer::visit(ASTSwitchBlockStmt* switchBlockStmt){
+void Analyzer::visit(AST::node::ASTSwitchBlockStmt* switchBlockStmt){
     for(const auto& stmt : switchBlockStmt->getStmts()){
         stmt->accept(*this);
     }
 }
 
-void Analyzer::visit(ASTBinaryExpr* binaryExpr){
+void Analyzer::visit(AST::node::ASTBinaryExpr* binaryExpr){
     auto* leftOperand{ binaryExpr->getLeftOperandExpr() };
     auto* rightOperand{ binaryExpr->getRightOperandExpr() };
 
@@ -470,7 +470,7 @@ void Analyzer::visit(ASTBinaryExpr* binaryExpr){
     binaryExpr->setType(ltype);
 }
 
-void Analyzer::visit(ASTFunctionCallExpr* callExpr){
+void Analyzer::visit(AST::node::ASTFunctionCallExpr* callExpr){
     const auto& callExprToken{  callExpr->getToken() };
 
     const auto* callExprSymbol{ 
@@ -540,7 +540,7 @@ void Analyzer::visit(ASTFunctionCallExpr* callExpr){
     }
 }
 
-void Analyzer::visit(ASTIdExpr* idExpr){
+void Analyzer::visit(AST::node::ASTIdExpr* idExpr){
     const auto& idExprToken{ idExpr->getToken() };
     
     // check if id exists
@@ -559,7 +559,7 @@ void Analyzer::visit(ASTIdExpr* idExpr){
     idExpr->setType(idExprSymbol->getType());
 }
 
-void Analyzer::visit(ASTLiteralExpr* literalExpr){
+void Analyzer::visit(AST::node::ASTLiteralExpr* literalExpr){
     const auto& literalExprToken{ literalExpr->getToken() };
 
     // invalid literal check
@@ -592,7 +592,7 @@ bool Analyzer::isInvalidLiteral(Type type, const std::string& value) const {
 }
 
 
-bool Analyzer::hasSemanticErrors(const ASTProgram* program) const noexcept {
+bool Analyzer::hasSemanticErrors(const AST::node::ASTProgram* program) const noexcept {
     for(const auto& function : program->getFunctions()){
         const std::string& funcName{ function->getToken().value };
         if(!semanticErrors.at(funcName).empty()){
@@ -607,7 +607,7 @@ bool Analyzer::hasSemanticErrors(const ASTProgram* program) const noexcept {
     return false;
 }
 
-std::string Analyzer::getSemanticErrors(const ASTProgram* program) const noexcept {
+std::string Analyzer::getSemanticErrors(const AST::node::ASTProgram* program) const noexcept {
     if(semanticErrors.empty()){
         return "";
     }

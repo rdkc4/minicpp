@@ -13,7 +13,7 @@
 IR::IntermediateRepresentation::IntermediateRepresentation(ThreadPool& threadPool) 
     : threadPool{ threadPool }, funcIR{ exceptions } {}
 
-std::unique_ptr<IR::node::IRProgram> IR::IntermediateRepresentation::transformProgram(const ASTProgram* program){
+std::unique_ptr<IR::node::IRProgram> IR::IntermediateRepresentation::transformProgram(const AST::node::ASTProgram* program){
     std::unique_ptr<IR::node::IRProgram> irProgram{ std::make_unique<IR::node::IRProgram>() };
 
     dirIR.transformDir(irProgram.get(), program);
@@ -46,8 +46,8 @@ std::unique_ptr<IR::node::IRProgram> IR::IntermediateRepresentation::transformPr
     irProgram->accept(stackFrameAnalyzer); 
 
     for(const auto& dir : program->getDirs()) {
-        if(dir->getNodeType() == ASTNodeType::INCLUDE_DIR){
-            irProgram->addLinkedLib(static_cast<const ASTIncludeDir*>(dir.get())->getLibName());
+        if(dir->getNodeType() == AST::defs::ASTNodeType::INCLUDE_DIR){
+            irProgram->addLinkedLib(static_cast<const AST::node::ASTIncludeDir*>(dir.get())->getLibName());
         }
     }
 

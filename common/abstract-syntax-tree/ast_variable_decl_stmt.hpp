@@ -9,66 +9,69 @@
 #include "../defs/defs.hpp"
 #include "../visitor/ast_visitor.hpp"
 
-/** 
- * @class ASTVariableDeclStmt
- * @brief AST node representing variable
-*/
-class ASTVariableDeclStmt final : public ASTStmt {
-public:
+namespace AST::node {
     /** 
-     * @brief Creates the instance of the ast variable declaration
-     * @param token - const reference to the token
-     * @param type - type of the variable
+     * @class ASTVariableDeclStmt
+     * @brief AST node representing variable
     */
-    ASTVariableDeclStmt(const Token& token, Type type = Type::NO_TYPE);
+    class ASTVariableDeclStmt final : public ASTStmt {
+    public:
+        /** 
+         * @brief Creates the instance of the ast variable declaration
+         * @param token - const reference to the token
+         * @param type - type of the variable
+        */
+        ASTVariableDeclStmt(const Token& token, Type type = Type::NO_TYPE);
 
-    /** 
-     * @brief getter for the type of the variable
-     * @returns type of the variable
-    */
-    Type getType() const noexcept;
+        /** 
+         * @brief getter for the type of the variable
+         * @returns type of the variable
+        */
+        Type getType() const noexcept;
 
-    /** 
-     * @brief initializes the type of the variable
-     * @param variableType - type of the variable
-    */
-    void setType(Type variableType) noexcept;
+        /** 
+         * @brief initializes the type of the variable
+         * @param variableType - type of the variable
+        */
+        void setType(Type variableType) noexcept;
 
-    /** 
-     * @brief getter for the expression assigned to the variable
-     * @warning nullable
-     * @returns pointer or const pointer to the expression assigned to the variable
-    */
-    template<typename Self>
-    decltype(auto) getAssignExpr(this Self&& self) noexcept {
-        return std::forward<Self>(self).assignExpr.get();
-    }
+        /** 
+         * @brief getter for the expression assigned to the variable
+         * @warning nullable
+         * @returns pointer or const pointer to the expression assigned to the variable
+        */
+        template<typename Self>
+        decltype(auto) getAssignExpr(this Self&& self) noexcept {
+            return std::forward<Self>(self).assignExpr.get();
+        }
 
-    /** 
-     * @brief initializes expression of the variable
-     * @param expr - expression being assigned to the variable
-    */
-    void setAssignExpr(std::unique_ptr<ASTExpr> expr);
+        /** 
+         * @brief initializes expression of the variable
+         * @param expr - expression being assigned to the variable
+        */
+        void setAssignExpr(std::unique_ptr<ASTExpr> expr);
 
-    /** 
-     * @brief checks if the variable has assignment
-     * @return true if variable has assignment, false otherwise
-    */
-    bool hasAssignExpr() const noexcept;
+        /** 
+         * @brief checks if the variable has assignment
+         * @return true if variable has assignment, false otherwise
+        */
+        bool hasAssignExpr() const noexcept;
 
-    /**
-     * @brief accepts the ast visitor
-     * @param visitor - reference to an ast visitor
-    */
-    void accept(ASTVisitor& visitor) override;
+        /**
+         * @brief accepts the ast visitor
+         * @param visitor - reference to an ast visitor
+        */
+        void accept(AST::visitor::ASTVisitor& visitor) override;
 
-private:
-    /// type of the variable
-    Type type;
-    
-    /// pointer to the expression assigned to the variable
-    std::unique_ptr<ASTExpr> assignExpr;
+    private:
+        /// type of the variable
+        Type type;
+        
+        /// pointer to the expression assigned to the variable
+        std::unique_ptr<ASTExpr> assignExpr;
 
-};
+    };
+
+}
 
 #endif

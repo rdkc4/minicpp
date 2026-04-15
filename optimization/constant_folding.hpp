@@ -124,7 +124,7 @@ namespace Optimization::ConstantFolding {
      * @returns result of the merge operation
     */
     template<typename T>
-    MergeResult<std::unique_ptr<IR::node::IRExpr>> mergeLiterals(const IR::node::IRLiteralExpr* leftOperand, const IR::node::IRLiteralExpr* rightOperand, const ASTBinaryExpr* binExp) {
+    MergeResult<std::unique_ptr<IR::node::IRExpr>> mergeLiterals(const IR::node::IRLiteralExpr* leftOperand, const IR::node::IRLiteralExpr* rightOperand, const AST::node::ASTBinaryExpr* binExp) {
         T lval{ getOperandValue<T>(leftOperand) };
         T rval{ getOperandValue<T>(rightOperand) };
 

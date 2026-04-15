@@ -2,8 +2,9 @@
 
 #include "../defs/ast_defs.hpp"
 
-ASTIdExpr::ASTIdExpr(const Token token, Type type) : ASTExpr(token, ASTNodeType::ID_EXPR, type) {}
+AST::node::ASTIdExpr::ASTIdExpr(const Token token, Type type) 
+    : ASTExpr(token, AST::defs::ASTNodeType::ID_EXPR, type) {}
 
-void ASTIdExpr::accept(ASTVisitor& visitor) {
+void AST::node::ASTIdExpr::accept(AST::visitor::ASTVisitor& visitor) {
     visitor.visit(this);
 }

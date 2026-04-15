@@ -29,173 +29,180 @@
 #include "../abstract-syntax-tree/ast_literal_expr.hpp"
 
 /**
- * @class ASTDumper
- * @brief dumps the structure of the abstract syntax tree
- * @details inherits ASTVisitor
+ * @namespace AST::dump
+ * @brief module for the dumping of the ast
 */
-class ASTDumper final : public ASTVisitor {
-public:
+namespace AST::dump {
     /**
-     * @brief creates the ast dumper instance
-     * @param out - reference to an output stream
+    * @class ASTDumper
+    * @brief dumps the structure of the abstract syntax tree
+    * @details inherits ASTVisitor
     */
-    ASTDumper(std::ostream& out);
-    
-    /**
-     * @brief deletes the instance of the ast dumper
-    */
-    ~ASTDumper() = default;
+    class ASTDumper final : public AST::visitor::ASTVisitor {
+    public:
+        /**
+        * @brief creates the ast dumper instance
+        * @param out - reference to an output stream
+        */
+        ASTDumper(std::ostream& out);
+        
+        /**
+        * @brief deletes the instance of the ast dumper
+        */
+        ~ASTDumper() = default;
 
-    /**
-     * @brief dumps the ast program
-     * @param program - pointer to the ast program
-    */
-    void visit(ASTProgram* program) override;
+        /**
+        * @brief dumps the ast program
+        * @param program - pointer to the ast program
+        */
+        void visit(AST::node::ASTProgram* program) override;
 
-    /**
-     * @brief dumps the ast include directive
-     * @param lib - pointer to the ast include directive
-    */
-    void visit(ASTIncludeDir* lib) override;
+        /**
+        * @brief dumps the ast include directive
+        * @param lib - pointer to the ast include directive
+        */
+        void visit(AST::node::ASTIncludeDir* lib) override;
 
-    /**
-     * @brief dumps the ast function
-     * @param function - pointer to the ast function
-    */
-    void visit(ASTFunction* function) override;
+        /**
+        * @brief dumps the ast function
+        * @param function - pointer to the ast function
+        */
+        void visit(AST::node::ASTFunction* function) override;
 
-    /**
-     * @brief dumps the ast parameter
-     * @param parameter - pointer to the ast parameter
-    */
-    void visit(ASTParameter* parameter) override;
+        /**
+        * @brief dumps the ast parameter
+        * @param parameter - pointer to the ast parameter
+        */
+        void visit(AST::node::ASTParameter* parameter) override;
 
-    /**
-     * @brief dumps the ast variable declaration
-     * @param variableDecl - pointer to the ast variable declaration
-    */
-    void visit(ASTVariableDeclStmt* variableDecl) override;
+        /**
+        * @brief dumps the ast variable declaration
+        * @param variableDecl - pointer to the ast variable declaration
+        */
+        void visit(AST::node::ASTVariableDeclStmt* variableDecl) override;
 
-    /**
-     * @brief dumps the ast assign statement
-     * @param assignStmt - pointer to the ast assign statement
-    */
-    void visit(ASTAssignStmt* assignStmt) override;
+        /**
+        * @brief dumps the ast assign statement
+        * @param assignStmt - pointer to the ast assign statement
+        */
+        void visit(AST::node::ASTAssignStmt* assignStmt) override;
 
-    /**
-     * @brief dumps the ast compound statement
-     * @param compoundStmt - pointer to the ast compound statement
-    */
-    void visit(ASTCompoundStmt* compoundStmt) override;
+        /**
+        * @brief dumps the ast compound statement
+        * @param compoundStmt - pointer to the ast compound statement
+        */
+        void visit(AST::node::ASTCompoundStmt* compoundStmt) override;
 
-    /**
-     * @brief dumps the ast for statement
-     * @param forStmt - pointer to the ast for statement
-    */
-    void visit(ASTForStmt* forStmt) override;
+        /**
+        * @brief dumps the ast for statement
+        * @param forStmt - pointer to the ast for statement
+        */
+        void visit(AST::node::ASTForStmt* forStmt) override;
 
-    /**
-     * @brief dumps the ast function-call statement
-     * @param callStmt - pointer to the ast function-call statement
-    */
-    void visit(ASTFunctionCallStmt* callStmt) override;
+        /**
+        * @brief dumps the ast function-call statement
+        * @param callStmt - pointer to the ast function-call statement
+        */
+        void visit(AST::node::ASTFunctionCallStmt* callStmt) override;
 
-    /**
-     * @brief dumps the ast if statement
-     * @param ifStmt - pointer to the ast if statement
-    */
-    void visit(ASTIfStmt* ifStmt) override;
+        /**
+        * @brief dumps the ast if statement
+        * @param ifStmt - pointer to the ast if statement
+        */
+        void visit(AST::node::ASTIfStmt* ifStmt) override;
 
-    /**
-     * @brief dumps the ast return statement
-     * @param returnStmt - pointer to the ast return statement
-    */
-    void visit(ASTReturnStmt* returnStmt) override;
+        /**
+        * @brief dumps the ast return statement
+        * @param returnStmt - pointer to the ast return statement
+        */
+        void visit(AST::node::ASTReturnStmt* returnStmt) override;
 
-    /**
-     * @brief dumps the ast while statement
-     * @param whileStmt - pointer to the ast while statement
-    */
-    void visit(ASTWhileStmt* whileStmt) override;
+        /**
+        * @brief dumps the ast while statement
+        * @param whileStmt - pointer to the ast while statement
+        */
+        void visit(AST::node::ASTWhileStmt* whileStmt) override;
 
-    /**
-     * @brief dumps the ast dowhile statement
-     * @param dowhileStmt - pointer to the ast dowhile statement
-    */
-    void visit(ASTDoWhileStmt* dowhileStmt) override;
-    
-    /**
-     * @brief dumps the ast switch statement
-     * @param switchStmt - pointer to the ast switch statement
-    */
-    void visit(ASTSwitchStmt* switchStmt) override;
+        /**
+        * @brief dumps the ast dowhile statement
+        * @param dowhileStmt - pointer to the ast dowhile statement
+        */
+        void visit(AST::node::ASTDoWhileStmt* dowhileStmt) override;
+        
+        /**
+        * @brief dumps the ast switch statement
+        * @param switchStmt - pointer to the ast switch statement
+        */
+        void visit(AST::node::ASTSwitchStmt* switchStmt) override;
 
-    /**
-     * @brief dumps the ast case statement
-     * @param caseStmt - pointer to the ast case statement
-    */
-    void visit(ASTCaseStmt* caseStmt) override;
+        /**
+        * @brief dumps the ast case statement
+        * @param caseStmt - pointer to the ast case statement
+        */
+        void visit(AST::node::ASTCaseStmt* caseStmt) override;
 
-    /**
-     * @brief dumps the ast default statement
-     * @param defaultStmt - pointer to the ast default statement
-    */
-    void visit(ASTDefaultStmt* defaultStmt) override;
-    
-    /**
-     * @brief dumps the ast switch block statement
-     * @param switchBlockStmt - pointer to the ast switch block statement
-    */
-    void visit(ASTSwitchBlockStmt* switchBlockStmt) override;
+        /**
+        * @brief dumps the ast default statement
+        * @param defaultStmt - pointer to the ast default statement
+        */
+        void visit(AST::node::ASTDefaultStmt* defaultStmt) override;
+        
+        /**
+        * @brief dumps the ast switch block statement
+        * @param switchBlockStmt - pointer to the ast switch block statement
+        */
+        void visit(AST::node::ASTSwitchBlockStmt* switchBlockStmt) override;
 
-    /**
-     * @brief dumps the ast binary expression
-     * @param binaryExpr - pointer to the ast binary expression
-    */
-    void visit(ASTBinaryExpr* binaryExpr) override;
+        /**
+        * @brief dumps the ast binary expression
+        * @param binaryExpr - pointer to the ast binary expression
+        */
+        void visit(AST::node::ASTBinaryExpr* binaryExpr) override;
 
-    /**
-     * @brief dumps the ast function-call expression
-     * @param callExpr - pointer to the ast function-call expression
-    */
-    void visit(ASTFunctionCallExpr* callExpr) override;
+        /**
+        * @brief dumps the ast function-call expression
+        * @param callExpr - pointer to the ast function-call expression
+        */
+        void visit(AST::node::ASTFunctionCallExpr* callExpr) override;
 
-    /**
-     * @brief dumps the ast id expression
-     * @param idExpr - pointer to the ast id expression
-    */
-    void visit(ASTIdExpr* idExpr) override;
+        /**
+        * @brief dumps the ast id expression
+        * @param idExpr - pointer to the ast id expression
+        */
+        void visit(AST::node::ASTIdExpr* idExpr) override;
 
-    /**
-     * @brief dumps the ast literal expression
-     * @param literalExpr - pointer to the ast literal expression
-    */
-    void visit(ASTLiteralExpr* literalExpr) override;
+        /**
+        * @brief dumps the ast literal expression
+        * @param literalExpr - pointer to the ast literal expression
+        */
+        void visit(AST::node::ASTLiteralExpr* literalExpr) override;
 
-private:
-    /// output stream
-    std::ostream& out;
+    private:
+        /// output stream
+        std::ostream& out;
 
-    /// size of indentation
-    int indent;
+        /// size of indentation
+        int indent;
 
-    /**
-     * @brief dumps the indentation
-    */
-    void dumpIndent();
+        /**
+        * @brief dumps the indentation
+        */
+        void dumpIndent();
 
-    /**
-     * @brief dumps the ast node
-     * @param node - const pointer to a node
-    */
-    void dumpNode(const ASTNode* node);
+        /**
+        * @brief dumps the ast node
+        * @param node - const pointer to a node
+        */
+        void dumpNode(const AST::node::ASTNode* node);
 
-    /**
-     * @brief dumps the label for the node
-     * @param nodeLabel - label of the node
-    */ 
-    void dumpNode(std::string_view nodeLabel);
+        /**
+        * @brief dumps the label for the node
+        * @param nodeLabel - label of the node
+        */ 
+        void dumpNode(std::string_view nodeLabel);
 
-};
+    };
+
+}
 
 #endif

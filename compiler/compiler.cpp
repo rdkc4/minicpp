@@ -108,7 +108,7 @@ Compiler::ExitCode Compiler::lexicalAnalysis(Lexer& lexer){
     return Compiler::ExitCode::NO_ERR;
 }
 
-Compiler::ExitCode Compiler::syntaxAnalysis(Lexer& lexer, std::unique_ptr<ASTProgram>& astProgram){
+Compiler::ExitCode Compiler::syntaxAnalysis(Lexer& lexer, std::unique_ptr<AST::node::ASTProgram>& astProgram){
     try{
         assert(lexer.completedTokenization());
         TokenConsumer tokenConsumer{ lexer };
@@ -123,7 +123,7 @@ Compiler::ExitCode Compiler::syntaxAnalysis(Lexer& lexer, std::unique_ptr<ASTPro
     return Compiler::ExitCode::NO_ERR;
 }
 
-Compiler::ExitCode Compiler::semanticAnalysis(std::unique_ptr<ASTProgram>& astProgram, ThreadPool& threadPool){
+Compiler::ExitCode Compiler::semanticAnalysis(std::unique_ptr<AST::node::ASTProgram>& astProgram, ThreadPool& threadPool){
     SymbolTable symbolTable {};
     ScopeManager scopeManager{ symbolTable };
     Analyzer analyzer{scopeManager, threadPool};
@@ -137,7 +137,7 @@ Compiler::ExitCode Compiler::semanticAnalysis(std::unique_ptr<ASTProgram>& astPr
     return Compiler::ExitCode::NO_ERR;
 }
 
-Compiler::ExitCode Compiler::transformASTToIRT(std::unique_ptr<ASTProgram>& astProgram, std::unique_ptr<IR::node::IRProgram>& irProgram, ThreadPool& threadPool){
+Compiler::ExitCode Compiler::transformASTToIRT(std::unique_ptr<AST::node::ASTProgram>& astProgram, std::unique_ptr<IR::node::IRProgram>& irProgram, ThreadPool& threadPool){
         IR::IntermediateRepresentation intermediateRepresentation{threadPool};
         irProgram = intermediateRepresentation.transformProgram(astProgram.get());
 
@@ -220,7 +220,7 @@ Compiler::ExitCode Compiler::compile(Compiler::CompileOptions options) {
         return result;
     }
     
-    std::unique_ptr<ASTProgram> astProgram;
+    std::unique_ptr<AST::node::ASTProgram> astProgram;
     result = syntaxAnalysis(lexer, astProgram);
     if(result != Compiler::ExitCode::NO_ERR){
         return result;
@@ -259,8 +259,8 @@ Compiler::ExitCode Compiler::compile(Compiler::CompileOptions options) {
     return result;
 }
 
-void Compiler::dumpAST(ASTProgram* program, std::ostream& out){
-    ASTDumper dump{out};
+void Compiler::dumpAST(AST::node::ASTProgram* program, std::ostream& out){
+    AST::dump::ASTDumper dump{out};
     program->accept(dump);
 }
 

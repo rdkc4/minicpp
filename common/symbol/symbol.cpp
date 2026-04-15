@@ -16,7 +16,7 @@ Type Symbol::getType() const noexcept {
     return type;
 }
 
-const std::vector<std::unique_ptr<ASTParameter>>* Symbol::getParameters() const noexcept {
+const std::vector<std::unique_ptr<AST::node::ASTParameter>>* Symbol::getParameters() const noexcept {
     return parameters;
 }
 
@@ -32,7 +32,7 @@ void Symbol::setType(Type symType) noexcept {
     type = symType;
 }
 
-void Symbol::setParameters(const std::vector<std::unique_ptr<ASTParameter>>* symParams) noexcept {
+void Symbol::setParameters(const std::vector<std::unique_ptr<AST::node::ASTParameter>>* symParams) noexcept {
     parameters = symParams;
 }
 

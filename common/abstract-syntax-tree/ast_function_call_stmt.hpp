@@ -8,38 +8,46 @@
 #include "../token/token.hpp"
 #include "../visitor/ast_visitor.hpp"
 
-/** 
- * @class ASTFunctionCallStmt
- * @brief AST node representing function call statement
-*/
-class ASTFunctionCallStmt final : public ASTStmt {
-public:
+namespace AST::node {
     /** 
-     * @brief Creates the instance of the ast function call statement
-     * @param token - const reference to the token
+     * @class ASTFunctionCallStmt
+     * @brief AST node representing function call statement
     */
-    ASTFunctionCallStmt(const Token& token);
+    class ASTFunctionCallStmt final : public ASTStmt {
+    public:
+        /** 
+         * @brief Creates the instance of the ast function call statement
+         * @param token - const reference to the token
+        */
+        ASTFunctionCallStmt(const Token& token);
 
-    template<typename Self>
-    decltype(auto) getFunctionCallExpr(this Self&& self) noexcept {
-        return std::forward<Self>(self).functionCallExpr.get();
-    }
+        /**
+         * @brief getter for the function call expression
+         * @returns pointer or const pointer to function call expression
+        */
+        template<typename Self>
+        decltype(auto) getFunctionCallExpr(this Self&& self) noexcept {
+            return std::forward<Self>(self).functionCallExpr.get();
+        }
 
-    /**
-     * @brief initializes the function call statement
-     * @param callExpr - pointer to a function call expression
-    */
-    void setFunctionCallStmt(std::unique_ptr<ASTFunctionCallExpr> callExpr);
+        /**
+         * @brief initializes the function call statement
+         * @param callExpr - pointer to a function call expression
+        */
+        void setFunctionCallStmt(std::unique_ptr<ASTFunctionCallExpr> callExpr);
 
-    /**
-     * @brief accepts the ast visitor
-     * @param visitor - reference to an ast visitor
-    */
-    void accept(ASTVisitor& visitor) override;
+        /**
+         * @brief accepts the ast visitor
+         * @param visitor - reference to an ast visitor
+        */
+        void accept(AST::visitor::ASTVisitor& visitor) override;
 
-private:
-    /// pointer to the function call expression
-    std::unique_ptr<ASTFunctionCallExpr> functionCallExpr;
-};
+    private:
+        /// pointer to the function call expression
+        std::unique_ptr<ASTFunctionCallExpr> functionCallExpr;
+        
+    };
+
+}
 
 #endif

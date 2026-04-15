@@ -2,12 +2,13 @@
 
 #include "../defs/ast_defs.hpp"
 
-ASTDefaultStmt::ASTDefaultStmt(const Token& token) : ASTStmt(token, ASTNodeType::DEFAULT_STMT) {}
+AST::node::ASTDefaultStmt::ASTDefaultStmt(const Token& token) 
+    : ASTStmt(token, AST::defs::ASTNodeType::DEFAULT_STMT) {}
 
-void ASTDefaultStmt::setDefaultStmt(std::unique_ptr<ASTSwitchBlockStmt> swBlockStmt){
+void AST::node::ASTDefaultStmt::setDefaultStmt(std::unique_ptr<AST::node::ASTSwitchBlockStmt> swBlockStmt){
     switchBlockStmt = std::move(swBlockStmt);
 }
 
-void ASTDefaultStmt::accept(ASTVisitor& visitor) {
+void AST::node::ASTDefaultStmt::accept(AST::visitor::ASTVisitor& visitor) {
     visitor.visit(this);
 }
