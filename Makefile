@@ -10,7 +10,6 @@ SRCS = main.cpp \
 	common/preprocessing/source/preprocessing_libs.cpp \
 	preprocessor/preprocessor.cpp \
 	common/token/token.cpp \
-	common/abstract-syntax-tree/defs/ast_defs.cpp \
 	common/abstract-syntax-tree/source/ast_node.cpp \
 	common/abstract-syntax-tree/source/ast_expr.cpp \
 	common/abstract-syntax-tree/source/ast_binary_expr.cpp \

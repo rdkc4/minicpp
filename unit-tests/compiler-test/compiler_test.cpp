@@ -1,142 +1,51 @@
 #include <gtest/gtest.h>
 
-#include "../../compiler/compiler.hpp"
-#include "../test-utils/test_utils.hpp"
+#include "compiler_fixture.hpp"
 
-TEST(CompilerTest, NoErr){
-    std::string input = "o.mcpp";
-    std::string output = "o";
+TEST_F(CompilerFixture, NoErr){
+    initCompiler("int main(){ return 0; }");
 
-    __test__writeSourceToFile("int main(){ return 0; }", input);
-    Compiler::ExitCode ret{ Compiler::compile({
-        .stopAfterAssembly = true, 
-        .input = input, 
-        .output = output
-    })};
-
-    ASSERT_EQ(ret, Compiler::ExitCode::NO_ERR);
-
-    /// file cleanup
-    __test__removeFile(input);
-    __test__removeFile(output + ".s");
+    ASSERT_EQ(returnCode, Compiler::ExitCode::NO_ERR);
 }
 
-TEST(CompilerTest, NoErrScope){
-    std::string input = "o.mcpp";
-    std::string output = "o";
+TEST_F(CompilerFixture, NoErrScope){
+    initCompiler("int main(){ {int a;} int a; return 0; }");
 
-    __test__writeSourceToFile("int main(){ {int a;} int a; return 0; }", input);
-    Compiler::ExitCode ret{ Compiler::compile({
-        .stopAfterAssembly = true, 
-        .input = input, 
-        .output = output
-    })};
-
-    ASSERT_EQ(ret, Compiler::ExitCode::NO_ERR);
-
-    /// file cleanup
-    __test__removeFile(input);
-    __test__removeFile(output + ".s");
+    ASSERT_EQ(returnCode, Compiler::ExitCode::NO_ERR);
 }
 
-TEST(CompilerTest, LexicalErr){
-    std::string input = "o.mcpp";
-    std::string output = "o";
+TEST_F(CompilerFixture, LexicalErr){
+    initCompiler("int mai$n(){ return 0; }");
 
-    __test__writeSourceToFile("int mai$n(){ return 0; }", input);
-    Compiler::ExitCode ret{ Compiler::compile({
-        .stopAfterAssembly = true, 
-        .input = input, 
-        .output = output
-    })};
-
-    ASSERT_EQ(ret, Compiler::ExitCode::LEXICAL_ERR);
-
-    /// file cleanup
-    __test__removeFile(input);
+    ASSERT_EQ(returnCode, Compiler::ExitCode::LEXICAL_ERR);
 }
 
-TEST(CompilerTest, SyntaxErr){
-    std::string input = "o.mcpp";
-    std::string output = "o";
+TEST_F(CompilerFixture, SyntaxErr){
+    initCompiler("main(){ return 0; }");
 
-    __test__writeSourceToFile("main(){ return 0; }", input);
-    Compiler::ExitCode ret{ Compiler::compile({
-        .stopAfterAssembly = true, 
-        .input = input, 
-        .output = output
-    })};
-
-    ASSERT_EQ(ret, Compiler::ExitCode::SYNTAX_ERR);
-
-    /// file cleanup
-    __test__removeFile(input);
+    ASSERT_EQ(returnCode, Compiler::ExitCode::SYNTAX_ERR);
 }
 
-TEST(CompilerTest, SemanticErrTypeMismatch){
-    std::string input = "o.mcpp";
-    std::string output = "o";
+TEST_F(CompilerFixture, SemanticErrTypeMismatch){
+    initCompiler("int main(){ return 5 + 3u; }");
 
-    __test__writeSourceToFile("int main(){ return 5 + 3u; }", input);
-    Compiler::ExitCode ret{ Compiler::compile({
-        .stopAfterAssembly = true, 
-        .input = input, 
-        .output = output
-    })};
-
-    ASSERT_EQ(ret, Compiler::ExitCode::SEMANTIC_ERR);
-
-    /// file cleanup
-    __test__removeFile(input);
+    ASSERT_EQ(returnCode, Compiler::ExitCode::SEMANTIC_ERR);
 }
 
-TEST(CompilerTest, SemanticErrUndefVariable){
-    std::string input = "o.mcpp";
-    std::string output = "o";
+TEST_F(CompilerFixture, SemanticErrUndefVariable){
+    initCompiler("int main(){ return a; }");
 
-    __test__writeSourceToFile("int main(){ return a; }", input);
-    Compiler::ExitCode ret{ Compiler::compile({
-        .stopAfterAssembly = true, 
-        .input = input, 
-        .output = output
-    })};
-
-    ASSERT_EQ(ret, Compiler::ExitCode::SEMANTIC_ERR);
-
-    /// file cleanup
-    __test__removeFile(input);
+    ASSERT_EQ(returnCode, Compiler::ExitCode::SEMANTIC_ERR);
 }
 
-TEST(CompilerTest, SemanticErrRedef){
-    std::string input = "o.mcpp";
-    std::string output = "o";
+TEST_F(CompilerFixture, SemanticErrRedef){
+    initCompiler("int main(){ int a; int a; return 0; }");
 
-    __test__writeSourceToFile("int main(){ int a; int a; return 0; }", input);
-    Compiler::ExitCode ret{ Compiler::compile({
-        .stopAfterAssembly = true, 
-        .input = input, 
-        .output = output
-    })};
-
-    ASSERT_EQ(ret, Compiler::ExitCode::SEMANTIC_ERR);
-
-    /// file cleanup
-    __test__removeFile(input);
+    ASSERT_EQ(returnCode, Compiler::ExitCode::SEMANTIC_ERR);
 }
 
-TEST(CompilerTest, IRErr){
-    std::string input = "o.mcpp";
-    std::string output = "o";
+TEST_F(CompilerFixture, IRErr){
+    initCompiler("int main(){ return 3/0; }");
 
-    __test__writeSourceToFile("int main(){ return 3/0; }", input);
-    Compiler::ExitCode ret{ Compiler::compile({
-        .stopAfterAssembly = true, 
-        .input = input, 
-        .output = output
-    })};
-
-    ASSERT_EQ(ret, Compiler::ExitCode::IR_ERR);
-
-    /// file cleanup
-    __test__removeFile(input);
+    ASSERT_EQ(returnCode, Compiler::ExitCode::IR_ERR);
 }
