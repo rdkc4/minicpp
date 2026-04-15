@@ -104,7 +104,7 @@ namespace IR::defs {
              * @returns index in the array for provided node type
             */
             constexpr auto idx {
-                [](IRNodeType type) -> size_t {
+                [](IRNodeType type) noexcept -> size_t {
                     return static_cast<size_t>(type);
                 }
             };
@@ -191,7 +191,7 @@ namespace IR::defs {
              * @returns index in the array for provided operator
             */
             constexpr auto idx {
-                [](Operator op) -> size_t {
+                [](Operator op) noexcept -> size_t {
                     return static_cast<size_t>(op);
                 }
             };

@@ -165,7 +165,7 @@ void ExpressionCodeGenerator::generateLogicalAndExpr(BinaryOperands operands){
     );
     AsmGenerator::Instruction::genSet(
         codeGenContext.asmCode, 
-        "%al", "ne"
+        "setne", "%al"
     );
 
     AsmGenerator::Instruction::genTest(
@@ -174,7 +174,7 @@ void ExpressionCodeGenerator::generateLogicalAndExpr(BinaryOperands operands){
     );
     AsmGenerator::Instruction::genSet(
         codeGenContext.asmCode, 
-        "%cl", "ne"
+        "setne", "%cl"
     );
 
     AsmGenerator::Instruction::genOperation(
@@ -202,7 +202,7 @@ void ExpressionCodeGenerator::generateLogicalOrExpr(BinaryOperands operands){
 
     AsmGenerator::Instruction::genSet(
         codeGenContext.asmCode, 
-        "%al", "ne"
+        "setne", "%al"
     );
 
     AsmGenerator::Instruction::genMov(
@@ -221,9 +221,9 @@ void ExpressionCodeGenerator::generateRelationalExpr(const IR::node::IRBinaryExp
 
     if(ctx == ExprContext::VALUE){
         AsmGenerator::Instruction::genSet(
-            codeGenContext.asmCode, 
-            "%al", 
-            nodeToSetExt.at(binaryExpr->getNodeType())
+            codeGenContext.asmCode,  
+            irNodeTypeToJumpInfo(binaryExpr->getNodeType()).setcc,
+            "%al"
         );
 
         AsmGenerator::Instruction::genMov(
@@ -239,13 +239,13 @@ void ExpressionCodeGenerator::generateConditionExpr(const IR::node::IRExpr* expr
     size_t labNum{ CodeGenerator::getNextLabelNum() };
     
     IR::defs::IRNodeType nodeType{ expr->getNodeType() };
-    if(nodeToJMP.find(nodeType) != nodeToJMP.end()){
+    if(auto jumpInfo{ irNodeTypeToJumpInfo(nodeType) }; !jumpInfo.jcc.empty()){
         generateBinaryExpr(static_cast<const IR::node::IRBinaryExpr*>(expr), ExprContext::BRANCH);
 
         if(trueLabel != ""){
             AsmGenerator::Instruction::genJmp(
                 codeGenContext.asmCode,
-                nodeToJMP.at(nodeType),
+                jumpInfo.jcc,
                 trueLabel
             );
         }
@@ -253,7 +253,7 @@ void ExpressionCodeGenerator::generateConditionExpr(const IR::node::IRExpr* expr
         if(falseLabel != ""){
             AsmGenerator::Instruction::genJmp(
                 codeGenContext.asmCode,
-                nodeToOppJMP.at(nodeType),
+                jumpInfo.jccInverse,
                 falseLabel
             );
         }

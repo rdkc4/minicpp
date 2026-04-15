@@ -81,7 +81,7 @@ constexpr std::array<Operator, TOKEN_TYPE_COUNT> tokenTypeOperatorRepresentation
          * @returns index in the array for provided token type
         */
         constexpr auto idx {
-            [](TokenType type) -> size_t {
+            [](TokenType type) noexcept -> size_t {
                 return static_cast<size_t>(type);
             }
         };
@@ -132,7 +132,7 @@ constexpr std::array<std::string_view, TYPE_COUNT> typeStringRepresentations {
          * @returns index in the array for provided type
         */
         constexpr auto idx {
-            [](Type type) -> size_t {
+            [](Type type) noexcept -> size_t {
                 return static_cast<size_t>(type);
             }
         };
@@ -166,7 +166,7 @@ constexpr std::array<Type, TOKEN_TYPE_COUNT> tokenTypeTypeRepresentations {
          * @returns index in the array for provided token type
         */
         constexpr auto idx {
-            [](TokenType type) -> size_t {
+            [](TokenType type) noexcept -> size_t {
                 return static_cast<size_t>(type);
             }
         };
@@ -201,7 +201,7 @@ constexpr std::array<std::string_view, KIND_COUNT> kindStringRepresentations {
          * @returns index in the array for provided kind
         */
         constexpr auto idx {
-            [](Kind kind) -> size_t {
+            [](Kind kind) noexcept -> size_t {
                 return static_cast<size_t>(kind);
             }
         };
@@ -236,7 +236,7 @@ constexpr std::array<std::string_view, OPERATOR_COUNT> operatorStringRepresentat
          * @returns index in the array for provided operator
         */
         constexpr auto idx {
-            [](Operator op) -> size_t {
+            [](Operator op) noexcept -> size_t {
                 return static_cast<size_t>(op);
             }
         };

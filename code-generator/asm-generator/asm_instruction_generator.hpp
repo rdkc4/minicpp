@@ -32,11 +32,11 @@ namespace AsmGenerator::Instruction {
     /**
      * @brief generates the set instruction
      * @param asmCode - reference to a vector that contains asm code of the current function
+     * @param set - set instruction
      * @param r - operand that is being set
-     * @param ext - extension for the set instruction
-     * @details setext r
+     * @details setcc r
     */
-    void genSet(std::vector<std::string>& asmCode, std::string_view r, std::string_view ext = "");
+    void genSet(std::vector<std::string>& asmCode, std::string_view setcc, std::string_view r);
 
     /** 
      * @brief generates the test instruction

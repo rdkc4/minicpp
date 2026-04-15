@@ -57,7 +57,7 @@ constexpr std::array<std::string_view, AST_NODE_TYPE_COUNT> astNodeTypeStringRep
          * @returns index in the array for provided node type
         */
         constexpr auto idx {
-            [](ASTNodeType type) -> size_t {
+            [](ASTNodeType type) noexcept -> size_t {
                 return static_cast<size_t>(type);
             }
         };

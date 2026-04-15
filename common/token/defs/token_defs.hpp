@@ -104,7 +104,7 @@ constexpr std::array<std::string_view, TOKEN_TYPE_COUNT> tokenTypeStringRepresen
          * @returns index in the array for provided token type
         */
         constexpr auto idx {
-            [](TokenType type) -> size_t {
+            [](TokenType type) noexcept -> size_t {
                 return static_cast<size_t>(type);
             }
         };
@@ -190,7 +190,7 @@ constexpr std::array<std::string_view, GENERAL_TOKEN_TYPE_COUNT> generalTokenTyp
          * @returns index in the array for provided general token type
         */
         constexpr auto idx {
-            [](GeneralTokenType type) -> size_t {
+            [](GeneralTokenType type) noexcept -> size_t {
                 return static_cast<size_t>(type);
             }
         };

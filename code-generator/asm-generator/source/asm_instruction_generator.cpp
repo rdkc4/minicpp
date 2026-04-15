@@ -17,8 +17,8 @@ void AsmGenerator::Instruction::genMov(std::vector<std::string>& asmCode, std::s
     asmCode.push_back(std::format("\tmov{} {}, {}\n", ext, l ,r));
 }
 
-void AsmGenerator::Instruction::genSet(std::vector<std::string>& asmCode, std::string_view r, std::string_view ext){
-    asmCode.push_back(std::format("\tset{} {}\n", ext, r));
+void AsmGenerator::Instruction::genSet(std::vector<std::string>& asmCode, std::string_view setcc, std::string_view r){
+    asmCode.push_back(std::format("\t{} {}\n", setcc, r));
 }
 
 void AsmGenerator::Instruction::genTest(std::vector<std::string>& asmCode, std::string_view r, std::string_view ext){
