@@ -21,7 +21,7 @@ void IR::dump::IRDumper::visit(IR::node::IRProgram* program){
 void IR::dump::IRDumper::visit(IR::node::IRFunction* function){
     dumpNode(function, std::format(
         " | {} {} | req mem: {}", 
-        typeToString.at(function->getType()), function->getFunctionName(), function->getRequiredMemory()
+        typeToStr(function->getType()), function->getFunctionName(), function->getRequiredMemory()
     ));
 
     IndentGuard functionGuard{indent};
@@ -46,14 +46,14 @@ void IR::dump::IRDumper::visit(IR::node::IRFunction* function){
 void IR::dump::IRDumper::visit(IR::node::IRParameter* parameter){
     dumpNode(parameter, std::format(
         " | {} {}", 
-        typeToString.at(parameter->getType()), parameter->getParameterName()
+        typeToStr(parameter->getType()), parameter->getParameterName()
     ));
 }
 
 void IR::dump::IRDumper::visit(IR::node::IRVariableDeclStmt* variableDecl){
     dumpNode(variableDecl, std::format(
         " | {} {} {}", 
-        typeToString.at(variableDecl->getType()), variableDecl->getVarName(), variableDecl->getValue()
+        typeToStr(variableDecl->getType()), variableDecl->getVarName(), variableDecl->getValue()
     ));
 
     IndentGuard variableGuard{indent};
@@ -206,7 +206,7 @@ void IR::dump::IRDumper::visit(IR::node::IRSwitchBlockStmt* switchBlockStmt){
 }
 
 void IR::dump::IRDumper::visit(IR::node::IRBinaryExpr* binaryExpr){
-    dumpNode(binaryExpr, std::format(" | {}", operatorToString.at(binaryExpr->getOperator())));
+    dumpNode(binaryExpr, std::format(" | {}", operatorToStr(binaryExpr->getOperator())));
 
     IndentGuard binaryExprGuard{indent};
     binaryExpr->getLeftOperandExpr()->accept(*this);
@@ -231,14 +231,14 @@ void IR::dump::IRDumper::visit(IR::node::IRFunctionCallExpr* callExpr){
 void IR::dump::IRDumper::visit(IR::node::IRIdExpr* idExpr){
     dumpNode(idExpr, std::format(
         " | {} {}", 
-        typeToString.at(idExpr->getType()), idExpr->getIdName()
+        typeToStr(idExpr->getType()), idExpr->getIdName()
     ));
 }
 
 void IR::dump::IRDumper::visit(IR::node::IRLiteralExpr* literalExpr){
     dumpNode(literalExpr, std::format(
         " | {} {}",
-        typeToString.at(literalExpr->getType()), literalExpr->getValue()
+        typeToStr(literalExpr->getType()), literalExpr->getValue()
     ));
 }
 

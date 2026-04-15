@@ -72,7 +72,7 @@ void Analyzer::checkFunctionSignature(const ASTFunction* function){
             funcToken, 
             std::format(
                 "function redefined '{} {}'", 
-                typeToString.at(returnType), funcToken.value
+                typeToStr(returnType), funcToken.value
             ),
             globalError
         );
@@ -85,7 +85,7 @@ void Analyzer::checkFunctionSignature(const ASTFunction* function){
             funcToken, 
             std::format(
                 "invalid type '{} {}'", 
-                typeToString.at(returnType), funcToken.value
+                typeToStr(returnType), funcToken.value
             ),
             funcToken.value
         );
@@ -95,7 +95,7 @@ void Analyzer::checkFunctionSignature(const ASTFunction* function){
             funcToken, 
             std::format(
                 "type deduction cannot be performed on function '{} {}'", 
-                typeToString.at(returnType), funcToken.value
+                typeToStr(returnType), funcToken.value
             ),
             funcToken.value
         );
@@ -161,7 +161,7 @@ void Analyzer::visit(ASTFunction* function){
                     funcToken, 
                     std::format(
                         "function '{} {}' not all paths return value", 
-                        typeToString.at(funcReturnType), funcToken.value
+                        typeToStr(funcReturnType), funcToken.value
                     )
                 );
             }
@@ -193,7 +193,7 @@ void Analyzer::visit(ASTParameter* parameter){
             paramToken, 
             std::format(
                 "invalid type '{} {}'", 
-                typeToString.at(paramType), paramToken.value
+                typeToStr(paramType), paramToken.value
             )
         );
     }
@@ -202,7 +202,7 @@ void Analyzer::visit(ASTParameter* parameter){
             paramToken, 
             std::format(
                 "type deduction cannot be performed on parameters '{} {}'", 
-                typeToString.at(paramType), paramToken.value
+                typeToStr(paramType), paramToken.value
             )
         );
     }
@@ -213,7 +213,7 @@ void Analyzer::visit(ASTParameter* parameter){
             paramToken, 
             std::format(
                 "parameter redefined '{} {}'", 
-                typeToString.at(paramType), paramToken.value
+                typeToStr(paramType), paramToken.value
             )
         );
     }
@@ -228,7 +228,7 @@ void Analyzer::visit(ASTVariableDeclStmt* variableDecl){
             variableToken, 
             std::format(
                 "invalid type '{} {}'", 
-                typeToString.at(variableType), variableToken.value
+                typeToStr(variableType), variableToken.value
             )
         );
     }
@@ -237,7 +237,7 @@ void Analyzer::visit(ASTVariableDeclStmt* variableDecl){
             variableToken, 
             std::format(
                 "type deduction failed '{} {}'", 
-                typeToString.at(variableType), variableToken.value
+                typeToStr(variableType), variableToken.value
             )
         );
     }
@@ -248,7 +248,7 @@ void Analyzer::visit(ASTVariableDeclStmt* variableDecl){
             variableToken, 
             std::format(
                 "variable redefined '{} {}'", 
-                typeToString.at(variableType), variableToken.value
+                typeToStr(variableType), variableToken.value
             )
         );
     }
@@ -266,7 +266,7 @@ void Analyzer::visit(ASTVariableDeclStmt* variableDecl){
                 variableToken, 
                 std::format(
                     "invalid assignment statement - type mismatch: expected '{}', got '{}'", 
-                    typeToString.at(variableType), typeToString.at(rtype)
+                    typeToStr(variableType), typeToStr(rtype)
                 )
             );
         }
@@ -296,7 +296,7 @@ void Analyzer::visit(ASTAssignStmt* assignStmt){
             assignStmtToken, 
             std::format(
                 "invalid assignment statement - type mismatch: expected '{}', got '{}'", 
-                typeToString.at(ltype), typeToString.at(rtype)
+                typeToStr(ltype), typeToStr(rtype)
             )
         );
     }
@@ -366,7 +366,7 @@ void Analyzer::visit(ASTReturnStmt* returnStmt){
             returnToken, 
             std::format(
                 "invalid return statement - type mismatch: '{} {}' returns '{}'", 
-                typeToString.at(expectedReturnType), analyzerContext.functionName, typeToString.at(returnType)
+                typeToStr(expectedReturnType), analyzerContext.functionName, typeToStr(returnType)
             )
         );
     }
@@ -405,7 +405,7 @@ void Analyzer::visit(ASTSwitchStmt* switchStmt){
                 caseToken, 
                 std::format(
                     "invalid case - type mismatch: expected '{}', got '{}'", 
-                    typeToString.at(variableIdExprType), typeToString.at(literalType)
+                    typeToStr(variableIdExprType), typeToStr(literalType)
                 )
             );
         }
@@ -463,7 +463,7 @@ void Analyzer::visit(ASTBinaryExpr* binaryExpr){
             binaryExprToken, 
             std::format(
                 "binary expression - type mismatch: expected '{}', got '{}'", 
-                typeToString.at(ltype), typeToString.at(rtype)
+                typeToStr(ltype), typeToStr(rtype)
             )
         );
     }
@@ -533,7 +533,7 @@ void Analyzer::visit(ASTFunctionCallExpr* callExpr){
                 argToken, 
                 std::format(
                     "invalid argument {} - type mismatch: expected '{}', got '{} {}'", 
-                    i, typeToString.at(rtype), typeToString.at(ltype), argToken.value
+                    i, typeToStr(rtype), typeToStr(ltype), argToken.value
                 )
             );
         }

@@ -35,7 +35,7 @@ constexpr std::array<int, TOKEN_TYPE_COUNT> precedence {
         prec[idx(TokenType::RSHIFT)]      = 8;
         prec[idx(TokenType::PLUS)]        = 9;
         prec[idx(TokenType::MINUS)]       = 9;
-        prec[idx(TokenType::STAR)]        = 10;
+        prec[idx(TokenType::ASTERISK)]    = 10;
         prec[idx(TokenType::SLASH)]       = 10;
 
         return prec;

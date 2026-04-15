@@ -368,7 +368,7 @@ private:
             case '-':
                 return {.type = TokenType::MINUS, .length = 1};
             case '*':
-                return {.type = TokenType::STAR, .length = 1};
+                return {.type = TokenType::ASTERISK, .length = 1};
             case '/':
                 return {.type = TokenType::SLASH, .length = 1};
 

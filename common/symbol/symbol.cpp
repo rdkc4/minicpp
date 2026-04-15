@@ -38,5 +38,11 @@ void Symbol::setParameters(const std::vector<std::unique_ptr<ASTParameter>>* sym
 
 std::string Symbol::symbolToString() const {
     return std::format("| {:11} | {:3} | {:8} | {:2} |\n", 
-        name, kindToString.at(kind), typeToString.at(type), (parameters != nullptr ? std::to_string(parameters->size()) : ""));
+        name, 
+        kindToStr(kind), 
+        typeToStr(type), 
+        (parameters != nullptr 
+            ? std::to_string(parameters->size()) 
+            : ""
+        ));
 }

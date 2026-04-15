@@ -77,7 +77,7 @@ std::unique_ptr<ASTExpr> ExpressionParser::parsePrimaryExpr(){
     throw std::runtime_error(
         std::format(
             "Line {}, Column {}: SYNTAX ERROR -> expected 'EXPRESSION', got '{} {}'",
-            token.line, token.column, tokenTypeToString.at(token.type), token.value
+            token.line, token.column, tokenTypeToStr(token.type), token.value
         )
     );
 }
@@ -124,12 +124,11 @@ std::unique_ptr<ASTLiteralExpr> ExpressionParser::parseLiteralExpr(){
 }
 
 std::unique_ptr<ASTBinaryExpr> ExpressionParser::parseOperator(){
+    const auto& token{ tokenConsumer.getToken() };
     std::unique_ptr<ASTBinaryExpr> op{ 
-        std::make_unique<ASTBinaryExpr>(Token{ tokenConsumer.getToken() })
+        std::make_unique<ASTBinaryExpr>(token)
     };
-    if(tokenTypeToOperator.find(tokenConsumer.getToken().type) != tokenTypeToOperator.end()){
-        op->setOperator(tokenTypeToOperator.at(tokenConsumer.getToken().type));
-    }
+    op->setOperator(tokenTypeToOperator(token.type));
 
     tokenConsumer.consume(GeneralTokenType::OPERATOR);
 

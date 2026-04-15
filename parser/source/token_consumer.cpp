@@ -12,8 +12,8 @@ void TokenConsumer::consume(TokenType expectedType) {
             std::format("Line {}, Column {}: SYNTAX ERROR -> expected '{}', got '{} {}'",
             token.line, 
             token.column, 
-            tokenTypeToString.at(expectedType), 
-            tokenTypeToString.at(token.type), 
+            tokenTypeToStr(expectedType), 
+            tokenTypeToStr(token.type), 
             token.value
         ));
     }
@@ -27,8 +27,8 @@ void TokenConsumer::consume(GeneralTokenType expectedGType) {
             std::format("Line {}, Column {}: SYNTAX ERROR -> expected '{}', got '{} {}'",
             token.line, 
             token.column, 
-            generalTokenTypeToString.at(expectedGType), 
-            generalTokenTypeToString.at(token.gtype), 
+            generalTokenTypeToStr(expectedGType), 
+            generalTokenTypeToStr(token.gtype), 
             token.value
         ));
     }

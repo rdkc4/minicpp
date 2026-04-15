@@ -96,11 +96,11 @@ namespace IR::defs {
     };
 
     /// maps the ir node types to their string representation
-    constexpr std::array<std::string_view, IR_NODE_TYPE_COUNT> nodeToStr {
+    constexpr std::array<std::string_view, IR_NODE_TYPE_COUNT> irNodeTypeStringRepresentations {
         [] {
             /**
              * @brief converts ir node type enum to array index
-             * @param op - element of the ir node type enum
+             * @param type - element of the ir node type enum
              * @returns index in the array for provided node type
             */
             constexpr auto idx {
@@ -173,15 +173,13 @@ namespace IR::defs {
         }()
     };
 
-    static_assert(nodeToStr.size() == IR_NODE_TYPE_COUNT);
-
     /**
      * @brief getter for the string representation of the ir node
      * @param nodeType - ir node type
      * @returns string representation of the node
     */
     constexpr std::string_view irNodeToStr(IRNodeType nodeType) {
-        return nodeToStr[static_cast<size_t>(nodeType)];
+        return irNodeTypeStringRepresentations[static_cast<size_t>(nodeType)];
     }
 
     /// maps operator to ir instruction node
@@ -227,8 +225,6 @@ namespace IR::defs {
         }()
     };
 
-    static_assert(operationTable.size() == OPERATOR_COUNT);
-
     /**
      * @brief getter for the node that represents operation
      * @param op - operator
@@ -239,6 +235,8 @@ namespace IR::defs {
         return operationTable[static_cast<size_t>(op)].get(type);
     }
 
+    static_assert(irNodeTypeStringRepresentations.size() == IR_NODE_TYPE_COUNT);
+    static_assert(operationTable.size() == OPERATOR_COUNT);
 }
 
 #endif

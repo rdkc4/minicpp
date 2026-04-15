@@ -54,12 +54,7 @@ std::unique_ptr<ASTStmt> StatementParser::parseStmt(){
 }
 
 std::unique_ptr<ASTVariableDeclStmt> StatementParser::parseVariableDeclStmt(){
-    const auto it{ 
-        tokenTypeToType.find(tokenConsumer.getToken().type) 
-    };
-    Type type{ tokenTypeToType.contains(tokenConsumer.getToken().type)
-        ? it->second : Type::NO_TYPE
-    };
+    Type type{ tokenTypeToType(tokenConsumer.getToken().type) };
     tokenConsumer.consume(GeneralTokenType::TYPE);
 
     std::unique_ptr<ASTVariableDeclStmt> variableDecl{ 

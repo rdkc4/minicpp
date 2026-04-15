@@ -9,8 +9,6 @@ SANITIZER = -fsanitize=address,undefined
 SRCS = main.cpp \
 	common/preprocessing/source/preprocessing_libs.cpp \
 	preprocessor/preprocessor.cpp \
-	common/defs/defs.cpp \
-	common/token/defs/token_defs.cpp \
 	common/token/token.cpp \
 	common/abstract-syntax-tree/defs/ast_defs.cpp \
 	common/abstract-syntax-tree/source/ast_node.cpp \
