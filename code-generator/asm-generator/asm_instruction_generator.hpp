@@ -32,11 +32,20 @@ namespace AsmGenerator::Instruction {
     /**
      * @brief generates the set instruction
      * @param asmCode - reference to a vector that contains asm code of the current function
+     * @param r - operand that is being set
+     * @param ext - extension for set instruction
+     * @details setext r
+    */
+    void genSet(std::vector<std::string>& asmCode, std::string_view r, std::string_view ext);
+
+    /**
+     * @brief generates the set instruction
+     * @param asmCode - reference to a vector that contains asm code of the current function
      * @param set - set instruction
      * @param r - operand that is being set
      * @details setcc r
     */
-    void genSet(std::vector<std::string>& asmCode, std::string_view setcc, std::string_view r);
+    void genSetcc(std::vector<std::string>& asmCode, std::string_view setcc, std::string_view r);
 
     /** 
      * @brief generates the test instruction
@@ -61,11 +70,20 @@ namespace AsmGenerator::Instruction {
      * @param asmCode - reference to a vector that contains asm code of the current function
      * @param op - operator
      * @param l - left operand
-     * @param r - right operand (optional)
-     * @details op l (, r)
+     * @param r - right operand
+     * @details op l, r
     */
-    void genOperation(std::vector<std::string>& asmCode, std::string_view op, std::string_view l, std::string_view r = "");
+    void genOperation(std::vector<std::string>& asmCode, std::string_view op, std::string_view l, std::string_view r);
 
+    /** 
+     * @brief generates the operation instruction
+     * @param asmCode - reference to a vector that contains asm code of the current function
+     * @param op - operator
+     * @param r - operand
+     * @details op r
+    */
+    void genOperation(std::vector<std::string>& asmCode, std::string_view op, std::string_view r);
+    
     /** 
      * @brief generates the label
      * @param asmCode - reference to a vector that contains asm code of the current function
@@ -84,11 +102,19 @@ namespace AsmGenerator::Instruction {
     /** 
      * @brief generates the jump instruction
      * @param asmCode - reference to a vector that contains asm code of the current function
-     * @param jmp - jump command
      * @param label - label to jump to
-     * @details jmp label
+     * @details unconditional jump - jmp label
     */
-    void genJmp(std::vector<std::string>& asmCode, std::string_view jmp, std::string_view label);
+    void genJmp(std::vector<std::string>& asmCode, std::string_view label);
+
+    /** 
+     * @brief generates the jump instruction
+     * @param asmCode - reference to a vector that contains asm code of the current function
+     * @param jcc - jump command
+     * @param label - label to jump to
+     * @details jcc label
+    */
+    void genJcc(std::vector<std::string>& asmCode, std::string_view jcc, std::string_view label);
 
     /** 
      * @brief generates the call instruction

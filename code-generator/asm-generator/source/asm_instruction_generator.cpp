@@ -17,7 +17,11 @@ void AsmGenerator::Instruction::genMov(std::vector<std::string>& asmCode, std::s
     asmCode.push_back(std::format("\tmov{} {}, {}\n", ext, l ,r));
 }
 
-void AsmGenerator::Instruction::genSet(std::vector<std::string>& asmCode, std::string_view setcc, std::string_view r){
+void AsmGenerator::Instruction::genSet(std::vector<std::string>& asmCode, std::string_view r, std::string_view ext){
+    asmCode.push_back(std::format("\tset{} {}\n", ext, r));
+}
+
+void AsmGenerator::Instruction::genSetcc(std::vector<std::string>& asmCode, std::string_view setcc, std::string_view r){
     asmCode.push_back(std::format("\t{} {}\n", setcc, r));
 }
 
@@ -30,12 +34,11 @@ void AsmGenerator::Instruction::genCmp(std::vector<std::string>& asmCode, std::s
 }
 
 void AsmGenerator::Instruction::genOperation(std::vector<std::string>& asmCode, std::string_view op, std::string_view l, std::string_view r){
-    if(r != ""){
-        asmCode.push_back(std::format("\t{} {}, {}\n", op, l, r));
-    }
-    else{
-        asmCode.push_back(std::format("\t{} {}\n", op, l));
-    }
+    asmCode.push_back(std::format("\t{} {}, {}\n", op, l, r));
+}
+
+void AsmGenerator::Instruction::genOperation(std::vector<std::string>& asmCode, std::string_view op, std::string_view r){
+    asmCode.push_back(std::format("\t{} {}\n", op, r));
 }
 
 void AsmGenerator::Instruction::genLabel(std::vector<std::string>& asmCode, std::string_view label){
@@ -46,8 +49,12 @@ void AsmGenerator::Instruction::genRet(std::vector<std::string>& asmCode){
     asmCode.push_back("\tret\n");
 }
 
-void AsmGenerator::Instruction::genJmp(std::vector<std::string>& asmCode, std::string_view jmp, std::string_view label){
-    asmCode.push_back(std::format("\t{} {}\n", jmp, label));
+void AsmGenerator::Instruction::genJmp(std::vector<std::string>& asmCode, std::string_view label){
+    asmCode.push_back(std::format("\tjmp {}\n", label));
+}
+
+void AsmGenerator::Instruction::genJcc(std::vector<std::string>& asmCode, std::string_view jcc, std::string_view label){
+    asmCode.push_back(std::format("\t{} {}\n", jcc, label));
 }
 
 void AsmGenerator::Instruction::genCall(std::vector<std::string>& asmCode, std::string_view func){
@@ -73,7 +80,12 @@ void AsmGenerator::Instruction::genFuncEpilogue(std::vector<std::string>& asmCod
 }
 
 void AsmGenerator::Instruction::genExit(std::vector<std::string>& asmCode){
-    asmCode.push_back(std::format("{}{}{}", "\tmov %rax, %rdi\n", "\tmovq $60, %rax\n", "\tsyscall\n")); // return value in %rdi
+    asmCode.push_back(std::format(
+        "{}{}{}", 
+        "\tmov %rax, %rdi\n", 
+        "\tmovq $60, %rax\n", 
+        "\tsyscall\n")
+    ); // return value in %rdi
 }
 
 void AsmGenerator::Instruction::genNewLine(std::vector<std::string>& asmCode){

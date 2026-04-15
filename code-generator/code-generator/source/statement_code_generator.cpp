@@ -146,7 +146,6 @@ void StatementCodeGenerator::generateIfStmt(const IR::node::IRIfStmt* ifStmt){
         generateStmt(stmt);
         AsmGenerator::Instruction::genJmp(
             codeGenContext.asmCode, 
-            "jmp", 
             endLabel
         );
     }
@@ -192,7 +191,6 @@ void StatementCodeGenerator::generateWhileStmt(const IR::node::IRWhileStmt* whil
     generateStmt(whileStmt->getStmt());
     AsmGenerator::Instruction::genJmp(
         codeGenContext.asmCode, 
-        "jmp", 
         startLabel
     );
 
@@ -245,7 +243,6 @@ void StatementCodeGenerator::generateForStmt(const IR::node::IRForStmt* forStmt)
     }
     AsmGenerator::Instruction::genJmp(
         codeGenContext.asmCode, 
-        "jmp", 
         startLabel
     );
 
@@ -335,7 +332,6 @@ void StatementCodeGenerator::generateReturnStmt(const IR::node::IRReturnStmt* re
     }
     AsmGenerator::Instruction::genJmp(
         codeGenContext.asmCode, 
-        "jmp", 
         std::format("_{}_end", codeGenContext.functionName)
     );
 }
@@ -397,7 +393,10 @@ void StatementCodeGenerator::generateSwitchStmt(const IR::node::IRSwitchStmt* sw
         else{
             jmpLabel = endLabel;
         }
-        AsmGenerator::Instruction::genJmp(codeGenContext.asmCode, "jne", jmpLabel);
+        AsmGenerator::Instruction::genJcc(
+            codeGenContext.asmCode, 
+            "jne", jmpLabel
+        );
         
         for(const auto& stmt : caseStmt->getSwitchBlockStmt()->getStmts()){
             generateStmt(stmt.get());
@@ -406,7 +405,6 @@ void StatementCodeGenerator::generateSwitchStmt(const IR::node::IRSwitchStmt* sw
         if(caseStmt->hasBreakStmt()){
             AsmGenerator::Instruction::genJmp(
                 codeGenContext.asmCode, 
-                "jmp", 
                 endLabel
             );
         }
