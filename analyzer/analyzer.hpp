@@ -31,7 +31,7 @@
 #include "../common/abstract-syntax-tree/ast_id_expr.hpp"
 #include "../common/abstract-syntax-tree/ast_literal_expr.hpp"
 #include "../symbol-handling/scope-manager/scope_manager.hpp"
-#include "defs/analyzer_defs.hpp"
+#include "ctx/analyzer_ctx.hpp"
 #include "../thread-pool/thread_pool.hpp"
 
 /**

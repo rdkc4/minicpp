@@ -6,6 +6,7 @@
 
 #include "../common/preprocessing/preprocessing_libs.hpp"
 #include "../symbol-handling/scope-manager/scope_guard.hpp"
+#include "ctx/analyzer_ctx_guard.hpp"
 #include "return_checker.hpp"
 
 Analyzer::Analyzer(Sym::ScopeManager& scopeManager, ThreadPool& threadPool)
@@ -104,7 +105,11 @@ void Analyzer::checkFunctionSignature(const AST::node::ASTFunction* function){
 
     Sym::SymbolTable symTab;
     Sym::ScopeManager signatureScopeManager{symTab};
-    analyzerContext.init(funcToken.value, &signatureScopeManager);
+    AnalyzerContextGuard contextGuard{ 
+        analyzerContext, 
+        funcToken.value, 
+        &signatureScopeManager 
+    };
 
     {
         Sym::guard::ScopeGuard scopeGuard{ *analyzerContext.scopeManager };
@@ -131,8 +136,6 @@ void Analyzer::checkFunctionSignature(const AST::node::ASTFunction* function){
     for(const auto& err : analyzerContext.semanticErrors){
         semanticErrors[funcToken.value].push_back(err);
     }
-
-    analyzerContext.reset();
 }
 
 void Analyzer::visit(AST::node::ASTFunction* function){
@@ -143,7 +146,11 @@ void Analyzer::visit(AST::node::ASTFunction* function){
     Sym::ScopeManager functionScopeManager{symTab};
 
     // initializing thread context
-    analyzerContext.init(funcToken.value, &functionScopeManager);
+    AnalyzerContextGuard contextGuard{ 
+        analyzerContext, 
+        funcToken.value, 
+        &functionScopeManager 
+    };
 
     {
         // function scope
@@ -176,7 +183,6 @@ void Analyzer::visit(AST::node::ASTFunction* function){
         std::lock_guard<std::mutex> lock(errorMtx);
         semanticErrors[funcToken.value] = std::move(analyzerContext.semanticErrors);
     }
-    analyzerContext.reset();
 }
 
 void Analyzer::defineParameters(const AST::node::ASTFunction* function){

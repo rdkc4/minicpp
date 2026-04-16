@@ -1,5 +1,5 @@
-#ifndef ANALYZER_DEFS_HPP
-#define ANALYZER_DEFS_HPP
+#ifndef ANALYZER_CTX_HPP
+#define ANALYZER_CTX_HPP
 
 #include <string>
 

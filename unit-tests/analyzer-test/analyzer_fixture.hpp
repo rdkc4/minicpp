@@ -86,6 +86,9 @@ protected:
     }
 
     void TearDown() override {
+        if(analyzer){
+            analyzer->getContext().reset();
+        }
         scopeManager.popScope();
     }
 };

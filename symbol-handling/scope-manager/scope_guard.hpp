@@ -31,6 +31,18 @@ namespace Sym::guard {
             scopeManager.popScope();
         }
 
+        /// deleted copy constructor
+        ScopeGuard(const ScopeGuard&) = delete;
+
+        /// deleted assignment operator
+        ScopeGuard& operator=(const ScopeGuard&) = delete;
+
+        /// move constructor
+        ScopeGuard(ScopeGuard&&) = default;
+
+        /// deleted move assignment operator
+        ScopeGuard& operator=(ScopeGuard&&) = delete;
+
     private:
         /// reference to a scope manager
         ScopeManager& scopeManager;
