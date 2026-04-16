@@ -45,7 +45,7 @@ public:
      * @param scopeManager - reference to the scope manager
      * @param threadPool - reference to a thread pool
     */
-    Analyzer(ScopeManager& scopeManager, ThreadPool& threadPool);
+    Analyzer(Sym::ScopeManager& scopeManager, ThreadPool& threadPool);
 
     /**
      * @brief performs semantic analysis of the program
@@ -253,7 +253,7 @@ protected:
     static thread_local AnalyzerThreadContext analyzerContext;
 
     /// scope manager containing function declarations
-    ScopeManager& globalScopeManager;
+    Sym::ScopeManager& globalScopeManager;
 
     /// maps errors to the function or global scope
     std::unordered_map<std::string, std::vector<std::string>> semanticErrors;

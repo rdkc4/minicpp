@@ -8,7 +8,7 @@
 #include "../symbol-handling/scope-manager/scope_guard.hpp"
 #include "return_checker.hpp"
 
-Analyzer::Analyzer(ScopeManager& scopeManager, ThreadPool& threadPool)
+Analyzer::Analyzer(Sym::ScopeManager& scopeManager, ThreadPool& threadPool)
     : threadPool{ threadPool }, globalScopeManager{scopeManager} {}
 
 thread_local AnalyzerThreadContext Analyzer::analyzerContext;
@@ -17,7 +17,7 @@ void Analyzer::visit(AST::node::ASTProgram* program){
     semanticErrors[globalError] = {};
 
     // global scope
-    ScopeGuard scopeGuard{ globalScopeManager };
+    Sym::guard::ScopeGuard scopeGuard{ globalScopeManager };
 
     for(const auto& dir : program->getDirs()){
         dir->accept(*this);
@@ -66,7 +66,9 @@ void Analyzer::checkFunctionSignature(const AST::node::ASTFunction* function){
     semanticErrors[funcToken.value] = {};
 
     // function redefinition check
-    if(!globalScopeManager.pushSymbol(Symbol{funcToken.value, Kind::FUN, returnType})){
+    if(!globalScopeManager.pushSymbol(
+        Sym::defs::Symbol{funcToken.value, Kind::FUN, returnType}
+    )){
         reportError(
             funcToken, 
             std::format(
@@ -100,12 +102,12 @@ void Analyzer::checkFunctionSignature(const AST::node::ASTFunction* function){
         );
     }
 
-    SymbolTable symTab;
-    ScopeManager signatureScopeManager{symTab};
+    Sym::SymbolTable symTab;
+    Sym::ScopeManager signatureScopeManager{symTab};
     analyzerContext.init(funcToken.value, &signatureScopeManager);
 
     {
-        ScopeGuard scopeGuard{ *analyzerContext.scopeManager };
+        Sym::guard::ScopeGuard scopeGuard{ *analyzerContext.scopeManager };
         const auto& parameters{ function->getParameters() };
 
         // pointer to parameters for easier function call type checking
@@ -137,15 +139,15 @@ void Analyzer::visit(AST::node::ASTFunction* function){
     const auto& funcToken{ function->getToken() };
     const auto funcReturnType{ function->getType() };
 
-    SymbolTable symTab;
-    ScopeManager functionScopeManager{symTab};
+    Sym::SymbolTable symTab;
+    Sym::ScopeManager functionScopeManager{symTab};
 
     // initializing thread context
     analyzerContext.init(funcToken.value, &functionScopeManager);
 
     {
         // function scope
-        ScopeGuard scopeGuard{ *analyzerContext.scopeManager };
+        Sym::guard::ScopeGuard scopeGuard{ *analyzerContext.scopeManager };
         defineParameters(function);
         if(!function->isPredefined()){
             for(const auto& stmt : function->getBody()){
@@ -180,7 +182,11 @@ void Analyzer::visit(AST::node::ASTFunction* function){
 void Analyzer::defineParameters(const AST::node::ASTFunction* function){
     for(const auto& parameter : function->getParameters()){
         analyzerContext.scopeManager->pushSymbol(
-            Symbol{parameter->getToken().value, Kind::PAR, parameter->getType()}
+            Sym::defs::Symbol{
+                parameter->getToken().value, 
+                Kind::PAR, 
+                parameter->getType()
+            }
         );
     }
 }
@@ -209,7 +215,9 @@ void Analyzer::visit(AST::node::ASTParameter* parameter){
     }
 
     // parameter redefinition check
-    if(!analyzerContext.scopeManager->pushSymbol(Symbol{paramToken.value, Kind::PAR, paramType})){
+    if(!analyzerContext.scopeManager->pushSymbol(
+        Sym::defs::Symbol{paramToken.value, Kind::PAR, paramType}
+    )){
         reportError(
             paramToken, 
             std::format(
@@ -244,7 +252,9 @@ void Analyzer::visit(AST::node::ASTVariableDeclStmt* variableDecl){
     }
 
     // variable redefinition check
-    if(!analyzerContext.scopeManager->pushSymbol(Symbol{variableToken.value, Kind::VAR, variableType})){
+    if(!analyzerContext.scopeManager->pushSymbol(
+        Sym::defs::Symbol{variableToken.value, Kind::VAR, variableType}
+    )){
         reportError(
             variableToken, 
             std::format(
@@ -311,7 +321,7 @@ void Analyzer::visit(AST::node::ASTAssignStmt* assignStmt){
 }
 
 void Analyzer::visit(AST::node::ASTCompoundStmt* compoundStmt){
-    ScopeGuard scopeGuard{ *analyzerContext.scopeManager };
+    Sym::guard::ScopeGuard scopeGuard{ *analyzerContext.scopeManager };
     for(const auto& stmt : compoundStmt->getStmts()){
         stmt->accept(*this);
     }

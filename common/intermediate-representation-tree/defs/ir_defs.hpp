@@ -9,7 +9,7 @@
 
 /**
  * @namespace IR::defs
- * @brief module defining the definitions of the intermediate representation
+ * @brief module declaring the definitions of the intermediate representation
 */
 namespace IR::defs {
     /** 

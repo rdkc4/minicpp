@@ -6,55 +6,62 @@
 
 #include "../../common/symbol/symbol.hpp"
 
-/** 
- * @class SymbolTable
- * @brief maintaining the table of symbols
+/**
+ * @namespace Sym
+ * @brief module defining the symbol handling
 */
-class SymbolTable {
-public:
+namespace Sym {
     /** 
-     * @brief Creates the instance of the symbol table
+     * @class SymbolTable
+     * @brief maintaining the table of symbols
     */
-    SymbolTable() = default;
+    class SymbolTable {
+    public:
+        /** 
+         * @brief Creates the instance of the symbol table
+        */
+        SymbolTable() = default;
 
-    /** 
-     * @brief checks if symbol exists in a table
-     * @param name - name of the symbol
-     * @param kinds - list of kinds that symbol is allowed to have
-     * @returns const pointer to symbol if symbol exists, nullptr otherwise
-    */
-    const Symbol* lookupSymbol(const std::string& name, std::initializer_list<Kind> kinds) const;
+        /** 
+         * @brief checks if symbol exists in a table
+         * @param name - name of the symbol
+         * @param kinds - list of kinds that symbol is allowed to have
+         * @returns const pointer to symbol if symbol exists, nullptr otherwise
+        */
+        const Sym::defs::Symbol* lookupSymbol(const std::string& name, std::initializer_list<Kind> kinds) const;
 
-    /** 
-     * @brief inserts symbol into the symbol table if the symbol with the given name doesn't exist
-     * @param name - name of the symbol
-     * @param symbol - constant reference to a symbol that should be inserted
-     * @returns true if insertion is successful, false if symbol already exists
-    */
-    bool insertSymbol(const std::string& name, const Symbol& symbol);
+        /** 
+         * @brief inserts symbol into the symbol table if the symbol with the given name doesn't exist
+         * @param name - name of the symbol
+         * @param symbol - constant reference to a symbol that should be inserted
+         * @returns true if insertion is successful, false if symbol already exists
+        */
+        bool insertSymbol(const std::string& name, const Sym::defs::Symbol& symbol);
 
-    /** 
-     * @brief gets the symbol from the symbol table
-     * @param name - name of the requested symbol
-     * @returns reference to a symbol with the given name
-    */
-    Symbol& getSymbol(const std::string& name);
+        /** 
+         * @brief gets the symbol from the symbol table
+         * @param name - name of the requested symbol
+         * @returns reference to a symbol with the given name
+        */
+        Sym::defs::Symbol& getSymbol(const std::string& name);
 
-    /** 
-     * @brief removes symbol from symbol table
-     * @param name - name of the symbol that should be deleted
-    */
-    void deleteSymbol(const std::string& name);
+        /** 
+         * @brief removes symbol from symbol table
+         * @param name - name of the symbol that should be deleted
+        */
+        void deleteSymbol(const std::string& name);
 
-    /** 
-     * @brief removes all symbols from the symbol table
-    */
-    void clearSymbols() noexcept;
+        /** 
+         * @brief removes all symbols from the symbol table
+        */
+        void clearSymbols() noexcept;
 
-private:
-    /// mapping symbol name to symbol
-    std::unordered_map<std::string, Symbol> symbolTable;
+    private:
+        /// mapping symbol name to symbol
+        std::unordered_map<std::string, Sym::defs::Symbol> symbolTable;
 
-};
+    };
+
+}
 
 #endif

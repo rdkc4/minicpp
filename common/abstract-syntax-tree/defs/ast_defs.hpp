@@ -6,7 +6,7 @@
 
 /**
  * @namespace AST::defs
- * @brief module defining the definitions of abstract syntax tree
+ * @brief module declaring the definitions of abstract syntax tree
 */
 namespace AST::defs {
     /** 

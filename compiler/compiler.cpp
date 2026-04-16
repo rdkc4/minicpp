@@ -128,8 +128,8 @@ Compiler::ExitCode Compiler::semanticAnalysis(
     std::unique_ptr<AST::node::ASTProgram>& astProgram, 
     ThreadPool& threadPool
 ){
-    SymbolTable symbolTable {};
-    ScopeManager scopeManager{ symbolTable };
+    Sym::SymbolTable symbolTable {};
+    Sym::ScopeManager scopeManager{ symbolTable };
     Analyzer analyzer{scopeManager, threadPool};
     astProgram->accept(analyzer);
 

@@ -4,32 +4,39 @@
 #include "scope_manager.hpp"
 
 /**
- * @class ScopeGuard
- * @brief ensures proper scope handling
+ * @namespace Sym::guard
+ * @brief module defining the safe mechanisms for symbol handling
 */
-class ScopeGuard {
-public:
+namespace Sym::guard {
     /**
-     * @brief creates the instance of the scope guard
-     * @param scopeManager - reference to a scope manager
-     * @details pushes new scope to scope manager
+     * @class ScopeGuard
+     * @brief ensures proper scope handling
     */
-    ScopeGuard(ScopeManager& scopeManager) : scopeManager{ scopeManager } {
-        scopeManager.pushScope();
-    }
+    class ScopeGuard {
+    public:
+        /**
+         * @brief creates the instance of the scope guard
+         * @param scopeManager - reference to a scope manager
+         * @details pushes new scope to scope manager
+        */
+        ScopeGuard(ScopeManager& scopeManager) : scopeManager{ scopeManager } {
+            scopeManager.pushScope();
+        }
 
-    /**
-     * @brief deletes the instance of the scope guard
-     * @details pops the scope from the scope manager
-    */
-    ~ScopeGuard() {
-        scopeManager.popScope();
-    }
+        /**
+         * @brief deletes the instance of the scope guard
+         * @details pops the scope from the scope manager
+        */
+        ~ScopeGuard() {
+            scopeManager.popScope();
+        }
 
-private:
-    /// reference to a scope manager
-    ScopeManager& scopeManager;
+    private:
+        /// reference to a scope manager
+        ScopeManager& scopeManager;
 
-};
+    };
+
+}
 
 #endif
