@@ -32,19 +32,19 @@ public:
      * @brief initializes the vector holding asm code for all functions
      * @param program - const pointer to the irt program
     */
-    void initFunctions(const IRProgram* program);
+    void initFunctions(const IR::node::IRProgram* program);
 
     /** 
      * @brief generates the asm code of the function
      * @param function - const pointer to the irt function
     */
-    void generateFunction(const IRFunction* function);
+    void generateFunction(const IR::node::IRFunction* function);
 
     /** 
      * @brief generates the parameters of the function
      * @param function - const pointer to the irt function
     */
-    void generateParameters(const IRFunction* function);
+    void generateParameters(const IR::node::IRFunction* function);
 
 private:
     /// thread local context of the function

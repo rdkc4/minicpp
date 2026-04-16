@@ -3,36 +3,39 @@
 #include "../defs/ir_defs.hpp"
 #include "../../preprocessing/preprocessing_libs.hpp"
 
-IRProgram::IRProgram() : IRNode(IRNodeType::PROGRAM) {}
+IR::node::IRProgram::IRProgram() 
+    : IRNode(IR::defs::IRNodeType::PROGRAM) {}
 
-const std::vector<std::unique_ptr<IRFunction>>& IRProgram::getFunctions() const noexcept {
+const std::vector<std::unique_ptr<IR::node::IRFunction>>& 
+IR::node::IRProgram::getFunctions() const noexcept {
     return functions;
 }
 
-const IRFunction* IRProgram::getFunctionAtN(size_t n) const noexcept {
+const IR::node::IRFunction* 
+IR::node::IRProgram::getFunctionAtN(size_t n) const noexcept {
     return functions[n].get();
 }
 
-void IRProgram::resizeFunctions(size_t n){
+void IR::node::IRProgram::resizeFunctions(size_t n){
     functions.resize(n);
 }
 
-void IRProgram::setFunctionAtN(std::unique_ptr<IRFunction> function, size_t n){
+void IR::node::IRProgram::setFunctionAtN(std::unique_ptr<IRFunction> function, size_t n){
     functions[n] = std::move(function);
 }
 
-size_t IRProgram::getFunctionCount() const noexcept {
+size_t IR::node::IRProgram::getFunctionCount() const noexcept {
     return functions.size();
 }
 
-void IRProgram::addLinkedLib(const std::string& libName) {
+void IR::node::IRProgram::addLinkedLib(const std::string& libName) {
     linkedLibs.insert(Preprocessing::Libs::generateLibObjPath(libName));
 }
 
-std::vector<std::string> IRProgram::getLinkedLibs() const noexcept {
+std::vector<std::string> IR::node::IRProgram::getLinkedLibs() const noexcept {
     return std::vector<std::string>(linkedLibs.begin(), linkedLibs.end());
 }
 
-void IRProgram::accept(IRVisitor& visitor){
+void IR::node::IRProgram::accept(IR::visitor::IRVisitor& visitor){
     visitor.visit(this);
 }

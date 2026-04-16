@@ -8,55 +8,58 @@
 #include "../defs/defs.hpp"
 #include "../visitor/ir_visitor.hpp"
 
-/**
- * @class IRIdExpr
- * @brief IRT representation for the id 
-*/
-class IRIdExpr final : public IRExpr {
-public:
-    /** 
-     * @brief Creates the instance of the irt id
-     * @param idName - name of the id
-     * @param type - type of the id
-    */
-    IRIdExpr(std::string_view idName, Type type);
-
-    /** 
-     * @brief getter for the name of the id
-     * @returns reference to a name of the id as const string
-    */
-    const std::string& getIdName() const noexcept;
-
-    /** 
-     * @brief initializes the name of the id
-     * @param name - name of the id
-    */
-    void setIdName(const std::string& name);
-
-    /** 
-     * @brief getter for the value of the id
-     * @returns reference to the value of the id as const string
-    */
-    const std::string& getValue() const noexcept;
-
-    /** 
-     * @brief initializes the value of the id
-     * @param val - value of the id
-    */
-    void setValue(const std::string& val);
-
+namespace IR::node {
     /**
-     * @brief accepts the ir visitor
-     * @param visitor - reference to an ir visitor
+     * @class IRIdExpr
+     * @brief IRT representation for the id 
     */
-    void accept(IRVisitor& visitor) override;
+    class IRIdExpr final : public IRExpr {
+    public:
+        /** 
+         * @brief Creates the instance of the irt id
+         * @param idName - name of the id
+         * @param type - type of the id
+        */
+        IRIdExpr(std::string_view idName, Type type);
 
-private:
-    /// name of the id
-    std::string idName;
-    
-    /// value of the id
-    std::string value;
-};
+        /** 
+         * @brief getter for the name of the id
+         * @returns reference to a name of the id as const string
+        */
+        const std::string& getIdName() const noexcept;
+
+        /** 
+         * @brief initializes the name of the id
+         * @param name - name of the id
+        */
+        void setIdName(const std::string& name);
+
+        /** 
+         * @brief getter for the value of the id
+         * @returns reference to the value of the id as const string
+        */
+        const std::string& getValue() const noexcept;
+
+        /** 
+         * @brief initializes the value of the id
+         * @param val - value of the id
+        */
+        void setValue(const std::string& val);
+
+        /**
+         * @brief accepts the ir visitor
+         * @param visitor - reference to an ir visitor
+        */
+        void accept(IR::visitor::IRVisitor& visitor) override;
+
+    private:
+        /// name of the id
+        std::string idName;
+        
+        /// value of the id
+        std::string value;
+    };
+
+}
 
 #endif

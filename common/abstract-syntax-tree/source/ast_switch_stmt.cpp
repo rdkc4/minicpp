@@ -2,28 +2,30 @@
 
 #include "../defs/ast_defs.hpp"
 
-ASTSwitchStmt::ASTSwitchStmt(const Token& token) : ASTStmt(token, ASTNodeType::SWITCH_STMT) {}
+AST::node::ASTSwitchStmt::ASTSwitchStmt(const Token& token) 
+    : ASTStmt(token, AST::defs::ASTNodeType::SWITCH_STMT) {}
 
-void ASTSwitchStmt::setVariableIdExpr(std::unique_ptr<ASTIdExpr> idExpr){
+void AST::node::ASTSwitchStmt::setVariableIdExpr(std::unique_ptr<AST::node::ASTIdExpr> idExpr){
     variableIdExpr = std::move(idExpr);
 }
 
-const std::vector<std::unique_ptr<ASTCaseStmt>>& ASTSwitchStmt::getCaseStmts() const noexcept {
+const std::vector<std::unique_ptr<AST::node::ASTCaseStmt>>& 
+AST::node::ASTSwitchStmt::getCaseStmts() const noexcept {
     return caseStmts;
 }
 
-void ASTSwitchStmt::addCaseStmt(std::unique_ptr<ASTCaseStmt> caseStmt){
+void AST::node::ASTSwitchStmt::addCaseStmt(std::unique_ptr<AST::node::ASTCaseStmt> caseStmt){
     caseStmts.push_back(std::move(caseStmt));
 }
 
-void ASTSwitchStmt::setDefaultStmt(std::unique_ptr<ASTDefaultStmt> swDefaultStmt){
+void AST::node::ASTSwitchStmt::setDefaultStmt(std::unique_ptr<AST::node::ASTDefaultStmt> swDefaultStmt){
     defaultStmt = std::move(swDefaultStmt);
 }
 
-bool ASTSwitchStmt::hasDefaultStmt() const noexcept {
+bool AST::node::ASTSwitchStmt::hasDefaultStmt() const noexcept {
     return defaultStmt != nullptr;
 }
 
-void ASTSwitchStmt::accept(ASTVisitor& visitor) {
+void AST::node::ASTSwitchStmt::accept(AST::visitor::ASTVisitor& visitor) {
     visitor.visit(this);
 }

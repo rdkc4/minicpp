@@ -8,50 +8,53 @@
 #include "../token/token.hpp"
 #include "../visitor/ast_visitor.hpp"
 
-/** 
- * @class ASTReturnStmt
- * @brief AST node representing return statement
-*/
-class ASTReturnStmt final : public ASTStmt {
-public:
+namespace AST::node {
     /** 
-     * @brief Creates the instance of the ast return statement
-     * @param token - const reference to the token
+     * @class ASTReturnStmt
+     * @brief AST node representing return statement
     */
-    ASTReturnStmt(const Token& token);
+    class ASTReturnStmt final : public ASTStmt {
+    public:
+        /** 
+         * @brief Creates the instance of the ast return statement
+         * @param token - const reference to the token
+        */
+        ASTReturnStmt(const Token& token);
 
-    /** 
-     * @brief getter for the expression
-     * @warning nullable
-     * @returns pointer or const pointer to the expression
-    */
-    template<typename Self>
-    decltype(auto) getReturnExpr(this Self&& self) noexcept {
-        return std::forward<Self>(self).returnExpr.get();
-    }
+        /** 
+         * @brief getter for the expression
+         * @warning nullable
+         * @returns pointer or const pointer to the expression
+        */
+        template<typename Self>
+        decltype(auto) getReturnExpr(this Self&& self) noexcept {
+            return std::forward<Self>(self).returnExpr.get();
+        }
 
-    /** 
-     * @brief initializes the expression
-     * @param expr - pointer to the expression
-    */
-    void setReturnExpr(std::unique_ptr<ASTExpr> expr);
+        /** 
+         * @brief initializes the expression
+         * @param expr - pointer to the expression
+        */
+        void setReturnExpr(std::unique_ptr<ASTExpr> expr);
 
-    /** 
-     * @brief checks if return statement returns anything
-     * @returns false if it returns void, true otherwise
-    */
-    bool hasReturnExpr() const noexcept;
+        /** 
+         * @brief checks if return statement returns anything
+         * @returns false if it returns void, true otherwise
+        */
+        bool hasReturnExpr() const noexcept;
 
-    /**
-     * @brief accepts the ast visitor
-     * @param visitor - reference to an ast visitor
-    */
-    void accept(ASTVisitor& visitor) override;
+        /**
+         * @brief accepts the ast visitor
+         * @param visitor - reference to an ast visitor
+        */
+        void accept(AST::visitor::ASTVisitor& visitor) override;
 
-private:
-    /// pointer to the expression of the return statement
-    std::unique_ptr<ASTExpr> returnExpr;
+    private:
+        /// pointer to the expression of the return statement
+        std::unique_ptr<ASTExpr> returnExpr;
 
-};
+    };
+
+}
 
 #endif

@@ -38,7 +38,7 @@
  * @class Analyzer
  * @brief performs semantic analysis of the ast
 */
-class Analyzer : public ASTVisitor {
+class Analyzer : public AST::visitor::ASTVisitor {
 public:
     /**
      * @brief creates the instance of the analyzer
@@ -51,153 +51,153 @@ public:
      * @brief performs semantic analysis of the program
      * @param program - pointer to the program
     */
-    void visit(ASTProgram* program) override;
+    void visit(AST::node::ASTProgram* program) override;
 
     /**
      * @brief performs semantic analysis of the include directive
      * @param includeDir - pointer to the include directive
     */
-    void visit(ASTIncludeDir* includeDir) override;
+    void visit(AST::node::ASTIncludeDir* includeDir) override;
 
     /**
      * @brief performs semantic analysis of the function
      * @param function - pointer to the function
     */
-    void visit(ASTFunction* function) override;
+    void visit(AST::node::ASTFunction* function) override;
 
     /**
      * @brief performs semantic analysis of the parameter
      * @param parameter - pointer to the parameter
     */
-    void visit(ASTParameter* parameter) override;
+    void visit(AST::node::ASTParameter* parameter) override;
 
     /**
      * @brief performs semantic analysis of the variable declaration
      * @param variableDecl - pointer to the variable declaration
     */
-    void visit(ASTVariableDeclStmt* variableDecl) override;
+    void visit(AST::node::ASTVariableDeclStmt* variableDecl) override;
 
     /**
      * @brief performs semantic analysis of the assignment statement
      * @param assignStmt - pointer to the assignment statement
     */
-    void visit(ASTAssignStmt* assignStmt) override;
+    void visit(AST::node::ASTAssignStmt* assignStmt) override;
 
     /**
      * @brief performs semantic analysis of the compound statement
      * @param compoundStmt - pointer to the compound statement
     */
-    void visit(ASTCompoundStmt* compoundStmt) override;
+    void visit(AST::node::ASTCompoundStmt* compoundStmt) override;
 
     /**
      * @brief performs semantic analysis of the for statement
      * @param forStmt - pointer to the for statement
     */
-    void visit(ASTForStmt* forStmt) override;
+    void visit(AST::node::ASTForStmt* forStmt) override;
 
     /**
      * @brief performs semantic analysis of the function call statement
      * @param callStmt - pointer to the function call statement
     */
-    void visit(ASTFunctionCallStmt* callStmt) override;
+    void visit(AST::node::ASTFunctionCallStmt* callStmt) override;
 
     /**
      * @brief performs semantic analysis of the if statement
      * @param ifStmt - pointer to the if statement
     */
-    void visit(ASTIfStmt* ifStmt) override;
+    void visit(AST::node::ASTIfStmt* ifStmt) override;
 
     /**
      * @brief performs semantic analysis of the return statement
      * @param returnStmt - pointer to the return statement
     */
-    void visit(ASTReturnStmt* returnStmt) override;
+    void visit(AST::node::ASTReturnStmt* returnStmt) override;
 
     /**
      * @brief performs semantic analysis of the while statement
      * @param whileStmt - pointer to the while statement
     */
-    void visit(ASTWhileStmt* whileStmt) override;
+    void visit(AST::node::ASTWhileStmt* whileStmt) override;
 
     /**
      * @brief performs semantic analysis of the do-while statement
      * @param dowhileStmt - pointer to the do-while statement
     */
-    void visit(ASTDoWhileStmt* dowhileStmt) override;
+    void visit(AST::node::ASTDoWhileStmt* dowhileStmt) override;
     
     /**
      * @brief performs semantic analysis of the switch statement
      * @param switchStmt - pointer to the switch statement
     */
-    void visit(ASTSwitchStmt* switchStmt) override;
+    void visit(AST::node::ASTSwitchStmt* switchStmt) override;
 
     /**
      * @brief performs semantic analysis of the case statement
      * @param caseStmt - pointer to the case statement
     */
-    void visit(ASTCaseStmt* caseStmt) override;
+    void visit(AST::node::ASTCaseStmt* caseStmt) override;
 
     /**
      * @brief performs semantic analysis of the default statement
      * @param defaultStmt - pointer to the default statement
     */
-    void visit(ASTDefaultStmt* defaultStmt) override;
+    void visit(AST::node::ASTDefaultStmt* defaultStmt) override;
     
     /**
      * @brief performs semantic analysis of the switch-block statement
      * @param switchBlockStmt - pointer to the switch-block statement
     */
-    void visit(ASTSwitchBlockStmt* switchBlockStmt) override;
+    void visit(AST::node::ASTSwitchBlockStmt* switchBlockStmt) override;
 
     /**
      * @brief performs semantic analysis of the binary expression
      * @param binaryExpr - pointer to the binary expression
     */
-    void visit(ASTBinaryExpr* binaryExpr) override;
+    void visit(AST::node::ASTBinaryExpr* binaryExpr) override;
 
     /**
      * @brief performs semantic analysis of the function call expression
      * @param callExpr - pointer to the function call expression
     */
-    void visit(ASTFunctionCallExpr* callExpr) override;
+    void visit(AST::node::ASTFunctionCallExpr* callExpr) override;
 
     /**
      * @brief performs semantic analysis of the id expression
      * @param idExpr - pointer to the id expression
     */
-    void visit(ASTIdExpr* idExpr) override;
+    void visit(AST::node::ASTIdExpr* idExpr) override;
 
     /**
      * @brief performs semantic analysis of the literal expression
      * @param literalExpr - pointer to the literal expression
     */
-    void visit(ASTLiteralExpr* literalExpr) override;
+    void visit(AST::node::ASTLiteralExpr* literalExpr) override;
 
     /**
      * @brief checks if program has semantic errors or not
      * @param program - const pointer to the program
      * @returns true if any error is caught, false otherwise
     */
-    bool hasSemanticErrors(const ASTProgram* program) const noexcept;
+    bool hasSemanticErrors(const AST::node::ASTProgram* program) const noexcept;
 
     /**
      * @brief merges semantic errors into a single message
      * @param program - const pointer to the program
      * @returns formatted errors
     */
-    std::string getSemanticErrors(const ASTProgram* program) const noexcept;
+    std::string getSemanticErrors(const AST::node::ASTProgram* program) const noexcept;
 
     /**
      * @brief performs semantic analysis of the signature of the function
      * @param function - const pointer to the function
     */
-    void checkFunctionSignature(const ASTFunction* function);
+    void checkFunctionSignature(const AST::node::ASTFunction* function);
 
     /**
      * @brief defines parameters in the function's scope
      * @param function - const pointer to the function
     */
-    void defineParameters(const ASTFunction* function);
+    void defineParameters(const AST::node::ASTFunction* function);
 
 private:
     /// mutex for semantic errors

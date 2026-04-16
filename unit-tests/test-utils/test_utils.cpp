@@ -10,14 +10,14 @@ extern "C" {
     extern char** environ;
 }
 
-std::string __test__writeSourceToFile(const std::string& code, const std::string& filename) {
+std::string __test__writeSourceToFile(std::string_view source, const std::string& filename) {
     std::ofstream out(filename);
-    out << code;
+    out << source;
     out.close();
     return filename;
 }
 
-void __test__removeFile(const std::string& path) {
+void __test__removeFile(std::string_view path) {
     std::error_code ec;
     std::filesystem::remove(path, ec);
 }

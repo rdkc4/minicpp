@@ -108,7 +108,8 @@ Compiler::ExitCode Compiler::lexicalAnalysis(Lexer& lexer){
     return Compiler::ExitCode::NO_ERR;
 }
 
-Compiler::ExitCode Compiler::syntaxAnalysis(Lexer& lexer, std::unique_ptr<ASTProgram>& astProgram){
+Compiler::ExitCode 
+Compiler::syntaxAnalysis(Lexer& lexer, std::unique_ptr<AST::node::ASTProgram>& astProgram){
     try{
         assert(lexer.completedTokenization());
         TokenConsumer tokenConsumer{ lexer };
@@ -123,7 +124,10 @@ Compiler::ExitCode Compiler::syntaxAnalysis(Lexer& lexer, std::unique_ptr<ASTPro
     return Compiler::ExitCode::NO_ERR;
 }
 
-Compiler::ExitCode Compiler::semanticAnalysis(std::unique_ptr<ASTProgram>& astProgram, ThreadPool& threadPool){
+Compiler::ExitCode Compiler::semanticAnalysis(
+    std::unique_ptr<AST::node::ASTProgram>& astProgram, 
+    ThreadPool& threadPool
+){
     SymbolTable symbolTable {};
     ScopeManager scopeManager{ symbolTable };
     Analyzer analyzer{scopeManager, threadPool};
@@ -137,8 +141,12 @@ Compiler::ExitCode Compiler::semanticAnalysis(std::unique_ptr<ASTProgram>& astPr
     return Compiler::ExitCode::NO_ERR;
 }
 
-Compiler::ExitCode Compiler::transformASTToIRT(std::unique_ptr<ASTProgram>& astProgram, std::unique_ptr<IRProgram>& irProgram, ThreadPool& threadPool){
-        IntermediateRepresentation intermediateRepresentation{threadPool};
+Compiler::ExitCode Compiler::transformASTToIRT(
+    std::unique_ptr<AST::node::ASTProgram>& astProgram, 
+    std::unique_ptr<IR::node::IRProgram>& irProgram, 
+    ThreadPool& threadPool
+){
+        IR::IntermediateRepresentation intermediateRepresentation{threadPool};
         irProgram = intermediateRepresentation.transformProgram(astProgram.get());
 
         if(intermediateRepresentation.hasErrors(irProgram.get())){
@@ -149,7 +157,11 @@ Compiler::ExitCode Compiler::transformASTToIRT(std::unique_ptr<ASTProgram>& astP
         return Compiler::ExitCode::NO_ERR;
 }
 
-Compiler::ExitCode Compiler::generateProgram(const IRProgram* irProgram, const std::string_view output, ThreadPool& threadPool){
+Compiler::ExitCode Compiler::generateProgram(
+    const IR::node::IRProgram* irProgram, 
+    std::string_view output, 
+    ThreadPool& threadPool
+){
     std::string outputFilePath{ std::format("{}.s", output) };
     CodeGenerator codeGenerator{ outputFilePath, threadPool };
     try{
@@ -167,7 +179,10 @@ Compiler::ExitCode Compiler::generateProgram(const IRProgram* irProgram, const s
     return Compiler::ExitCode::NO_ERR;
 }
 
-Compiler::ExitCode Compiler::assembleAndLink(const IRProgram* irProgram, const std::string_view output){
+Compiler::ExitCode Compiler::assembleAndLink(
+    const IR::node::IRProgram* irProgram, 
+    std::string_view output
+){
     std::string source{ std::format("{}.s", output) };
 
     std::vector<std::string> args{ 
@@ -220,7 +235,7 @@ Compiler::ExitCode Compiler::compile(Compiler::CompileOptions options) {
         return result;
     }
     
-    std::unique_ptr<ASTProgram> astProgram;
+    std::unique_ptr<AST::node::ASTProgram> astProgram;
     result = syntaxAnalysis(lexer, astProgram);
     if(result != Compiler::ExitCode::NO_ERR){
         return result;
@@ -237,7 +252,7 @@ Compiler::ExitCode Compiler::compile(Compiler::CompileOptions options) {
         return result;
     }
 
-    std::unique_ptr<IRProgram> irProgram;
+    std::unique_ptr<IR::node::IRProgram> irProgram;
     result = transformASTToIRT(astProgram, irProgram, threadPool);
     if(result != Compiler::ExitCode::NO_ERR){
         return result;
@@ -259,12 +274,12 @@ Compiler::ExitCode Compiler::compile(Compiler::CompileOptions options) {
     return result;
 }
 
-void Compiler::dumpAST(ASTProgram* program, std::ostream& out){
-    ASTDumper dump{out};
+void Compiler::dumpAST(AST::node::ASTProgram* program, std::ostream& out){
+    AST::dump::ASTDumper dump{out};
     program->accept(dump);
 }
 
-void Compiler::dumpIR(IRProgram* program, std::ostream& out){
-    IRDumper dump{out};
+void Compiler::dumpIR(IR::node::IRProgram* program, std::ostream& out){
+    IR::dump::IRDumper dump{out};
     program->accept(dump);
 }

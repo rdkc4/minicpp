@@ -1,15 +1,17 @@
 #include "../expression_parser.hpp"
-#include "../token_consumer.hpp"
 
 #include <format>
 #include <stack>
 #include <cassert>
 
-ExpressionParser::ExpressionParser(TokenConsumer& consumer) : tokenConsumer{ consumer } {}
+#include "../defs/parser_defs.hpp"
 
-std::unique_ptr<ASTExpr> ExpressionParser::parseExpr(){
-    std::stack<std::unique_ptr<ASTExpr>> values;
-    std::stack<std::unique_ptr<ASTBinaryExpr>> operators;
+ExpressionParser::ExpressionParser(TokenConsumer& consumer) 
+    : tokenConsumer{ consumer } {}
+
+std::unique_ptr<AST::node::ASTExpr> ExpressionParser::parseExpr(){
+    std::stack<std::unique_ptr<AST::node::ASTExpr>> values;
+    std::stack<std::unique_ptr<AST::node::ASTBinaryExpr>> operators;
 
     auto reduce {
         [&values, &operators]() -> void {
@@ -51,7 +53,7 @@ std::unique_ptr<ASTExpr> ExpressionParser::parseExpr(){
     return std::move(values.top());
 }
 
-std::unique_ptr<ASTExpr> ExpressionParser::parsePrimaryExpr(){
+std::unique_ptr<AST::node::ASTExpr> ExpressionParser::parsePrimaryExpr(){
     const auto& token{ tokenConsumer.getToken() };
     switch(token.type){
         case TokenType::LITERAL:
@@ -76,14 +78,14 @@ std::unique_ptr<ASTExpr> ExpressionParser::parsePrimaryExpr(){
     throw std::runtime_error(
         std::format(
             "Line {}, Column {}: SYNTAX ERROR -> expected 'EXPRESSION', got '{} {}'",
-            token.line, token.column, tokenTypeToString.at(token.type), token.value
+            token.line, token.column, tokenTypeToStr(token.type), token.value
         )
     );
 }
 
-std::unique_ptr<ASTFunctionCallExpr> ExpressionParser::parseFunctionCallExpr(){
-    std::unique_ptr<ASTFunctionCallExpr> callExpr{ 
-        std::make_unique<ASTFunctionCallExpr>(tokenConsumer.getToken()) 
+std::unique_ptr<AST::node::ASTFunctionCallExpr> ExpressionParser::parseFunctionCallExpr(){
+    std::unique_ptr<AST::node::ASTFunctionCallExpr> callExpr{ 
+        std::make_unique<AST::node::ASTFunctionCallExpr>(tokenConsumer.getToken()) 
     };
     tokenConsumer.consume(TokenType::ID);
     
@@ -94,7 +96,7 @@ std::unique_ptr<ASTFunctionCallExpr> ExpressionParser::parseFunctionCallExpr(){
     return callExpr;
 }
 
-void ExpressionParser::parseArguments(ASTFunctionCallExpr* callExpr){
+void ExpressionParser::parseArguments(AST::node::ASTFunctionCallExpr* callExpr){
     if(tokenConsumer.getToken().type == TokenType::RPAREN){
         return;
     }
@@ -106,29 +108,28 @@ void ExpressionParser::parseArguments(ASTFunctionCallExpr* callExpr){
     }
 }
 
-std::unique_ptr<ASTIdExpr> ExpressionParser::parseIdExpr(){
+std::unique_ptr<AST::node::ASTIdExpr> ExpressionParser::parseIdExpr(){
     const auto& token{ tokenConsumer.getToken() };
     tokenConsumer.consume(TokenType::ID);
 
-    return std::make_unique<ASTIdExpr>(token);
+    return std::make_unique<AST::node::ASTIdExpr>(token);
 }
 
-std::unique_ptr<ASTLiteralExpr> ExpressionParser::parseLiteralExpr(){
+std::unique_ptr<AST::node::ASTLiteralExpr> ExpressionParser::parseLiteralExpr(){
     const auto& token{ tokenConsumer.getToken() };
     tokenConsumer.consume(TokenType::LITERAL);
     if(token.value.back() == 'u'){
-        return std::make_unique<ASTLiteralExpr>(token, Type::UNSIGNED);
+        return std::make_unique<AST::node::ASTLiteralExpr>(token, Type::UNSIGNED);
     }
-    return std::make_unique<ASTLiteralExpr>(token, Type::INT);
+    return std::make_unique<AST::node::ASTLiteralExpr>(token, Type::INT);
 }
 
-std::unique_ptr<ASTBinaryExpr> ExpressionParser::parseOperator(){
-    std::unique_ptr<ASTBinaryExpr> op{ 
-        std::make_unique<ASTBinaryExpr>(Token{ tokenConsumer.getToken() })
+std::unique_ptr<AST::node::ASTBinaryExpr> ExpressionParser::parseOperator(){
+    const auto& token{ tokenConsumer.getToken() };
+    std::unique_ptr<AST::node::ASTBinaryExpr> op{ 
+        std::make_unique<AST::node::ASTBinaryExpr>(token)
     };
-    if(tokenTypeToOperator.find(tokenConsumer.getToken().type) != tokenTypeToOperator.end()){
-        op->setOperator(tokenTypeToOperator.at(tokenConsumer.getToken().type));
-    }
+    op->setOperator(tokenTypeToOperator(token.type));
 
     tokenConsumer.consume(GeneralTokenType::OPERATOR);
 

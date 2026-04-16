@@ -9,10 +9,7 @@ SANITIZER = -fsanitize=address,undefined
 SRCS = main.cpp \
 	common/preprocessing/source/preprocessing_libs.cpp \
 	preprocessor/preprocessor.cpp \
-	common/defs/defs.cpp \
-	common/token/defs/token_defs.cpp \
 	common/token/token.cpp \
-	common/abstract-syntax-tree/defs/ast_defs.cpp \
 	common/abstract-syntax-tree/source/ast_node.cpp \
 	common/abstract-syntax-tree/source/ast_expr.cpp \
 	common/abstract-syntax-tree/source/ast_binary_expr.cpp \
@@ -41,7 +38,6 @@ SRCS = main.cpp \
 	common/dump/ast_dumper.cpp \
 	common/dump/ir_dumper.cpp \
 	common/symbol/symbol.cpp \
-	common/intermediate-representation-tree/defs/ir_defs.cpp \
 	common/intermediate-representation-tree/source/ir_node.cpp \
 	common/intermediate-representation-tree/source/ir_expr.cpp \
 	common/intermediate-representation-tree/source/ir_binary_expr.cpp \
@@ -66,7 +62,6 @@ SRCS = main.cpp \
 	common/intermediate-representation-tree/source/ir_parameter.cpp \
 	common/intermediate-representation-tree/source/ir_function.cpp \
 	common/intermediate-representation-tree/source/ir_program.cpp \
-	lexer/defs/lexer_defs.cpp \
 	lexer/lexer.cpp \
 	parser/source/token_consumer.cpp \
 	parser/source/expression_parser.cpp \
@@ -86,7 +81,6 @@ SRCS = main.cpp \
 	intermediate-representation/source/function_intermediate_representation.cpp \
 	intermediate-representation/source/directive_intermediate_representation.cpp \
 	intermediate-representation/source/intermediate_representation.cpp \
-	code-generator/defs/code_generator_defs.cpp \
 	code-generator/asm-generator/source/asm_instruction_generator.cpp \
 	code-generator/code-generator/source/expression_code_generator.cpp \
 	code-generator/code-generator/source/statement_code_generator.cpp \

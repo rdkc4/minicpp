@@ -2,21 +2,25 @@
 
 #include "../defs/ir_defs.hpp"
 
-IRReturnStmt::IRReturnStmt() : IRStmt(IRNodeType::RETURN) {}
+IR::node::IRReturnStmt::IRReturnStmt() 
+    : IRStmt(IR::defs::IRNodeType::RETURN) {}
 
-void IRReturnStmt::setReturnExpr(std::unique_ptr<IRExpr> expr, std::unique_ptr<IRTemporaryExpr> tempExpr){
+void IR::node::IRReturnStmt::setReturnExpr(
+    std::unique_ptr<IRExpr> expr, 
+    std::unique_ptr<IRTemporaryExpr> tempExpr
+){
     returnExpr = std::move(expr);
     temporaryExpr = std::move(tempExpr);
 }
 
-bool IRReturnStmt::hasReturnValue() const noexcept {
+bool IR::node::IRReturnStmt::hasReturnValue() const noexcept {
     return returnExpr != nullptr;
 }
 
-bool IRReturnStmt::hasTemporaryExpr() const noexcept {
+bool IR::node::IRReturnStmt::hasTemporaryExpr() const noexcept {
     return temporaryExpr != nullptr;
 }
 
-void IRReturnStmt::accept(IRVisitor& visitor){
+void IR::node::IRReturnStmt::accept(IR::visitor::IRVisitor& visitor){
     visitor.visit(this);
 }

@@ -5,6 +5,7 @@
 #include <latch>
 
 #include "../common/preprocessing/preprocessing_libs.hpp"
+#include "../symbol-handling/scope-manager/scope_guard.hpp"
 #include "return_checker.hpp"
 
 Analyzer::Analyzer(ScopeManager& scopeManager, ThreadPool& threadPool)
@@ -12,11 +13,11 @@ Analyzer::Analyzer(ScopeManager& scopeManager, ThreadPool& threadPool)
 
 thread_local AnalyzerThreadContext Analyzer::analyzerContext;
 
-void Analyzer::visit(ASTProgram* program){
+void Analyzer::visit(AST::node::ASTProgram* program){
     semanticErrors[globalError] = {};
 
     // global scope
-    globalScopeManager.pushScope();
+    ScopeGuard scopeGuard{ globalScopeManager };
 
     for(const auto& dir : program->getDirs()){
         dir->accept(*this);
@@ -43,11 +44,9 @@ void Analyzer::visit(ASTProgram* program){
     if(!globalScopeManager.lookupSymbol("main", {Kind::FUN})){
         semanticErrors[globalError].emplace_back("'main' function not found");
     }
-
-    globalScopeManager.popScope();
 }
 
-void Analyzer::visit(ASTIncludeDir* includeDir){
+void Analyzer::visit(AST::node::ASTIncludeDir* includeDir){
     if(!std::filesystem::exists(Preprocessing::Libs::generateLibSourcePath(includeDir->getLibName()))){
         const auto& token{ includeDir->getToken() };
         reportError(
@@ -61,7 +60,7 @@ void Analyzer::visit(ASTIncludeDir* includeDir){
     }
 }
 
-void Analyzer::checkFunctionSignature(const ASTFunction* function){
+void Analyzer::checkFunctionSignature(const AST::node::ASTFunction* function){
     Type returnType{ function->getType() };
     const auto& funcToken{ function->getToken() };
     semanticErrors[funcToken.value] = {};
@@ -72,7 +71,7 @@ void Analyzer::checkFunctionSignature(const ASTFunction* function){
             funcToken, 
             std::format(
                 "function redefined '{} {}'", 
-                typeToString.at(returnType), funcToken.value
+                typeToStr(returnType), funcToken.value
             ),
             globalError
         );
@@ -85,7 +84,7 @@ void Analyzer::checkFunctionSignature(const ASTFunction* function){
             funcToken, 
             std::format(
                 "invalid type '{} {}'", 
-                typeToString.at(returnType), funcToken.value
+                typeToStr(returnType), funcToken.value
             ),
             funcToken.value
         );
@@ -95,7 +94,7 @@ void Analyzer::checkFunctionSignature(const ASTFunction* function){
             funcToken, 
             std::format(
                 "type deduction cannot be performed on function '{} {}'", 
-                typeToString.at(returnType), funcToken.value
+                typeToStr(returnType), funcToken.value
             ),
             funcToken.value
         );
@@ -105,26 +104,27 @@ void Analyzer::checkFunctionSignature(const ASTFunction* function){
     ScopeManager signatureScopeManager{symTab};
     analyzerContext.init(funcToken.value, &signatureScopeManager);
 
-    analyzerContext.scopeManager->pushScope();
-    const auto& parameters{ function->getParameters() };
+    {
+        ScopeGuard scopeGuard{ *analyzerContext.scopeManager };
+        const auto& parameters{ function->getParameters() };
 
-    // pointer to parameters for easier function call type checking
-    globalScopeManager.getSymbol(funcToken.value).setParameters(&parameters);
-    
-    // parameter check for main
-    if(funcToken.value == "main" && parameters.size() > 0){
-        const auto& paramToken{ parameters[0]->getToken() };
-        reportError(
-            paramToken, 
-            "function 'main' cannot have any parameters",
-            funcToken.value
-        );
-    }
+        // pointer to parameters for easier function call type checking
+        globalScopeManager.getSymbol(funcToken.value).setParameters(&parameters);
+        
+        // parameter check for main
+        if(funcToken.value == "main" && parameters.size() > 0){
+            const auto& paramToken{ parameters[0]->getToken() };
+            reportError(
+                paramToken, 
+                "function 'main' cannot have any parameters",
+                funcToken.value
+            );
+        }
 
-    for(const auto& parameter : parameters){
-        parameter->accept(*this);
+        for(const auto& parameter : parameters){
+            parameter->accept(*this);
+        }
     }
-    analyzerContext.scopeManager->popScope();
 
     for(const auto& err : analyzerContext.semanticErrors){
         semanticErrors[funcToken.value].push_back(err);
@@ -133,7 +133,7 @@ void Analyzer::checkFunctionSignature(const ASTFunction* function){
     analyzerContext.reset();
 }
 
-void Analyzer::visit(ASTFunction* function){
+void Analyzer::visit(AST::node::ASTFunction* function){
     const auto& funcToken{ function->getToken() };
     const auto funcReturnType{ function->getType() };
 
@@ -143,31 +143,32 @@ void Analyzer::visit(ASTFunction* function){
     // initializing thread context
     analyzerContext.init(funcToken.value, &functionScopeManager);
 
-    // function scope
-    analyzerContext.scopeManager->pushScope();
-    defineParameters(function);
-    if(!function->isPredefined()){
-        for(const auto& stmt : function->getBody()){
-            stmt->accept(*this);
-        }
+    {
+        // function scope
+        ScopeGuard scopeGuard{ *analyzerContext.scopeManager };
+        defineParameters(function);
+        if(!function->isPredefined()){
+            for(const auto& stmt : function->getBody()){
+                stmt->accept(*this);
+            }
 
-        // function return type check
-        if(funcReturnType != Type::VOID){
-            ReturnChecker returnChecker;
-            function->accept(returnChecker);
+            // function return type check
+            if(funcReturnType != Type::VOID){
+                ReturnChecker returnChecker;
+                function->accept(returnChecker);
 
-            if(!function->alwaysReturnsValue()){
-                reportError(
-                    funcToken, 
-                    std::format(
-                        "function '{} {}' not all paths return value", 
-                        typeToString.at(funcReturnType), funcToken.value
-                    )
-                );
+                if(!function->alwaysReturnsValue()){
+                    reportError(
+                        funcToken, 
+                        std::format(
+                            "function '{} {}' not all paths return value", 
+                            typeToStr(funcReturnType), funcToken.value
+                        )
+                    );
+                }
             }
         }
     }
-    analyzerContext.scopeManager->popScope();
 
     {
         std::lock_guard<std::mutex> lock(errorMtx);
@@ -176,7 +177,7 @@ void Analyzer::visit(ASTFunction* function){
     analyzerContext.reset();
 }
 
-void Analyzer::defineParameters(const ASTFunction* function){
+void Analyzer::defineParameters(const AST::node::ASTFunction* function){
     for(const auto& parameter : function->getParameters()){
         analyzerContext.scopeManager->pushSymbol(
             Symbol{parameter->getToken().value, Kind::PAR, parameter->getType()}
@@ -184,7 +185,7 @@ void Analyzer::defineParameters(const ASTFunction* function){
     }
 }
 
-void Analyzer::visit(ASTParameter* parameter){
+void Analyzer::visit(AST::node::ASTParameter* parameter){
     Type paramType{ parameter->getType() };
     const auto& paramToken{ parameter->getToken() };
 
@@ -193,7 +194,7 @@ void Analyzer::visit(ASTParameter* parameter){
             paramToken, 
             std::format(
                 "invalid type '{} {}'", 
-                typeToString.at(paramType), paramToken.value
+                typeToStr(paramType), paramToken.value
             )
         );
     }
@@ -202,7 +203,7 @@ void Analyzer::visit(ASTParameter* parameter){
             paramToken, 
             std::format(
                 "type deduction cannot be performed on parameters '{} {}'", 
-                typeToString.at(paramType), paramToken.value
+                typeToStr(paramType), paramToken.value
             )
         );
     }
@@ -213,13 +214,13 @@ void Analyzer::visit(ASTParameter* parameter){
             paramToken, 
             std::format(
                 "parameter redefined '{} {}'", 
-                typeToString.at(paramType), paramToken.value
+                typeToStr(paramType), paramToken.value
             )
         );
     }
 }
 
-void Analyzer::visit(ASTVariableDeclStmt* variableDecl){
+void Analyzer::visit(AST::node::ASTVariableDeclStmt* variableDecl){
     // variable type check
     Type variableType{ variableDecl->getType() };
     const auto& variableToken{ variableDecl->getToken() };
@@ -228,7 +229,7 @@ void Analyzer::visit(ASTVariableDeclStmt* variableDecl){
             variableToken, 
             std::format(
                 "invalid type '{} {}'", 
-                typeToString.at(variableType), variableToken.value
+                typeToStr(variableType), variableToken.value
             )
         );
     }
@@ -237,7 +238,7 @@ void Analyzer::visit(ASTVariableDeclStmt* variableDecl){
             variableToken, 
             std::format(
                 "type deduction failed '{} {}'", 
-                typeToString.at(variableType), variableToken.value
+                typeToStr(variableType), variableToken.value
             )
         );
     }
@@ -248,7 +249,7 @@ void Analyzer::visit(ASTVariableDeclStmt* variableDecl){
             variableToken, 
             std::format(
                 "variable redefined '{} {}'", 
-                typeToString.at(variableType), variableToken.value
+                typeToStr(variableType), variableToken.value
             )
         );
     }
@@ -261,12 +262,13 @@ void Analyzer::visit(ASTVariableDeclStmt* variableDecl){
         Type rtype{ assignExpr->getType() };
 
         // variable initialization type check
-        if(rtype != variableType && variableType != Type::AUTO && rtype != Type::NO_TYPE){ // rtype == no_type => error was caught in expression, no need to write it again
+        // rtype == no_type => error was caught in expression, no need to write it again
+        if(rtype != variableType && variableType != Type::AUTO && rtype != Type::NO_TYPE){
             reportError(
                 variableToken, 
                 std::format(
                     "invalid assignment statement - type mismatch: expected '{}', got '{}'", 
-                    typeToString.at(variableType), typeToString.at(rtype)
+                    typeToStr(variableType), typeToStr(rtype)
                 )
             );
         }
@@ -277,9 +279,9 @@ void Analyzer::visit(ASTVariableDeclStmt* variableDecl){
     }
 }
 
-void Analyzer::visit(ASTAssignStmt* assignStmt){
-    ASTIdExpr* variableExpr{ assignStmt->getVariableIdExpr() };
-    ASTExpr* valueExpr{ assignStmt->getAssignedExpr() };
+void Analyzer::visit(AST::node::ASTAssignStmt* assignStmt){
+    AST::node::ASTIdExpr* variableExpr{ assignStmt->getVariableIdExpr() };
+    AST::node::ASTExpr* valueExpr{ assignStmt->getAssignedExpr() };
 
     variableExpr->accept(*this);
     valueExpr->accept(*this);
@@ -296,25 +298,26 @@ void Analyzer::visit(ASTAssignStmt* assignStmt){
             assignStmtToken, 
             std::format(
                 "invalid assignment statement - type mismatch: expected '{}', got '{}'", 
-                typeToString.at(ltype), typeToString.at(rtype)
+                typeToStr(ltype), typeToStr(rtype)
             )
         );
     }
 
     if(ltype == Type::AUTO){
-        analyzerContext.scopeManager->getSymbol(variableExpr->getToken().value).setType(rtype);
+        analyzerContext.scopeManager->getSymbol(
+            variableExpr->getToken().value
+        ).setType(rtype);
     }
 }
 
-void Analyzer::visit(ASTCompoundStmt* compoundStmt){
-    analyzerContext.scopeManager->pushScope();
+void Analyzer::visit(AST::node::ASTCompoundStmt* compoundStmt){
+    ScopeGuard scopeGuard{ *analyzerContext.scopeManager };
     for(const auto& stmt : compoundStmt->getStmts()){
         stmt->accept(*this);
     }
-    analyzerContext.scopeManager->popScope();
 }
 
-void Analyzer::visit(ASTForStmt* forStmt){
+void Analyzer::visit(AST::node::ASTForStmt* forStmt){
     if(forStmt->hasInitializerStmt()){
         forStmt->getInitializerStmt()->accept(*this);
     }
@@ -327,11 +330,11 @@ void Analyzer::visit(ASTForStmt* forStmt){
     forStmt->getStmt()->accept(*this);
 }
 
-void Analyzer::visit(ASTFunctionCallStmt* callStmt){
+void Analyzer::visit(AST::node::ASTFunctionCallStmt* callStmt){
     callStmt->getFunctionCallExpr()->accept(*this);
 }
 
-void Analyzer::visit(ASTIfStmt* ifStmt){
+void Analyzer::visit(AST::node::ASTIfStmt* ifStmt){
     const auto& conditions{ ifStmt->getConditionExprs() };
     const auto& stmts{ ifStmt->getStmts() };
 
@@ -346,7 +349,7 @@ void Analyzer::visit(ASTIfStmt* ifStmt){
     }
 }
 
-void Analyzer::visit(ASTReturnStmt* returnStmt){
+void Analyzer::visit(AST::node::ASTReturnStmt* returnStmt){
     Type returnType{Type::VOID};
 
     if(returnStmt->hasReturnExpr()){
@@ -359,30 +362,35 @@ void Analyzer::visit(ASTReturnStmt* returnStmt){
     if(returnType == Type::NO_TYPE) return;
 
     // return type check
-    Type expectedReturnType{ globalScopeManager.getSymbol(analyzerContext.functionName).getType() };
+    Type expectedReturnType{ 
+        globalScopeManager.getSymbol(analyzerContext.functionName).getType() 
+    };
+
     if(returnType != expectedReturnType){
         const auto& returnToken{ returnStmt->getToken() };
         reportError(
             returnToken, 
             std::format(
                 "invalid return statement - type mismatch: '{} {}' returns '{}'", 
-                typeToString.at(expectedReturnType), analyzerContext.functionName, typeToString.at(returnType)
+                typeToStr(expectedReturnType), 
+                analyzerContext.functionName, 
+                typeToStr(returnType)
             )
         );
     }
 }
 
-void Analyzer::visit(ASTWhileStmt* whileStmt){
+void Analyzer::visit(AST::node::ASTWhileStmt* whileStmt){
     whileStmt->getConditionExpr()->accept(*this);
     whileStmt->getStmt()->accept(*this);
 }
 
-void Analyzer::visit(ASTDoWhileStmt* dowhileStmt){
+void Analyzer::visit(AST::node::ASTDoWhileStmt* dowhileStmt){
     dowhileStmt->getStmt()->accept(*this);
     dowhileStmt->getConditionExpr()->accept(*this);
 }
 
-void Analyzer::visit(ASTSwitchStmt* switchStmt){
+void Analyzer::visit(AST::node::ASTSwitchStmt* switchStmt){
     auto* variableIdExpr{ switchStmt->getVariableIdExpr() };
     variableIdExpr->accept(*this);
 
@@ -405,7 +413,7 @@ void Analyzer::visit(ASTSwitchStmt* switchStmt){
                 caseToken, 
                 std::format(
                     "invalid case - type mismatch: expected '{}', got '{}'", 
-                    typeToString.at(variableIdExprType), typeToString.at(literalType)
+                    typeToStr(variableIdExprType), typeToStr(literalType)
                 )
             );
         }
@@ -429,7 +437,7 @@ void Analyzer::visit(ASTSwitchStmt* switchStmt){
 
 }
 
-void Analyzer::visit(ASTCaseStmt* caseStmt){
+void Analyzer::visit(AST::node::ASTCaseStmt* caseStmt){
     auto* literalExpr{ caseStmt->getLiteralExpr() };
     literalExpr->accept(*this);
     if(literalExpr->getType() == Type::NO_TYPE) return;
@@ -437,17 +445,17 @@ void Analyzer::visit(ASTCaseStmt* caseStmt){
     caseStmt->getSwitchBlockStmt()->accept(*this);
 }
 
-void Analyzer::visit(ASTDefaultStmt* defaultStmt){
+void Analyzer::visit(AST::node::ASTDefaultStmt* defaultStmt){
     defaultStmt->getSwitchBlockStmt()->accept(*this);
 }
 
-void Analyzer::visit(ASTSwitchBlockStmt* switchBlockStmt){
+void Analyzer::visit(AST::node::ASTSwitchBlockStmt* switchBlockStmt){
     for(const auto& stmt : switchBlockStmt->getStmts()){
         stmt->accept(*this);
     }
 }
 
-void Analyzer::visit(ASTBinaryExpr* binaryExpr){
+void Analyzer::visit(AST::node::ASTBinaryExpr* binaryExpr){
     auto* leftOperand{ binaryExpr->getLeftOperandExpr() };
     auto* rightOperand{ binaryExpr->getRightOperandExpr() };
 
@@ -463,14 +471,14 @@ void Analyzer::visit(ASTBinaryExpr* binaryExpr){
             binaryExprToken, 
             std::format(
                 "binary expression - type mismatch: expected '{}', got '{}'", 
-                typeToString.at(ltype), typeToString.at(rtype)
+                typeToStr(ltype), typeToStr(rtype)
             )
         );
     }
     binaryExpr->setType(ltype);
 }
 
-void Analyzer::visit(ASTFunctionCallExpr* callExpr){
+void Analyzer::visit(AST::node::ASTFunctionCallExpr* callExpr){
     const auto& callExprToken{  callExpr->getToken() };
 
     const auto* callExprSymbol{ 
@@ -533,18 +541,23 @@ void Analyzer::visit(ASTFunctionCallExpr* callExpr){
                 argToken, 
                 std::format(
                     "invalid argument {} - type mismatch: expected '{}', got '{} {}'", 
-                    i, typeToString.at(rtype), typeToString.at(ltype), argToken.value
+                    i, typeToStr(rtype), typeToStr(ltype), argToken.value
                 )
             );
         }
     }
 }
 
-void Analyzer::visit(ASTIdExpr* idExpr){
+void Analyzer::visit(AST::node::ASTIdExpr* idExpr){
     const auto& idExprToken{ idExpr->getToken() };
     
     // check if id exists
-    const auto* idExprSymbol{ analyzerContext.scopeManager->lookupSymbol(idExprToken.value, {Kind::VAR, Kind::PAR}) };
+    const auto* idExprSymbol{ 
+        analyzerContext.scopeManager->lookupSymbol(
+            idExprToken.value, {Kind::VAR, Kind::PAR}
+        ) 
+    };
+
     if(!idExprSymbol){
         reportError(
             idExprToken, 
@@ -559,7 +572,7 @@ void Analyzer::visit(ASTIdExpr* idExpr){
     idExpr->setType(idExprSymbol->getType());
 }
 
-void Analyzer::visit(ASTLiteralExpr* literalExpr){
+void Analyzer::visit(AST::node::ASTLiteralExpr* literalExpr){
     const auto& literalExprToken{ literalExpr->getToken() };
 
     // invalid literal check
@@ -592,7 +605,7 @@ bool Analyzer::isInvalidLiteral(Type type, const std::string& value) const {
 }
 
 
-bool Analyzer::hasSemanticErrors(const ASTProgram* program) const noexcept {
+bool Analyzer::hasSemanticErrors(const AST::node::ASTProgram* program) const noexcept {
     for(const auto& function : program->getFunctions()){
         const std::string& funcName{ function->getToken().value };
         if(!semanticErrors.at(funcName).empty()){
@@ -607,7 +620,7 @@ bool Analyzer::hasSemanticErrors(const ASTProgram* program) const noexcept {
     return false;
 }
 
-std::string Analyzer::getSemanticErrors(const ASTProgram* program) const noexcept {
+std::string Analyzer::getSemanticErrors(const AST::node::ASTProgram* program) const noexcept {
     if(semanticErrors.empty()){
         return "";
     }

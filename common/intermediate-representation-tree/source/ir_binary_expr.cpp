@@ -2,18 +2,23 @@
 
 #include "../defs/ir_defs.hpp"
 
-IRBinaryExpr::IRBinaryExpr(IRNodeType ntype, Type type) : IRExpr(ntype, type) {}
+IR::node::IRBinaryExpr::IRBinaryExpr(IR::defs::IRNodeType ntype, Type type) 
+    : IRExpr(ntype, type) {}
 
-Operator IRBinaryExpr::getOperator() const noexcept {
+Operator IR::node::IRBinaryExpr::getOperator() const noexcept {
     return exprOperator;
 }
 
-void IRBinaryExpr::setBinaryExpr(std::unique_ptr<IRExpr> leftOperand, std::unique_ptr<IRExpr> rightOperand, Operator op){
+void IR::node::IRBinaryExpr::setBinaryExpr(
+    std::unique_ptr<IRExpr> leftOperand, 
+    std::unique_ptr<IRExpr> rightOperand, 
+    Operator op
+){
     leftOperandExpr = std::move(leftOperand);
     rightOperandExpr = std::move(rightOperand);
     exprOperator = op;
 }
 
-void IRBinaryExpr::accept(IRVisitor& visitor){
+void IR::node::IRBinaryExpr::accept(IR::visitor::IRVisitor& visitor){
     visitor.visit(this);
 }

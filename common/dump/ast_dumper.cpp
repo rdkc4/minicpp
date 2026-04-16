@@ -2,9 +2,9 @@
 
 #include "indent_guard.hpp"
 
-ASTDumper::ASTDumper(std::ostream& out) : out{ out }, indent{ 0 } {}
+AST::dump::ASTDumper::ASTDumper(std::ostream& out) : out{ out }, indent{ 0 } {}
 
-void ASTDumper::visit(ASTProgram* program){
+void AST::dump::ASTDumper::visit(AST::node::ASTProgram* program){
     dumpNode(program);
 
     IndentGuard programGuard{indent};
@@ -26,11 +26,11 @@ void ASTDumper::visit(ASTProgram* program){
     }
 }
 
-void ASTDumper::visit(ASTIncludeDir* lib){
+void AST::dump::ASTDumper::visit(AST::node::ASTIncludeDir* lib){
     dumpNode(lib);
 }
 
-void ASTDumper::visit(ASTFunction* function){
+void AST::dump::ASTDumper::visit(AST::node::ASTFunction* function){
     dumpNode(function);
 
     IndentGuard functionGuard{indent};
@@ -52,11 +52,11 @@ void ASTDumper::visit(ASTFunction* function){
     }
 }
 
-void ASTDumper::visit(ASTParameter* parameter){
+void AST::dump::ASTDumper::visit(AST::node::ASTParameter* parameter){
     dumpNode(parameter);
 }
 
-void ASTDumper::visit(ASTVariableDeclStmt* variableDecl){
+void AST::dump::ASTDumper::visit(AST::node::ASTVariableDeclStmt* variableDecl){
     dumpNode(variableDecl);
 
     if(variableDecl->hasAssignExpr()){
@@ -65,7 +65,7 @@ void ASTDumper::visit(ASTVariableDeclStmt* variableDecl){
     }
 }
 
-void ASTDumper::visit(ASTAssignStmt* assignStmt){
+void AST::dump::ASTDumper::visit(AST::node::ASTAssignStmt* assignStmt){
     dumpNode(assignStmt);
     
     IndentGuard assignGuard{indent};
@@ -73,7 +73,7 @@ void ASTDumper::visit(ASTAssignStmt* assignStmt){
     assignStmt->getAssignedExpr()->accept(*this);
 }
 
-void ASTDumper::visit(ASTCompoundStmt* compoundStmt){
+void AST::dump::ASTDumper::visit(AST::node::ASTCompoundStmt* compoundStmt){
     dumpNode(compoundStmt);
 
     IndentGuard compoundGuard{indent};
@@ -82,7 +82,7 @@ void ASTDumper::visit(ASTCompoundStmt* compoundStmt){
     }
 }
 
-void ASTDumper::visit(ASTForStmt* forStmt){
+void AST::dump::ASTDumper::visit(AST::node::ASTForStmt* forStmt){
     dumpNode(forStmt);
 
     IndentGuard forGuard{indent};
@@ -98,14 +98,14 @@ void ASTDumper::visit(ASTForStmt* forStmt){
     forStmt->getStmt()->accept(*this);
 }
 
-void ASTDumper::visit(ASTFunctionCallStmt* callStmt){
+void AST::dump::ASTDumper::visit(AST::node::ASTFunctionCallStmt* callStmt){
     dumpNode(callStmt);
 
     IndentGuard callGuard{indent};
     callStmt->getFunctionCallExpr()->accept(*this);
 }
 
-void ASTDumper::visit(ASTIfStmt* ifStmt){
+void AST::dump::ASTDumper::visit(AST::node::ASTIfStmt* ifStmt){
     dumpNode(ifStmt);
 
     IndentGuard ifGuard{indent};
@@ -121,7 +121,7 @@ void ASTDumper::visit(ASTIfStmt* ifStmt){
     }
 }
 
-void ASTDumper::visit(ASTReturnStmt* returnStmt){
+void AST::dump::ASTDumper::visit(AST::node::ASTReturnStmt* returnStmt){
     dumpNode(returnStmt);
 
     if(returnStmt->hasReturnExpr()){
@@ -130,7 +130,7 @@ void ASTDumper::visit(ASTReturnStmt* returnStmt){
     }
 }
 
-void ASTDumper::visit(ASTWhileStmt* whileStmt){
+void AST::dump::ASTDumper::visit(AST::node::ASTWhileStmt* whileStmt){
     dumpNode(whileStmt);
 
     IndentGuard whileGuard{indent};
@@ -138,7 +138,7 @@ void ASTDumper::visit(ASTWhileStmt* whileStmt){
     whileStmt->getStmt()->accept(*this);
 }
 
-void ASTDumper::visit(ASTDoWhileStmt* dowhileStmt){
+void AST::dump::ASTDumper::visit(AST::node::ASTDoWhileStmt* dowhileStmt){
     dumpNode(dowhileStmt);
 
     IndentGuard dowhileGuard{indent};
@@ -146,7 +146,7 @@ void ASTDumper::visit(ASTDoWhileStmt* dowhileStmt){
     dowhileStmt->getStmt()->accept(*this);
 }
 
-void ASTDumper::visit(ASTSwitchStmt* switchStmt){
+void AST::dump::ASTDumper::visit(AST::node::ASTSwitchStmt* switchStmt){
     dumpNode(switchStmt);
 
     IndentGuard switchGuard{indent};
@@ -159,7 +159,7 @@ void ASTDumper::visit(ASTSwitchStmt* switchStmt){
     }
 }
 
-void ASTDumper::visit(ASTCaseStmt* caseStmt){
+void AST::dump::ASTDumper::visit(AST::node::ASTCaseStmt* caseStmt){
     dumpNode(caseStmt);
 
     IndentGuard caseGuard{indent};
@@ -170,14 +170,14 @@ void ASTDumper::visit(ASTCaseStmt* caseStmt){
     }
 }
 
-void ASTDumper::visit(ASTDefaultStmt* defaultStmt){
+void AST::dump::ASTDumper::visit(AST::node::ASTDefaultStmt* defaultStmt){
     dumpNode(defaultStmt);
 
     IndentGuard defaultGuard{indent};
     defaultStmt->getSwitchBlockStmt()->accept(*this);
 }
 
-void ASTDumper::visit(ASTSwitchBlockStmt* switchBlockStmt){
+void AST::dump::ASTDumper::visit(AST::node::ASTSwitchBlockStmt* switchBlockStmt){
     dumpNode(switchBlockStmt);
 
     IndentGuard switchBlockGuard{indent};
@@ -186,7 +186,7 @@ void ASTDumper::visit(ASTSwitchBlockStmt* switchBlockStmt){
     }
 }
 
-void ASTDumper::visit(ASTBinaryExpr* binaryExpr){
+void AST::dump::ASTDumper::visit(AST::node::ASTBinaryExpr* binaryExpr){
     dumpNode(binaryExpr);
 
     IndentGuard binaryExprGuard{indent};
@@ -194,7 +194,7 @@ void ASTDumper::visit(ASTBinaryExpr* binaryExpr){
     binaryExpr->getRightOperandExpr()->accept(*this);
 }
 
-void ASTDumper::visit(ASTFunctionCallExpr* callExpr){
+void AST::dump::ASTDumper::visit(AST::node::ASTFunctionCallExpr* callExpr){
     dumpNode(callExpr);
 
     IndentGuard callGuard{indent};
@@ -203,24 +203,27 @@ void ASTDumper::visit(ASTFunctionCallExpr* callExpr){
     }
 }
 
-void ASTDumper::visit(ASTIdExpr* idExpr){
+void AST::dump::ASTDumper::visit(AST::node::ASTIdExpr* idExpr){
     dumpNode(idExpr);
 }
 
-void ASTDumper::visit(ASTLiteralExpr* literalExpr){
+void AST::dump::ASTDumper::visit(AST::node::ASTLiteralExpr* literalExpr){
     dumpNode(literalExpr);
 }
 
-void ASTDumper::dumpIndent(){
+void AST::dump::ASTDumper::dumpIndent(){
     out << std::string(indent * 2, ' ');
 }
 
-void ASTDumper::dumpNode(const ASTNode* node){
+void AST::dump::ASTDumper::dumpNode(const AST::node::ASTNode* node){
     dumpIndent();
-    out << "|-> " << astNodeTypeToString.at(node->getNodeType()) << " | '" << node->getToken().value << "'\n";
+    out << "|-> " 
+        << astNodeTypeToStr(node->getNodeType()) 
+        << " | '" << node->getToken().value 
+        << "'\n";
 }
 
-void ASTDumper::dumpNode(std::string_view nodeLabel){
+void AST::dump::ASTDumper::dumpNode(std::string_view nodeLabel){
     dumpIndent();
     out << "|-> " << nodeLabel << "\n";
 }

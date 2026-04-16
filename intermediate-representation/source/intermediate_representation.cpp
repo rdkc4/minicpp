@@ -10,11 +10,15 @@
 #include "../../optimization/stack_frame_analyzer.hpp"
 #include "../../optimization/dead_code_eliminator.hpp"
 
-IntermediateRepresentation::IntermediateRepresentation(ThreadPool& threadPool) 
-    : threadPool{ threadPool }, funcIR{ exceptions } {}
+IR::IntermediateRepresentation::IntermediateRepresentation(ThreadPool& threadPool) 
+    : threadPool{ threadPool }, 
+      funcIR{ exceptions } {}
 
-std::unique_ptr<IRProgram> IntermediateRepresentation::transformProgram(const ASTProgram* program){
-    std::unique_ptr<IRProgram> irProgram{ std::make_unique<IRProgram>() };
+std::unique_ptr<IR::node::IRProgram> 
+IR::IntermediateRepresentation::transformProgram(const AST::node::ASTProgram* program){
+    std::unique_ptr<IR::node::IRProgram> irProgram{ 
+        std::make_unique<IR::node::IRProgram>() 
+    };
 
     dirIR.transformDir(irProgram.get(), program);
     
@@ -25,9 +29,15 @@ std::unique_ptr<IRProgram> IntermediateRepresentation::transformProgram(const AS
 
     for(size_t i{0}; i < total; ++i){
         threadPool.enqueue(
-            [this, irProgram=irProgram.get(), function=program->getFunctionAtN(i), &doneLatch, i] -> void {
+            [this, 
+                irProgram = irProgram.get(), 
+                function = program->getFunctionAtN(i), 
+                &doneLatch, i
+            ] -> void {
                 // generating ir of a function
-                std::unique_ptr<IRFunction> irFunction{ funcIR.transformFunction(function) };
+                std::unique_ptr<IR::node::IRFunction> irFunction{ 
+                    funcIR.transformFunction(function) 
+                };
                 irProgram->setFunctionAtN(std::move(irFunction), i);
 
                 doneLatch.count_down();
@@ -38,23 +48,25 @@ std::unique_ptr<IRProgram> IntermediateRepresentation::transformProgram(const AS
     doneLatch.wait();
 
     // eliminating dead code from the program
-    DeadCodeEliminator dce{threadPool};
+    Optimization::dce::DeadCodeEliminator dce{threadPool};
     irProgram->accept(dce);
 
     // calculating required memory for the stack of each function
-    StackFrameAnalyzer stackFrameAnalyzer{threadPool};
+    Optimization::sfa::StackFrameAnalyzer stackFrameAnalyzer{threadPool};
     irProgram->accept(stackFrameAnalyzer); 
 
     for(const auto& dir : program->getDirs()) {
-        if(dir->getNodeType() == ASTNodeType::INCLUDE_DIR){
-            irProgram->addLinkedLib(static_cast<const ASTIncludeDir*>(dir.get())->getLibName());
+        if(dir->getNodeType() == AST::defs::ASTNodeType::INCLUDE_DIR){
+            irProgram->addLinkedLib(
+                static_cast<const AST::node::ASTIncludeDir*>(dir.get())->getLibName()
+            );
         }
     }
 
     return irProgram;
 }
 
-bool IntermediateRepresentation::hasErrors(const IRProgram* program) const noexcept {
+bool IR::IntermediateRepresentation::hasErrors(const IR::node::IRProgram* program) const noexcept {
     for(const auto& function : program->getFunctions()){
         if(!exceptions.at(function->getFunctionName()).empty()){
             return true;
@@ -63,7 +75,7 @@ bool IntermediateRepresentation::hasErrors(const IRProgram* program) const noexc
     return false;
 }
 
-std::string IntermediateRepresentation::getErrors(const IRProgram* program) const noexcept {
+std::string IR::IntermediateRepresentation::getErrors(const IR::node::IRProgram* program) const noexcept {
     if(exceptions.empty()){
         return "";
     }

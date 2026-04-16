@@ -14,13 +14,13 @@ CodeGeneratorThreadContext& FunctionCodeGenerator::getContext() noexcept {
     return codeGenContext;
 }
 
-void FunctionCodeGenerator::initFunctions(const IRProgram* program){
+void FunctionCodeGenerator::initFunctions(const IR::node::IRProgram* program){
     for(const auto& function : program->getFunctions()){
         asmCode[function->getFunctionName()] = {};
     }
 }
 
-void FunctionCodeGenerator::generateFunction(const IRFunction* function){
+void FunctionCodeGenerator::generateFunction(const IR::node::IRFunction* function){
     if(function->isPredefined()){
         return;
     }
@@ -81,7 +81,7 @@ void FunctionCodeGenerator::generateFunction(const IRFunction* function){
     codeGenContext.reset();
 }
 
-void FunctionCodeGenerator::generateParameters(const IRFunction* function){
+void FunctionCodeGenerator::generateParameters(const IR::node::IRFunction* function){
     size_t i{ 2 };
     for(const auto& parameter : function->getParameters()){
         // mapping parameter to address relative to %rbp (+n(%rbp))

@@ -2,16 +2,17 @@
 
 #include "../defs/ast_defs.hpp"
 
-ASTIncludeDir::ASTIncludeDir(const Token token) : ASTDir(token, ASTNodeType::INCLUDE_DIR) {}
+AST::node::ASTIncludeDir::ASTIncludeDir(const Token token) 
+    : ASTDir(token, AST::defs::ASTNodeType::INCLUDE_DIR) {}
 
-const std::string& ASTIncludeDir::getLibName() const noexcept {
+const std::string& AST::node::ASTIncludeDir::getLibName() const noexcept {
     return libName;
 }
 
-void ASTIncludeDir::setLibName(const std::string& includedLibName) {
+void AST::node::ASTIncludeDir::setLibName(const std::string& includedLibName) {
     libName = includedLibName;
 }
 
-void ASTIncludeDir::accept(ASTVisitor& visitor) {
+void AST::node::ASTIncludeDir::accept(AST::visitor::ASTVisitor& visitor) {
     visitor.visit(this);
 }

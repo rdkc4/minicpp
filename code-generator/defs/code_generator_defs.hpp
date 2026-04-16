@@ -1,6 +1,8 @@
 #ifndef CODE_GENERATOR_DEFS_HPP
 #define CODE_GENERATOR_DEFS_HPP
 
+#include <array>
+#include <cassert>
 #include <unordered_map>
 #include <vector>
 #include <string>
@@ -16,17 +18,76 @@ enum class ExprContext {
     BRANCH
 };
 
-/// translates jump ir node types into strings
-extern const std::unordered_map<IRNodeType, std::string> nodeToJMP;
+/**
+ * @struct JumpInfo
+ * @brief structure providing the jump, opposite jump, and set instructions
+*/
+struct JumpInfo {
+    /// jump instruction
+    std::string_view jcc;
 
-/// translates jump ir node types into opposite jumps as string
-extern const std::unordered_map<IRNodeType, std::string> nodeToOppJMP;
+    /// inverse jump instruction
+    std::string_view jccInverse;
 
-/// translates jump ir node types into extensions for set
-extern const std::unordered_map<IRNodeType, std::string> nodeToSetExt;
+    /// set instruction
+    std::string_view setcc;
+};
 
-/// const vector of names of the general-purpose registers
-extern const std::vector<std::string> gpRegisters;
+/// invalid jump info entry
+constexpr JumpInfo invalidJumpInfo { .jcc = "", .jccInverse = "", .setcc = "" };
+
+/// maps jump ir node types to their jump information
+constexpr std::array<JumpInfo, IR::defs::IR_NODE_TYPE_COUNT> irNodeJumpInfo {
+    [] {
+        /**
+         * @brief converts ir node type enum to array index
+         * @param type - element of the ir node type enum
+         * @returns index in the array for provided node type
+        */
+        constexpr auto idx {
+            [](IR::defs::IRNodeType type) noexcept -> size_t {
+                return static_cast<size_t>(type);
+            }
+        };
+
+        std::array<JumpInfo, IR::defs::IR_NODE_TYPE_COUNT> nodes{};
+        nodes.fill(invalidJumpInfo);
+
+        nodes[idx(IR::defs::IRNodeType::JG)]  = {.jcc = "jg",  .jccInverse = "jle", .setcc = "setg" };
+        nodes[idx(IR::defs::IRNodeType::JA)]  = {.jcc = "ja",  .jccInverse = "jbe", .setcc = "seta" };
+        nodes[idx(IR::defs::IRNodeType::JL)]  = {.jcc = "jl",  .jccInverse = "jge", .setcc = "setl" };
+        nodes[idx(IR::defs::IRNodeType::JB)]  = {.jcc = "jb",  .jccInverse = "jae", .setcc = "setb" };
+        nodes[idx(IR::defs::IRNodeType::JGE)] = {.jcc = "jge", .jccInverse = "jl",  .setcc = "setge"};
+        nodes[idx(IR::defs::IRNodeType::JAE)] = {.jcc = "jae", .jccInverse = "jb",  .setcc = "setae"};
+        nodes[idx(IR::defs::IRNodeType::JLE)] = {.jcc = "jle", .jccInverse = "jg",  .setcc = "setle"};
+        nodes[idx(IR::defs::IRNodeType::JBE)] = {.jcc = "jbe", .jccInverse = "ja",  .setcc = "setbe"};
+        nodes[idx(IR::defs::IRNodeType::JE)]  = {.jcc = "je",  .jccInverse = "jne", .setcc = "sete" };
+        nodes[idx(IR::defs::IRNodeType::JNE)] = {.jcc = "jne", .jccInverse = "je",  .setcc = "setne"};
+
+        return nodes;
+    }()
+};
+
+/**
+ * @brief convert ir node type to jump info
+ * @param type - ir node type
+ * @returns jump info of the ir node
+*/
+constexpr JumpInfo irNodeTypeToJumpInfo(IR::defs::IRNodeType type) {
+    return irNodeJumpInfo[static_cast<size_t>(type)];
+}
+
+/// array of names of the general-purpose registers
+constexpr std::array<std::string_view, 8> gpRegisters {
+    "%r8", 
+    "%r9", 
+    "%r10", 
+    "%r11", 
+    "%r12", 
+    "%r13", 
+    "%r14", 
+    "%r15"
+};
 
 /** 
  * @struct CodeGeneratorThreadContext

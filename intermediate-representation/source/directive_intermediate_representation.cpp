@@ -2,11 +2,14 @@
 
 #include <utility>
 
-void DirectiveIntermediateRepresentation::transformDir(IRProgram* irProgram, const ASTProgram* astProgram){
+void IR::DirectiveIntermediateRepresentation::transformDir(
+    IR::node::IRProgram* irProgram, 
+    const AST::node::ASTProgram* astProgram
+){
     for(const auto& dir : astProgram->getDirs()){
         switch(dir->getNodeType()){
-            case ASTNodeType::INCLUDE_DIR:
-                transformIncludeDir(irProgram, static_cast<const ASTIncludeDir*>(dir.get()));
+            case AST::defs::ASTNodeType::INCLUDE_DIR:
+                transformIncludeDir(irProgram, static_cast<const AST::node::ASTIncludeDir*>(dir.get()));
                 break;
             default:
                 std::unreachable();
@@ -14,6 +17,9 @@ void DirectiveIntermediateRepresentation::transformDir(IRProgram* irProgram, con
     }
 }
 
-void DirectiveIntermediateRepresentation::transformIncludeDir(IRProgram* irProgram, const ASTIncludeDir* astLib){
+void IR::DirectiveIntermediateRepresentation::transformIncludeDir(
+    IR::node::IRProgram* irProgram, 
+    const AST::node::ASTIncludeDir* astLib
+){
     irProgram->addLinkedLib(astLib->getLibName());
 }

@@ -5,7 +5,7 @@
 
 #include "../../intermediate-representation/intermediate_representation.hpp"
 
-class IntermediateRepresentationTest : public IntermediateRepresentation {
+class IntermediateRepresentationTest : public IR::IntermediateRepresentation {
     public:
         IntermediateRepresentationTest(ThreadPool& threadPool) : IntermediateRepresentation{ threadPool } {}
 
@@ -15,15 +15,15 @@ class IntermediateRepresentationTest : public IntermediateRepresentation {
         }
 };
 
-class FunctionIntermediateRepresentationTest : public FunctionIntermediateRepresentation {
+class FunctionIntermediateRepresentationTest : public IR::FunctionIntermediateRepresentation {
 
 };
 
-class StatementIntermediateRepresentationTest : public StatementIntermediateRepresentation {
+class StatementIntermediateRepresentationTest : public IR::StatementIntermediateRepresentation {
 
 };
 
-class ExpressionIntermediateRepresentationTest : public ExpressionIntermediateRepresentation {
+class ExpressionIntermediateRepresentationTest : public IR::ExpressionIntermediateRepresentation {
 
 };
 

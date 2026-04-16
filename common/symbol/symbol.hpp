@@ -44,7 +44,8 @@ public:
      * @brief getter for the parameters (if symbol is a function)
      * @returns pointer to a vector of pointers to parameters
     */
-    const std::vector<std::unique_ptr<ASTParameter>>* getParameters() const noexcept;
+    const std::vector<std::unique_ptr<AST::node::ASTParameter>>* 
+    getParameters() const noexcept;
 
     /** 
      * @brief initializes symbol name
@@ -68,7 +69,7 @@ public:
      * @brief initializes symbol parameters (if the symbol is a function)
      * @param symParams - pointer to a vector of pointers to the parameters of the symbol
     */
-    void setParameters(const std::vector<std::unique_ptr<ASTParameter>>* symParams) noexcept;
+    void setParameters(const std::vector<std::unique_ptr<AST::node::ASTParameter>>* symParams) noexcept;
 
     /** 
      * @brief formats the fields of the symbol
@@ -82,7 +83,7 @@ private:
     std::string name;
 
     /// pointer to parameter node (only for functions)
-    const std::vector<std::unique_ptr<ASTParameter>>* parameters;
+    const std::vector<std::unique_ptr<AST::node::ASTParameter>>* parameters;
 
     /// kind of the symbol
     Kind kind;

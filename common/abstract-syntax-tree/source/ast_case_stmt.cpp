@@ -2,18 +2,23 @@
 
 #include "../defs/ast_defs.hpp"
 
-ASTCaseStmt::ASTCaseStmt(const Token& token) : ASTStmt(token, ASTNodeType::CASE_STMT) {}
+AST::node::ASTCaseStmt::ASTCaseStmt(const Token& token) 
+    : ASTStmt(token, AST::defs::ASTNodeType::CASE_STMT) {}
 
-void ASTCaseStmt::setCase(std::unique_ptr<ASTLiteralExpr> litExpr, std::unique_ptr<ASTSwitchBlockStmt> swBlockStmt, bool hasBreak){
+void AST::node::ASTCaseStmt::setCase(
+    std::unique_ptr<AST::node::ASTLiteralExpr> litExpr, 
+    std::unique_ptr<AST::node::ASTSwitchBlockStmt> swBlockStmt, 
+    bool hasBreak
+){
     literalExpr = std::move(litExpr);
     switchBlockStmt = std::move(swBlockStmt);
     breaks = hasBreak;
 }
 
-bool ASTCaseStmt::hasBreakStmt() const noexcept {
+bool AST::node::ASTCaseStmt::hasBreakStmt() const noexcept {
     return breaks;
 }
 
-void ASTCaseStmt::accept(ASTVisitor& visitor) {
+void AST::node::ASTCaseStmt::accept(AST::visitor::ASTVisitor& visitor) {
     visitor.visit(this);
 }

@@ -2,13 +2,17 @@
 
 #include "../defs/ast_defs.hpp"
 
-ASTWhileStmt::ASTWhileStmt(const Token& token) : ASTStmt(token, ASTNodeType::WHILE_STMT) {}
+AST::node::ASTWhileStmt::ASTWhileStmt(const Token& token) 
+    : ASTStmt(token, AST::defs::ASTNodeType::WHILE_STMT) {}
 
-void ASTWhileStmt::setWhileStmt(std::unique_ptr<ASTExpr> cond, std::unique_ptr<ASTStmt> statement){
+void AST::node::ASTWhileStmt::setWhileStmt(
+    std::unique_ptr<AST::node::ASTExpr> cond, 
+    std::unique_ptr<AST::node::ASTStmt> statement
+){
     conditionExpr = std::move(cond);
     stmt = std::move(statement);
 }
 
-void ASTWhileStmt::accept(ASTVisitor& visitor) {
+void AST::node::ASTWhileStmt::accept(AST::visitor::ASTVisitor& visitor) {
     visitor.visit(this);
 }

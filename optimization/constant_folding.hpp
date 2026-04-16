@@ -53,7 +53,10 @@ namespace Optimization::ConstantFolding {
             case Operator::DIV:
                 if(r == 0){
                     constFold.result = 0;
-                    constFold.error = std::format("Line {}, Column {}: SEMANTIC ERROR -> division by ZERO", line, column);
+                    constFold.error = std::format(
+                        "Line {}, Column {}: SEMANTIC ERROR -> division by ZERO", 
+                        line, column
+                    );
                     return constFold;
                 }
                 constFold.result = l / r;
@@ -107,7 +110,7 @@ namespace Optimization::ConstantFolding {
      * @returns operand value as T
     */
     template<typename T>
-    T getOperandValue(const IRLiteralExpr* operand) {
+    T getOperandValue(const IR::node::IRLiteralExpr* operand) {
         if (std::is_same<T, int>::value) {
             return static_cast<T>(std::stoi(operand->getValue()));
         } else {
@@ -124,26 +127,29 @@ namespace Optimization::ConstantFolding {
      * @returns result of the merge operation
     */
     template<typename T>
-    MergeResult<std::unique_ptr<IRExpr>> mergeLiterals(const IRLiteralExpr* leftOperand, const IRLiteralExpr* rightOperand, const ASTBinaryExpr* binExp) {
+    MergeResult<std::unique_ptr<IR::node::IRExpr>> mergeLiterals(
+        const IR::node::IRLiteralExpr* leftOperand, 
+        const IR::node::IRLiteralExpr* rightOperand, 
+        const AST::node::ASTBinaryExpr* binExp
+    ){
         T lval{ getOperandValue<T>(leftOperand) };
         T rval{ getOperandValue<T>(rightOperand) };
 
         const auto& binExpToken{ binExp->getToken() };
 
-        MergeResult<T> res{ mergeValues<T>(
-                lval, 
-                rval, 
-                binExp->getOperator(), 
-                binExpToken.line, 
-                binExpToken.column
-            ) 
-        };
+        MergeResult<T> res { mergeValues<T>(
+            lval, 
+            rval, 
+            binExp->getOperator(), 
+            binExpToken.line, 
+            binExpToken.column
+        ) };
 
-        Type type{ std::is_same<T, int>::value ? Type::INT : Type::UNSIGNED };
-        std::string suffix{ type == Type::INT ? "" : "u" };
+        Type type{ binExp->getType() };
+        std::string suffix{ type == Type::UNSIGNED ? "u" : "" };
 
-        Optimization::ConstantFolding::MergeResult<std::unique_ptr<IRExpr>> foldedExpr {
-            .result = std::make_unique<IRLiteralExpr>(std::to_string(res.result) + suffix, type),
+        Optimization::ConstantFolding::MergeResult<std::unique_ptr<IR::node::IRExpr>> foldedExpr {
+            .result = std::make_unique<IR::node::IRLiteralExpr>(std::to_string(res.result) + suffix, type),
             .error = res.error
         };
 
@@ -151,6 +157,5 @@ namespace Optimization::ConstantFolding {
     }
 
 };
-
 
 #endif
