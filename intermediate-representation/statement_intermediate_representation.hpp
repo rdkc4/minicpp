@@ -27,6 +27,7 @@
 #include "../common/intermediate-representation-tree/ir_switch_stmt.hpp"
 #include "../common/intermediate-representation-tree/ir_function_call_stmt.hpp"
 #include "expression_intermediate_representation.hpp"
+#include "ctx/ir_ctx.hpp"
 
 namespace IR {
     /**
@@ -37,8 +38,9 @@ namespace IR {
     public:
         /** 
          * @brief Creates the instance of the statement intermediate representation
+         * @param context - context of the function
         */
-        StatementIntermediateRepresentation() = default;
+        StatementIntermediateRepresentation(IR::defs::ctx::IRFunctionContext& context);
 
         /**
          * @brief turns ast statement into irt statement

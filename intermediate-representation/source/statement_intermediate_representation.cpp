@@ -3,6 +3,10 @@
 #include <cassert>
 #include <utility>
 
+IR::StatementIntermediateRepresentation::StatementIntermediateRepresentation(
+    IR::defs::ctx::IRFunctionContext& context
+) : exprIR{ context } {}
+
 std::unique_ptr<IR::node::IRStmt> 
 IR::StatementIntermediateRepresentation::transformStmt(const AST::node::ASTStmt* astStmt){
     switch(astStmt->getNodeType()){

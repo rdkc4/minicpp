@@ -13,6 +13,7 @@
 #include "../common/intermediate-representation-tree/ir_literal_expr.hpp"
 #include "../common/intermediate-representation-tree/ir_id_expr.hpp"
 #include "../common/intermediate-representation-tree/ir_function_call_expr.hpp"
+#include "ctx/ir_ctx.hpp"
 
 namespace IR {
     /**
@@ -24,7 +25,7 @@ namespace IR {
         /** 
          * @brief Creates the instance of the expression intermediate representation
         */
-        ExpressionIntermediateRepresentation() = default;
+        ExpressionIntermediateRepresentation(IR::defs::ctx::IRFunctionContext& context);
 
         /**
          * @brief turns ast expression into irt expression
@@ -115,6 +116,10 @@ namespace IR {
         */
         std::unique_ptr<node::IRIdExpr> 
         replaceFunctionCallExpr(const AST::node::ASTFunctionCallExpr* astCallExpr);
+
+    private:
+        /// reference to a function context
+        IR::defs::ctx::IRFunctionContext& ctx;
 
     };
 

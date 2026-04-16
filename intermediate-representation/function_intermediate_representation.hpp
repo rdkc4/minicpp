@@ -2,13 +2,10 @@
 #define FUNCTION_INTERMEDIATE_REPRESENTATION_HPP
 
 #include <memory>
-#include <unordered_map>
-#include <vector>
-#include <string>
 
 #include "../common/abstract-syntax-tree/ast_function.hpp"
 #include "../common/intermediate-representation-tree/ir_function.hpp"
-#include "defs/ir_defs.hpp"
+#include "ctx/ir_ctx.hpp"
 #include "statement_intermediate_representation.hpp"
 
 namespace IR {
@@ -20,15 +17,8 @@ namespace IR {
     public:
         /** 
          * @brief Creates the instance of the function intermediate representation
-         * @param exceptions -reference to the map of functions and their exceptions
         */
-        FunctionIntermediateRepresentation(std::unordered_map<std::string, std::vector<std::string>>& exceptions);
-
-        /**
-         * @brief getter for the context of the function processed by the current thread
-         * @returns ir context of the current thread
-        */
-        static IR::defs::ctx::IRThreadContext& getContext() noexcept;
+        FunctionIntermediateRepresentation();
 
         /**
          * @brief turns ast function into irt function
@@ -58,18 +48,18 @@ namespace IR {
             const AST::node::ASTFunction* astFunction
         );
 
+        /**
+         * @brief getter for context of the function
+         * @returns context of the function
+        */
+        const IR::defs::ctx::IRFunctionContext& getContext() const noexcept;
+
     private:
-        /// thread local context of the function
-        static thread_local IR::defs::ctx::IRThreadContext irContext;
+        /// context of the function
+        IR::defs::ctx::IRFunctionContext ctx{};
         
         /// intermediate representation specialized for statements
         StatementIntermediateRepresentation stmtIR;
-
-        /// maps function name to its exceptions
-        std::unordered_map<std::string,std::vector<std::string>>& exceptions;
-
-        /// mutex for concurrent access to exceptions
-        std::mutex exceptionMtx;
 
     };
 

@@ -2,6 +2,7 @@
 
 #include <cassert>
 #include <memory>
+#include <mutex>
 #include <sstream>
 #include <string>
 #include <latch>
@@ -9,10 +10,11 @@
 #include "../../common/abstract-syntax-tree/ast_include_dir.hpp"
 #include "../../optimization/stack_frame_analyzer.hpp"
 #include "../../optimization/dead_code_eliminator.hpp"
+#include "../directive_intermediate_representation.hpp"
+#include "../function_intermediate_representation.hpp"
 
 IR::IntermediateRepresentation::IntermediateRepresentation(ThreadPool& threadPool) 
-    : threadPool{ threadPool }, 
-      funcIR{ exceptions } {}
+    : threadPool{ threadPool } {}
 
 std::unique_ptr<IR::node::IRProgram> 
 IR::IntermediateRepresentation::transformProgram(const AST::node::ASTProgram* program){
@@ -20,8 +22,11 @@ IR::IntermediateRepresentation::transformProgram(const AST::node::ASTProgram* pr
         std::make_unique<IR::node::IRProgram>() 
     };
 
-    dirIR.transformDir(irProgram.get(), program);
-    
+    {
+        DirectiveIntermediateRepresentation dirIR;
+        dirIR.transformDir(irProgram.get(), program);
+    }
+
     const size_t total{ program->getFunctionCount() };
     irProgram->resizeFunctions(total);
 
@@ -35,9 +40,16 @@ IR::IntermediateRepresentation::transformProgram(const AST::node::ASTProgram* pr
                 &doneLatch, i
             ] -> void {
                 // generating ir of a function
+                FunctionIntermediateRepresentation funcIR;
                 std::unique_ptr<IR::node::IRFunction> irFunction{ 
                     funcIR.transformFunction(function) 
                 };
+
+                {
+                    std::lock_guard<std::mutex> lock{mtx};
+                    exceptions[irFunction->getFunctionName()] = funcIR.getContext().errors;
+                }
+
                 irProgram->setFunctionAtN(std::move(irFunction), i);
 
                 doneLatch.count_down();

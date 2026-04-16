@@ -4,6 +4,7 @@
 #include <cassert>
 
 #include "../../intermediate-representation/intermediate_representation.hpp"
+#include "../../intermediate-representation/function_intermediate_representation.hpp"
 
 class IntermediateRepresentationTest : public IR::IntermediateRepresentation {
     public:
@@ -20,11 +21,15 @@ class FunctionIntermediateRepresentationTest : public IR::FunctionIntermediateRe
 };
 
 class StatementIntermediateRepresentationTest : public IR::StatementIntermediateRepresentation {
-
+public:
+    StatementIntermediateRepresentationTest(IR::defs::ctx::IRFunctionContext& ctx)
+        : IR::StatementIntermediateRepresentation{ ctx } {}
 };
 
 class ExpressionIntermediateRepresentationTest : public IR::ExpressionIntermediateRepresentation {
-
+public:
+    ExpressionIntermediateRepresentationTest(IR::defs::ctx::IRFunctionContext& ctx)
+        : IR::ExpressionIntermediateRepresentation{ ctx } {}
 };
 
 #endif

@@ -2,9 +2,12 @@
 
 #include <cassert>
 
-#include "../function_intermediate_representation.hpp"
 #include "../../optimization/constant_folding.hpp"
 #include "../../common/intermediate-representation-tree/ir_binary_expr.hpp"
+
+IR::ExpressionIntermediateRepresentation::ExpressionIntermediateRepresentation(
+    IR::defs::ctx::IRFunctionContext& context
+) : ctx{ context } {};
 
 std::unique_ptr<IR::node::IRExpr> 
 IR::ExpressionIntermediateRepresentation::transformExpr(const AST::node::ASTExpr* astExpr){
@@ -61,8 +64,7 @@ IR::ExpressionIntermediateRepresentation::transformBinaryExpr(const AST::node::A
 
         assert(res.result != nullptr);
         if(!res.error.empty()){
-            auto& irContext{ FunctionIntermediateRepresentation::getContext() };
-            irContext.errors.push_back(res.error);
+            ctx.errors.push_back(res.error);
         }
 
         return std::move(res.result);
@@ -151,9 +153,8 @@ size_t IR::ExpressionIntermediateRepresentation::countTemporaries(const AST::nod
 
 // generating temporary variables
 std::string IR::ExpressionIntermediateRepresentation::generateTemporaries(){
-    auto& irContext{ FunctionIntermediateRepresentation::getContext() };
-    std::string name{ std::format("_t{}", ++irContext.temporaries) };
-    irContext.temporaryNames.push(name);
+    std::string name{ std::format("_t{}", ++ctx.temporaries) };
+    ctx.temporaryNames.push(name);
     return name;
 }
 
@@ -193,10 +194,9 @@ std::unique_ptr<IR::node::IRIdExpr>
 IR::ExpressionIntermediateRepresentation::replaceFunctionCallExpr(
     const AST::node::ASTFunctionCallExpr* astCallExpr
 ){
-    auto& irContext{ FunctionIntermediateRepresentation::getContext() }; 
-    assert(!irContext.temporaryNames.empty());
-    std::string name{ irContext.temporaryNames.top() };
-    irContext.temporaryNames.pop();
+    assert(!ctx.temporaryNames.empty());
+    std::string name{ ctx.temporaryNames.top() };
+    ctx.temporaryNames.pop();
     return std::make_unique<IR::node::IRIdExpr>(name, astCallExpr->getType());
 }
 

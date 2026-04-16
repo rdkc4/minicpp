@@ -1,5 +1,5 @@
-#ifndef IR_DEFS_HPP
-#define IR_DEFS_HPP
+#ifndef IR_CTX_HPP
+#define IR_CTX_HPP
 
 #include <cstddef>
 #include <stack>
@@ -12,32 +12,18 @@
 */
 namespace IR::defs::ctx {
     /**
-     * @struct IRThreadContext
-     * @brief context of the thread performing the irt transformation
+     * @struct IRFunctionContext
+     * @brief context of the ir function
     */
-    struct IRThreadContext{
+    struct IRFunctionContext {
         /// number to make temporary name unique
-        size_t temporaries;
+        size_t temporaries{};
 
         /// making sure nested temporary variables are handled properly
         std::stack<std::string> temporaryNames;
         
         /// vector of the errors of the function
         std::vector<std::string> errors;
-
-        /** 
-         * @brief initializes the context of the thread
-        */
-        void init(){
-            temporaries = 0;
-        }
-
-        /** 
-         * @brief resets the context of the thread
-        */
-        void reset(){
-            errors.clear();
-        }
 
     };
 

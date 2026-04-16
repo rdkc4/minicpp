@@ -74,17 +74,12 @@ TEST_F(StatementIntermediateRepresentationFixture, CompoundStatementDeadCodeElim
 
 TEST_F(StatementIntermediateRepresentationFixture, AssignmentStatementGeneratesTemporaries){
     input = {"x = fun(fun(1, 2), 1);"};
-
-    auto& context = FunctionIntermediateRepresentationTest::getContext();
-    context.init();
     initIR();
 
     constexpr size_t expectedTemporariesCount{2};
 
     ASSERT_TRUE(irStmt->getNodeType() == IR::defs::IRNodeType::ASSIGN);
-    EXPECT_TRUE(context.temporaries == expectedTemporariesCount);
-
-    context.reset();
+    EXPECT_TRUE(ctx.temporaries == expectedTemporariesCount);
 }
 
 TEST_F(StatementIntermediateRepresentationFixture, SwitchCaseDeadCodeElimination){

@@ -8,8 +8,6 @@
 
 #include "../common/intermediate-representation-tree/ir_program.hpp"
 #include "../common/abstract-syntax-tree/ast_program.hpp"
-#include "directive_intermediate_representation.hpp"
-#include "function_intermediate_representation.hpp"
 #include "../thread-pool/thread_pool.hpp"
 
 /**
@@ -55,15 +53,12 @@ namespace IR {
         /// thread pool for parallel function ir transformation
         ThreadPool& threadPool;
 
-        /// intermediate representation specialized for functions
-        FunctionIntermediateRepresentation funcIR;
-
-        /// intermediate representation specialized for directives
-        DirectiveIntermediateRepresentation dirIR;
-
     protected:
         /// maps function name to its exceptions
         std::unordered_map<std::string,std::vector<std::string>> exceptions;
+
+        /// mutex protecting exceptions map
+        std::mutex mtx;
 
     };
 

@@ -21,10 +21,11 @@ class StatementIntermediateRepresentationFixture : public StatementAnalyzerFixtu
 protected:
     std::unique_ptr<IR::node::IRStmt> irStmt;
     std::unique_ptr<StatementIntermediateRepresentationTest> intermediateRepresentation;
+    IR::defs::ctx::IRFunctionContext ctx{};
 
     void initIR(){
         initAnalyzer();
-        intermediateRepresentation = std::make_unique<StatementIntermediateRepresentationTest>();
+        intermediateRepresentation = std::make_unique<StatementIntermediateRepresentationTest>(ctx);
         irStmt = intermediateRepresentation->transformStmt(stmt.get());
     }
 };
@@ -33,10 +34,11 @@ class ExpressionIntermediateRepresentationFixture : public ExpressionAnalyzerFix
 protected:
     std::unique_ptr<IR::node::IRExpr> irExpr;
     std::unique_ptr<ExpressionIntermediateRepresentationTest> intermediateRepresentation;
+    IR::defs::ctx::IRFunctionContext ctx{};
 
     void initIR(){
         initAnalyzer();
-        intermediateRepresentation = std::make_unique<ExpressionIntermediateRepresentationTest>();
+        intermediateRepresentation = std::make_unique<ExpressionIntermediateRepresentationTest>(ctx);
         irExpr = intermediateRepresentation->transformExpr(expr.get());
     }
 };
