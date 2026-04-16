@@ -2,68 +2,79 @@
 
 #include <format>
 
-#include "../code_generator.hpp"
-#include "../function_code_generator.hpp"
 #include "../../asm-generator/asm_instruction_generator.hpp"
+
+StatementCodeGenerator::StatementCodeGenerator(
+    CodeGeneratorFunctionContext& context
+) : ctx { context }, exprGenerator { context } {} 
 
 void StatementCodeGenerator::generateStmt(const IR::node::IRStmt* stmt){
     switch(stmt->getNodeType()){
         case IR::defs::IRNodeType::VARIABLE:
             generateVariableDeclStmt(static_cast<const IR::node::IRVariableDeclStmt*>(stmt));
             break;
+
         case IR::defs::IRNodeType::IF:
             generateIfStmt(static_cast<const IR::node::IRIfStmt*>(stmt));
             break;
+
         case IR::defs::IRNodeType::COMPOUND:
             generateCompoundStmt(static_cast<const IR::node::IRCompoundStmt*>(stmt));
             break;
+
         case IR::defs::IRNodeType::ASSIGN:
             generateAssignStmt(static_cast<const IR::node::IRAssignStmt*>(stmt));
             break;
+
         case IR::defs::IRNodeType::RETURN:
             generateReturnStmt(static_cast<const IR::node::IRReturnStmt*>(stmt));
             break;
+
         case IR::defs::IRNodeType::WHILE:
             generateWhileStmt(static_cast<const IR::node::IRWhileStmt*>(stmt));
             break;
+
         case IR::defs::IRNodeType::FOR:
             generateForStmt(static_cast<const IR::node::IRForStmt*>(stmt));
             break;
+
         case IR::defs::IRNodeType::DO_WHILE:
             generateDoWhileStmt(static_cast<const IR::node::IRDoWhileStmt*>(stmt));
             break;
+
         case IR::defs::IRNodeType::SWITCH:
             generateSwitchStmt(static_cast<const IR::node::IRSwitchStmt*>(stmt));
             break;
+
         case IR::defs::IRNodeType::CALL_STMT:
             generateFunctionCallStmt(static_cast<const IR::node::IRFunctionCallStmt*>(stmt));
             return;
+
         default:
             return;
     }
 }
 
 void StatementCodeGenerator::generateVariableDeclStmt(const IR::node::IRVariableDeclStmt* variableDecl){
-    auto& codeGenContext{ FunctionCodeGenerator::getContext() };
     // mapping local variable to address relative to %rbp (-n(%rbp))
     // if not successful it means that variable with the given name existed but went out of scope, 
     // so it overwrites it with new memory location
     auto [varPtr, success]{ 
-        codeGenContext.variableMap.insert({
+        ctx.variableMap.insert({
             variableDecl->getVarName(), 
             std::format(
                 "-{}(%rbp)", 
-                codeGenContext.variableNum * AsmGenerator::Instruction::regSize
+                ctx.variableNum * AsmGenerator::Instruction::regSize
             )
         }) 
     };
     if(!success){
         varPtr->second = std::format(
             "-{}(%rbp)", 
-            codeGenContext.variableNum * AsmGenerator::Instruction::regSize
+            ctx.variableNum * AsmGenerator::Instruction::regSize
         );
     }
-    ++codeGenContext.variableNum;
+    ++ctx.variableNum;
 
     // direct initialization / default value assignation
     if(variableDecl->hasAssignExpr()){
@@ -72,27 +83,27 @@ void StatementCodeGenerator::generateVariableDeclStmt(const IR::node::IRVariable
         }
 
         exprGenerator.generateExpr(variableDecl->getAssignExpr());
-        codeGenContext.freeGpReg();
+        ctx.freeGpReg();
         AsmGenerator::Instruction::genMov(
-            codeGenContext.asmCode, 
-            gpRegisters.at(codeGenContext.gpFreeRegPos), 
-            codeGenContext.variableMap.at(variableDecl->getVarName()), 
+            ctx.asmCode, 
+            gpRegisters.at(ctx.gpFreeRegPos), 
+            ctx.variableMap.at(variableDecl->getVarName()), 
             "q"
         );
     }
     else{
         // default value 
         AsmGenerator::Instruction::genMov(
-            codeGenContext.asmCode, 
+            ctx.asmCode, 
             "$0", 
-            codeGenContext.variableMap.at(variableDecl->getVarName()), 
+            ctx.variableMap.at(variableDecl->getVarName()), 
             "q"
         );
     }
 }
 
 void StatementCodeGenerator::generateIfStmt(const IR::node::IRIfStmt* ifStmt){
-    size_t labNum{ CodeGenerator::getNextLabelNum() };
+    size_t labNum{ AsmGenerator::Instruction::getNextLabelNum() };
     size_t size{ ifStmt->getConditionCount() };
 
     std::string jmpLabel{ "" };
@@ -107,14 +118,12 @@ void StatementCodeGenerator::generateIfStmt(const IR::node::IRIfStmt* ifStmt){
         return std::format("_if{}_body{}", labNum, i);
     };
 
-    auto& codeGenContext{ FunctionCodeGenerator::getContext() };
-
     for(size_t i{0}; i < size; ++i){
         auto [condition, stmt, tempExpr]{ 
             ifStmt->getIfStmtAtN(i) 
         };
         AsmGenerator::Instruction::genLabel(
-            codeGenContext.asmCode, 
+            ctx.asmCode, 
             conditionLabel(i)
         );
         
@@ -139,40 +148,39 @@ void StatementCodeGenerator::generateIfStmt(const IR::node::IRIfStmt* ifStmt){
         );
 
         AsmGenerator::Instruction::genLabel(
-            codeGenContext.asmCode, 
+            ctx.asmCode, 
             bodyStartLabel
         );
 
         generateStmt(stmt);
         AsmGenerator::Instruction::genJmp(
-            codeGenContext.asmCode, 
+            ctx.asmCode, 
             endLabel
         );
     }
 
     if(ifStmt->hasElseStmt()){
         AsmGenerator::Instruction::genLabel(
-            codeGenContext.asmCode, 
+            ctx.asmCode, 
             elseLabel
         );
         generateStmt(ifStmt->getElseStmt());
     }
     AsmGenerator::Instruction::genLabel(
-        codeGenContext.asmCode, 
+        ctx.asmCode, 
         endLabel
     );
 }
 
 void StatementCodeGenerator::generateWhileStmt(const IR::node::IRWhileStmt* whileStmt){
-    size_t labNum{ CodeGenerator::getNextLabelNum() };
+    size_t labNum{ AsmGenerator::Instruction::getNextLabelNum() };
 
     std::string startLabel{ std::format("_while{}", labNum) };
     std::string bodyLabel{ std::format("_while{}_body", labNum) };
     std::string endLabel{ std::format("_while{}_end", labNum) };
 
-    auto& codeGenContext{ FunctionCodeGenerator::getContext() };
     AsmGenerator::Instruction::genLabel(
-        codeGenContext.asmCode, 
+        ctx.asmCode, 
         startLabel
     );
     if(whileStmt->hasTemporaryExpr()){
@@ -185,35 +193,34 @@ void StatementCodeGenerator::generateWhileStmt(const IR::node::IRWhileStmt* whil
     );
 
     AsmGenerator::Instruction::genLabel(
-        codeGenContext.asmCode, 
+        ctx.asmCode, 
         bodyLabel
     );
     generateStmt(whileStmt->getStmt());
     AsmGenerator::Instruction::genJmp(
-        codeGenContext.asmCode, 
+        ctx.asmCode, 
         startLabel
     );
 
     AsmGenerator::Instruction::genLabel(
-        codeGenContext.asmCode, 
+        ctx.asmCode, 
         endLabel
     );
 }
 
 void StatementCodeGenerator::generateForStmt(const IR::node::IRForStmt* forStmt){
-    size_t labNum{ CodeGenerator::getNextLabelNum() };
+    size_t labNum{ AsmGenerator::Instruction::getNextLabelNum() };
 
     std::string startLabel{ std::format("_for{}", labNum) };
     std::string bodyLabel{ std::format("_for{}_body", labNum) };
     std::string endLabel{ std::format("_for{}_end", labNum) };
 
-    auto& codeGenContext{ FunctionCodeGenerator::getContext() };
     // initializer
     if(forStmt->hasInitializerStmt()){
         generateAssignStmt(forStmt->getInitializerStmt());
     }
     AsmGenerator::Instruction::genLabel(
-        codeGenContext.asmCode, 
+        ctx.asmCode, 
         startLabel
     );
 
@@ -230,7 +237,7 @@ void StatementCodeGenerator::generateForStmt(const IR::node::IRForStmt* forStmt)
         );
 
         AsmGenerator::Instruction::genLabel(
-            codeGenContext.asmCode, 
+            ctx.asmCode, 
             bodyLabel
         );
     }
@@ -242,26 +249,24 @@ void StatementCodeGenerator::generateForStmt(const IR::node::IRForStmt* forStmt)
         generateAssignStmt(forStmt->getIncrementerStmt());
     }
     AsmGenerator::Instruction::genJmp(
-        codeGenContext.asmCode, 
+        ctx.asmCode, 
         startLabel
     );
 
     AsmGenerator::Instruction::genLabel(
-        codeGenContext.asmCode, 
+        ctx.asmCode, 
         endLabel
     );
 }
 
 void StatementCodeGenerator::generateDoWhileStmt(const IR::node::IRDoWhileStmt* dowhileStmt){
-    size_t labNum{ CodeGenerator::getNextLabelNum() };
+    size_t labNum{ AsmGenerator::Instruction::getNextLabelNum() };
     
     std::string startLabel{ std::format("_do_while{}", labNum) };
     std::string endLabel{ std::format("_do_while{}_end", labNum) };
 
-    auto& codeGenContext{ FunctionCodeGenerator::getContext() };
-
     AsmGenerator::Instruction::genLabel(
-        codeGenContext.asmCode, 
+        ctx.asmCode, 
         startLabel
     );
     generateStmt(dowhileStmt->getStmt());
@@ -277,7 +282,7 @@ void StatementCodeGenerator::generateDoWhileStmt(const IR::node::IRDoWhileStmt* 
     );
 
     AsmGenerator::Instruction::genLabel(
-        codeGenContext.asmCode, 
+        ctx.asmCode, 
         endLabel
     );
 }
@@ -295,12 +300,11 @@ void StatementCodeGenerator::generateAssignStmt(const IR::node::IRAssignStmt* as
         exprGenerator.generateTemporaryExprs(assignStmt->getTemporaryExpr());
     }
 
-    auto& codeGenContext{ FunctionCodeGenerator::getContext() };
     exprGenerator.generateExpr(assignStmt->getAssignedExpr());
-    codeGenContext.freeGpReg();
+    ctx.freeGpReg();
     AsmGenerator::Instruction::genMov(
-        codeGenContext.asmCode, 
-        gpRegisters.at(codeGenContext.gpFreeRegPos), 
+        ctx.asmCode, 
+        gpRegisters.at(ctx.gpFreeRegPos), 
         exprGenerator.getIdExprAddress(assignStmt->getVariableIdExpr()), 
         "q"
     );
@@ -308,7 +312,6 @@ void StatementCodeGenerator::generateAssignStmt(const IR::node::IRAssignStmt* as
 
 // return value ends up in %rax
 void StatementCodeGenerator::generateReturnStmt(const IR::node::IRReturnStmt* returnStmt){
-    auto& codeGenContext{ FunctionCodeGenerator::getContext() };
     if(returnStmt->hasReturnValue()){
         // preventing register corruption when function call occurs
         if(returnStmt->hasTemporaryExpr()){
@@ -316,23 +319,23 @@ void StatementCodeGenerator::generateReturnStmt(const IR::node::IRReturnStmt* re
         }
 
         exprGenerator.generateExpr(returnStmt->getReturnExpr());
-        codeGenContext.freeGpReg();
+        ctx.freeGpReg();
         AsmGenerator::Instruction::genMov(
-            codeGenContext.asmCode, 
-            gpRegisters.at(codeGenContext.gpFreeRegPos), 
+            ctx.asmCode, 
+            gpRegisters.at(ctx.gpFreeRegPos), 
             "%rax", 
             "q"
         );
     } 
     else{
         AsmGenerator::Instruction::genOperation(
-            codeGenContext.asmCode, 
+            ctx.asmCode, 
             "xor", "%rax", "%rax"
         );
     }
     AsmGenerator::Instruction::genJmp(
-        codeGenContext.asmCode, 
-        std::format("_{}_end", codeGenContext.functionName)
+        ctx.asmCode, 
+        std::format("_{}_end", ctx.functionName)
     );
 }
 
@@ -341,7 +344,7 @@ void StatementCodeGenerator::generateFunctionCallStmt(const IR::node::IRFunction
 }
 
 void StatementCodeGenerator::generateSwitchStmt(const IR::node::IRSwitchStmt* switchStmt){
-    size_t labNum{ CodeGenerator::getNextLabelNum() };
+    size_t labNum{ AsmGenerator::Instruction::getNextLabelNum() };
 
     std::string startLabel{ std::format("_switch{}", labNum) };
     std::string defaultLabel{ std::format("_switch{}_default", labNum) };
@@ -351,10 +354,8 @@ void StatementCodeGenerator::generateSwitchStmt(const IR::node::IRSwitchStmt* sw
         return std::format("_switch{}_case{}", labNum, i);
     };
 
-    auto& codeGenContext{ FunctionCodeGenerator::getContext() };
-
     AsmGenerator::Instruction::genLabel(
-        codeGenContext.asmCode, 
+        ctx.asmCode, 
         startLabel
     );
 
@@ -366,22 +367,22 @@ void StatementCodeGenerator::generateSwitchStmt(const IR::node::IRSwitchStmt* sw
         const IR::node::IRCaseStmt* caseStmt{ switchStmt->getCaseStmtAtN(i) };
 
         AsmGenerator::Instruction::genLabel(
-            codeGenContext.asmCode, 
+            ctx.asmCode, 
             caseLabel(i)
         );
         AsmGenerator::Instruction::genMov(
-            codeGenContext.asmCode, 
-            codeGenContext.variableMap.at(var), 
+            ctx.asmCode, 
+            ctx.variableMap.at(var), 
             "%rcx", 
             "q"
         );
         AsmGenerator::Instruction::genMov(
-            codeGenContext.asmCode, 
+            ctx.asmCode, 
             exprGenerator.formatLiteral(caseStmt->getLiteralExpr()), 
             "%rdx", 
             "q"
         );
-        AsmGenerator::Instruction::genCmp(codeGenContext.asmCode, "%rcx", "%rdx");
+        AsmGenerator::Instruction::genCmp(ctx.asmCode, "%rcx", "%rdx");
         
         std::string jmpLabel{""};
         if(i < size - 1){
@@ -394,7 +395,7 @@ void StatementCodeGenerator::generateSwitchStmt(const IR::node::IRSwitchStmt* sw
             jmpLabel = endLabel;
         }
         AsmGenerator::Instruction::genJcc(
-            codeGenContext.asmCode, 
+            ctx.asmCode, 
             "jne", jmpLabel
         );
         
@@ -404,14 +405,14 @@ void StatementCodeGenerator::generateSwitchStmt(const IR::node::IRSwitchStmt* sw
 
         if(caseStmt->hasBreakStmt()){
             AsmGenerator::Instruction::genJmp(
-                codeGenContext.asmCode, 
+                ctx.asmCode, 
                 endLabel
             );
         }
     }
     if(switchStmt->hasDefaultStmt()){
         AsmGenerator::Instruction::genLabel(
-            codeGenContext.asmCode, 
+            ctx.asmCode, 
             defaultLabel
         );
         const auto& defaultStmt{ switchStmt->getDefaultStmt() };
@@ -420,7 +421,7 @@ void StatementCodeGenerator::generateSwitchStmt(const IR::node::IRSwitchStmt* sw
         }
     }
     AsmGenerator::Instruction::genLabel(
-        codeGenContext.asmCode, 
+        ctx.asmCode, 
         endLabel
     );
 }

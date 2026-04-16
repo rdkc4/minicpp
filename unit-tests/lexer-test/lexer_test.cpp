@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <utility>
-#include <string>
-#include <vector>
+#include <array>
+#include <string_view>
 
 #include "lexer_fixture.hpp"
 
@@ -9,7 +9,7 @@ TEST_F(LexerFixture, TokenizationOfAssignmentStatement){
     input = {"int x = -1 + 2 << 3u;"};
     initLexer();
 
-    std::vector<std::pair<TokenType, std::string>> expectedTokens { 
+    constexpr std::array<std::pair<TokenType, std::string_view>, 10> expectedTokens {{
         {TokenType::INT, "int"}, 
         {TokenType::ID, "x"}, 
         {TokenType::ASSIGN, "="}, 
@@ -20,9 +20,9 @@ TEST_F(LexerFixture, TokenizationOfAssignmentStatement){
         {TokenType::LITERAL, "3u"}, 
         {TokenType::SEMICOLON, ";"}, 
         {TokenType::_EOF, ""}
-    };
+    }};
 
-    size_t expectedSize{ expectedTokens.size() };
+    constexpr size_t expectedSize{ expectedTokens.size() };
     ASSERT_EQ(lexer->tokensSize(), expectedSize);
 
     for(size_t i = 0; i < expectedSize; ++i){
@@ -36,7 +36,7 @@ TEST_F(LexerFixture, TokenizationOfIfStatement){
     input = {"if(a > b){return a;}"};
     initLexer();
 
-    std::vector<std::pair<TokenType, std::string>> expectedTokens { 
+    constexpr std::array<std::pair<TokenType, std::string_view>, 12> expectedTokens {{
         {TokenType::IF, "if"}, 
         {TokenType::LPAREN, "("}, 
         {TokenType::ID, "a"}, 
@@ -49,8 +49,8 @@ TEST_F(LexerFixture, TokenizationOfIfStatement){
         {TokenType::SEMICOLON, ";"},
         {TokenType::RBRACE, "}"}, 
         {TokenType::_EOF, ""}
-    };
-    const size_t expectedSize{ expectedTokens.size() };
+    }};
+    constexpr size_t expectedSize{ expectedTokens.size() };
     ASSERT_EQ(lexer->tokensSize(), expectedSize);
 
     for(size_t i = 0; i < expectedSize; ++i){

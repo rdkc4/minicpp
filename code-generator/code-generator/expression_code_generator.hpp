@@ -8,8 +8,9 @@
 #include "../../common/intermediate-representation-tree/ir_literal_expr.hpp"
 #include "../../common/intermediate-representation-tree/ir_function_call_expr.hpp"
 #include "../../common/intermediate-representation-tree/ir_temporary_expr.hpp"
-#include "../defs/code_generator_defs.hpp"
-#include "../defs/binary_operands.hpp"
+#include "defs/code_generator_defs.hpp"
+#include "defs/binary_operands.hpp"
+#include "ctx/code_generator_ctx.hpp"
 
 /** 
  * @class ExpressionCodeGenerator
@@ -19,22 +20,29 @@ class ExpressionCodeGenerator {
 public:
     /** 
      * @brief Creates the instance of the expression code generator
+     * @param context - reference to a context of the function
     */
-    ExpressionCodeGenerator() = default;
+    ExpressionCodeGenerator(CodeGeneratorFunctionContext& context);
 
     /** 
      * @brief generates the asm code for the expression
      * @param expr - const pointer to the irt expression
-     * @param ctx - context of the expression, defaults to value
+     * @param exprCtx - context of the expression, defaults to value
     */
-    void generateExpr(const IR::node::IRExpr* expr, ExprContext ctx = ExprContext::VALUE);
+    void generateExpr(
+        const IR::node::IRExpr* expr, 
+        ExprContext exprCtx = ExprContext::VALUE
+    );
 
     /** 
      * @brief generates the asm code for the binary expression
      * @param binaryExpr - const pointer to the irt binary expression
-     * @param ctx - context of the expression, defaults to value
+     * @param exprCtx - context of the expression, defaults to value
     */
-    void generateBinaryExpr(const IR::node::IRBinaryExpr* binaryExpr, ExprContext ctx = ExprContext::VALUE);
+    void generateBinaryExpr(
+        const IR::node::IRBinaryExpr* binaryExpr, 
+        ExprContext exprCtx = ExprContext::VALUE
+    );
 
     /** 
      * @brief generates the asm code for the relational expression
@@ -95,6 +103,9 @@ public:
     void clearArguments(size_t argc);
 
 private:
+    /// reference to a context of the function
+    CodeGeneratorFunctionContext& ctx;
+
     /**
      * @brief getter for the operand
      * @param fallbackOperand - fallback operand when gp registers are unavailable
@@ -138,10 +149,14 @@ private:
     /**
      * @brief generates relational binary expression
      * @param binaryExpr - const pointer to the binary expression
-     * @param ctx - context of the expression, defaults to value
+     * @param exprCtx - context of the expression, defaults to value
      * @param operands - left and right operand of the binary expression
     */
-    void generateRelationalExpr(const IR::node::IRBinaryExpr* binaryExpr, BinaryOperands operands, ExprContext ctx = ExprContext::VALUE);
+    void generateRelationalExpr(
+        const IR::node::IRBinaryExpr* binaryExpr, 
+        BinaryOperands operands, 
+        ExprContext exprCtx = ExprContext::VALUE
+    );
 
     /**
      * @brief generates ALU expressions (add, sub, and, or, xor)

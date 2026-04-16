@@ -1,32 +1,31 @@
 #include "../code_generator.hpp"
 
-#include <cstddef>
 #include <filesystem>
 #include <fstream>
 #include <memory>
-#include <string>
 #include <latch>
 
 #include "../../asm-generator/asm_instruction_generator.hpp"
+#include "../function_code_generator.hpp"
 
-CodeGenerator::CodeGenerator(const std::string& filePath, ThreadPool& threadPool) 
-    : threadPool{ threadPool}, outputPath{ filePath }, funcGenerator{ asmCode } {}
-
-std::atomic<size_t> CodeGenerator::labelNum{ 0 };
-
-size_t CodeGenerator::getNextLabelNum() noexcept {
-    return labelNum.fetch_add(1);
-}
+CodeGenerator::CodeGenerator(std::string_view filePath, ThreadPool& threadPool) 
+    : threadPool{ threadPool}, 
+      outputPath{ filePath } {}
 
 void CodeGenerator::generateProgram(const IR::node::IRProgram* program){
-    funcGenerator.initFunctions(program);
-
     std::latch doneLatch{ static_cast<ptrdiff_t>(program->getFunctionCount()) };
 
     for(const auto& function : program->getFunctions()){
         threadPool.enqueue(
             [this, function=function.get(), &doneLatch] -> void {
+                FunctionCodeGenerator funcGenerator;
                 funcGenerator.generateFunction(function);
+
+                {
+                    std::lock_guard<std::mutex> lock{mtx};
+                    asmCode[function->getFunctionName()] = funcGenerator.getContext().asmCode;
+                }
+
                 doneLatch.count_down();
             }
         );

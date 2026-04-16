@@ -13,6 +13,7 @@
 #include "../../common/intermediate-representation-tree/ir_function_call_stmt.hpp"
 #include "../../common/intermediate-representation-tree/ir_switch_stmt.hpp"
 #include "expression_code_generator.hpp"
+#include "ctx/code_generator_ctx.hpp"
 
 /** 
  * @class StatementCodeGenerator
@@ -22,8 +23,9 @@ class StatementCodeGenerator {
 public:
     /** 
      * @brief Creates the instance of the code generator specialized for statements
+     * @param context - reference to a context of the function
     */
-    StatementCodeGenerator() = default;
+    StatementCodeGenerator(CodeGeneratorFunctionContext& context);
 
     /**
      * @brief generates asm code for the statement
@@ -92,6 +94,9 @@ public:
     void generateSwitchStmt(const IR::node::IRSwitchStmt* switchStmt);
 
 private:
+    /// reference to a context of the function
+    CodeGeneratorFunctionContext& ctx;
+
     /// code generator specialized for expressions
     ExpressionCodeGenerator exprGenerator;
 

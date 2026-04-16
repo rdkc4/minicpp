@@ -5,37 +5,24 @@
 
 #include "../../asm-generator/asm_instruction_generator.hpp"
 
-FunctionCodeGenerator::FunctionCodeGenerator(std::unordered_map<std::string, std::vector<std::string>>& asmCode) 
-    : asmCode{ asmCode } {}
-
-thread_local CodeGeneratorThreadContext FunctionCodeGenerator::codeGenContext;
-
-CodeGeneratorThreadContext& FunctionCodeGenerator::getContext() noexcept {
-    return codeGenContext;
-}
-
-void FunctionCodeGenerator::initFunctions(const IR::node::IRProgram* program){
-    for(const auto& function : program->getFunctions()){
-        asmCode[function->getFunctionName()] = {};
-    }
-}
+FunctionCodeGenerator::FunctionCodeGenerator() 
+    : stmtGenerator{ ctx } {}
 
 void FunctionCodeGenerator::generateFunction(const IR::node::IRFunction* function){
     if(function->isPredefined()){
         return;
     }
 
-    codeGenContext.init(function->getFunctionName());
+    ctx.functionName = function->getFunctionName();
 
     // function label
-    AsmGenerator::Instruction::genLabel(codeGenContext.asmCode, codeGenContext.functionName);
-
-    AsmGenerator::Instruction::genFuncPrologue(codeGenContext.asmCode);
+    AsmGenerator::Instruction::genLabel(ctx.asmCode, ctx.functionName);
+    AsmGenerator::Instruction::genFuncPrologue(ctx.asmCode);
     
     // allocation of local variables
     if(function->getRequiredMemory() != "0"){
         AsmGenerator::Instruction::genOperation(
-            codeGenContext.asmCode, 
+            ctx.asmCode, 
             "sub", 
             std::format("${}", function->getRequiredMemory()), 
             "%rsp"
@@ -50,45 +37,43 @@ void FunctionCodeGenerator::generateFunction(const IR::node::IRFunction* functio
 
     // function end label
     AsmGenerator::Instruction::genLabel(
-        codeGenContext.asmCode, 
-        std::format("_{}_end", codeGenContext.functionName)
+        ctx.asmCode, 
+        std::format("_{}_end", ctx.functionName)
     );
     
     // free local variables 
     if(function->getRequiredMemory() != "0"){
         AsmGenerator::Instruction::genOperation(
-            codeGenContext.asmCode, 
+            ctx.asmCode, 
             "add", 
             std::format("${}", function->getRequiredMemory()), 
             "%rsp"
         );
     }
 
-    AsmGenerator::Instruction::genFuncEpilogue(codeGenContext.asmCode);
+    AsmGenerator::Instruction::genFuncEpilogue(ctx.asmCode);
 
     if(function->getFunctionName() != "main"){
-        AsmGenerator::Instruction::genRet(codeGenContext.asmCode);
+        AsmGenerator::Instruction::genRet(ctx.asmCode);
     }
     else{
-        AsmGenerator::Instruction::genExit(codeGenContext.asmCode);
+        AsmGenerator::Instruction::genExit(ctx.asmCode);
     }
 
-    {
-        std::lock_guard<std::mutex> lock(asmMtx);
-        asmCode[codeGenContext.functionName] = std::move(codeGenContext.asmCode);
-    }
-
-    codeGenContext.reset();
 }
 
 void FunctionCodeGenerator::generateParameters(const IR::node::IRFunction* function){
     size_t i{ 2 };
     for(const auto& parameter : function->getParameters()){
         // mapping parameter to address relative to %rbp (+n(%rbp))
-        codeGenContext.variableMap.insert({
+        ctx.variableMap.insert({
             parameter->getParameterName(), 
             std::format("{}(%rbp)", i * AsmGenerator::Instruction::regSize)
         });
         ++i;
     }
+}
+
+const CodeGeneratorFunctionContext& FunctionCodeGenerator::getContext() const noexcept {
+    return ctx;
 }

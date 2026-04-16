@@ -7,7 +7,7 @@ TEST_F(ParserFixture, ParseProgramSuccessful){
     input = {"int fun(){ return 123; } int main(){ int a = 1 + 2; return a; }" };
     ASSERT_NO_THROW(initParser());
 
-    const size_t expectedFunctionCount{2};
+    constexpr size_t expectedFunctionCount{2};
 
     ASSERT_EQ(program->getNodeType(), AST::defs::ASTNodeType::PROGRAM);
     EXPECT_EQ(program->getFunctionCount(), expectedFunctionCount);
@@ -72,7 +72,7 @@ TEST_F(StatementParserFixture, VariableNoInit){
 TEST_F(StatementParserFixture, EmptyCompoundStatement){
     input = {"{}"};
 
-    const size_t expectedChildrenSize = 0;
+    constexpr size_t expectedChildrenSize = 0;
 
     ASSERT_NO_THROW(initParser());
     ASSERT_EQ(stmt->getNodeType(), AST::defs::ASTNodeType::COMPOUND_STMT);
@@ -82,7 +82,7 @@ TEST_F(StatementParserFixture, EmptyCompoundStatement){
 TEST_F(StatementParserFixture, CompoundStatement){
     input = {"{ int x = 3; int y = x; }"};
 
-    const size_t expectedChildrenSize = 2;
+    constexpr size_t expectedChildrenSize = 2;
 
     ASSERT_NO_THROW(initParser());
     ASSERT_EQ(stmt->getNodeType(), AST::defs::ASTNodeType::COMPOUND_STMT);
@@ -116,7 +116,7 @@ TEST_F(StatementParserFixture, ReturnStatement){
 TEST_F(StatementParserFixture, IfStatementOnlyIf){
     input = {"if(a > b) return a;"};
 
-    const size_t expectedConditionCount = 1;
+    constexpr size_t expectedConditionCount = 1;
 
     ASSERT_NO_THROW(initParser());
     ASSERT_EQ(stmt->getNodeType(), AST::defs::ASTNodeType::IF_STMT);
@@ -129,7 +129,7 @@ TEST_F(StatementParserFixture, IfStatementOnlyIf){
 TEST_F(StatementParserFixture, IfStatementIfElse){
     input = {"if(a > b) return a; else return b;"};
 
-    const size_t expectedStatementCount = 2;
+    constexpr size_t expectedStatementCount = 2;
 
     ASSERT_NO_THROW(initParser());
     ASSERT_EQ(stmt->getNodeType(), AST::defs::ASTNodeType::IF_STMT);
@@ -142,7 +142,7 @@ TEST_F(StatementParserFixture, IfStatementIfElse){
 TEST_F(StatementParserFixture, IfStatementIfElseif){
     input = {"if(a > b) return a; else if(a == b) return b;"};
 
-    const size_t expectedConditionCount = 2;
+    constexpr size_t expectedConditionCount = 2;
 
     ASSERT_NO_THROW(initParser());
     ASSERT_EQ(stmt->getNodeType(), AST::defs::ASTNodeType::IF_STMT);
@@ -152,7 +152,7 @@ TEST_F(StatementParserFixture, IfStatementIfElseif){
 TEST_F(StatementParserFixture, IfStatementIfElseifElse){
     input = {"if(a > b) return a; else if(a == b) return 0; else return b;"};
 
-    const size_t expectedStatementCount = 3;
+    constexpr size_t expectedStatementCount = 3;
 
     ASSERT_NO_THROW(initParser());
     ASSERT_EQ(stmt->getNodeType(), AST::defs::ASTNodeType::IF_STMT);
@@ -191,7 +191,7 @@ TEST_F(StatementParserFixture, DoWhileStatement){
 TEST_F(StatementParserFixture, SwitchStatement){
     input = {"switch(x){ case 1: break; default: return 1; }"};
 
-    const size_t expectedCaseCount = 1;
+    constexpr size_t expectedCaseCount = 1;
 
     ASSERT_NO_THROW(initParser());
     ASSERT_EQ(stmt->getNodeType(), AST::defs::ASTNodeType::SWITCH_STMT);
@@ -204,7 +204,7 @@ TEST_F(StatementParserFixture, SwitchStatement){
 TEST_F(StatementParserFixture, SwitchStatementNoDefault){
     input = {"switch(x){ case 1: break; }"};
 
-    const size_t expectedCaseCount = 1;
+    constexpr size_t expectedCaseCount = 1;
 
     ASSERT_NO_THROW(initParser());
     ASSERT_EQ(stmt->getNodeType(), AST::defs::ASTNodeType::SWITCH_STMT);
@@ -250,7 +250,7 @@ TEST_F(ExpressionParserFixture, FunctionCallNoArgs){
 TEST_F(ExpressionParserFixture, FunctionCallSingleArg){
     input = {"fun(x)"};
 
-    const size_t expectedArgumentCount = 1;
+    constexpr size_t expectedArgumentCount = 1;
 
     ASSERT_NO_THROW(initParser());
     ASSERT_EQ(expr->getNodeType(), AST::defs::ASTNodeType::FUNCTION_CALL_EXPR);
@@ -263,7 +263,7 @@ TEST_F(ExpressionParserFixture, FunctionCallSingleArg){
 TEST_F(ExpressionParserFixture, FunctionCallMultipleArgs){
     input = {"fun(x, y)"};
 
-    const size_t expectedArgumentCount = 2;
+    constexpr size_t expectedArgumentCount = 2;
 
     ASSERT_NO_THROW(initParser());
     ASSERT_EQ(expr->getNodeType(), AST::defs::ASTNodeType::FUNCTION_CALL_EXPR);
