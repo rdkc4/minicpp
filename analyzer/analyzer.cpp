@@ -262,7 +262,8 @@ void Analyzer::visit(AST::node::ASTVariableDeclStmt* variableDecl){
         Type rtype{ assignExpr->getType() };
 
         // variable initialization type check
-        if(rtype != variableType && variableType != Type::AUTO && rtype != Type::NO_TYPE){ // rtype == no_type => error was caught in expression, no need to write it again
+        // rtype == no_type => error was caught in expression, no need to write it again
+        if(rtype != variableType && variableType != Type::AUTO && rtype != Type::NO_TYPE){
             reportError(
                 variableToken, 
                 std::format(
@@ -303,7 +304,9 @@ void Analyzer::visit(AST::node::ASTAssignStmt* assignStmt){
     }
 
     if(ltype == Type::AUTO){
-        analyzerContext.scopeManager->getSymbol(variableExpr->getToken().value).setType(rtype);
+        analyzerContext.scopeManager->getSymbol(
+            variableExpr->getToken().value
+        ).setType(rtype);
     }
 }
 
@@ -359,14 +362,19 @@ void Analyzer::visit(AST::node::ASTReturnStmt* returnStmt){
     if(returnType == Type::NO_TYPE) return;
 
     // return type check
-    Type expectedReturnType{ globalScopeManager.getSymbol(analyzerContext.functionName).getType() };
+    Type expectedReturnType{ 
+        globalScopeManager.getSymbol(analyzerContext.functionName).getType() 
+    };
+
     if(returnType != expectedReturnType){
         const auto& returnToken{ returnStmt->getToken() };
         reportError(
             returnToken, 
             std::format(
                 "invalid return statement - type mismatch: '{} {}' returns '{}'", 
-                typeToStr(expectedReturnType), analyzerContext.functionName, typeToStr(returnType)
+                typeToStr(expectedReturnType), 
+                analyzerContext.functionName, 
+                typeToStr(returnType)
             )
         );
     }
@@ -544,7 +552,12 @@ void Analyzer::visit(AST::node::ASTIdExpr* idExpr){
     const auto& idExprToken{ idExpr->getToken() };
     
     // check if id exists
-    const auto* idExprSymbol{ analyzerContext.scopeManager->lookupSymbol(idExprToken.value, {Kind::VAR, Kind::PAR}) };
+    const auto* idExprSymbol{ 
+        analyzerContext.scopeManager->lookupSymbol(
+            idExprToken.value, {Kind::VAR, Kind::PAR}
+        ) 
+    };
+
     if(!idExprSymbol){
         reportError(
             idExprToken, 

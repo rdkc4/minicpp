@@ -50,7 +50,7 @@ namespace Optimization::sfa {
          * @brief intentionally empty, not used for stack size evaluation
          * @param parameter - pointer to the parameter
         */
-        void visit([[maybe_unused]] IR::node::IRParameter* parameter) override;
+        void visit([[maybe_unused]] IR::node::IRParameter* parameter) override { /*empty*/ };
 
         /**
          * @brief calculates the size of the stack required for the variable declaration
@@ -134,7 +134,7 @@ namespace Optimization::sfa {
          * @brief intentionally empty, not used for stack size evaluation
          * @param binaryExpr - pointer to the binary expression
         */
-        void visit([[maybe_unused]] IR::node::IRBinaryExpr* binaryExpr) override;
+        void visit([[maybe_unused]] IR::node::IRBinaryExpr* binaryExpr) override { /*empty*/ };
 
         /**
          * @brief calculates the size of the stack required for the function call expression
@@ -146,13 +146,13 @@ namespace Optimization::sfa {
          * @brief intentionally empty, not used for stack size evaluation
          * @param idExpr - pointer to the id expression
         */
-        void visit([[maybe_unused]] IR::node::IRIdExpr* idExpr) override;
+        void visit([[maybe_unused]] IR::node::IRIdExpr* idExpr) override { /*empty*/ };
 
         /**
          * @brief intentionally empty, not used for stack size evaluation
          * @param literalExpr - pointer to the literal expression
         */
-        void visit([[maybe_unused]] IR::node::IRLiteralExpr* literalExpr) override;
+        void visit([[maybe_unused]] IR::node::IRLiteralExpr* literalExpr) override { /*empty*/ };
 
         /**
          * @brief calculates the size of the stack required for the temporary expression

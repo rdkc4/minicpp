@@ -217,7 +217,10 @@ void AST::dump::ASTDumper::dumpIndent(){
 
 void AST::dump::ASTDumper::dumpNode(const AST::node::ASTNode* node){
     dumpIndent();
-    out << "|-> " << astNodeTypeToStr(node->getNodeType()) << " | '" << node->getToken().value << "'\n";
+    out << "|-> " 
+        << astNodeTypeToStr(node->getNodeType()) 
+        << " | '" << node->getToken().value 
+        << "'\n";
 }
 
 void AST::dump::ASTDumper::dumpNode(std::string_view nodeLabel){

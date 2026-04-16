@@ -35,21 +35,28 @@ namespace IR {
          * @param astFunction - const pointer to the ast function
          * @returns pointer to the irt function
         */
-        std::unique_ptr<node::IRFunction> transformFunction(const AST::node::ASTFunction* astFunction);
+        std::unique_ptr<node::IRFunction> 
+        transformFunction(const AST::node::ASTFunction* astFunction);
 
         /**
          * @brief turns ast parameters into irt parameters
          * @param irFunction - pointer to the irt function
          * @param astFunction - const pointer to the ast function
         */
-        void transformParameters(IR::node::IRFunction* irFunction, const AST::node::ASTFunction* astFunction);
+        void transformParameters(
+            IR::node::IRFunction* irFunction, 
+            const AST::node::ASTFunction* astFunction
+        );
 
         /**
          * @brief turns body of the ast function into the body of the irt function
          * @param irFunction - pointer to the irt function
          * @param astFunction - const pointer to the ast function
         */
-        void transformBody(IR::node::IRFunction* irFunction, const AST::node::ASTFunction* astFunction);
+        void transformBody(
+            IR::node::IRFunction* irFunction, 
+            const AST::node::ASTFunction* astFunction
+        );
 
     private:
         /// thread local context of the function

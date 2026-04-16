@@ -188,7 +188,13 @@ private:
      * @param type - type of the token
      * @param gtype - general type of the token, defaults to GeneralTokenType::OTHER
     */
-    void addToken(std::string_view val, size_t lineNumber, size_t col, TokenType type, GeneralTokenType gtype = GeneralTokenType::OTHER);
+    void addToken(
+        std::string_view val, 
+        size_t lineNumber, 
+        size_t col, 
+        TokenType type, 
+        GeneralTokenType gtype = GeneralTokenType::OTHER
+    );
 
     /**
      * @brief creates a new error message

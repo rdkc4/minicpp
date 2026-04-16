@@ -5,7 +5,8 @@
 AST::node::ASTProgram::ASTProgram(const Token& token) 
     : ASTNode(token, AST::defs::ASTNodeType::PROGRAM) {}
 
-const std::vector<std::unique_ptr<AST::node::ASTFunction>>& AST::node::ASTProgram::getFunctions() const noexcept {
+const std::vector<std::unique_ptr<AST::node::ASTFunction>>& 
+AST::node::ASTProgram::getFunctions() const noexcept {
     return functions;
 }
 
@@ -17,7 +18,8 @@ const AST::node::ASTFunction* AST::node::ASTProgram::getFunctionAtN(size_t n) co
     return functions[n].get();
 }
 
-const std::vector<std::unique_ptr<AST::node::ASTDir>>& AST::node::ASTProgram::getDirs() const noexcept {
+const std::vector<std::unique_ptr<AST::node::ASTDir>>& 
+AST::node::ASTProgram::getDirs() const noexcept {
     return dirs;
 }
 

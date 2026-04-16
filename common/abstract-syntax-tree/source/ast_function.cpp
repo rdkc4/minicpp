@@ -8,11 +8,13 @@ AST::node::ASTFunction::ASTFunction(const Token& token, Type type)
       predefined{ false }, 
       alwaysReturns{ false } {}
 
-const std::vector<std::unique_ptr<AST::node::ASTParameter>>& AST::node::ASTFunction::getParameters() const noexcept {
+const std::vector<std::unique_ptr<AST::node::ASTParameter>>& 
+AST::node::ASTFunction::getParameters() const noexcept {
     return parameters;
 }
 
-const std::vector<std::unique_ptr<AST::node::ASTStmt>>& AST::node::ASTFunction::getBody() const noexcept {
+const std::vector<std::unique_ptr<AST::node::ASTStmt>>& 
+AST::node::ASTFunction::getBody() const noexcept {
     return body;
 }
 

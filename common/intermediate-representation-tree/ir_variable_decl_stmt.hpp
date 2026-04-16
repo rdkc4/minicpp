@@ -38,7 +38,10 @@ namespace IR::node {
          * @param assign - pointer to the expression
          * @param temp - pointer to the temporaries, default nullptr
         */
-        void setAssignExpr(std::unique_ptr<IRExpr> expr, std::unique_ptr<IRTemporaryExpr> tempExpr = nullptr);
+        void setAssignExpr(
+            std::unique_ptr<IRExpr> expr, 
+            std::unique_ptr<IRTemporaryExpr> tempExpr = nullptr
+        );
 
         /** 
          * @brief getter for the name of the variable

@@ -52,7 +52,11 @@ namespace IR::node {
          * @param statement - pointer to a statement of the if/else-if statement
          * @param tempExpr - pointer to a temporary of the if/else-if statement, default nullptr
         */
-        void addIfStmt(std::unique_ptr<IRExpr> condExpr, std::unique_ptr<IRStmt> statement, std::unique_ptr<IRTemporaryExpr> tempExpr = nullptr);
+        void addIfStmt(
+            std::unique_ptr<IRExpr> condExpr, 
+            std::unique_ptr<IRStmt> statement, 
+            std::unique_ptr<IRTemporaryExpr> tempExpr = nullptr
+        );
 
         /** 
          * @brief initializes else-statement
@@ -77,7 +81,8 @@ namespace IR::node {
          * @param n - position of the if/else-if statement
          * @returns const tuple of pointers to condition, statement and temporary
         */
-        const std::tuple<const IRExpr*, const IRStmt*, const IRTemporaryExpr*> getIfStmtAtN(size_t n) const noexcept;
+        const std::tuple<const IRExpr*, const IRStmt*, const IRTemporaryExpr*> 
+        getIfStmtAtN(size_t n) const noexcept;
 
         /**
          * @brief accepts the ir visitor

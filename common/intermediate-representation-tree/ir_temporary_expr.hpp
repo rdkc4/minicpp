@@ -62,7 +62,11 @@ namespace IR::node {
          * @param tempVal - pointer to the expression, default nullptr
          * @param type - type of the temporary variable, default NO_TYPE
         */
-        void addTemporaryExpr(const std::string& tempName, std::unique_ptr<IRExpr> tempVal = nullptr, Type type = Type::NO_TYPE);
+        void addTemporaryExpr(
+            const std::string& tempName, 
+            std::unique_ptr<IRExpr> tempVal = nullptr, 
+            Type type = Type::NO_TYPE
+        );
 
         /** 
          * @brief initializes the temporary variable at specified position

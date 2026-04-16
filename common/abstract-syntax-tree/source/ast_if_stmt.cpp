@@ -5,14 +5,19 @@
 AST::node::ASTIfStmt::ASTIfStmt(const Token& token) 
     : ASTStmt(token, AST::defs::ASTNodeType::IF_STMT) {}
 
-const std::vector<std::unique_ptr<AST::node::ASTExpr>>& AST::node::ASTIfStmt::getConditionExprs() const noexcept {
+const std::vector<std::unique_ptr<AST::node::ASTExpr>>& 
+AST::node::ASTIfStmt::getConditionExprs() const noexcept {
     return conditionExprs;
 }
-const std::vector<std::unique_ptr<AST::node::ASTStmt>>& AST::node::ASTIfStmt::getStmts() const noexcept {
+const std::vector<std::unique_ptr<AST::node::ASTStmt>>& 
+AST::node::ASTIfStmt::getStmts() const noexcept {
     return stmts;
 }
 
-void AST::node::ASTIfStmt::addIfStmt(std::unique_ptr<AST::node::ASTExpr> condition, std::unique_ptr<AST::node::ASTStmt> statement){
+void AST::node::ASTIfStmt::addIfStmt(
+    std::unique_ptr<AST::node::ASTExpr> condition, 
+    std::unique_ptr<AST::node::ASTStmt> statement
+){
     conditionExprs.push_back(std::move(condition));
     stmts.push_back(std::move(statement));
 }

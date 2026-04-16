@@ -6,22 +6,26 @@
 #include "../../optimization/constant_folding.hpp"
 #include "../../common/intermediate-representation-tree/ir_binary_expr.hpp"
 
-std::unique_ptr<IR::node::IRExpr> IR::ExpressionIntermediateRepresentation::transformExpr(const AST::node::ASTExpr* astExpr){
-    if(astExpr->getNodeType() == AST::defs::ASTNodeType::ID_EXPR){
-        return transformIdExpr(static_cast<const AST::node::ASTIdExpr*>(astExpr));
-    }
-    else if(astExpr->getNodeType() == AST::defs::ASTNodeType::LITERAL_EXPR){
-        return transformLiteralExpr(static_cast<const AST::node::ASTLiteralExpr*>(astExpr));
-    }
-    else if(astExpr->getNodeType() == AST::defs::ASTNodeType::FUNCTION_CALL_EXPR){
-        return replaceFunctionCallExpr(static_cast<const AST::node::ASTFunctionCallExpr*>(astExpr));
-    }
-    else{
-        return transformBinaryExpr(static_cast<const AST::node::ASTBinaryExpr*>(astExpr));
+std::unique_ptr<IR::node::IRExpr> 
+IR::ExpressionIntermediateRepresentation::transformExpr(const AST::node::ASTExpr* astExpr){
+    auto nodeType{ astExpr->getNodeType() };
+    switch(nodeType){
+        case AST::defs::ASTNodeType::ID_EXPR:
+            return transformIdExpr(static_cast<const AST::node::ASTIdExpr*>(astExpr));
+
+        case AST::defs::ASTNodeType::LITERAL_EXPR:
+            return transformLiteralExpr(static_cast<const AST::node::ASTLiteralExpr*>(astExpr));
+
+        case AST::defs::ASTNodeType::FUNCTION_CALL_EXPR:
+            return replaceFunctionCallExpr(static_cast<const AST::node::ASTFunctionCallExpr*>(astExpr));
+
+        default:
+            return transformBinaryExpr(static_cast<const AST::node::ASTBinaryExpr*>(astExpr));
     }
 }
 
-std::unique_ptr<IR::node::IRExpr> IR::ExpressionIntermediateRepresentation::transformBinaryExpr(const AST::node::ASTBinaryExpr* astBinaryExpr){
+std::unique_ptr<IR::node::IRExpr> 
+IR::ExpressionIntermediateRepresentation::transformBinaryExpr(const AST::node::ASTBinaryExpr* astBinaryExpr){
     std::unique_ptr<IR::node::IRExpr> leftOperand{ 
         transformExpr(astBinaryExpr->getLeftOperandExpr()) 
     };
@@ -29,22 +33,30 @@ std::unique_ptr<IR::node::IRExpr> IR::ExpressionIntermediateRepresentation::tran
         transformExpr(astBinaryExpr->getRightOperandExpr()) 
     };
 
-    if(leftOperand->getNodeType() == IR::defs::IRNodeType::LITERAL && rightOperand->getNodeType() == IR::defs::IRNodeType::LITERAL){
+    auto type{ leftOperand->getType() };
+    if(leftOperand->getNodeType() == IR::defs::IRNodeType::LITERAL && 
+       rightOperand->getNodeType() == IR::defs::IRNodeType::LITERAL) {
 
         Optimization::ConstantFolding::MergeResult<std::unique_ptr<IR::node::IRExpr>> res;
-        if(leftOperand->getType() == Type::INT){
-            res = Optimization::ConstantFolding::mergeLiterals<int>(
-                static_cast<const IR::node::IRLiteralExpr*>(leftOperand.get()), 
-                static_cast<const IR::node::IRLiteralExpr*>(rightOperand.get()), 
-                astBinaryExpr
-            );
-        }
-        else if(leftOperand->getType() == Type::UNSIGNED){
-            res = Optimization::ConstantFolding::mergeLiterals<unsigned>(
-                static_cast<const IR::node::IRLiteralExpr*>(leftOperand.get()), 
-                static_cast<const IR::node::IRLiteralExpr*>(rightOperand.get()), 
-                astBinaryExpr
-            );
+
+        switch(type) {
+            case Type::INT:
+                res = Optimization::ConstantFolding::mergeLiterals<int>(
+                    static_cast<const IR::node::IRLiteralExpr*>(leftOperand.get()), 
+                    static_cast<const IR::node::IRLiteralExpr*>(rightOperand.get()), 
+                    astBinaryExpr
+                );
+                break;
+
+            case Type::UNSIGNED:
+                res = Optimization::ConstantFolding::mergeLiterals<unsigned>(
+                    static_cast<const IR::node::IRLiteralExpr*>(leftOperand.get()), 
+                    static_cast<const IR::node::IRLiteralExpr*>(rightOperand.get()), 
+                    astBinaryExpr
+                );
+                break;
+            
+            default: break;
         }
 
         assert(res.result != nullptr);
@@ -56,10 +68,12 @@ std::unique_ptr<IR::node::IRExpr> IR::ExpressionIntermediateRepresentation::tran
         return std::move(res.result);
     }
     
-    Type type{ leftOperand->getType() };
-    IR::defs::IRNodeType nodeType{ IR::defs::resolveOperator(astBinaryExpr->getOperator(), type) };
+    auto nodeType{ IR::defs::resolveOperator(astBinaryExpr->getOperator(), type) };
 
-    std::unique_ptr<IR::node::IRBinaryExpr> irBinaryExpr{ std::make_unique<IR::node::IRBinaryExpr>(nodeType, type) };
+    std::unique_ptr<IR::node::IRBinaryExpr> irBinaryExpr{ 
+        std::make_unique<IR::node::IRBinaryExpr>(nodeType, type) 
+    };
+
     irBinaryExpr->setBinaryExpr(
         std::move(leftOperand), 
         std::move(rightOperand), 
@@ -69,21 +83,30 @@ std::unique_ptr<IR::node::IRExpr> IR::ExpressionIntermediateRepresentation::tran
     return irBinaryExpr;
 }
 
-std::unique_ptr<IR::node::IRIdExpr> IR::ExpressionIntermediateRepresentation::transformIdExpr(const AST::node::ASTIdExpr* astIdExpr) const {
+std::unique_ptr<IR::node::IRIdExpr> 
+IR::ExpressionIntermediateRepresentation::transformIdExpr(
+    const AST::node::ASTIdExpr* astIdExpr
+) const {
     return std::make_unique<IR::node::IRIdExpr>(
         astIdExpr->getToken().value, 
         astIdExpr->getType()
     );
 }
 
-std::unique_ptr<IR::node::IRLiteralExpr> IR::ExpressionIntermediateRepresentation::transformLiteralExpr(const AST::node::ASTLiteralExpr* astLiteralExpr) const {
+std::unique_ptr<IR::node::IRLiteralExpr> 
+IR::ExpressionIntermediateRepresentation::transformLiteralExpr(
+    const AST::node::ASTLiteralExpr* astLiteralExpr
+) const {
     return std::make_unique<IR::node::IRLiteralExpr>(
         astLiteralExpr->getToken().value, 
         astLiteralExpr->getType()
     );
 }
 
-std::unique_ptr<IR::node::IRFunctionCallExpr> IR::ExpressionIntermediateRepresentation::transformFunctionCallExpr(const AST::node::ASTFunctionCallExpr* astCallExpr){
+std::unique_ptr<IR::node::IRFunctionCallExpr> 
+IR::ExpressionIntermediateRepresentation::transformFunctionCallExpr(
+    const AST::node::ASTFunctionCallExpr* astCallExpr
+){
     std::unique_ptr<IR::node::IRFunctionCallExpr> irCallExpr{ 
         std::make_unique<IR::node::IRFunctionCallExpr>(
             astCallExpr->getToken().value, astCallExpr->getType()
@@ -94,7 +117,10 @@ std::unique_ptr<IR::node::IRFunctionCallExpr> IR::ExpressionIntermediateRepresen
     return irCallExpr;
 }
 
-void IR::ExpressionIntermediateRepresentation::transformArguments(IR::node::IRFunctionCallExpr* irCallExpr, const AST::node::ASTFunctionCallExpr* astCallExpr){
+void IR::ExpressionIntermediateRepresentation::transformArguments(
+    IR::node::IRFunctionCallExpr* irCallExpr, 
+    const AST::node::ASTFunctionCallExpr* astCallExpr
+){
     for(const auto& astArgument : astCallExpr->getArguments()){
         auto temps{ initiateTemporaries(astArgument.get()) };
         irCallExpr->addArgument(
@@ -132,7 +158,11 @@ std::string IR::ExpressionIntermediateRepresentation::generateTemporaries(){
 }
 
 // assigning a returned value to temporary variables
-void IR::ExpressionIntermediateRepresentation::assignTemporaries(IR::node::IRTemporaryExpr* temporaryRoot, const AST::node::ASTExpr* astExpr, size_t& idx){
+void IR::ExpressionIntermediateRepresentation::assignTemporaries(
+    IR::node::IRTemporaryExpr* temporaryRoot, 
+    const AST::node::ASTExpr* astExpr, 
+    size_t& idx
+){
     auto nodeType{ astExpr->getNodeType() };
     switch(nodeType){
         case AST::defs::ASTNodeType::FUNCTION_CALL_EXPR: {
@@ -159,7 +189,10 @@ void IR::ExpressionIntermediateRepresentation::assignTemporaries(IR::node::IRTem
 }
 
 // replacing function calls with temporary variables in expression
-std::unique_ptr<IR::node::IRIdExpr> IR::ExpressionIntermediateRepresentation::replaceFunctionCallExpr(const AST::node::ASTFunctionCallExpr* astCallExpr){
+std::unique_ptr<IR::node::IRIdExpr> 
+IR::ExpressionIntermediateRepresentation::replaceFunctionCallExpr(
+    const AST::node::ASTFunctionCallExpr* astCallExpr
+){
     auto& irContext{ FunctionIntermediateRepresentation::getContext() }; 
     assert(!irContext.temporaryNames.empty());
     std::string name{ irContext.temporaryNames.top() };
@@ -167,10 +200,16 @@ std::unique_ptr<IR::node::IRIdExpr> IR::ExpressionIntermediateRepresentation::re
     return std::make_unique<IR::node::IRIdExpr>(name, astCallExpr->getType());
 }
 
-std::unique_ptr<IR::node::IRTemporaryExpr> IR::ExpressionIntermediateRepresentation::initiateTemporaries(const AST::node::ASTExpr* astExpr){
+std::unique_ptr<IR::node::IRTemporaryExpr> 
+IR::ExpressionIntermediateRepresentation::initiateTemporaries(
+    const AST::node::ASTExpr* astExpr
+){
     size_t tmpCount{ countTemporaries(astExpr) };
     if(tmpCount > 0){
-        std::unique_ptr<IR::node::IRTemporaryExpr> temporaryRoot{ std::make_unique<IR::node::IRTemporaryExpr>() };
+        std::unique_ptr<IR::node::IRTemporaryExpr> temporaryRoot{ 
+            std::make_unique<IR::node::IRTemporaryExpr>() 
+        };
+        
         size_t firstTemporaryIndex = 0;
         for(size_t i{0}; i < tmpCount; ++i){
             temporaryRoot->addTemporaryExpr(generateTemporaries());

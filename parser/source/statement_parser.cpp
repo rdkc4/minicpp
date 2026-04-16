@@ -3,7 +3,9 @@
 
 #include <format>
 
-StatementParser::StatementParser(TokenConsumer& consumer) : exprParser{ consumer }, tokenConsumer{ consumer } {}
+StatementParser::StatementParser(TokenConsumer& consumer) 
+    : exprParser{ consumer }, 
+      tokenConsumer{ consumer } {}
 
 std::unique_ptr<AST::node::ASTStmt> StatementParser::parseStmt(){
     const auto& token{ tokenConsumer.getToken() };
@@ -217,7 +219,7 @@ std::unique_ptr<AST::node::ASTForStmt> StatementParser::parseForStmt(){
     }
     tokenConsumer.consume(TokenType::RPAREN);
 
-    forStmt->setForSt(
+    forStmt->setForStmt(
         std::move(forInitializer), 
         std::move(condition), 
         std::move(forIncrementer), 

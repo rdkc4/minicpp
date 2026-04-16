@@ -2,7 +2,10 @@
 
 #include <utility>
 
-void IR::DirectiveIntermediateRepresentation::transformDir(IR::node::IRProgram* irProgram, const AST::node::ASTProgram* astProgram){
+void IR::DirectiveIntermediateRepresentation::transformDir(
+    IR::node::IRProgram* irProgram, 
+    const AST::node::ASTProgram* astProgram
+){
     for(const auto& dir : astProgram->getDirs()){
         switch(dir->getNodeType()){
             case AST::defs::ASTNodeType::INCLUDE_DIR:
@@ -14,6 +17,9 @@ void IR::DirectiveIntermediateRepresentation::transformDir(IR::node::IRProgram* 
     }
 }
 
-void IR::DirectiveIntermediateRepresentation::transformIncludeDir(IR::node::IRProgram* irProgram, const AST::node::ASTIncludeDir* astLib){
+void IR::DirectiveIntermediateRepresentation::transformIncludeDir(
+    IR::node::IRProgram* irProgram, 
+    const AST::node::ASTIncludeDir* astLib
+){
     irProgram->addLinkedLib(astLib->getLibName());
 }

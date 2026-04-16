@@ -9,7 +9,8 @@ void AST::node::ASTSwitchStmt::setVariableIdExpr(std::unique_ptr<AST::node::ASTI
     variableIdExpr = std::move(idExpr);
 }
 
-const std::vector<std::unique_ptr<AST::node::ASTCaseStmt>>& AST::node::ASTSwitchStmt::getCaseStmts() const noexcept {
+const std::vector<std::unique_ptr<AST::node::ASTCaseStmt>>& 
+AST::node::ASTSwitchStmt::getCaseStmts() const noexcept {
     return caseStmts;
 }
 

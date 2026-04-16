@@ -5,7 +5,12 @@
 AST::node::ASTForStmt::ASTForStmt(const Token& token) 
     : ASTStmt(token, AST::defs::ASTNodeType::FOR_STMT) {}
 
-void AST::node::ASTForStmt::setForSt(std::unique_ptr<AST::node::ASTAssignStmt> initStmt, std::unique_ptr<AST::node::ASTExpr> condExpr, std::unique_ptr<AST::node::ASTAssignStmt> incStmt, std::unique_ptr<AST::node::ASTStmt> statement){
+void AST::node::ASTForStmt::setForStmt(
+    std::unique_ptr<AST::node::ASTAssignStmt> initStmt, 
+    std::unique_ptr<AST::node::ASTExpr> condExpr, 
+    std::unique_ptr<AST::node::ASTAssignStmt> incStmt, 
+    std::unique_ptr<AST::node::ASTStmt> statement
+){
     initializerStmt = std::move(initStmt);
     conditionExpr = std::move(condExpr);
     incrementerStmt = std::move(incStmt);

@@ -5,7 +5,8 @@
 AST::node::ASTSwitchBlockStmt::ASTSwitchBlockStmt(const Token& token) 
     : ASTStmt(token, AST::defs::ASTNodeType::SWITCH_BLOCK_STMT) {}
 
-const std::vector<std::unique_ptr<AST::node::ASTStmt>>& AST::node::ASTSwitchBlockStmt::getStmts() const noexcept {
+const std::vector<std::unique_ptr<AST::node::ASTStmt>>& 
+AST::node::ASTSwitchBlockStmt::getStmts() const noexcept {
     return stmts;
 }
 

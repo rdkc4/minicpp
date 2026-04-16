@@ -44,7 +44,11 @@ namespace IR::node {
          * @param swBlockStmt - pointer to the switch block
          * @param hasBreak - flag whether or not case statement has break
         */
-        void setCase(std::unique_ptr<IRLiteralExpr> litExpr, std::unique_ptr<IRSwitchBlockStmt> swBlockStmt, bool hasBreak);
+        void setCase(
+            std::unique_ptr<IRLiteralExpr> litExpr, 
+            std::unique_ptr<IRSwitchBlockStmt> swBlockStmt, 
+            bool hasBreak
+        );
 
         /**
          * @brief getter for the flag for break statement

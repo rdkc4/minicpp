@@ -55,7 +55,11 @@ namespace IR::node {
          * @param expr - pointer to the expression assigned to the variable
          * @param tempExpr - pointer to the temporary (default nullptr)
         */
-        void setAssignStmt(std::unique_ptr<IRIdExpr> idExpr, std::unique_ptr<IRExpr> expr, std::unique_ptr<IRTemporaryExpr> tempExpr = nullptr);
+        void setAssignStmt(
+            std::unique_ptr<IRIdExpr> idExpr, 
+            std::unique_ptr<IRExpr> expr, 
+            std::unique_ptr<IRTemporaryExpr> tempExpr = nullptr
+        );
 
         /**
          * @brief checks if assignment statement has temporaries

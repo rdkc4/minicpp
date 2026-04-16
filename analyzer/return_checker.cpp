@@ -79,7 +79,8 @@ void ReturnChecker::visit(AST::node::ASTSwitchStmt* switchStmt){
 
     for(const auto& caseStmt : switchStmt->getCaseStmts()){
         caseStmt->accept(*this); 
-        switchStmtAlwaysReturns = switchStmtAlwaysReturns && (alwaysReturns || (!alwaysReturns && !caseStmt->hasBreakStmt()));
+        switchStmtAlwaysReturns = switchStmtAlwaysReturns && 
+            (alwaysReturns || (!alwaysReturns && !caseStmt->hasBreakStmt()));
     }
     switchStmtAlwaysReturns = switchStmtAlwaysReturns && switchStmt->hasDefaultStmt();
     

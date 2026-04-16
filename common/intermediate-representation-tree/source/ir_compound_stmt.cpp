@@ -4,7 +4,8 @@
 
 IR::node::IRCompoundStmt::IRCompoundStmt() : IRStmt(IR::defs::IRNodeType::COMPOUND) {}
 
-const std::vector<std::unique_ptr<IR::node::IRStmt>>& IR::node::IRCompoundStmt::getStmts() const noexcept {
+const std::vector<std::unique_ptr<IR::node::IRStmt>>& 
+IR::node::IRCompoundStmt::getStmts() const noexcept {
     return stmts;
 }
 

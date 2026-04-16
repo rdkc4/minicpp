@@ -67,7 +67,13 @@ namespace IR::node {
          * @param statement - pointer to the statement
          * @param tempExpr - pointer to the temporaries, default nullptr
         */
-        void setForSt(std::unique_ptr<IRAssignStmt> initStmt, std::unique_ptr<IRExpr> condExpr, std::unique_ptr<IRAssignStmt> incStmt, std::unique_ptr<IRStmt> statement, std::unique_ptr<IRTemporaryExpr> tempExpr = nullptr);
+        void setForStmt(
+            std::unique_ptr<IRAssignStmt> initStmt, 
+            std::unique_ptr<IRExpr> condExpr, 
+            std::unique_ptr<IRAssignStmt> incStmt, 
+            std::unique_ptr<IRStmt> statement, 
+            std::unique_ptr<IRTemporaryExpr> tempExpr = nullptr
+        );
 
         /**
          * @brief checks if for-statement has initializes

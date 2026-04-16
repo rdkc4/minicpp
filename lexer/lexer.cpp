@@ -55,7 +55,9 @@ std::string Lexer::getErrors() const noexcept {
 }
 
 void Lexer::addToken(std::string_view val, size_t lineNumber, size_t col, TokenType type, GeneralTokenType gtype){
-    tokens.emplace_back(Token{ val, lineNumber, col, type, gtype });
+    tokens.emplace_back(
+        Token{ val, lineNumber, col, type, gtype }
+    );
 }
 
 void Lexer::handleError(std::string_view msg, size_t lineNumber, size_t col){

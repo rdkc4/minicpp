@@ -2,9 +2,11 @@
 
 #include "../defs/ir_defs.hpp"
 
-IR::node::IRSwitchBlockStmt::IRSwitchBlockStmt() : IRStmt(IR::defs::IRNodeType::SWITCH_BLOCK) {}
+IR::node::IRSwitchBlockStmt::IRSwitchBlockStmt() 
+    : IRStmt(IR::defs::IRNodeType::SWITCH_BLOCK) {}
 
-const std::vector<std::unique_ptr<IR::node::IRStmt>>& IR::node::IRSwitchBlockStmt::getStmts() const noexcept {
+const std::vector<std::unique_ptr<IR::node::IRStmt>>& 
+IR::node::IRSwitchBlockStmt::getStmts() const noexcept {
     return stmts;
 }
 

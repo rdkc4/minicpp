@@ -3,7 +3,8 @@
 #include <stdexcept>
 #include <format>
 
-DirectiveParser::DirectiveParser(TokenConsumer& tokenConsumer) : tokenConsumer{ tokenConsumer } {}
+DirectiveParser::DirectiveParser(TokenConsumer& tokenConsumer) 
+    : tokenConsumer{ tokenConsumer } {}
 
 std::unique_ptr<AST::node::ASTDir> DirectiveParser::parseDir() {
     tokenConsumer.consume(TokenType::HASH);

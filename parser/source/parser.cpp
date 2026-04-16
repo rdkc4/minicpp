@@ -4,7 +4,10 @@
 
 #include "../token_consumer.hpp"
 
-Parser::Parser(TokenConsumer& consumer) : funcParser{ consumer }, dirParser{ consumer }, tokenConsumer{ consumer } {}
+Parser::Parser(TokenConsumer& consumer) 
+    : funcParser{ consumer }, 
+      dirParser{ consumer }, 
+      tokenConsumer{ consumer } {}
 
 std::unique_ptr<AST::node::ASTProgram> Parser::parseProgram(){
     std::unique_ptr<AST::node::ASTProgram> program{ 

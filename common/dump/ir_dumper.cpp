@@ -21,7 +21,9 @@ void IR::dump::IRDumper::visit(IR::node::IRProgram* program){
 void IR::dump::IRDumper::visit(IR::node::IRFunction* function){
     dumpNode(function, std::format(
         " | {} {} | req mem: {}", 
-        typeToStr(function->getType()), function->getFunctionName(), function->getRequiredMemory()
+        typeToStr(function->getType()), 
+        function->getFunctionName(), 
+        function->getRequiredMemory()
     ));
 
     IndentGuard functionGuard{indent};
@@ -46,14 +48,17 @@ void IR::dump::IRDumper::visit(IR::node::IRFunction* function){
 void IR::dump::IRDumper::visit(IR::node::IRParameter* parameter){
     dumpNode(parameter, std::format(
         " | {} {}", 
-        typeToStr(parameter->getType()), parameter->getParameterName()
+        typeToStr(parameter->getType()), 
+        parameter->getParameterName()
     ));
 }
 
 void IR::dump::IRDumper::visit(IR::node::IRVariableDeclStmt* variableDecl){
     dumpNode(variableDecl, std::format(
         " | {} {} {}", 
-        typeToStr(variableDecl->getType()), variableDecl->getVarName(), variableDecl->getValue()
+        typeToStr(variableDecl->getType()), 
+        variableDecl->getVarName(), 
+        variableDecl->getValue()
     ));
 
     IndentGuard variableGuard{indent};
@@ -231,14 +236,16 @@ void IR::dump::IRDumper::visit(IR::node::IRFunctionCallExpr* callExpr){
 void IR::dump::IRDumper::visit(IR::node::IRIdExpr* idExpr){
     dumpNode(idExpr, std::format(
         " | {} {}", 
-        typeToStr(idExpr->getType()), idExpr->getIdName()
+        typeToStr(idExpr->getType()), 
+        idExpr->getIdName()
     ));
 }
 
 void IR::dump::IRDumper::visit(IR::node::IRLiteralExpr* literalExpr){
     dumpNode(literalExpr, std::format(
         " | {} {}",
-        typeToStr(literalExpr->getType()), literalExpr->getValue()
+        typeToStr(literalExpr->getType()),
+        literalExpr->getValue()
     ));
 }
 
@@ -262,7 +269,10 @@ void IR::dump::IRDumper::dumpIndent(){
 
 void IR::dump::IRDumper::dumpNode(const IR::node::IRNode* node, std::string_view details){
     dumpIndent();
-    out << "|-> " << IR::defs::irNodeToStr(node->getNodeType()) << details << "\n";
+    out << "|-> " 
+        << IR::defs::irNodeToStr(node->getNodeType()) 
+        << details 
+        << "\n";
 }
 
 void IR::dump::IRDumper::dumpNode(std::string_view nodeLabel){

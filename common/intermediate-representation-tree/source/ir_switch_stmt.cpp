@@ -2,17 +2,20 @@
 
 #include "../defs/ir_defs.hpp"
 
-IR::node::IRSwitchStmt::IRSwitchStmt() : IRStmt(IR::defs::IRNodeType::SWITCH) {}
+IR::node::IRSwitchStmt::IRSwitchStmt() 
+    : IRStmt(IR::defs::IRNodeType::SWITCH) {}
 
 void IR::node::IRSwitchStmt::setVariableIdExpr(std::unique_ptr<IRIdExpr> idExpr){
     variableIdExpr = std::move(idExpr);
 }
 
-const std::vector<std::unique_ptr<IR::node::IRCaseStmt>>& IR::node::IRSwitchStmt::getCaseStmts() const noexcept {
+const std::vector<std::unique_ptr<IR::node::IRCaseStmt>>& 
+IR::node::IRSwitchStmt::getCaseStmts() const noexcept {
     return caseStmts;
 }
 
-const IR::node::IRCaseStmt* IR::node::IRSwitchStmt::getCaseStmtAtN(size_t n) const noexcept {
+const IR::node::IRCaseStmt* 
+IR::node::IRSwitchStmt::getCaseStmtAtN(size_t n) const noexcept {
     return caseStmts[n].get();
 }
 

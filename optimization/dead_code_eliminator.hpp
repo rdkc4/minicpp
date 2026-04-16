@@ -50,19 +50,19 @@ namespace Optimization::dce {
          * @brief intentionally empty, cannot return
          * @param parameter - pointer to the parameter
         */
-        void visit([[maybe_unused]] IR::node::IRParameter* parameter) override;
+        void visit([[maybe_unused]] IR::node::IRParameter* parameter) override { /*empty*/ };
 
         /**
          * @brief intentionally empty, cannot return
          * @param variableDecl - pointer to the variable declaration
         */
-        void visit([[maybe_unused]] IR::node::IRVariableDeclStmt* variableDecl) override;
+        void visit([[maybe_unused]] IR::node::IRVariableDeclStmt* variableDecl) override { /*empty*/ };
 
         /**
          * @brief intentionally empty, cannot return
          * @param assignStmt - pointer to the assign statement
         */
-        void visit([[maybe_unused]] IR::node::IRAssignStmt* assignStmt) override;
+        void visit([[maybe_unused]] IR::node::IRAssignStmt* assignStmt) override { /*empty*/ };
 
         /**
          * @brief eliminates the dead code of the compound statement
@@ -74,13 +74,13 @@ namespace Optimization::dce {
          * @brief intentionally empty, cannot return (compile-time condition evaluation is not available yet)
          * @param forStmt - pointer to the for statement
         */
-        void visit([[maybe_unused]] IR::node::IRForStmt* forStmt) override;
+        void visit([[maybe_unused]] IR::node::IRForStmt* forStmt) override { /*empty*/ };
 
         /**
          * @brief intentionally empty, cannot return
          * @param callStmt - pointer to the function call statement
         */
-        void visit([[maybe_unused]] IR::node::IRFunctionCallStmt* callStmt) override;
+        void visit([[maybe_unused]] IR::node::IRFunctionCallStmt* callStmt) override { /*empty*/ };
 
         /**
          * @brief eliminates the dead code of the if statement
@@ -98,7 +98,7 @@ namespace Optimization::dce {
          * @brief intentionally empty, cannot return (compile-time condition evaluation is not available yet)
          * @param whileStmt - pointer to the while statement
         */
-        void visit([[maybe_unused]] IR::node::IRWhileStmt* whileStmt) override;
+        void visit([[maybe_unused]] IR::node::IRWhileStmt* whileStmt) override { /*empty*/ };
 
         /**
          * @brief eliminates the dead code of the do-while statement
@@ -134,31 +134,31 @@ namespace Optimization::dce {
          * @brief intentionally empty, cannot return
          * @param binaryExpr - pointer to the binary expression
         */
-        void visit([[maybe_unused]] IR::node::IRBinaryExpr* binaryExpr) override;
+        void visit([[maybe_unused]] IR::node::IRBinaryExpr* binaryExpr) override { /*empty*/ };
 
         /**
          * @brief intentionally empty, cannot return
          * @param callExpr - pointer to the function call expression
         */
-        void visit([[maybe_unused]] IR::node::IRFunctionCallExpr* callExpr) override;
+        void visit([[maybe_unused]] IR::node::IRFunctionCallExpr* callExpr) override { /*empty*/ };
 
         /**
          * @brief intentionally empty, cannot return
          * @param idExpr - pointer to the id expression
         */
-        void visit([[maybe_unused]] IR::node::IRIdExpr* idExpr) override;
+        void visit([[maybe_unused]] IR::node::IRIdExpr* idExpr) override { /*empty*/ };
 
         /**
          * @brief intentionally empty, cannot return
          * @param literalExpr - pointer to the literal expression
         */
-        void visit([[maybe_unused]] IR::node::IRLiteralExpr* literalExpr) override;
+        void visit([[maybe_unused]] IR::node::IRLiteralExpr* literalExpr) override { /*empty*/ };
 
         /**
          * @brief intentionally empty, cannot return
          * @param tempExpr - pointer to the temporary expression
         */
-        void visit([[maybe_unused]] IR::node::IRTemporaryExpr* tempExpr) override;
+        void visit([[maybe_unused]] IR::node::IRTemporaryExpr* tempExpr) override { /*empty*/ };
 
     private:
         /// reference to a thread pool for parallel dead code elimination

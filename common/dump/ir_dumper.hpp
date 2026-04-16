@@ -55,127 +55,127 @@ namespace IR::dump {
          * @brief dumps the ir program
          * @param program - pointer to the ir program
         */
-        void visit(IR::node::IRProgram* program) override;
+        void visit(IR::node::IRProgram* program) final override;
 
         /**
          * @brief dumps the ir function
          * @param function - pointer to the ir function
         */
-        void visit(IR::node::IRFunction* function) override;
+        void visit(IR::node::IRFunction* function) final override;
 
         /**
          * @brief dumps the ir parameter
          * @param parameter - pointer to the ir parameter
         */
-        void visit(IR::node::IRParameter* parameter) override;
+        void visit(IR::node::IRParameter* parameter) final override;
 
         /**
          * @brief dumps the ir variable declaration
          * @param variableDecl - pointer to the ir variable declaration
         */
-        void visit(IR::node::IRVariableDeclStmt* variableDecl) override;
+        void visit(IR::node::IRVariableDeclStmt* variableDecl) final override;
 
         /**
          * @brief dumps the ir assign statement
          * @param assignStmt - pointer to the ir assign statement
         */
-        void visit(IR::node::IRAssignStmt* assignStmt) override;
+        void visit(IR::node::IRAssignStmt* assignStmt) final override;
 
         /**
          * @brief dumps the ir compound statement
          * @param compoundStmt - pointer to the ir compound statement
         */
-        void visit(IR::node::IRCompoundStmt* compoundStmt) override;
+        void visit(IR::node::IRCompoundStmt* compoundStmt) final override;
 
         /**
          * @brief dumps the ir for statement
          * @param forStmt - pointer to the ir for statement
         */
-        void visit(IR::node::IRForStmt* forStmt) override;
+        void visit(IR::node::IRForStmt* forStmt) final override;
 
         /**
          * @brief dumps the ir function-call statement
          * @param callStmt - pointer to the ir function-call statement
         */
-        void visit(IR::node::IRFunctionCallStmt* callStmt) override;
+        void visit(IR::node::IRFunctionCallStmt* callStmt) final override;
 
         /**
          * @brief dumps the ir if statement
          * @param ifStmt - pointer to the ir if statement
         */
-        void visit(IR::node::IRIfStmt* ifStmt) override;
+        void visit(IR::node::IRIfStmt* ifStmt) final override;
 
         /**
          * @brief dumps the ir return statement
          * @param returnStmt - pointer to the ir return statement
         */
-        void visit(IR::node::IRReturnStmt* returnStmt) override;
+        void visit(IR::node::IRReturnStmt* returnStmt) final override;
 
         /**
          * @brief dumps the ir while statement
          * @param whileStmt - pointer to the ir while statement
         */
-        void visit(IR::node::IRWhileStmt* whileStmt) override;
+        void visit(IR::node::IRWhileStmt* whileStmt) final override;
 
         /**
          * @brief dumps the ir dowhile statement
          * @param dowhileStmt - pointer to the ir dowhile statement
         */
-        void visit(IR::node::IRDoWhileStmt* dowhileStmt) override;
+        void visit(IR::node::IRDoWhileStmt* dowhileStmt) final override;
 
         /**
          * @brief dumps the ir switch statement
          * @param switchStmt - pointer to the ir switch statement
         */
-        void visit(IR::node::IRSwitchStmt* switchStmt) override;
+        void visit(IR::node::IRSwitchStmt* switchStmt) final override;
 
         /**
          * @brief dumps the ir case statement
          * @param caseStmt - pointer to the ir case statement
         */
-        void visit(IR::node::IRCaseStmt* caseStmt) override;
+        void visit(IR::node::IRCaseStmt* caseStmt) final override;
 
         /**
          * @brief dumps the ir default statement
          * @param defaultStmt - pointer to the ir default statement
         */
-        void visit(IR::node::IRDefaultStmt* defaultStmt) override;
+        void visit(IR::node::IRDefaultStmt* defaultStmt) final override;
 
         /**
          * @brief dumps the ir switch block statement
          * @param switchBlockStmt - pointer to the ir switch block statement
         */
-        void visit(IR::node::IRSwitchBlockStmt* switchBlockStmt) override;
+        void visit(IR::node::IRSwitchBlockStmt* switchBlockStmt) final override;
 
         /**
          * @brief dumps the ir binary expression
          * @param binaryExpr - pointer to the ir binary expression
         */
-        void visit(IR::node::IRBinaryExpr* binaryExpr) override;
+        void visit(IR::node::IRBinaryExpr* binaryExpr) final override;
 
         /**
          * @brief dumps the ir function-call expression
          * @param callExpr - pointer to the ir function-call expression
         */
-        void visit(IR::node::IRFunctionCallExpr* callExpr) override;
+        void visit(IR::node::IRFunctionCallExpr* callExpr) final override;
 
         /**
          * @brief dumps the ir id expression
          * @param idExpr - pointer to the ir id expression
         */
-        void visit(IR::node::IRIdExpr* idExpr) override;
+        void visit(IR::node::IRIdExpr* idExpr) final override;
 
         /**
          * @brief dumps the ir literal expression
          * @param literalExpr - pointer to the ir literal expression
         */
-        void visit(IR::node::IRLiteralExpr* literalExpr) override;
+        void visit(IR::node::IRLiteralExpr* literalExpr) final override;
         
         /**
          * @brief dumps the ir temporary expression
          * @param tempExpr - pointer to the ir temporary expression
         */
-        void visit(IR::node::IRTemporaryExpr* tempExpr) override;
+        void visit(IR::node::IRTemporaryExpr* tempExpr) final override;
 
     private:
         /// reference to output stream

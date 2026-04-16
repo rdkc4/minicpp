@@ -49,7 +49,10 @@ namespace IR::node {
          * @param argument - argument of the function call
          * @param tempExpr - temporaries of the argument, default nullptr
         */
-        void addArgument(std::unique_ptr<IRExpr> argument, std::unique_ptr<IRTemporaryExpr> tempExpr = nullptr);
+        void addArgument(
+            std::unique_ptr<IRExpr> argument, 
+            std::unique_ptr<IRTemporaryExpr> tempExpr = nullptr
+        );
 
         /** 
          * @brief getter for the name of the function that is being called

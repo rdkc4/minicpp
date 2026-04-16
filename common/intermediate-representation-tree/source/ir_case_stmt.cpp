@@ -4,7 +4,11 @@
 
 IR::node::IRCaseStmt::IRCaseStmt() : IRStmt(IR::defs::IRNodeType::CASE) {}
 
-void IR::node::IRCaseStmt::setCase(std::unique_ptr<IRLiteralExpr> litExpr, std::unique_ptr<IRSwitchBlockStmt> swBlockStmt, bool hasBreak){
+void IR::node::IRCaseStmt::setCase(
+    std::unique_ptr<IRLiteralExpr> litExpr, 
+    std::unique_ptr<IRSwitchBlockStmt> swBlockStmt, 
+    bool hasBreak
+){
     literalExpr = std::move(litExpr);
     switchBlockStmt = std::move(swBlockStmt);
     breaks = hasBreak;

@@ -46,7 +46,11 @@ namespace AST::node {
          * @param swBlockStmt - pointer to a switch block node
          * @param hasBreak - flag if case has break
         */
-        void setCase(std::unique_ptr<ASTLiteralExpr> litExpr, std::unique_ptr<ASTSwitchBlockStmt> swBlockStmt, bool hasBreak);
+        void setCase(
+            std::unique_ptr<ASTLiteralExpr> litExpr, 
+            std::unique_ptr<ASTSwitchBlockStmt> swBlockStmt, 
+            bool hasBreak
+        );
 
         /** 
          * @brief getter for break flag

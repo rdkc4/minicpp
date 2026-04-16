@@ -53,7 +53,10 @@ namespace Optimization::ConstantFolding {
             case Operator::DIV:
                 if(r == 0){
                     constFold.result = 0;
-                    constFold.error = std::format("Line {}, Column {}: SEMANTIC ERROR -> division by ZERO", line, column);
+                    constFold.error = std::format(
+                        "Line {}, Column {}: SEMANTIC ERROR -> division by ZERO", 
+                        line, column
+                    );
                     return constFold;
                 }
                 constFold.result = l / r;
@@ -124,20 +127,23 @@ namespace Optimization::ConstantFolding {
      * @returns result of the merge operation
     */
     template<typename T>
-    MergeResult<std::unique_ptr<IR::node::IRExpr>> mergeLiterals(const IR::node::IRLiteralExpr* leftOperand, const IR::node::IRLiteralExpr* rightOperand, const AST::node::ASTBinaryExpr* binExp) {
+    MergeResult<std::unique_ptr<IR::node::IRExpr>> mergeLiterals(
+        const IR::node::IRLiteralExpr* leftOperand, 
+        const IR::node::IRLiteralExpr* rightOperand, 
+        const AST::node::ASTBinaryExpr* binExp
+    ){
         T lval{ getOperandValue<T>(leftOperand) };
         T rval{ getOperandValue<T>(rightOperand) };
 
         const auto& binExpToken{ binExp->getToken() };
 
-        MergeResult<T> res{ mergeValues<T>(
-                lval, 
-                rval, 
-                binExp->getOperator(), 
-                binExpToken.line, 
-                binExpToken.column
-            ) 
-        };
+        MergeResult<T> res { mergeValues<T>(
+            lval, 
+            rval, 
+            binExp->getOperator(), 
+            binExpToken.line, 
+            binExpToken.column
+        ) };
 
         Type type{ binExp->getType() };
         std::string suffix{ type == Type::UNSIGNED ? "u" : "" };
@@ -151,6 +157,5 @@ namespace Optimization::ConstantFolding {
     }
 
 };
-
 
 #endif

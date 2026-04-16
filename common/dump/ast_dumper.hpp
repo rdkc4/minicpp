@@ -55,127 +55,127 @@ namespace AST::dump {
         * @brief dumps the ast program
         * @param program - pointer to the ast program
         */
-        void visit(AST::node::ASTProgram* program) override;
+        void visit(AST::node::ASTProgram* program) final override;
 
         /**
         * @brief dumps the ast include directive
         * @param lib - pointer to the ast include directive
         */
-        void visit(AST::node::ASTIncludeDir* lib) override;
+        void visit(AST::node::ASTIncludeDir* lib) final override;
 
         /**
         * @brief dumps the ast function
         * @param function - pointer to the ast function
         */
-        void visit(AST::node::ASTFunction* function) override;
+        void visit(AST::node::ASTFunction* function) final override;
 
         /**
         * @brief dumps the ast parameter
         * @param parameter - pointer to the ast parameter
         */
-        void visit(AST::node::ASTParameter* parameter) override;
+        void visit(AST::node::ASTParameter* parameter) final override;
 
         /**
         * @brief dumps the ast variable declaration
         * @param variableDecl - pointer to the ast variable declaration
         */
-        void visit(AST::node::ASTVariableDeclStmt* variableDecl) override;
+        void visit(AST::node::ASTVariableDeclStmt* variableDecl) final override;
 
         /**
         * @brief dumps the ast assign statement
         * @param assignStmt - pointer to the ast assign statement
         */
-        void visit(AST::node::ASTAssignStmt* assignStmt) override;
+        void visit(AST::node::ASTAssignStmt* assignStmt) final override;
 
         /**
         * @brief dumps the ast compound statement
         * @param compoundStmt - pointer to the ast compound statement
         */
-        void visit(AST::node::ASTCompoundStmt* compoundStmt) override;
+        void visit(AST::node::ASTCompoundStmt* compoundStmt) final override;
 
         /**
         * @brief dumps the ast for statement
         * @param forStmt - pointer to the ast for statement
         */
-        void visit(AST::node::ASTForStmt* forStmt) override;
+        void visit(AST::node::ASTForStmt* forStmt) final override;
 
         /**
         * @brief dumps the ast function-call statement
         * @param callStmt - pointer to the ast function-call statement
         */
-        void visit(AST::node::ASTFunctionCallStmt* callStmt) override;
+        void visit(AST::node::ASTFunctionCallStmt* callStmt) final override;
 
         /**
         * @brief dumps the ast if statement
         * @param ifStmt - pointer to the ast if statement
         */
-        void visit(AST::node::ASTIfStmt* ifStmt) override;
+        void visit(AST::node::ASTIfStmt* ifStmt) final override;
 
         /**
         * @brief dumps the ast return statement
         * @param returnStmt - pointer to the ast return statement
         */
-        void visit(AST::node::ASTReturnStmt* returnStmt) override;
+        void visit(AST::node::ASTReturnStmt* returnStmt) final override;
 
         /**
         * @brief dumps the ast while statement
         * @param whileStmt - pointer to the ast while statement
         */
-        void visit(AST::node::ASTWhileStmt* whileStmt) override;
+        void visit(AST::node::ASTWhileStmt* whileStmt) final override;
 
         /**
         * @brief dumps the ast dowhile statement
         * @param dowhileStmt - pointer to the ast dowhile statement
         */
-        void visit(AST::node::ASTDoWhileStmt* dowhileStmt) override;
+        void visit(AST::node::ASTDoWhileStmt* dowhileStmt) final override;
         
         /**
         * @brief dumps the ast switch statement
         * @param switchStmt - pointer to the ast switch statement
         */
-        void visit(AST::node::ASTSwitchStmt* switchStmt) override;
+        void visit(AST::node::ASTSwitchStmt* switchStmt) final override;
 
         /**
         * @brief dumps the ast case statement
         * @param caseStmt - pointer to the ast case statement
         */
-        void visit(AST::node::ASTCaseStmt* caseStmt) override;
+        void visit(AST::node::ASTCaseStmt* caseStmt) final override;
 
         /**
         * @brief dumps the ast default statement
         * @param defaultStmt - pointer to the ast default statement
         */
-        void visit(AST::node::ASTDefaultStmt* defaultStmt) override;
+        void visit(AST::node::ASTDefaultStmt* defaultStmt) final override;
         
         /**
         * @brief dumps the ast switch block statement
         * @param switchBlockStmt - pointer to the ast switch block statement
         */
-        void visit(AST::node::ASTSwitchBlockStmt* switchBlockStmt) override;
+        void visit(AST::node::ASTSwitchBlockStmt* switchBlockStmt) final override;
 
         /**
         * @brief dumps the ast binary expression
         * @param binaryExpr - pointer to the ast binary expression
         */
-        void visit(AST::node::ASTBinaryExpr* binaryExpr) override;
+        void visit(AST::node::ASTBinaryExpr* binaryExpr) final override;
 
         /**
         * @brief dumps the ast function-call expression
         * @param callExpr - pointer to the ast function-call expression
         */
-        void visit(AST::node::ASTFunctionCallExpr* callExpr) override;
+        void visit(AST::node::ASTFunctionCallExpr* callExpr) final override;
 
         /**
         * @brief dumps the ast id expression
         * @param idExpr - pointer to the ast id expression
         */
-        void visit(AST::node::ASTIdExpr* idExpr) override;
+        void visit(AST::node::ASTIdExpr* idExpr) final override;
 
         /**
         * @brief dumps the ast literal expression
         * @param literalExpr - pointer to the ast literal expression
         */
-        void visit(AST::node::ASTLiteralExpr* literalExpr) override;
+        void visit(AST::node::ASTLiteralExpr* literalExpr) final override;
 
     private:
         /// output stream

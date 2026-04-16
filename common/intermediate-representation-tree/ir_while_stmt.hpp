@@ -44,7 +44,11 @@ namespace IR::node {
          * @param statement - pointer to the statement
          * @param tempExpr - pointer to the temporary, default nullptr
         */
-        void setWhileStmt(std::unique_ptr<IRExpr> condExpr, std::unique_ptr<IRStmt> statement, std::unique_ptr<IRTemporaryExpr> tempExpr = nullptr);
+        void setWhileStmt(
+            std::unique_ptr<IRExpr> condExpr, 
+            std::unique_ptr<IRStmt> statement, 
+            std::unique_ptr<IRTemporaryExpr> tempExpr = nullptr
+        );
 
         /** 
          * @brief getter for the temporaries

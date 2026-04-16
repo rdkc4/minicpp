@@ -3,13 +3,16 @@
 #include "../defs/ir_defs.hpp"
 #include "../../preprocessing/preprocessing_libs.hpp"
 
-IR::node::IRProgram::IRProgram() : IRNode(IR::defs::IRNodeType::PROGRAM) {}
+IR::node::IRProgram::IRProgram() 
+    : IRNode(IR::defs::IRNodeType::PROGRAM) {}
 
-const std::vector<std::unique_ptr<IR::node::IRFunction>>& IR::node::IRProgram::getFunctions() const noexcept {
+const std::vector<std::unique_ptr<IR::node::IRFunction>>& 
+IR::node::IRProgram::getFunctions() const noexcept {
     return functions;
 }
 
-const IR::node::IRFunction* IR::node::IRProgram::getFunctionAtN(size_t n) const noexcept {
+const IR::node::IRFunction* 
+IR::node::IRProgram::getFunctionAtN(size_t n) const noexcept {
     return functions[n].get();
 }
 

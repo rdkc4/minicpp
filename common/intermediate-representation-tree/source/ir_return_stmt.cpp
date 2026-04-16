@@ -2,9 +2,13 @@
 
 #include "../defs/ir_defs.hpp"
 
-IR::node::IRReturnStmt::IRReturnStmt() : IRStmt(IR::defs::IRNodeType::RETURN) {}
+IR::node::IRReturnStmt::IRReturnStmt() 
+    : IRStmt(IR::defs::IRNodeType::RETURN) {}
 
-void IR::node::IRReturnStmt::setReturnExpr(std::unique_ptr<IRExpr> expr, std::unique_ptr<IRTemporaryExpr> tempExpr){
+void IR::node::IRReturnStmt::setReturnExpr(
+    std::unique_ptr<IRExpr> expr, 
+    std::unique_ptr<IRTemporaryExpr> tempExpr
+){
     returnExpr = std::move(expr);
     temporaryExpr = std::move(tempExpr);
 }

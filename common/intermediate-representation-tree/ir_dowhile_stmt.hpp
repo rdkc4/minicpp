@@ -44,7 +44,11 @@ namespace IR::node {
          * @param statement - pointer to the statement of the do-while statement node
          * @param tempExpr - pointer to the temporaries of the do-while statement node, default nullptr
         */
-        void setDoWhileStmt(std::unique_ptr<IRExpr> condExpr, std::unique_ptr<IRStmt> statement, std::unique_ptr<IRTemporaryExpr> tempExpr = nullptr);
+        void setDoWhileStmt(
+            std::unique_ptr<IRExpr> condExpr, 
+            std::unique_ptr<IRStmt> statement, 
+            std::unique_ptr<IRTemporaryExpr> tempExpr = nullptr
+        );
 
         /**
          * @brief getter for the temporaries of the do-while statement node

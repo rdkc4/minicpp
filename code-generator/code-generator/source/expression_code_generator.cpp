@@ -211,7 +211,11 @@ void ExpressionCodeGenerator::generateLogicalOrExpr(BinaryOperands operands){
     );
 }
 
-void ExpressionCodeGenerator::generateRelationalExpr(const IR::node::IRBinaryExpr* binaryExpr, BinaryOperands operands, ExprContext ctx){
+void ExpressionCodeGenerator::generateRelationalExpr(
+    const IR::node::IRBinaryExpr* binaryExpr, 
+    BinaryOperands operands, 
+    ExprContext ctx
+){
     auto& codeGenContext{ FunctionCodeGenerator::getContext() };
     AsmGenerator::Instruction::genCmp(
         codeGenContext.asmCode, 
@@ -233,8 +237,11 @@ void ExpressionCodeGenerator::generateRelationalExpr(const IR::node::IRBinaryExp
     }
 }
 
-void ExpressionCodeGenerator::generateConditionExpr(const IR::node::IRExpr* expr, std::string_view trueLabel, std::string_view falseLabel){
-    assert(trueLabel != "" || falseLabel != "");
+void ExpressionCodeGenerator::generateConditionExpr(
+    const IR::node::IRExpr* expr, 
+    std::string_view trueLabel, 
+    std::string_view falseLabel
+){
     auto& codeGenContext{ FunctionCodeGenerator::getContext() };
     size_t labNum{ CodeGenerator::getNextLabelNum() };
     
@@ -242,27 +249,25 @@ void ExpressionCodeGenerator::generateConditionExpr(const IR::node::IRExpr* expr
     if(auto jumpInfo{ irNodeTypeToJumpInfo(nodeType) }; !jumpInfo.jcc.empty()){
         generateBinaryExpr(static_cast<const IR::node::IRBinaryExpr*>(expr), ExprContext::BRANCH);
 
-        if(trueLabel != ""){
-            AsmGenerator::Instruction::genJcc(
-                codeGenContext.asmCode,
-                jumpInfo.jcc,
-                trueLabel
-            );
-        }
+        AsmGenerator::Instruction::genJcc(
+            codeGenContext.asmCode,
+            jumpInfo.jcc,
+            trueLabel
+        );
 
-        if(falseLabel != ""){
-            AsmGenerator::Instruction::genJcc(
-                codeGenContext.asmCode,
-                jumpInfo.jccInverse,
-                falseLabel
-            );
-        }
+        AsmGenerator::Instruction::genJcc(
+            codeGenContext.asmCode,
+            jumpInfo.jccInverse,
+            falseLabel
+        );
 
         return;
     }
 
     if(nodeType == IR::defs::IRNodeType::ANDL){
-        const auto* binaryExpr{ static_cast<const IR::node::IRBinaryExpr*>(expr) };
+        const auto* binaryExpr{ 
+            static_cast<const IR::node::IRBinaryExpr*>(expr) 
+        };
         std::string midLabel{ std::format("_andl{}_mid", labNum) };
 
         generateConditionExpr(binaryExpr->getLeftOperandExpr(), midLabel, falseLabel);
@@ -277,7 +282,9 @@ void ExpressionCodeGenerator::generateConditionExpr(const IR::node::IRExpr* expr
     }
 
     if(nodeType == IR::defs::IRNodeType::ORL){
-        const auto* binaryExpr{ static_cast<const IR::node::IRBinaryExpr*>(expr) };
+        const auto* binaryExpr{ 
+            static_cast<const IR::node::IRBinaryExpr*>(expr) 
+        };
         std::string midLabel{ std::format("_orl{}_mid", labNum) };
 
         generateConditionExpr(binaryExpr->getLeftOperandExpr(), trueLabel, midLabel);
@@ -455,8 +462,11 @@ void ExpressionCodeGenerator::generateTemporaryExprs(const IR::node::IRTemporary
 
         generateExpr(tempExpr);
         codeGenContext.freeGpReg();
-        AsmGenerator::Instruction::genMov(codeGenContext.asmCode, gpRegisters.at(codeGenContext.gpFreeRegPos), 
-            codeGenContext.variableMap.at(tempExprs->getTemporaryNameAtN(i)), "q"
+        AsmGenerator::Instruction::genMov(
+            codeGenContext.asmCode, 
+            gpRegisters.at(codeGenContext.gpFreeRegPos), 
+            codeGenContext.variableMap.at(tempExprs->getTemporaryNameAtN(i)), 
+            "q"
         );
     }
 }

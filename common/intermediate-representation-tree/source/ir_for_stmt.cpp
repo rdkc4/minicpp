@@ -4,7 +4,13 @@
 
 IR::node::IRForStmt::IRForStmt() : IRStmt(IR::defs::IRNodeType::FOR) {}
 
-void IR::node::IRForStmt::setForSt(std::unique_ptr<IRAssignStmt> initStmt, std::unique_ptr<IRExpr> condExpr, std::unique_ptr<IRAssignStmt> incStmt, std::unique_ptr<IRStmt> statement, std::unique_ptr<IRTemporaryExpr> tempExpr){
+void IR::node::IRForStmt::setForStmt(
+    std::unique_ptr<IRAssignStmt> initStmt, 
+    std::unique_ptr<IRExpr> condExpr, 
+    std::unique_ptr<IRAssignStmt> incStmt, 
+    std::unique_ptr<IRStmt> statement, 
+    std::unique_ptr<IRTemporaryExpr> tempExpr
+){
     initializerStmt = std::move(initStmt);
     conditionExpr = std::move(condExpr);
     incrementerStmt = std::move(incStmt);

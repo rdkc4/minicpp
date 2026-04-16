@@ -9,7 +9,8 @@ IR::node::IRFunction::IRFunction(const std::string& funcName, Type type)
       type{ type }, 
       predefined{ false } {}
 
-const std::vector<std::unique_ptr<IR::node::IRParameter>>& IR::node::IRFunction::getParameters() const noexcept {
+const std::vector<std::unique_ptr<IR::node::IRParameter>>& 
+IR::node::IRFunction::getParameters() const noexcept {
     return parameters;
 }
 
@@ -17,7 +18,8 @@ void IR::node::IRFunction::addParameter(std::unique_ptr<IRParameter> parameter){
     parameters.push_back(std::move(parameter));
 }
 
-const std::vector<std::unique_ptr<IR::node::IRStmt>>& IR::node::IRFunction::getBody() const noexcept {
+const std::vector<std::unique_ptr<IR::node::IRStmt>>& 
+IR::node::IRFunction::getBody() const noexcept {
     return body;
 }
 

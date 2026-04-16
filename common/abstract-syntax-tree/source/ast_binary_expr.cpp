@@ -13,7 +13,10 @@ void AST::node::ASTBinaryExpr::setOperator(Operator op) noexcept {
     exprOperator = op;
 }
 
-void AST::node::ASTBinaryExpr::setOperandExprs(std::unique_ptr<AST::node::ASTExpr> leftOperand, std::unique_ptr<AST::node::ASTExpr> rightOperand){
+void AST::node::ASTBinaryExpr::setOperandExprs(
+    std::unique_ptr<AST::node::ASTExpr> leftOperand, 
+    std::unique_ptr<AST::node::ASTExpr> rightOperand
+){
     leftOperandExpr = std::move(leftOperand);
     rightOperandExpr = std::move(rightOperand);
 }

@@ -5,7 +5,8 @@
 AST::node::ASTFunctionCallExpr::ASTFunctionCallExpr(const Token& token, Type type) 
     : ASTExpr(token, AST::defs::ASTNodeType::FUNCTION_CALL_EXPR, type) {}
 
-const std::vector<std::unique_ptr<AST::node::ASTExpr>>& AST::node::ASTFunctionCallExpr::getArguments() const noexcept {
+const std::vector<std::unique_ptr<AST::node::ASTExpr>>& 
+AST::node::ASTFunctionCallExpr::getArguments() const noexcept {
     return arguments;
 }
 

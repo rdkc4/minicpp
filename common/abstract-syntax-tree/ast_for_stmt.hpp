@@ -68,7 +68,12 @@ namespace AST::node {
          * @param incStmt - pointer to an assignment statement (incrementer)
          * @param statement - pointer to a statement node
         */
-        void setForSt(std::unique_ptr<ASTAssignStmt> initStmt, std::unique_ptr<ASTExpr> condExpr, std::unique_ptr<ASTAssignStmt> incStmt, std::unique_ptr<ASTStmt> statement);
+        void setForStmt(
+            std::unique_ptr<ASTAssignStmt> initStmt, 
+            std::unique_ptr<ASTExpr> condExpr, 
+            std::unique_ptr<ASTAssignStmt> incStmt, 
+            std::unique_ptr<ASTStmt> statement
+        );
 
         /** 
          * @brief checks if initializer is initialized

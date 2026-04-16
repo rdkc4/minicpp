@@ -11,10 +11,14 @@
 #include "../../optimization/dead_code_eliminator.hpp"
 
 IR::IntermediateRepresentation::IntermediateRepresentation(ThreadPool& threadPool) 
-    : threadPool{ threadPool }, funcIR{ exceptions } {}
+    : threadPool{ threadPool }, 
+      funcIR{ exceptions } {}
 
-std::unique_ptr<IR::node::IRProgram> IR::IntermediateRepresentation::transformProgram(const AST::node::ASTProgram* program){
-    std::unique_ptr<IR::node::IRProgram> irProgram{ std::make_unique<IR::node::IRProgram>() };
+std::unique_ptr<IR::node::IRProgram> 
+IR::IntermediateRepresentation::transformProgram(const AST::node::ASTProgram* program){
+    std::unique_ptr<IR::node::IRProgram> irProgram{ 
+        std::make_unique<IR::node::IRProgram>() 
+    };
 
     dirIR.transformDir(irProgram.get(), program);
     
@@ -25,9 +29,15 @@ std::unique_ptr<IR::node::IRProgram> IR::IntermediateRepresentation::transformPr
 
     for(size_t i{0}; i < total; ++i){
         threadPool.enqueue(
-            [this, irProgram=irProgram.get(), function=program->getFunctionAtN(i), &doneLatch, i] -> void {
+            [this, 
+                irProgram = irProgram.get(), 
+                function = program->getFunctionAtN(i), 
+                &doneLatch, i
+            ] -> void {
                 // generating ir of a function
-                std::unique_ptr<IR::node::IRFunction> irFunction{ funcIR.transformFunction(function) };
+                std::unique_ptr<IR::node::IRFunction> irFunction{ 
+                    funcIR.transformFunction(function) 
+                };
                 irProgram->setFunctionAtN(std::move(irFunction), i);
 
                 doneLatch.count_down();
@@ -47,7 +57,9 @@ std::unique_ptr<IR::node::IRProgram> IR::IntermediateRepresentation::transformPr
 
     for(const auto& dir : program->getDirs()) {
         if(dir->getNodeType() == AST::defs::ASTNodeType::INCLUDE_DIR){
-            irProgram->addLinkedLib(static_cast<const AST::node::ASTIncludeDir*>(dir.get())->getLibName());
+            irProgram->addLinkedLib(
+                static_cast<const AST::node::ASTIncludeDir*>(dir.get())->getLibName()
+            );
         }
     }
 

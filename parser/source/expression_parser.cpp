@@ -6,7 +6,8 @@
 
 #include "../defs/parser_defs.hpp"
 
-ExpressionParser::ExpressionParser(TokenConsumer& consumer) : tokenConsumer{ consumer } {}
+ExpressionParser::ExpressionParser(TokenConsumer& consumer) 
+    : tokenConsumer{ consumer } {}
 
 std::unique_ptr<AST::node::ASTExpr> ExpressionParser::parseExpr(){
     std::stack<std::unique_ptr<AST::node::ASTExpr>> values;

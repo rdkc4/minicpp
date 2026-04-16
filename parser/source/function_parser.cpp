@@ -1,6 +1,8 @@
 #include "../function_parser.hpp"
 
-FunctionParser::FunctionParser(TokenConsumer& consumer) : stmtParser{ consumer }, tokenConsumer{ consumer } {}
+FunctionParser::FunctionParser(TokenConsumer& consumer) 
+    : stmtParser{ consumer }, 
+      tokenConsumer{ consumer } {}
 
 std::unique_ptr<AST::node::ASTFunction> FunctionParser::parseFunction(){
     Type type{ tokenTypeToType(tokenConsumer.getToken().type) };

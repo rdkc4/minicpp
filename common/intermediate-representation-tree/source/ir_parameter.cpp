@@ -3,7 +3,9 @@
 #include "../defs/ir_defs.hpp"
 
 IR::node::IRParameter::IRParameter(std::string_view parName, Type type) 
-    : IRNode(IR::defs::IRNodeType::PARAMETER), parameterName{ parName }, type{ type } {}
+    : IRNode(IR::defs::IRNodeType::PARAMETER), 
+      parameterName{ parName }, 
+      type{ type } {}
 
 const std::string& IR::node::IRParameter::getParameterName() const noexcept {
     return parameterName;

@@ -24,7 +24,7 @@ namespace IR::node {
         /** 
          * @brief Destructs the instance of the irt node
         */
-        virtual ~IRNode();
+        virtual ~IRNode() = default;
 
         /** 
          * @brief getter for the node type

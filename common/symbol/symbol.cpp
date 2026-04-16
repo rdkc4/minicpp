@@ -2,7 +2,8 @@
 
 #include <format>
 
-Symbol::Symbol(std::string_view name, Kind kind, Type type) : name{ name }, parameters{ nullptr }, kind{ kind }, type{ type } {}
+Symbol::Symbol(std::string_view name, Kind kind, Type type) 
+    : name{ name }, parameters{ nullptr }, kind{ kind }, type{ type } {}
 
 const std::string& Symbol::getName() const noexcept {
     return name;
@@ -16,7 +17,8 @@ Type Symbol::getType() const noexcept {
     return type;
 }
 
-const std::vector<std::unique_ptr<AST::node::ASTParameter>>* Symbol::getParameters() const noexcept {
+const std::vector<std::unique_ptr<AST::node::ASTParameter>>* 
+Symbol::getParameters() const noexcept {
     return parameters;
 }
 

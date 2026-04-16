@@ -51,7 +51,11 @@ namespace IR::node {
          * @param rightOperand - pointer to the right operand
          * @param op - operator of the binary expression
         */
-        void setBinaryExpr(std::unique_ptr<IRExpr> leftOperand, std::unique_ptr<IRExpr> rightOperand, Operator op);
+        void setBinaryExpr(
+            std::unique_ptr<IRExpr> leftOperand, 
+            std::unique_ptr<IRExpr> rightOperand, 
+            Operator op
+        );
 
         /**
          * @brief accepts the ir visitor

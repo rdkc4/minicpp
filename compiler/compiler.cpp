@@ -108,7 +108,8 @@ Compiler::ExitCode Compiler::lexicalAnalysis(Lexer& lexer){
     return Compiler::ExitCode::NO_ERR;
 }
 
-Compiler::ExitCode Compiler::syntaxAnalysis(Lexer& lexer, std::unique_ptr<AST::node::ASTProgram>& astProgram){
+Compiler::ExitCode 
+Compiler::syntaxAnalysis(Lexer& lexer, std::unique_ptr<AST::node::ASTProgram>& astProgram){
     try{
         assert(lexer.completedTokenization());
         TokenConsumer tokenConsumer{ lexer };
@@ -123,7 +124,10 @@ Compiler::ExitCode Compiler::syntaxAnalysis(Lexer& lexer, std::unique_ptr<AST::n
     return Compiler::ExitCode::NO_ERR;
 }
 
-Compiler::ExitCode Compiler::semanticAnalysis(std::unique_ptr<AST::node::ASTProgram>& astProgram, ThreadPool& threadPool){
+Compiler::ExitCode Compiler::semanticAnalysis(
+    std::unique_ptr<AST::node::ASTProgram>& astProgram, 
+    ThreadPool& threadPool
+){
     SymbolTable symbolTable {};
     ScopeManager scopeManager{ symbolTable };
     Analyzer analyzer{scopeManager, threadPool};
@@ -137,7 +141,11 @@ Compiler::ExitCode Compiler::semanticAnalysis(std::unique_ptr<AST::node::ASTProg
     return Compiler::ExitCode::NO_ERR;
 }
 
-Compiler::ExitCode Compiler::transformASTToIRT(std::unique_ptr<AST::node::ASTProgram>& astProgram, std::unique_ptr<IR::node::IRProgram>& irProgram, ThreadPool& threadPool){
+Compiler::ExitCode Compiler::transformASTToIRT(
+    std::unique_ptr<AST::node::ASTProgram>& astProgram, 
+    std::unique_ptr<IR::node::IRProgram>& irProgram, 
+    ThreadPool& threadPool
+){
         IR::IntermediateRepresentation intermediateRepresentation{threadPool};
         irProgram = intermediateRepresentation.transformProgram(astProgram.get());
 
@@ -149,7 +157,11 @@ Compiler::ExitCode Compiler::transformASTToIRT(std::unique_ptr<AST::node::ASTPro
         return Compiler::ExitCode::NO_ERR;
 }
 
-Compiler::ExitCode Compiler::generateProgram(const IR::node::IRProgram* irProgram, const std::string_view output, ThreadPool& threadPool){
+Compiler::ExitCode Compiler::generateProgram(
+    const IR::node::IRProgram* irProgram, 
+    std::string_view output, 
+    ThreadPool& threadPool
+){
     std::string outputFilePath{ std::format("{}.s", output) };
     CodeGenerator codeGenerator{ outputFilePath, threadPool };
     try{
@@ -167,7 +179,10 @@ Compiler::ExitCode Compiler::generateProgram(const IR::node::IRProgram* irProgra
     return Compiler::ExitCode::NO_ERR;
 }
 
-Compiler::ExitCode Compiler::assembleAndLink(const IR::node::IRProgram* irProgram, const std::string_view output){
+Compiler::ExitCode Compiler::assembleAndLink(
+    const IR::node::IRProgram* irProgram, 
+    std::string_view output
+){
     std::string source{ std::format("{}.s", output) };
 
     std::vector<std::string> args{ 

@@ -1,6 +1,7 @@
 #ifndef ASM_INSTRUCTION_GENERATOR_HPP
 #define ASM_INSTRUCTION_GENERATOR_HPP
 
+#include <string_view>
 #include <vector>
 #include <string>
 #include <cstddef>
@@ -22,67 +23,77 @@ namespace AsmGenerator::Instruction {
     /** 
      * @brief generates the mov instruction
      * @param asmCode - reference to a vector that contains asm code of the current function
-     * @param l - left operand
-     * @param r - right operand
-     * @param ext - extension for the mov instruction
-     * @details movext l, r
+     * @param src - source operand
+     * @param dest - destination operand
+     * @param ext - extension for the mov instruction, defaults to empty string
+     * @details movext src, dest
     */
-    void genMov(std::vector<std::string>& asmCode, std::string_view l, std::string_view r, std::string_view ext = "");
+    void genMov(std::vector<std::string>& asmCode, std::string_view src, std::string_view dest, std::string_view ext = "");
 
     /**
      * @brief generates the set instruction
      * @param asmCode - reference to a vector that contains asm code of the current function
-     * @param r - operand that is being set
+     * @param dest - destination operand
      * @param ext - extension for set instruction
-     * @details setext r
+     * @details setext dest
     */
-    void genSet(std::vector<std::string>& asmCode, std::string_view r, std::string_view ext);
+    void genSet(std::vector<std::string>& asmCode, std::string_view dest, std::string_view ext);
 
     /**
      * @brief generates the set instruction
      * @param asmCode - reference to a vector that contains asm code of the current function
      * @param set - set instruction
-     * @param r - operand that is being set
-     * @details setcc r
+     * @param dest - destination operand
+     * @details setcc dest
     */
-    void genSetcc(std::vector<std::string>& asmCode, std::string_view setcc, std::string_view r);
+    void genSetcc(std::vector<std::string>& asmCode, std::string_view setcc, std::string_view dest);
 
     /** 
      * @brief generates the test instruction
      * @param asmCode - reference to a vector that contains asm code of the current function
-     * @param r - operand that is being tested
-     * @param ext - extension for the mov instruction
-     * @details testext r, r
+     * @param op - operand
+     * @param ext - extension for the mov instruction, defaults to empty string
+     * @details testext op, op
     */
-    void genTest(std::vector<std::string>& asmCode, std::string_view r, std::string_view ext = "");
+    void genTest(std::vector<std::string>& asmCode, std::string_view op, std::string_view ext = "");
+
+    /** 
+     * @brief generates the test instruction
+     * @param asmCode - reference to a vector that contains asm code of the current function
+     * @param lOp - left operand
+     * @param rOp - right operand
+     * @param ext - extension for the mov instruction, defaults to empty string
+     * @details testext lOp, rOp
+    */
+    void genTest(std::vector<std::string> &asmCode, std::string_view lOp, std::string_view rOp, std::string_view ext = "");
 
     /** 
      * @brief generates the cmp instruction
      * @param asmCode - reference to a vector that contains asm code of the current function
-     * @param l - left operand
-     * @param r - right operand
-     * @details cmp l, r
+     * @param lOp - left operand
+     * @param rOp - right operand
+     * @details cmp lOp, rOp
     */
-    void genCmp(std::vector<std::string>& asmCode, std::string_view l, std::string_view r);
+    void genCmp(std::vector<std::string>& asmCode, std::string_view lOp, std::string_view rOp);
 
     /** 
      * @brief generates the operation instruction
      * @param asmCode - reference to a vector that contains asm code of the current function
-     * @param op - operator
-     * @param l - left operand
-     * @param r - right operand
-     * @details op l, r
+     * @param operation - performed operation
+     * @param src - source operand
+     * @param dest - destination operand
+     * @details operation lOp, rOp
     */
-    void genOperation(std::vector<std::string>& asmCode, std::string_view op, std::string_view l, std::string_view r);
+    void genOperation(std::vector<std::string>& asmCode, std::string_view operation, std::string_view src, std::string_view dest);
 
     /** 
      * @brief generates the operation instruction
      * @param asmCode - reference to a vector that contains asm code of the current function
-     * @param op - operator
-     * @param r - operand
-     * @details op r
+     * @param operation - performed operation
+     * @param dest - destination operand
+     * @details operation dest
     */
-    void genOperation(std::vector<std::string>& asmCode, std::string_view op, std::string_view r);
+    void genOperation(std::vector<std::string>& asmCode, std::string_view operation, std::string_view dest);
     
     /** 
      * @brief generates the label
@@ -127,18 +138,18 @@ namespace AsmGenerator::Instruction {
     /** 
      * @brief generates the push instruction
      * @param asmCode - reference to a vector that contains asm code of the current function
-     * @param r - operand pushed to stack
-     * @details push r
+     * @param src - source operand
+     * @details push src
     */
-    void genPush(std::vector<std::string>& asmCode, std::string_view r);
+    void genPush(std::vector<std::string>& asmCode, std::string_view src);
 
     /** 
      * @brief generates the pop instruction
      * @param asmCode - reference to a vector that contains asm code of the current function
-     * @param r - operand where the value from the stack is popped
-     * @details pop r
+     * @param dest - destination operand
+     * @details pop dest
     */
-    void genPop(std::vector<std::string>& asmCode, std::string_view r);
+    void genPop(std::vector<std::string>& asmCode, std::string_view dest);
 
     /** 
      * @brief generates the prologue of the function

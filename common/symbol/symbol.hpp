@@ -44,7 +44,8 @@ public:
      * @brief getter for the parameters (if symbol is a function)
      * @returns pointer to a vector of pointers to parameters
     */
-    const std::vector<std::unique_ptr<AST::node::ASTParameter>>* getParameters() const noexcept;
+    const std::vector<std::unique_ptr<AST::node::ASTParameter>>* 
+    getParameters() const noexcept;
 
     /** 
      * @brief initializes symbol name
