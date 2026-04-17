@@ -29,7 +29,7 @@ size_t ir::IRProgram::getFunctionCount() const noexcept {
 }
 
 void ir::IRProgram::addLinkedLib(const std::string& libName) {
-    linkedLibs.insert(Preprocessing::Libs::generateLibObjPath(libName));
+    linkedLibs.insert(preprocessing::generateLibObjPath(libName));
 }
 
 std::vector<std::string> ir::IRProgram::getLinkedLibs() const noexcept {

@@ -2,7 +2,7 @@
 
 #include <utility>
 
-void IR::DirectiveIntermediateRepresentation::transformDir(
+void ir::DirectiveIntermediateRepresentation::transformDir(
     ir::IRProgram* irProgram, 
     const syntax::ast::ASTProgram* astProgram
 ){
@@ -17,7 +17,7 @@ void IR::DirectiveIntermediateRepresentation::transformDir(
     }
 }
 
-void IR::DirectiveIntermediateRepresentation::transformIncludeDir(
+void ir::DirectiveIntermediateRepresentation::transformIncludeDir(
     ir::IRProgram* irProgram, 
     const syntax::ast::ASTIncludeDir* astLib
 ){

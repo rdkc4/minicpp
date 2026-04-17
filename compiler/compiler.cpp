@@ -24,8 +24,8 @@ extern "C" {
     extern char** environ;
 }
 
-Compiler::CompileOptions Compiler::parseOptions(int argc, char** argv){
-    Compiler::CompileOptions options;
+compiler::CompileOptions compiler::parseOptions(int argc, char** argv){
+    compiler::CompileOptions options;
     for(int i{1}; i < argc; ++i){
         std::string arg{ argv[i] };
 
@@ -66,7 +66,7 @@ Compiler::CompileOptions Compiler::parseOptions(int argc, char** argv){
     return options;
 }
 
-std::string Compiler::readSourceCode(const std::string& input){
+std::string compiler::readSourceCode(const std::string& input){
     std::ifstream inputStream{ input };
 
     if(!inputStream.is_open()){
@@ -80,7 +80,7 @@ std::string Compiler::readSourceCode(const std::string& input){
     return sourceCode.str();
 }
 
-const Compiler::PreprocessResult Compiler::preprocess(const std::string& source) {
+const compiler::PreprocessResult compiler::preprocess(const std::string& source) {
     Preprocessor preprocessor;
     preprocessor.preprocess(source);
 
@@ -91,25 +91,25 @@ const Compiler::PreprocessResult Compiler::preprocess(const std::string& source)
     
     return {
         .exitCode = isInvalid 
-            ? Compiler::ExitCode::PREPROCESS_ERR 
-            : Compiler::ExitCode::NO_ERR,
+            ? compiler::ExitCode::PREPROCESS_ERR 
+            : compiler::ExitCode::NO_ERR,
         .source = preprocessor.getPreprocessed()
     };
 }
 
-Compiler::ExitCode Compiler::lexicalAnalysis(Lexer& lexer){
+compiler::ExitCode compiler::lexicalAnalysis(Lexer& lexer){
     lexer.tokenize();
     
     if(lexer.hasErrors()){
         std::cerr << lexer.getErrors();
-        return Compiler::ExitCode::LEXICAL_ERR;
+        return compiler::ExitCode::LEXICAL_ERR;
     }
 
-    return Compiler::ExitCode::NO_ERR;
+    return compiler::ExitCode::NO_ERR;
 }
 
-Compiler::ExitCode 
-Compiler::syntaxAnalysis(Lexer& lexer, std::unique_ptr<syntax::ast::ASTProgram>& astProgram){
+compiler::ExitCode 
+compiler::syntaxAnalysis(Lexer& lexer, std::unique_ptr<syntax::ast::ASTProgram>& astProgram){
     try{
         assert(lexer.completedTokenization());
         TokenConsumer tokenConsumer{ lexer };
@@ -121,10 +121,10 @@ Compiler::syntaxAnalysis(Lexer& lexer, std::unique_ptr<syntax::ast::ASTProgram>&
         return ExitCode::SYNTAX_ERR;
     }
 
-    return Compiler::ExitCode::NO_ERR;
+    return compiler::ExitCode::NO_ERR;
 }
 
-Compiler::ExitCode Compiler::semanticAnalysis(
+compiler::ExitCode compiler::semanticAnalysis(
     std::unique_ptr<syntax::ast::ASTProgram>& astProgram, 
     ThreadPool& threadPool
 ){
@@ -135,29 +135,29 @@ Compiler::ExitCode Compiler::semanticAnalysis(
 
     if(analyzer.hasSemanticErrors(astProgram.get())){
         std::cerr << analyzer.getSemanticErrors(astProgram.get());
-        return Compiler::ExitCode::SEMANTIC_ERR;
+        return compiler::ExitCode::SEMANTIC_ERR;
     }
 
-    return Compiler::ExitCode::NO_ERR;
+    return compiler::ExitCode::NO_ERR;
 }
 
-Compiler::ExitCode Compiler::transformASTToIRT(
+compiler::ExitCode compiler::transformASTToIRT(
     std::unique_ptr<syntax::ast::ASTProgram>& astProgram, 
     std::unique_ptr<ir::IRProgram>& irProgram, 
     ThreadPool& threadPool
 ){
-        IR::IntermediateRepresentation intermediateRepresentation{threadPool};
+        ir::IntermediateRepresentation intermediateRepresentation{threadPool};
         irProgram = intermediateRepresentation.transformProgram(astProgram.get());
 
         if(intermediateRepresentation.hasErrors(irProgram.get())){
             std::cerr << intermediateRepresentation.getErrors(irProgram.get());
-            return Compiler::ExitCode::IR_ERR;
+            return compiler::ExitCode::IR_ERR;
         }
 
-        return Compiler::ExitCode::NO_ERR;
+        return compiler::ExitCode::NO_ERR;
 }
 
-Compiler::ExitCode Compiler::generateProgram(
+compiler::ExitCode compiler::generateProgram(
     const ir::IRProgram* irProgram, 
     std::string_view output, 
     ThreadPool& threadPool
@@ -168,18 +168,18 @@ Compiler::ExitCode Compiler::generateProgram(
         codeGenerator.generateProgram(irProgram);
         if(!codeGenerator.successful()){
             std::cerr << std::format("Unable to open '{}'", outputFilePath);
-            return Compiler::ExitCode::CODEGEN_ERR;
+            return compiler::ExitCode::CODEGEN_ERR;
         }
     }
     catch(std::exception& e){
         std::cerr << std::format("\nCode Generation: failed\n{}\n", e.what());
-        return Compiler::ExitCode::CODEGEN_ERR;
+        return compiler::ExitCode::CODEGEN_ERR;
     }
 
-    return Compiler::ExitCode::NO_ERR;
+    return compiler::ExitCode::NO_ERR;
 }
 
-Compiler::ExitCode Compiler::assembleAndLink(
+compiler::ExitCode compiler::assembleAndLink(
     const ir::IRProgram* irProgram, 
     std::string_view output
 ){
@@ -202,42 +202,42 @@ Compiler::ExitCode Compiler::assembleAndLink(
     pid_t pid;
     if(posix_spawnp(&pid, "clang", nullptr, nullptr, argv.data(), environ) != 0){
         std::cerr << "Error: Failed to spawn clang process\n";
-        return Compiler::ExitCode::ASM_LINK_ERR;
+        return compiler::ExitCode::ASM_LINK_ERR;
     }
 
     int status;
     if (waitpid(pid, &status, 0) == -1) {
         std::cerr << "Error: waitpid failed: " << strerror(errno) << "\n";
-        return Compiler::ExitCode::ASM_LINK_ERR;
+        return compiler::ExitCode::ASM_LINK_ERR;
     }
 
     if (WIFEXITED(status) && WEXITSTATUS(status) != 0) {
         std::cerr << "Error: Clang returned non-zero exit code\n";
-        return Compiler::ExitCode::ASM_LINK_ERR;
+        return compiler::ExitCode::ASM_LINK_ERR;
     }
 
-    return Compiler::ExitCode::NO_ERR;
+    return compiler::ExitCode::NO_ERR;
 }
 
-Compiler::ExitCode Compiler::compile(Compiler::CompileOptions options) {
+compiler::ExitCode compiler::compile(compiler::CompileOptions options) {
     std::string source{ readSourceCode(options.input) };
 
-    Compiler::PreprocessResult preprocessResult{ preprocess(source) };
-    if(preprocessResult.exitCode != Compiler::ExitCode::NO_ERR){
+    compiler::PreprocessResult preprocessResult{ preprocess(source) };
+    if(preprocessResult.exitCode != compiler::ExitCode::NO_ERR){
         return preprocessResult.exitCode;
     }
 
-    Compiler::ExitCode result;
+    compiler::ExitCode result;
 
     Lexer lexer{ preprocessResult.source };
     result = lexicalAnalysis(lexer);
-    if(result != Compiler::ExitCode::NO_ERR){
+    if(result != compiler::ExitCode::NO_ERR){
         return result;
     }
     
     std::unique_ptr<syntax::ast::ASTProgram> astProgram;
     result = syntaxAnalysis(lexer, astProgram);
-    if(result != Compiler::ExitCode::NO_ERR){
+    if(result != compiler::ExitCode::NO_ERR){
         return result;
     }
 
@@ -248,13 +248,13 @@ Compiler::ExitCode Compiler::compile(Compiler::CompileOptions options) {
     ThreadPool threadPool{ std::thread::hardware_concurrency() };
 
     result = semanticAnalysis(astProgram, threadPool);
-    if(result != Compiler::ExitCode::NO_ERR){
+    if(result != compiler::ExitCode::NO_ERR){
         return result;
     }
 
     std::unique_ptr<ir::IRProgram> irProgram;
     result = transformASTToIRT(astProgram, irProgram, threadPool);
-    if(result != Compiler::ExitCode::NO_ERR){
+    if(result != compiler::ExitCode::NO_ERR){
         return result;
     }
 
@@ -263,7 +263,7 @@ Compiler::ExitCode Compiler::compile(Compiler::CompileOptions options) {
     }
 
     result = generateProgram(irProgram.get(), options.output, threadPool);
-    if(result != Compiler::ExitCode::NO_ERR){
+    if(result != compiler::ExitCode::NO_ERR){
         return result;
     }
     
@@ -274,12 +274,12 @@ Compiler::ExitCode Compiler::compile(Compiler::CompileOptions options) {
     return result;
 }
 
-void Compiler::dumpAST(syntax::ast::ASTProgram* program, std::ostream& out){
+void compiler::dumpAST(syntax::ast::ASTProgram* program, std::ostream& out){
     syntax::ast::ASTDumper dump{out};
     program->accept(dump);
 }
 
-void Compiler::dumpIR(ir::IRProgram* program, std::ostream& out){
+void compiler::dumpIR(ir::IRProgram* program, std::ostream& out){
     ir::IRDumper dump{out};
     program->accept(dump);
 }

@@ -29,7 +29,7 @@
 #include "expression_intermediate_representation.hpp"
 #include "ctx/ir_ctx.hpp"
 
-namespace IR {
+namespace ir {
     /**
      * @class StatementIntermediateRepresentation
      * @brief turns ast statement into irt statement

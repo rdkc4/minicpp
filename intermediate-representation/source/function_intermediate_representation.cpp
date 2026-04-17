@@ -1,10 +1,10 @@
 #include "../function_intermediate_representation.hpp"
 
-IR::FunctionIntermediateRepresentation::FunctionIntermediateRepresentation()
+ir::FunctionIntermediateRepresentation::FunctionIntermediateRepresentation()
     : stmtIR{ ctx } {}
 
 std::unique_ptr<ir::IRFunction> 
-IR::FunctionIntermediateRepresentation::transformFunction(const syntax::ast::ASTFunction* astFunction){
+ir::FunctionIntermediateRepresentation::transformFunction(const syntax::ast::ASTFunction* astFunction){
     std::unique_ptr<ir::IRFunction> irFunction{ 
         std::make_unique<ir::IRFunction>(
             astFunction->getToken().value, 
@@ -23,7 +23,7 @@ IR::FunctionIntermediateRepresentation::transformFunction(const syntax::ast::AST
     return irFunction;
 }
 
-void IR::FunctionIntermediateRepresentation::transformParameters(
+void ir::FunctionIntermediateRepresentation::transformParameters(
     ir::IRFunction* irFunction, 
     const syntax::ast::ASTFunction* astFunction
 ){
@@ -37,7 +37,7 @@ void IR::FunctionIntermediateRepresentation::transformParameters(
     }
 }
 
-void IR::FunctionIntermediateRepresentation::transformBody(
+void ir::FunctionIntermediateRepresentation::transformBody(
     ir::IRFunction* irFunction, 
     const syntax::ast::ASTFunction* astFunction
 ){
@@ -52,6 +52,6 @@ void IR::FunctionIntermediateRepresentation::transformBody(
 }
 
 const ir::IRFunctionContext& 
-IR::FunctionIntermediateRepresentation::getContext() const noexcept {
+ir::FunctionIntermediateRepresentation::getContext() const noexcept {
     return ctx;
 }

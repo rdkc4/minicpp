@@ -7,12 +7,12 @@
 
 int main(int argc, char** argv){
     try {
-        Compiler::CompileOptions options{ Compiler::parseOptions(argc, argv) };
+        compiler::CompileOptions options{ compiler::parseOptions(argc, argv) };
         auto start{ std::chrono::high_resolution_clock::now() };
 
-        Compiler::ExitCode ret{ Compiler::compile(options) };
+        compiler::ExitCode ret{ compiler::compile(options) };
 
-        if(ret != Compiler::ExitCode::NO_ERR){
+        if(ret != compiler::ExitCode::NO_ERR){
             std::cerr << "Program failed to compile!\n";
             return 1;
         }

@@ -8,7 +8,7 @@
 #include "ctx/ir_ctx.hpp"
 #include "statement_intermediate_representation.hpp"
 
-namespace IR {
+namespace ir {
     /**
      * @class FunctionIntermediateRepresentation
      * @brief turns ast function into irt function

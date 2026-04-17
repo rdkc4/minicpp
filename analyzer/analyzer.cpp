@@ -48,7 +48,7 @@ void Analyzer::visit(syntax::ast::ASTProgram* program){
 }
 
 void Analyzer::visit(syntax::ast::ASTIncludeDir* includeDir){
-    if(!std::filesystem::exists(Preprocessing::Libs::generateLibSourcePath(includeDir->getLibName()))){
+    if(!std::filesystem::exists(preprocessing::generateLibSourcePath(includeDir->getLibName()))){
         const auto& token{ includeDir->getToken() };
         reportError(
             token, 

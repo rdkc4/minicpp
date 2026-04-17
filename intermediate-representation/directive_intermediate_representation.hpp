@@ -5,7 +5,7 @@
 #include "../common/abstract-syntax-tree/ast_include_dir.hpp"
 #include "../common/intermediate-representation-tree/ir_program.hpp"
 
-namespace IR {
+namespace ir {
     /**
      * @class DirectiveIntermediateRepresentation
      * @brief turns ast directives into irt directives

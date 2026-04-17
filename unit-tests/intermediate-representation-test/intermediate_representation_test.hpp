@@ -6,7 +6,7 @@
 #include "../../intermediate-representation/intermediate_representation.hpp"
 #include "../../intermediate-representation/function_intermediate_representation.hpp"
 
-class IntermediateRepresentationTest : public IR::IntermediateRepresentation {
+class IntermediateRepresentationTest : public ir::IntermediateRepresentation {
     public:
         IntermediateRepresentationTest(ThreadPool& threadPool) : IntermediateRepresentation{ threadPool } {}
 
@@ -16,20 +16,20 @@ class IntermediateRepresentationTest : public IR::IntermediateRepresentation {
         }
 };
 
-class FunctionIntermediateRepresentationTest : public IR::FunctionIntermediateRepresentation {
+class FunctionIntermediateRepresentationTest : public ir::FunctionIntermediateRepresentation {
 
 };
 
-class StatementIntermediateRepresentationTest : public IR::StatementIntermediateRepresentation {
+class StatementIntermediateRepresentationTest : public ir::StatementIntermediateRepresentation {
 public:
     StatementIntermediateRepresentationTest(ir::IRFunctionContext& ctx)
-        : IR::StatementIntermediateRepresentation{ ctx } {}
+        : ir::StatementIntermediateRepresentation{ ctx } {}
 };
 
-class ExpressionIntermediateRepresentationTest : public IR::ExpressionIntermediateRepresentation {
+class ExpressionIntermediateRepresentationTest : public ir::ExpressionIntermediateRepresentation {
 public:
     ExpressionIntermediateRepresentationTest(ir::IRFunctionContext& ctx)
-        : IR::ExpressionIntermediateRepresentation{ ctx } {}
+        : ir::ExpressionIntermediateRepresentation{ ctx } {}
 };
 
 #endif

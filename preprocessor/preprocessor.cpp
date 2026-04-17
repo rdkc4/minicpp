@@ -75,7 +75,7 @@ void Preprocessor::handleInclude(const std::string& source, size_t& idx){
     }
 
     std::string includeLib{ source.substr(start, idx - start) };
-    std::string includeLibPath{ Preprocessing::Libs::generateLibSourcePath(includeLib) };
+    std::string includeLibPath{ preprocessing::generateLibSourcePath(includeLib) };
 
     if(!includedLibraries.contains(includeLib)){
         includedLibraries.insert(includeLib);

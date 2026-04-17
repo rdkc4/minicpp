@@ -11,10 +11,10 @@
 #include "../thread-pool/thread_pool.hpp"
 
 /**
- * @namespace IR
+ * @namespace ir
  * @brief module defining the elements related to the intermediate representation
 */
-namespace IR {
+namespace ir {
     /**
      * @class IntermediateRepresentation
      * @brief turns abstract syntax tree into intermediate representation tree
