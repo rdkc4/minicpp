@@ -10,7 +10,7 @@
 #include "ir_temporary_expr.hpp"
 #include "../visitor/ir_visitor.hpp"
 
-namespace IR::node {
+namespace ir {
     /** 
      * @class IRIfStmt
      * @brief IRT representation of the if-statement
@@ -88,7 +88,7 @@ namespace IR::node {
          * @brief accepts the ir visitor
          * @param visitor - reference to an ir visitor
         */
-        void accept(IR::visitor::IRVisitor& visitor) override;
+        void accept(IRVisitor& visitor) override;
 
     private:
         /// vector of pointers to condition of the if-statement

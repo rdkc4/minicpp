@@ -6,7 +6,7 @@
 #include "../defs/defs.hpp"
 #include "../visitor/ir_visitor.hpp"
 
-namespace IR::node {
+namespace ir {
     /**
      * @class IRExpr
      * @brief IRT representation for the expression node
@@ -20,7 +20,7 @@ namespace IR::node {
          * @param ntype - type of the irt node
          * @param type - type of the expression
         */
-        IRExpr(IR::defs::IRNodeType ntype, Type type);
+        IRExpr(IRNodeType ntype, Type type);
 
         /**
         * @brief getter for the type of the expression
@@ -38,7 +38,7 @@ namespace IR::node {
         * @brief accepts the ir visitor
         * @param visitor - reference to an ir visitor
         */
-        virtual void accept(IR::visitor::IRVisitor& visitor) = 0;
+        virtual void accept(IRVisitor& visitor) = 0;
 
     private:
         /// type of the expression

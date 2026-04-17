@@ -2,13 +2,13 @@
 
 #include "../defs/ir_defs.hpp"
 
-IR::node::IRDefaultStmt::IRDefaultStmt() 
-    : IRStmt(IR::defs::IRNodeType::DEFAULT) {}
+ir::IRDefaultStmt::IRDefaultStmt() 
+    : IRStmt(ir::IRNodeType::DEFAULT) {}
 
-void IR::node::IRDefaultStmt::setSwitchBlock(std::unique_ptr<IRSwitchBlockStmt> swBlockStmt){
+void ir::IRDefaultStmt::setSwitchBlock(std::unique_ptr<IRSwitchBlockStmt> swBlockStmt){
     switchBlockStmt = std::move(swBlockStmt);
 }
 
-void IR::node::IRDefaultStmt::accept(IR::visitor::IRVisitor& visitor){
+void ir::IRDefaultStmt::accept(ir::IRVisitor& visitor){
     visitor.visit(this);
 }

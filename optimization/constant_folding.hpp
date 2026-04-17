@@ -12,11 +12,10 @@
 #include "../common/intermediate-representation-tree/ir_literal_expr.hpp"
 
 /** 
- * @namespace Optimization::ConstantFolding
+ * @namespace optimization::constant_folding
  * @brief Module for computing the operations that can be resolved in a compile-time
 */
-namespace Optimization::ConstantFolding {
-
+namespace optimization::constant_folding {
     /** 
      * @struct MergeResult
      * @brief result of the merge operation
@@ -110,7 +109,7 @@ namespace Optimization::ConstantFolding {
      * @returns operand value as T
     */
     template<typename T>
-    T getOperandValue(const IR::node::IRLiteralExpr* operand) {
+    T getOperandValue(const ir::IRLiteralExpr* operand) {
         if (std::is_same<T, int>::value) {
             return static_cast<T>(std::stoi(operand->getValue()));
         } else {
@@ -127,9 +126,9 @@ namespace Optimization::ConstantFolding {
      * @returns result of the merge operation
     */
     template<typename T>
-    MergeResult<std::unique_ptr<IR::node::IRExpr>> mergeLiterals(
-        const IR::node::IRLiteralExpr* leftOperand, 
-        const IR::node::IRLiteralExpr* rightOperand, 
+    MergeResult<std::unique_ptr<ir::IRExpr>> mergeLiterals(
+        const ir::IRLiteralExpr* leftOperand, 
+        const ir::IRLiteralExpr* rightOperand, 
         const syntax::ast::ASTBinaryExpr* binExp
     ){
         T lval{ getOperandValue<T>(leftOperand) };
@@ -148,8 +147,8 @@ namespace Optimization::ConstantFolding {
         Type type{ binExp->getType() };
         std::string suffix{ type == Type::UNSIGNED ? "u" : "" };
 
-        Optimization::ConstantFolding::MergeResult<std::unique_ptr<IR::node::IRExpr>> foldedExpr {
-            .result = std::make_unique<IR::node::IRLiteralExpr>(std::to_string(res.result) + suffix, type),
+        MergeResult<std::unique_ptr<ir::IRExpr>> foldedExpr {
+            .result = std::make_unique<ir::IRLiteralExpr>(std::to_string(res.result) + suffix, type),
             .error = res.error
         };
 

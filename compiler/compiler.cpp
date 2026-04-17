@@ -143,7 +143,7 @@ Compiler::ExitCode Compiler::semanticAnalysis(
 
 Compiler::ExitCode Compiler::transformASTToIRT(
     std::unique_ptr<syntax::ast::ASTProgram>& astProgram, 
-    std::unique_ptr<IR::node::IRProgram>& irProgram, 
+    std::unique_ptr<ir::IRProgram>& irProgram, 
     ThreadPool& threadPool
 ){
         IR::IntermediateRepresentation intermediateRepresentation{threadPool};
@@ -158,7 +158,7 @@ Compiler::ExitCode Compiler::transformASTToIRT(
 }
 
 Compiler::ExitCode Compiler::generateProgram(
-    const IR::node::IRProgram* irProgram, 
+    const ir::IRProgram* irProgram, 
     std::string_view output, 
     ThreadPool& threadPool
 ){
@@ -180,7 +180,7 @@ Compiler::ExitCode Compiler::generateProgram(
 }
 
 Compiler::ExitCode Compiler::assembleAndLink(
-    const IR::node::IRProgram* irProgram, 
+    const ir::IRProgram* irProgram, 
     std::string_view output
 ){
     std::string source{ std::format("{}.s", output) };
@@ -252,7 +252,7 @@ Compiler::ExitCode Compiler::compile(Compiler::CompileOptions options) {
         return result;
     }
 
-    std::unique_ptr<IR::node::IRProgram> irProgram;
+    std::unique_ptr<ir::IRProgram> irProgram;
     result = transformASTToIRT(astProgram, irProgram, threadPool);
     if(result != Compiler::ExitCode::NO_ERR){
         return result;
@@ -279,7 +279,7 @@ void Compiler::dumpAST(syntax::ast::ASTProgram* program, std::ostream& out){
     program->accept(dump);
 }
 
-void Compiler::dumpIR(IR::node::IRProgram* program, std::ostream& out){
-    IR::dump::IRDumper dump{out};
+void Compiler::dumpIR(ir::IRProgram* program, std::ostream& out){
+    ir::IRDumper dump{out};
     program->accept(dump);
 }

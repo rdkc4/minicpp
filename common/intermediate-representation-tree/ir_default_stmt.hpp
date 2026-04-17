@@ -7,7 +7,7 @@
 #include "ir_switch_block_stmt.hpp"
 #include "../visitor/ir_visitor.hpp"
 
-namespace IR::node {
+namespace ir {
     /**
      * @class IRDefaultStmt
      * @brief IRT representation of the default statement node
@@ -38,7 +38,7 @@ namespace IR::node {
          * @brief accepts the ir visitor
          * @param visitor - reference to an ir visitor
         */
-        void accept(IR::visitor::IRVisitor& visitor) override;
+        void accept(IRVisitor& visitor) override;
 
     private:
         /// pointer to the switch-block of the default case

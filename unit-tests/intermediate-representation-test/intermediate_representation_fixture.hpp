@@ -7,7 +7,7 @@
 
 class IntermediateRepresentationFixture : public AnalyzerFixture {
 protected:
-    std::unique_ptr<IR::node::IRProgram> irProgram;
+    std::unique_ptr<ir::IRProgram> irProgram;
     std::unique_ptr<IntermediateRepresentationTest> intermediateRepresentation;
 
     void initIR() {
@@ -19,9 +19,9 @@ protected:
 
 class StatementIntermediateRepresentationFixture : public StatementAnalyzerFixture {
 protected:
-    std::unique_ptr<IR::node::IRStmt> irStmt;
+    std::unique_ptr<ir::IRStmt> irStmt;
     std::unique_ptr<StatementIntermediateRepresentationTest> intermediateRepresentation;
-    IR::defs::ctx::IRFunctionContext ctx{};
+    ir::IRFunctionContext ctx{};
 
     void initIR(){
         initAnalyzer();
@@ -32,9 +32,9 @@ protected:
 
 class ExpressionIntermediateRepresentationFixture : public ExpressionAnalyzerFixture {
 protected:
-    std::unique_ptr<IR::node::IRExpr> irExpr;
+    std::unique_ptr<ir::IRExpr> irExpr;
     std::unique_ptr<ExpressionIntermediateRepresentationTest> intermediateRepresentation;
-    IR::defs::ctx::IRFunctionContext ctx{};
+    ir::IRFunctionContext ctx{};
 
     void initIR(){
         initAnalyzer();

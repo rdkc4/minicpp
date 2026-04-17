@@ -25,7 +25,7 @@ namespace IR {
          * @param astFunction - const pointer to the ast function
          * @returns pointer to the irt function
         */
-        std::unique_ptr<node::IRFunction> 
+        std::unique_ptr<ir::IRFunction> 
         transformFunction(const syntax::ast::ASTFunction* astFunction);
 
         /**
@@ -34,7 +34,7 @@ namespace IR {
          * @param astFunction - const pointer to the ast function
         */
         void transformParameters(
-            IR::node::IRFunction* irFunction, 
+            ir::IRFunction* irFunction, 
             const syntax::ast::ASTFunction* astFunction
         );
 
@@ -44,7 +44,7 @@ namespace IR {
          * @param astFunction - const pointer to the ast function
         */
         void transformBody(
-            IR::node::IRFunction* irFunction, 
+            ir::IRFunction* irFunction, 
             const syntax::ast::ASTFunction* astFunction
         );
 
@@ -52,11 +52,11 @@ namespace IR {
          * @brief getter for context of the function
          * @returns context of the function
         */
-        const IR::defs::ctx::IRFunctionContext& getContext() const noexcept;
+        const ir::IRFunctionContext& getContext() const noexcept;
 
     private:
         /// context of the function
-        IR::defs::ctx::IRFunctionContext ctx{};
+        ir::IRFunctionContext ctx{};
         
         /// intermediate representation specialized for statements
         StatementIntermediateRepresentation stmtIR;

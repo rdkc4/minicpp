@@ -3,7 +3,7 @@
 #include <utility>
 
 void IR::DirectiveIntermediateRepresentation::transformDir(
-    IR::node::IRProgram* irProgram, 
+    ir::IRProgram* irProgram, 
     const syntax::ast::ASTProgram* astProgram
 ){
     for(const auto& dir : astProgram->getDirs()){
@@ -18,7 +18,7 @@ void IR::DirectiveIntermediateRepresentation::transformDir(
 }
 
 void IR::DirectiveIntermediateRepresentation::transformIncludeDir(
-    IR::node::IRProgram* irProgram, 
+    ir::IRProgram* irProgram, 
     const syntax::ast::ASTIncludeDir* astLib
 ){
     irProgram->addLinkedLib(astLib->getLibName());

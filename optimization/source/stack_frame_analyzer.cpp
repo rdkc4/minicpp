@@ -3,12 +3,12 @@
 #include <latch>
 #include <string>
 
-Optimization::sfa::StackFrameAnalyzer::StackFrameAnalyzer(ThreadPool& threadPool) 
+optimization::sfa::StackFrameAnalyzer::StackFrameAnalyzer(ThreadPool& threadPool) 
     : threadPool{threadPool} {}
 
-thread_local size_t Optimization::sfa::StackFrameAnalyzer::variableCounter{};
+thread_local size_t optimization::sfa::StackFrameAnalyzer::variableCounter{};
 
-void Optimization::sfa::StackFrameAnalyzer::visit(IR::node::IRProgram* program){
+void optimization::sfa::StackFrameAnalyzer::visit(ir::IRProgram* program){
     std::latch doneLatch{ 
         static_cast<std::ptrdiff_t>(program->getFunctionCount()) 
     };
@@ -25,7 +25,7 @@ void Optimization::sfa::StackFrameAnalyzer::visit(IR::node::IRProgram* program){
     doneLatch.wait();
 }
 
-void Optimization::sfa::StackFrameAnalyzer::visit(IR::node::IRFunction* function){
+void optimization::sfa::StackFrameAnalyzer::visit(ir::IRFunction* function){
     variableCounter = 0;
     for(const auto& stmt : function->getBody()){
         stmt->accept(*this);
@@ -34,37 +34,37 @@ void Optimization::sfa::StackFrameAnalyzer::visit(IR::node::IRFunction* function
     function->setRequiredMemory(std::to_string(regSize * variableCounter));
 }
 
-void Optimization::sfa::StackFrameAnalyzer::visit(IR::node::IRVariableDeclStmt* variableDecl){
+void optimization::sfa::StackFrameAnalyzer::visit(ir::IRVariableDeclStmt* variableDecl){
     ++variableCounter;
     if(variableDecl->hasTemporaryExpr()){
         variableDecl->getTemporaryExpr()->accept(*this);
     }
 }
 
-void Optimization::sfa::StackFrameAnalyzer::visit(IR::node::IRAssignStmt* assignStmt){
+void optimization::sfa::StackFrameAnalyzer::visit(ir::IRAssignStmt* assignStmt){
     if(assignStmt->hasTemporaryExpr()){
         assignStmt->getTemporaryExpr()->accept(*this);
     }
 }
 
-void Optimization::sfa::StackFrameAnalyzer::visit(IR::node::IRCompoundStmt* compoundStmt){
+void optimization::sfa::StackFrameAnalyzer::visit(ir::IRCompoundStmt* compoundStmt){
     for(const auto& stmt : compoundStmt->getStmts()){
         stmt->accept(*this);
     }
 }
 
-void Optimization::sfa::StackFrameAnalyzer::visit(IR::node::IRForStmt* forStmt){
+void optimization::sfa::StackFrameAnalyzer::visit(ir::IRForStmt* forStmt){
     forStmt->getStmt()->accept(*this);
     if(forStmt->hasTemporaryExpr()){
         forStmt->getTemporaryExpr()->accept(*this);
     }
 }
 
-void Optimization::sfa::StackFrameAnalyzer::visit(IR::node::IRFunctionCallStmt* callStmt){
+void optimization::sfa::StackFrameAnalyzer::visit(ir::IRFunctionCallStmt* callStmt){
     callStmt->getFunctionCallExpr()->accept(*this);
 }
 
-void Optimization::sfa::StackFrameAnalyzer::visit(IR::node::IRIfStmt* ifStmt){
+void optimization::sfa::StackFrameAnalyzer::visit(ir::IRIfStmt* ifStmt){
     for(const auto& stmt : ifStmt->getStmts()){
         stmt->accept(*this);
     }
@@ -76,27 +76,27 @@ void Optimization::sfa::StackFrameAnalyzer::visit(IR::node::IRIfStmt* ifStmt){
     }
 }
 
-void Optimization::sfa::StackFrameAnalyzer::visit(IR::node::IRReturnStmt* returnStmt){
+void optimization::sfa::StackFrameAnalyzer::visit(ir::IRReturnStmt* returnStmt){
     if(returnStmt->hasTemporaryExpr()){
         returnStmt->getTemporaryExpr()->accept(*this);
     }
 }
 
-void Optimization::sfa::StackFrameAnalyzer::visit(IR::node::IRWhileStmt* whileStmt){
+void optimization::sfa::StackFrameAnalyzer::visit(ir::IRWhileStmt* whileStmt){
     whileStmt->getStmt()->accept(*this);
     if(whileStmt->hasTemporaryExpr()){
         whileStmt->getTemporaryExpr()->accept(*this);
     }
 }
 
-void Optimization::sfa::StackFrameAnalyzer::visit(IR::node::IRDoWhileStmt* dowhileStmt){
+void optimization::sfa::StackFrameAnalyzer::visit(ir::IRDoWhileStmt* dowhileStmt){
     dowhileStmt->getStmt()->accept(*this);
     if(dowhileStmt->hasTemporaryExpr()){
         dowhileStmt->getTemporaryExpr()->accept(*this);
     }
 }
 
-void Optimization::sfa::StackFrameAnalyzer::visit(IR::node::IRSwitchStmt* switchStmt){
+void optimization::sfa::StackFrameAnalyzer::visit(ir::IRSwitchStmt* switchStmt){
     for(const auto& caseStmt : switchStmt->getCaseStmts()){
         caseStmt->accept(*this);
     }
@@ -106,21 +106,21 @@ void Optimization::sfa::StackFrameAnalyzer::visit(IR::node::IRSwitchStmt* switch
     }
 }
 
-void Optimization::sfa::StackFrameAnalyzer::visit(IR::node::IRCaseStmt* caseStmt){
+void optimization::sfa::StackFrameAnalyzer::visit(ir::IRCaseStmt* caseStmt){
     caseStmt->getSwitchBlockStmt()->accept(*this);
 }
 
-void Optimization::sfa::StackFrameAnalyzer::visit(IR::node::IRDefaultStmt* defaultStmt){
+void optimization::sfa::StackFrameAnalyzer::visit(ir::IRDefaultStmt* defaultStmt){
     defaultStmt->getSwitchBlockStmt()->accept(*this);
 }
 
-void Optimization::sfa::StackFrameAnalyzer::visit(IR::node::IRSwitchBlockStmt* switchBlockStmt){
+void optimization::sfa::StackFrameAnalyzer::visit(ir::IRSwitchBlockStmt* switchBlockStmt){
     for(const auto& stmt : switchBlockStmt->getStmts()){
         stmt->accept(*this);
     }
 }
 
-void Optimization::sfa::StackFrameAnalyzer::visit(IR::node::IRFunctionCallExpr* callExpr){
+void optimization::sfa::StackFrameAnalyzer::visit(ir::IRFunctionCallExpr* callExpr){
     for(const auto& tempExpr : callExpr->getTemporaryExprs()){
         if(tempExpr){
             tempExpr->accept(*this);
@@ -128,10 +128,10 @@ void Optimization::sfa::StackFrameAnalyzer::visit(IR::node::IRFunctionCallExpr* 
     }
 }
 
-void Optimization::sfa::StackFrameAnalyzer::visit(IR::node::IRTemporaryExpr* tempExpr){
+void optimization::sfa::StackFrameAnalyzer::visit(ir::IRTemporaryExpr* tempExpr){
     for(const auto& expr : tempExpr->getTemporaryExprs()){
         ++variableCounter;
-        if(expr->getNodeType() == IR::defs::IRNodeType::CALL){
+        if(expr->getNodeType() == ir::IRNodeType::CALL){
             expr->accept(*this);
         }
     }

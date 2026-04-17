@@ -2,35 +2,35 @@
 
 #include "../defs/ir_defs.hpp"
 
-IR::node::IRTemporaryExpr::IRTemporaryExpr() 
-    : IRNode(IR::defs::IRNodeType::TEMPORARY) {}
+ir::IRTemporaryExpr::IRTemporaryExpr() 
+    : IRNode(ir::IRNodeType::TEMPORARY) {}
 
-const std::vector<std::unique_ptr<IR::node::IRExpr>>& 
-IR::node::IRTemporaryExpr::getTemporaryExprs() const noexcept {
+const std::vector<std::unique_ptr<ir::IRExpr>>& 
+ir::IRTemporaryExpr::getTemporaryExprs() const noexcept {
     return temporaryExprs;
 }
 
 const std::vector<std::string>& 
-IR::node::IRTemporaryExpr::getTemporaryNames() const noexcept {
+ir::IRTemporaryExpr::getTemporaryNames() const noexcept {
     return temporaryNames;
 }
 
 const std::string& 
-IR::node::IRTemporaryExpr::getTemporaryNameAtN(size_t n) const noexcept {
+ir::IRTemporaryExpr::getTemporaryNameAtN(size_t n) const noexcept {
     return temporaryNames[n];
 }
 
-const IR::node::IRExpr* 
-IR::node::IRTemporaryExpr::getTemporaryExprAtN(size_t n) const noexcept {
+const ir::IRExpr* 
+ir::IRTemporaryExpr::getTemporaryExprAtN(size_t n) const noexcept {
     return temporaryExprs[n].get();
 }
 
-std::pair<std::string, IR::node::IRExpr*> 
-IR::node::IRTemporaryExpr::getTemporaryDetailsAtN(size_t n) noexcept {
+std::pair<std::string, ir::IRExpr*> 
+ir::IRTemporaryExpr::getTemporaryDetailsAtN(size_t n) noexcept {
     return {temporaryNames[n], temporaryExprs[n].get()};
 }
 
-void IR::node::IRTemporaryExpr::addTemporaryExpr(
+void ir::IRTemporaryExpr::addTemporaryExpr(
     const std::string& tempName, 
     std::unique_ptr<IRExpr> tempVal, 
     Type type
@@ -40,7 +40,7 @@ void IR::node::IRTemporaryExpr::addTemporaryExpr(
     types.push_back(type);
 }
 
-void IR::node::IRTemporaryExpr::setTemporaryExprAtN(
+void ir::IRTemporaryExpr::setTemporaryExprAtN(
     std::unique_ptr<IRExpr> tempVal, 
     Type t, 
     size_t n
@@ -49,10 +49,10 @@ void IR::node::IRTemporaryExpr::setTemporaryExprAtN(
     types[n] = t;
 }
 
-const std::vector<Type>& IR::node::IRTemporaryExpr::getTypes() const noexcept {
+const std::vector<Type>& ir::IRTemporaryExpr::getTypes() const noexcept {
     return types;
 }
 
-void IR::node::IRTemporaryExpr::accept(IR::visitor::IRVisitor& visitor){
+void ir::IRTemporaryExpr::accept(ir::IRVisitor& visitor){
     visitor.visit(this);
 }

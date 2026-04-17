@@ -2,13 +2,13 @@
 
 #include "../defs/ir_defs.hpp"
 
-IR::node::IRFunctionCallStmt::IRFunctionCallStmt() 
-    : IRStmt{ IR::defs::IRNodeType::CALL_STMT } {}
+ir::IRFunctionCallStmt::IRFunctionCallStmt() 
+    : IRStmt{ ir::IRNodeType::CALL_STMT } {}
 
-void IR::node::IRFunctionCallStmt::setFunctionCallStmt(std::unique_ptr<IRFunctionCallExpr> callExpr){
+void ir::IRFunctionCallStmt::setFunctionCallStmt(std::unique_ptr<IRFunctionCallExpr> callExpr){
     functionCallExpr = std::move(callExpr);
 }
 
-void IR::node::IRFunctionCallStmt::accept(IR::visitor::IRVisitor& visitor){
+void ir::IRFunctionCallStmt::accept(ir::IRVisitor& visitor){
     visitor.visit(this);
 }

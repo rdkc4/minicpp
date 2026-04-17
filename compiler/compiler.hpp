@@ -137,7 +137,7 @@ namespace Compiler {
     */
     ExitCode transformASTToIRT(
         std::unique_ptr<syntax::ast::ASTProgram>& astProgram, 
-        std::unique_ptr<IR::node::IRProgram>& irProgram, 
+        std::unique_ptr<ir::IRProgram>& irProgram, 
         ThreadPool& threadPool
     );
 
@@ -149,7 +149,7 @@ namespace Compiler {
      * @returns CODEGEN_ERR if it fails to generate code, NO_ERR otherwise
     */
     ExitCode generateProgram(
-        const IR::node::IRProgram* irProgram, 
+        const ir::IRProgram* irProgram, 
         std::string_view output, 
         ThreadPool& threadPool
     );
@@ -160,7 +160,7 @@ namespace Compiler {
      * @param output - path of the output file
      * @returns ASM_LINK_ERR if it fails to generate executable, NO_ERR otherwise
     */
-    ExitCode assembleAndLink(const IR::node::IRProgram* irProgram, std::string_view output);
+    ExitCode assembleAndLink(const ir::IRProgram* irProgram, std::string_view output);
 
     /** 
      * @brief performs compilation of the code
@@ -184,7 +184,7 @@ namespace Compiler {
      * @param program - const pointer to the ir program
      * @param out - output stream, defaults to std::cout
     */
-    void dumpIR(IR::node::IRProgram* program, std::ostream& out = std::cout);
+    void dumpIR(ir::IRProgram* program, std::ostream& out = std::cout);
 };
 
 #endif

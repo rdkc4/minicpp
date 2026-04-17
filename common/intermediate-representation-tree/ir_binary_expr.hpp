@@ -7,7 +7,7 @@
 #include "../defs/defs.hpp"
 #include "../visitor/ir_visitor.hpp"
 
-namespace IR::node {
+namespace ir {
     /**
      * @class IRBinaryExpr
      * @brief IRT representation of the binary expression node
@@ -19,7 +19,7 @@ namespace IR::node {
          * @param ntype - type of the irt node
          * @param type - type of the binary expression
         */
-        IRBinaryExpr(IR::defs::IRNodeType ntype, Type type);
+        IRBinaryExpr(IRNodeType ntype, Type type);
 
         /**
          * @brief getter for the left operand of the binary expression
@@ -61,7 +61,7 @@ namespace IR::node {
          * @brief accepts the ir visitor
          * @param visitor - reference to an ir visitor
         */
-        void accept(IR::visitor::IRVisitor& visitor) override;
+        void accept(IRVisitor& visitor) override;
 
     private:
         /// pointer to the left operand of the binary expression

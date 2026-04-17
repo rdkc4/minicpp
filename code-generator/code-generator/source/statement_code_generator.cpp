@@ -8,46 +8,46 @@ StatementCodeGenerator::StatementCodeGenerator(
     CodeGeneratorFunctionContext& context
 ) : ctx { context }, exprGenerator { context } {} 
 
-void StatementCodeGenerator::generateStmt(const IR::node::IRStmt* stmt){
+void StatementCodeGenerator::generateStmt(const ir::IRStmt* stmt){
     switch(stmt->getNodeType()){
-        case IR::defs::IRNodeType::VARIABLE:
-            generateVariableDeclStmt(static_cast<const IR::node::IRVariableDeclStmt*>(stmt));
+        case ir::IRNodeType::VARIABLE:
+            generateVariableDeclStmt(static_cast<const ir::IRVariableDeclStmt*>(stmt));
             break;
 
-        case IR::defs::IRNodeType::IF:
-            generateIfStmt(static_cast<const IR::node::IRIfStmt*>(stmt));
+        case ir::IRNodeType::IF:
+            generateIfStmt(static_cast<const ir::IRIfStmt*>(stmt));
             break;
 
-        case IR::defs::IRNodeType::COMPOUND:
-            generateCompoundStmt(static_cast<const IR::node::IRCompoundStmt*>(stmt));
+        case ir::IRNodeType::COMPOUND:
+            generateCompoundStmt(static_cast<const ir::IRCompoundStmt*>(stmt));
             break;
 
-        case IR::defs::IRNodeType::ASSIGN:
-            generateAssignStmt(static_cast<const IR::node::IRAssignStmt*>(stmt));
+        case ir::IRNodeType::ASSIGN:
+            generateAssignStmt(static_cast<const ir::IRAssignStmt*>(stmt));
             break;
 
-        case IR::defs::IRNodeType::RETURN:
-            generateReturnStmt(static_cast<const IR::node::IRReturnStmt*>(stmt));
+        case ir::IRNodeType::RETURN:
+            generateReturnStmt(static_cast<const ir::IRReturnStmt*>(stmt));
             break;
 
-        case IR::defs::IRNodeType::WHILE:
-            generateWhileStmt(static_cast<const IR::node::IRWhileStmt*>(stmt));
+        case ir::IRNodeType::WHILE:
+            generateWhileStmt(static_cast<const ir::IRWhileStmt*>(stmt));
             break;
 
-        case IR::defs::IRNodeType::FOR:
-            generateForStmt(static_cast<const IR::node::IRForStmt*>(stmt));
+        case ir::IRNodeType::FOR:
+            generateForStmt(static_cast<const ir::IRForStmt*>(stmt));
             break;
 
-        case IR::defs::IRNodeType::DO_WHILE:
-            generateDoWhileStmt(static_cast<const IR::node::IRDoWhileStmt*>(stmt));
+        case ir::IRNodeType::DO_WHILE:
+            generateDoWhileStmt(static_cast<const ir::IRDoWhileStmt*>(stmt));
             break;
 
-        case IR::defs::IRNodeType::SWITCH:
-            generateSwitchStmt(static_cast<const IR::node::IRSwitchStmt*>(stmt));
+        case ir::IRNodeType::SWITCH:
+            generateSwitchStmt(static_cast<const ir::IRSwitchStmt*>(stmt));
             break;
 
-        case IR::defs::IRNodeType::CALL_STMT:
-            generateFunctionCallStmt(static_cast<const IR::node::IRFunctionCallStmt*>(stmt));
+        case ir::IRNodeType::CALL_STMT:
+            generateFunctionCallStmt(static_cast<const ir::IRFunctionCallStmt*>(stmt));
             return;
 
         default:
@@ -55,7 +55,7 @@ void StatementCodeGenerator::generateStmt(const IR::node::IRStmt* stmt){
     }
 }
 
-void StatementCodeGenerator::generateVariableDeclStmt(const IR::node::IRVariableDeclStmt* variableDecl){
+void StatementCodeGenerator::generateVariableDeclStmt(const ir::IRVariableDeclStmt* variableDecl){
     // mapping local variable to address relative to %rbp (-n(%rbp))
     // if not successful it means that variable with the given name existed but went out of scope, 
     // so it overwrites it with new memory location
@@ -102,7 +102,7 @@ void StatementCodeGenerator::generateVariableDeclStmt(const IR::node::IRVariable
     }
 }
 
-void StatementCodeGenerator::generateIfStmt(const IR::node::IRIfStmt* ifStmt){
+void StatementCodeGenerator::generateIfStmt(const ir::IRIfStmt* ifStmt){
     size_t labNum{ AsmGenerator::Instruction::getNextLabelNum() };
     size_t size{ ifStmt->getConditionCount() };
 
@@ -172,7 +172,7 @@ void StatementCodeGenerator::generateIfStmt(const IR::node::IRIfStmt* ifStmt){
     );
 }
 
-void StatementCodeGenerator::generateWhileStmt(const IR::node::IRWhileStmt* whileStmt){
+void StatementCodeGenerator::generateWhileStmt(const ir::IRWhileStmt* whileStmt){
     size_t labNum{ AsmGenerator::Instruction::getNextLabelNum() };
 
     std::string startLabel{ std::format("_while{}", labNum) };
@@ -208,7 +208,7 @@ void StatementCodeGenerator::generateWhileStmt(const IR::node::IRWhileStmt* whil
     );
 }
 
-void StatementCodeGenerator::generateForStmt(const IR::node::IRForStmt* forStmt){
+void StatementCodeGenerator::generateForStmt(const ir::IRForStmt* forStmt){
     size_t labNum{ AsmGenerator::Instruction::getNextLabelNum() };
 
     std::string startLabel{ std::format("_for{}", labNum) };
@@ -259,7 +259,7 @@ void StatementCodeGenerator::generateForStmt(const IR::node::IRForStmt* forStmt)
     );
 }
 
-void StatementCodeGenerator::generateDoWhileStmt(const IR::node::IRDoWhileStmt* dowhileStmt){
+void StatementCodeGenerator::generateDoWhileStmt(const ir::IRDoWhileStmt* dowhileStmt){
     size_t labNum{ AsmGenerator::Instruction::getNextLabelNum() };
     
     std::string startLabel{ std::format("_do_while{}", labNum) };
@@ -287,14 +287,14 @@ void StatementCodeGenerator::generateDoWhileStmt(const IR::node::IRDoWhileStmt* 
     );
 }
 
-void StatementCodeGenerator::generateCompoundStmt(const IR::node::IRCompoundStmt* compoundStmt){
+void StatementCodeGenerator::generateCompoundStmt(const ir::IRCompoundStmt* compoundStmt){
     for(const auto& stmt : compoundStmt->getStmts()){
         generateStmt(stmt.get());
     }
 }
 
 // evaluating rvalue
-void StatementCodeGenerator::generateAssignStmt(const IR::node::IRAssignStmt* assignStmt){
+void StatementCodeGenerator::generateAssignStmt(const ir::IRAssignStmt* assignStmt){
     // preventing register corruption when function call occurs
     if(assignStmt->hasTemporaryExpr()){
         exprGenerator.generateTemporaryExprs(assignStmt->getTemporaryExpr());
@@ -311,7 +311,7 @@ void StatementCodeGenerator::generateAssignStmt(const IR::node::IRAssignStmt* as
 }
 
 // return value ends up in %rax
-void StatementCodeGenerator::generateReturnStmt(const IR::node::IRReturnStmt* returnStmt){
+void StatementCodeGenerator::generateReturnStmt(const ir::IRReturnStmt* returnStmt){
     if(returnStmt->hasReturnValue()){
         // preventing register corruption when function call occurs
         if(returnStmt->hasTemporaryExpr()){
@@ -339,11 +339,11 @@ void StatementCodeGenerator::generateReturnStmt(const IR::node::IRReturnStmt* re
     );
 }
 
-void StatementCodeGenerator::generateFunctionCallStmt(const IR::node::IRFunctionCallStmt* callStmt){
+void StatementCodeGenerator::generateFunctionCallStmt(const ir::IRFunctionCallStmt* callStmt){
     exprGenerator.generateFunctionCallExpr(callStmt->getFunctionCallExpr(), false);
 }
 
-void StatementCodeGenerator::generateSwitchStmt(const IR::node::IRSwitchStmt* switchStmt){
+void StatementCodeGenerator::generateSwitchStmt(const ir::IRSwitchStmt* switchStmt){
     size_t labNum{ AsmGenerator::Instruction::getNextLabelNum() };
 
     std::string startLabel{ std::format("_switch{}", labNum) };
@@ -364,7 +364,7 @@ void StatementCodeGenerator::generateSwitchStmt(const IR::node::IRSwitchStmt* sw
     
     // cases
     for(size_t i{0}; i < size; i++){
-        const IR::node::IRCaseStmt* caseStmt{ switchStmt->getCaseStmtAtN(i) };
+        const ir::IRCaseStmt* caseStmt{ switchStmt->getCaseStmtAtN(i) };
 
         AsmGenerator::Instruction::genLabel(
             ctx.asmCode, 

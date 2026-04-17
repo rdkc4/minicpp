@@ -9,7 +9,7 @@ TEST_F(IntermediateRepresentationFixture, FormIR){
 
     constexpr size_t functionCount{2};
 
-    ASSERT_TRUE(irProgram->getNodeType() == IR::defs::IRNodeType::PROGRAM);
+    ASSERT_TRUE(irProgram->getNodeType() == ir::IRNodeType::PROGRAM);
     EXPECT_TRUE(irProgram->getFunctionCount() == functionCount);
 }
 
@@ -68,8 +68,8 @@ TEST_F(StatementIntermediateRepresentationFixture, CompoundStatementDeadCodeElim
 
     constexpr size_t expectedStmtCount{1};
 
-    ASSERT_TRUE(irStmt->getNodeType() == IR::defs::IRNodeType::COMPOUND);
-    EXPECT_EQ(static_cast<IR::node::IRCompoundStmt*>(irStmt.get())->getStmts().size(), expectedStmtCount);
+    ASSERT_TRUE(irStmt->getNodeType() == ir::IRNodeType::COMPOUND);
+    EXPECT_EQ(static_cast<ir::IRCompoundStmt*>(irStmt.get())->getStmts().size(), expectedStmtCount);
 }
 
 TEST_F(StatementIntermediateRepresentationFixture, AssignmentStatementGeneratesTemporaries){
@@ -78,7 +78,7 @@ TEST_F(StatementIntermediateRepresentationFixture, AssignmentStatementGeneratesT
 
     constexpr size_t expectedTemporariesCount{2};
 
-    ASSERT_TRUE(irStmt->getNodeType() == IR::defs::IRNodeType::ASSIGN);
+    ASSERT_TRUE(irStmt->getNodeType() == ir::IRNodeType::ASSIGN);
     EXPECT_TRUE(ctx.temporaries == expectedTemporariesCount);
 }
 
@@ -88,9 +88,9 @@ TEST_F(StatementIntermediateRepresentationFixture, SwitchCaseDeadCodeElimination
 
     constexpr size_t expectedStmtCount{1};
 
-    ASSERT_TRUE(irStmt->getNodeType() == IR::defs::IRNodeType::SWITCH);
+    ASSERT_TRUE(irStmt->getNodeType() == ir::IRNodeType::SWITCH);
 
-    auto caseStmt{ static_cast<IR::node::IRSwitchStmt*>(irStmt.get())->getCaseStmtAtN(0) };
+    auto caseStmt{ static_cast<ir::IRSwitchStmt*>(irStmt.get())->getCaseStmtAtN(0) };
     EXPECT_EQ(caseStmt->getSwitchBlockStmt()->getStmts().size(), expectedStmtCount);
 }
 
@@ -98,14 +98,14 @@ TEST_F(ExpressionIntermediateRepresentationFixture, ExprConstantFolding){
     input = {"5 + 3 - 1 * 2"};
     initIR();
 
-    ASSERT_TRUE(irExpr->getNodeType() == IR::defs::IRNodeType::LITERAL);
-    EXPECT_EQ(static_cast<IR::node::IRLiteralExpr*>(irExpr.get())->getValue(), "6");
+    ASSERT_TRUE(irExpr->getNodeType() == ir::IRNodeType::LITERAL);
+    EXPECT_EQ(static_cast<ir::IRLiteralExpr*>(irExpr.get())->getValue(), "6");
 }
 
 TEST_F(ExpressionIntermediateRepresentationFixture, ConditionConstantFolding){
     input = {"5 > 3 && 2 < 3"};
     initIR();
 
-    ASSERT_TRUE(irExpr->getNodeType() == IR::defs::IRNodeType::LITERAL);
-    EXPECT_EQ(static_cast<IR::node::IRLiteralExpr*>(irExpr.get())->getValue(), "1");
+    ASSERT_TRUE(irExpr->getNodeType() == ir::IRNodeType::LITERAL);
+    EXPECT_EQ(static_cast<ir::IRLiteralExpr*>(irExpr.get())->getValue(), "1");
 }

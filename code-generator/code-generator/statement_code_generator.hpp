@@ -31,67 +31,67 @@ public:
      * @brief generates asm code for the statement
      * @param stmt - const pointer to the irt statement
     */
-    void generateStmt(const IR::node::IRStmt* stmt);
+    void generateStmt(const ir::IRStmt* stmt);
 
     /** 
      * @brief generates asm code for the variable declaration
      * @param variableDecl - const pointer to the irt variable declaration
     */
-    void generateVariableDeclStmt(const IR::node::IRVariableDeclStmt* variableDecl);
+    void generateVariableDeclStmt(const ir::IRVariableDeclStmt* variableDecl);
 
     /** 
      * @brief generates asm code for the if-statement
      * @param ifStmt - const pointer to the irt if-statement
     */
-    void generateIfStmt(const IR::node::IRIfStmt* ifStmt);
+    void generateIfStmt(const ir::IRIfStmt* ifStmt);
 
     /** 
      * @brief generates asm code for the while-statement
      * @param whileStmt - const pointer to the irt while-statement
     */
-    void generateWhileStmt(const IR::node::IRWhileStmt* whileStmt);
+    void generateWhileStmt(const ir::IRWhileStmt* whileStmt);
 
     /** 
      * @brief generates asm code for the for-statement
      * @param forStmt - const pointer to the irt for-statement
     */
-    void generateForStmt(const IR::node::IRForStmt* forStmt);
+    void generateForStmt(const ir::IRForStmt* forStmt);
 
     /** 
      * @brief generates asm code for the do-while statement
      * @param dowhileStmt - const pointer to the irt do-while statement
     */
-    void generateDoWhileStmt(const IR::node::IRDoWhileStmt* dowhileStmt);
+    void generateDoWhileStmt(const ir::IRDoWhileStmt* dowhileStmt);
 
     /** 
      * @brief generates asm code for the compound statement
      * @param compoundStmt - const pointer to the irt compound statement
     */
-    void generateCompoundStmt(const IR::node::IRCompoundStmt* compoundStmt);
+    void generateCompoundStmt(const ir::IRCompoundStmt* compoundStmt);
 
     /** 
      * @brief generates asm code for the assignment statement
      * @param assignStmt - const pointer to the irt assignment statement
     */
-    void generateAssignStmt(const IR::node::IRAssignStmt* assignStmt);
+    void generateAssignStmt(const ir::IRAssignStmt* assignStmt);
 
     /** 
      * @brief generates asm code for the return statement
      * @param returnStmt - const pointer to the irt return statement
     */
-    void generateReturnStmt(const IR::node::IRReturnStmt* returnStmt);
+    void generateReturnStmt(const ir::IRReturnStmt* returnStmt);
 
     /** 
      * @brief generates asm code for the function-call statement
      * @param callStmt - const pointer to the irt function-call statement
     */
-    void generateFunctionCallStmt(const IR::node::IRFunctionCallStmt* callStmt);
+    void generateFunctionCallStmt(const ir::IRFunctionCallStmt* callStmt);
 
     /** 
      * @brief generates asm code for the switch-statement
      * @param switchStmt - const pointer to the irt switch-statement
     */
-    void generateSwitchStmt(const IR::node::IRSwitchStmt* switchStmt);
+    void generateSwitchStmt(const ir::IRSwitchStmt* switchStmt);
 
 private:
     /// reference to a context of the function

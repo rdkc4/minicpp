@@ -6,11 +6,7 @@
 #include <string>
 #include <vector>
 
-/**
- * @namespace IR::defs::ctx
- * @brief module for the ir context
-*/
-namespace IR::defs::ctx {
+namespace ir {
     /**
      * @struct IRFunctionContext
      * @brief context of the ir function

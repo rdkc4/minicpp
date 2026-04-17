@@ -10,7 +10,7 @@
 #include "ir_default_stmt.hpp"
 #include "../visitor/ir_visitor.hpp"
 
-namespace IR::node {
+namespace ir {
     /** 
      * @class IRSwitchStmt
      * @brief IRT representation of the switch statement
@@ -88,7 +88,7 @@ namespace IR::node {
          * @brief accepts the ir visitor
          * @param visitor - reference to an ir visitor
         */
-        void accept(IR::visitor::IRVisitor& visitor) override;
+        void accept(IRVisitor& visitor) override;
 
     private:
         /// pointer to the id of the variable of the switch-statement

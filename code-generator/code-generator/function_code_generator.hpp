@@ -21,13 +21,13 @@ public:
      * @brief generates the asm code of the function
      * @param function - const pointer to the irt function
     */
-    void generateFunction(const IR::node::IRFunction* function);
+    void generateFunction(const ir::IRFunction* function);
 
     /** 
      * @brief generates the parameters of the function
      * @param function - const pointer to the irt function
     */
-    void generateParameters(const IR::node::IRFunction* function);
+    void generateParameters(const ir::IRFunction* function);
 
     /**
      * @brief getter for the context of the function

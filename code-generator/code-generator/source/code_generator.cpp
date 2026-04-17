@@ -12,7 +12,7 @@ CodeGenerator::CodeGenerator(std::string_view filePath, ThreadPool& threadPool)
     : threadPool{ threadPool}, 
       outputPath{ filePath } {}
 
-void CodeGenerator::generateProgram(const IR::node::IRProgram* program){
+void CodeGenerator::generateProgram(const ir::IRProgram* program){
     std::latch doneLatch{ static_cast<ptrdiff_t>(program->getFunctionCount()) };
 
     for(const auto& function : program->getFunctions()){
@@ -36,7 +36,7 @@ void CodeGenerator::generateProgram(const IR::node::IRProgram* program){
     writeCode(program);
 }
 
-void CodeGenerator::writeCode(const IR::node::IRProgram* program){
+void CodeGenerator::writeCode(const ir::IRProgram* program){
     std::ofstream file{ outputPath };
     if(!file.is_open()){
         return;

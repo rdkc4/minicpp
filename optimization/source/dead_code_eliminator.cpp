@@ -2,12 +2,12 @@
 
 #include <latch>
 
-Optimization::dce::DeadCodeEliminator::DeadCodeEliminator(ThreadPool& threadPool) 
+optimization::dce::DeadCodeEliminator::DeadCodeEliminator(ThreadPool& threadPool) 
     : threadPool{threadPool} {}
 
-thread_local bool Optimization::dce::DeadCodeEliminator::alwaysReturns{ false };
+thread_local bool optimization::dce::DeadCodeEliminator::alwaysReturns{ false };
 
-void Optimization::dce::DeadCodeEliminator::visit(IR::node::IRProgram* program){
+void optimization::dce::DeadCodeEliminator::visit(ir::IRProgram* program){
     std::latch doneLatch{ 
         static_cast<std::ptrdiff_t>(program->getFunctionCount()) 
     };
@@ -24,7 +24,7 @@ void Optimization::dce::DeadCodeEliminator::visit(IR::node::IRProgram* program){
     doneLatch.wait();
 }
 
-void Optimization::dce::DeadCodeEliminator::visit(IR::node::IRFunction* function){
+void optimization::dce::DeadCodeEliminator::visit(ir::IRFunction* function){
     alwaysReturns = false;
 
     size_t stmtIdx{ 0 };
@@ -38,7 +38,7 @@ void Optimization::dce::DeadCodeEliminator::visit(IR::node::IRFunction* function
     }
 }
 
-void Optimization::dce::DeadCodeEliminator::visit(IR::node::IRCompoundStmt* compoundStmt){
+void optimization::dce::DeadCodeEliminator::visit(ir::IRCompoundStmt* compoundStmt){
     alwaysReturns = false;
 
     size_t stmtIdx{ 0 };
@@ -52,7 +52,7 @@ void Optimization::dce::DeadCodeEliminator::visit(IR::node::IRCompoundStmt* comp
     }
 }
 
-void Optimization::dce::DeadCodeEliminator::visit(IR::node::IRIfStmt* ifStmt){
+void optimization::dce::DeadCodeEliminator::visit(ir::IRIfStmt* ifStmt){
     bool ifStmtAlwaysReturns{ true };
 
     for(const auto& stmt : ifStmt->getStmts()){
@@ -63,16 +63,16 @@ void Optimization::dce::DeadCodeEliminator::visit(IR::node::IRIfStmt* ifStmt){
     alwaysReturns = ifStmtAlwaysReturns && ifStmt->hasElseStmt();
 }
 
-void Optimization::dce::DeadCodeEliminator::visit([[maybe_unused]] IR::node::IRReturnStmt* returnStmt){
+void optimization::dce::DeadCodeEliminator::visit([[maybe_unused]] ir::IRReturnStmt* returnStmt){
     alwaysReturns = true;
 }
 
-void Optimization::dce::DeadCodeEliminator::visit(IR::node::IRDoWhileStmt* dowhileStmt){
+void optimization::dce::DeadCodeEliminator::visit(ir::IRDoWhileStmt* dowhileStmt){
     alwaysReturns = false;
     dowhileStmt->getStmt()->accept(*this);
 }
 
-void Optimization::dce::DeadCodeEliminator::visit(IR::node::IRSwitchStmt* switchStmt){
+void optimization::dce::DeadCodeEliminator::visit(ir::IRSwitchStmt* switchStmt){
     bool switchStmtAlwaysReturns{ true };
 
     for(const auto& caseStmt : switchStmt->getCaseStmts()){
@@ -88,15 +88,15 @@ void Optimization::dce::DeadCodeEliminator::visit(IR::node::IRSwitchStmt* switch
     alwaysReturns = switchStmtAlwaysReturns && alwaysReturns;
 }
 
-void Optimization::dce::DeadCodeEliminator::visit(IR::node::IRCaseStmt* caseStmt){
+void optimization::dce::DeadCodeEliminator::visit(ir::IRCaseStmt* caseStmt){
     caseStmt->getSwitchBlockStmt()->accept(*this);
 }
 
-void Optimization::dce::DeadCodeEliminator::visit(IR::node::IRDefaultStmt* defaultStmt){
+void optimization::dce::DeadCodeEliminator::visit(ir::IRDefaultStmt* defaultStmt){
     defaultStmt->getSwitchBlockStmt()->accept(*this);
 }
 
-void Optimization::dce::DeadCodeEliminator::visit(IR::node::IRSwitchBlockStmt* switchBlockStmt){
+void optimization::dce::DeadCodeEliminator::visit(ir::IRSwitchBlockStmt* switchBlockStmt){
     alwaysReturns = false;
 
     size_t stmtIdx{ 0 };

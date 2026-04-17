@@ -18,15 +18,15 @@
 #include "../thread-pool/thread_pool.hpp"
 
 /**
- * @namespace Optimization::dce
+ * @namespace optimization::dce
  * @brief module for the elimination of unreachable code
 */
-namespace Optimization::dce {
+namespace optimization::dce {
     /**
      * @class DeadCodeEliminator
      * @brief eliminates unreachable code
     */
-    class DeadCodeEliminator final : public IR::visitor::IRVisitor {
+    class DeadCodeEliminator final : public ir::IRVisitor {
     public:
         /**
          * @brief creates the instance of the dead code eliminator
@@ -38,127 +38,127 @@ namespace Optimization::dce {
          * @brief starts the dead code elimination for all functions
          * @param program - pointer to the program
         */
-        void visit(IR::node::IRProgram* program) override;
+        void visit(ir::IRProgram* program) override;
 
         /**
          * @brief eliminates the dead code of the function
          * @param function - pointer to the function
         */
-        void visit(IR::node::IRFunction* function) override;
+        void visit(ir::IRFunction* function) override;
 
         /**
          * @brief intentionally empty, cannot return
          * @param parameter - pointer to the parameter
         */
-        void visit([[maybe_unused]] IR::node::IRParameter* parameter) override { /*empty*/ };
+        void visit([[maybe_unused]] ir::IRParameter* parameter) override { /*empty*/ };
 
         /**
          * @brief intentionally empty, cannot return
          * @param variableDecl - pointer to the variable declaration
         */
-        void visit([[maybe_unused]] IR::node::IRVariableDeclStmt* variableDecl) override { /*empty*/ };
+        void visit([[maybe_unused]] ir::IRVariableDeclStmt* variableDecl) override { /*empty*/ };
 
         /**
          * @brief intentionally empty, cannot return
          * @param assignStmt - pointer to the assign statement
         */
-        void visit([[maybe_unused]] IR::node::IRAssignStmt* assignStmt) override { /*empty*/ };
+        void visit([[maybe_unused]] ir::IRAssignStmt* assignStmt) override { /*empty*/ };
 
         /**
          * @brief eliminates the dead code of the compound statement
          * @param compoundStmt - pointer to the compound statement
         */
-        void visit(IR::node::IRCompoundStmt* compoundStmt) override;
+        void visit(ir::IRCompoundStmt* compoundStmt) override;
 
         /**
          * @brief intentionally empty, cannot return (compile-time condition evaluation is not available yet)
          * @param forStmt - pointer to the for statement
         */
-        void visit([[maybe_unused]] IR::node::IRForStmt* forStmt) override { /*empty*/ };
+        void visit([[maybe_unused]] ir::IRForStmt* forStmt) override { /*empty*/ };
 
         /**
          * @brief intentionally empty, cannot return
          * @param callStmt - pointer to the function call statement
         */
-        void visit([[maybe_unused]] IR::node::IRFunctionCallStmt* callStmt) override { /*empty*/ };
+        void visit([[maybe_unused]] ir::IRFunctionCallStmt* callStmt) override { /*empty*/ };
 
         /**
          * @brief eliminates the dead code of the if statement
          * @param ifStmt - pointer to the if statement
         */
-        void visit(IR::node::IRIfStmt* ifStmt) override;
+        void visit(ir::IRIfStmt* ifStmt) override;
 
         /**
          * @brief always returns
          * @param returnStmt - pointer to the return statement
         */
-        void visit([[maybe_unused]] IR::node::IRReturnStmt* returnStmt) override;
+        void visit([[maybe_unused]] ir::IRReturnStmt* returnStmt) override;
 
         /**
          * @brief intentionally empty, cannot return (compile-time condition evaluation is not available yet)
          * @param whileStmt - pointer to the while statement
         */
-        void visit([[maybe_unused]] IR::node::IRWhileStmt* whileStmt) override { /*empty*/ };
+        void visit([[maybe_unused]] ir::IRWhileStmt* whileStmt) override { /*empty*/ };
 
         /**
          * @brief eliminates the dead code of the do-while statement
          * @param dowhileStmt - pointer to the do-while statement
         */
-        void visit(IR::node::IRDoWhileStmt* dowhileStmt) override;
+        void visit(ir::IRDoWhileStmt* dowhileStmt) override;
 
         /**
          * @brief eliminates the dead code of the switch statement
          * @param switchStmt - pointer to the switch statement
         */
-        void visit(IR::node::IRSwitchStmt* switchStmt) override;
+        void visit(ir::IRSwitchStmt* switchStmt) override;
 
         /**
          * @brief eliminates the dead code of the case statement
          * @param caseStmt - pointer to the case statement
         */
-        void visit(IR::node::IRCaseStmt* caseStmt) override;
+        void visit(ir::IRCaseStmt* caseStmt) override;
 
         /**
          * @brief eliminates the dead code of the default statement
          * @param defaultStmt - pointer to the default statement
         */
-        void visit(IR::node::IRDefaultStmt* defaultStmt) override;
+        void visit(ir::IRDefaultStmt* defaultStmt) override;
 
         /**
          * @brief eliminates the dead code of the switch-block statement
          * @param switchBlockStmt - pointer to the switch-block statement
         */
-        void visit(IR::node::IRSwitchBlockStmt* switchBlockStmt) override;
+        void visit(ir::IRSwitchBlockStmt* switchBlockStmt) override;
 
         /**
          * @brief intentionally empty, cannot return
          * @param binaryExpr - pointer to the binary expression
         */
-        void visit([[maybe_unused]] IR::node::IRBinaryExpr* binaryExpr) override { /*empty*/ };
+        void visit([[maybe_unused]] ir::IRBinaryExpr* binaryExpr) override { /*empty*/ };
 
         /**
          * @brief intentionally empty, cannot return
          * @param callExpr - pointer to the function call expression
         */
-        void visit([[maybe_unused]] IR::node::IRFunctionCallExpr* callExpr) override { /*empty*/ };
+        void visit([[maybe_unused]] ir::IRFunctionCallExpr* callExpr) override { /*empty*/ };
 
         /**
          * @brief intentionally empty, cannot return
          * @param idExpr - pointer to the id expression
         */
-        void visit([[maybe_unused]] IR::node::IRIdExpr* idExpr) override { /*empty*/ };
+        void visit([[maybe_unused]] ir::IRIdExpr* idExpr) override { /*empty*/ };
 
         /**
          * @brief intentionally empty, cannot return
          * @param literalExpr - pointer to the literal expression
         */
-        void visit([[maybe_unused]] IR::node::IRLiteralExpr* literalExpr) override { /*empty*/ };
+        void visit([[maybe_unused]] ir::IRLiteralExpr* literalExpr) override { /*empty*/ };
 
         /**
          * @brief intentionally empty, cannot return
          * @param tempExpr - pointer to the temporary expression
         */
-        void visit([[maybe_unused]] IR::node::IRTemporaryExpr* tempExpr) override { /*empty*/ };
+        void visit([[maybe_unused]] ir::IRTemporaryExpr* tempExpr) override { /*empty*/ };
 
     private:
         /// reference to a thread pool for parallel dead code elimination

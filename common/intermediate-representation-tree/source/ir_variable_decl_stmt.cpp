@@ -2,13 +2,13 @@
 
 #include "../defs/ir_defs.hpp"
 
-IR::node::IRVariableDeclStmt::IRVariableDeclStmt(std::string_view varName, Type type) 
-    : IRStmt(IR::defs::IRNodeType::VARIABLE), 
+ir::IRVariableDeclStmt::IRVariableDeclStmt(std::string_view varName, Type type) 
+    : IRStmt(ir::IRNodeType::VARIABLE), 
       varName{ varName }, 
       value{ "0" }, 
       type{ type } {}
 
-void IR::node::IRVariableDeclStmt::setAssignExpr(
+void ir::IRVariableDeclStmt::setAssignExpr(
     std::unique_ptr<IRExpr> expr, 
     std::unique_ptr<IRTemporaryExpr> tempExpr
 ){
@@ -16,38 +16,38 @@ void IR::node::IRVariableDeclStmt::setAssignExpr(
     temporaryExpr = std::move(tempExpr);
 }
 
-const std::string& IR::node::IRVariableDeclStmt::getVarName() const noexcept {
+const std::string& ir::IRVariableDeclStmt::getVarName() const noexcept {
     return varName;
 }
 
-void IR::node::IRVariableDeclStmt::setVarName(const std::string& var){
+void ir::IRVariableDeclStmt::setVarName(const std::string& var){
     varName = var;
 }
 
-const std::string& IR::node::IRVariableDeclStmt::getValue() const noexcept {
+const std::string& ir::IRVariableDeclStmt::getValue() const noexcept {
     return value;
 }
 
-void IR::node::IRVariableDeclStmt::setValue(const std::string& val){
+void ir::IRVariableDeclStmt::setValue(const std::string& val){
     value = val;
 }
 
-Type IR::node::IRVariableDeclStmt::getType() const noexcept {
+Type ir::IRVariableDeclStmt::getType() const noexcept {
     return type;
 }
 
-void IR::node::IRVariableDeclStmt::setType(Type t) noexcept {
+void ir::IRVariableDeclStmt::setType(Type t) noexcept {
     type = t;
 }
 
-bool IR::node::IRVariableDeclStmt::hasAssignExpr() const noexcept {
+bool ir::IRVariableDeclStmt::hasAssignExpr() const noexcept {
     return assignExpr != nullptr;
 }
 
-bool IR::node::IRVariableDeclStmt::hasTemporaryExpr() const noexcept {
+bool ir::IRVariableDeclStmt::hasTemporaryExpr() const noexcept {
     return temporaryExpr != nullptr;
 }
 
-void IR::node::IRVariableDeclStmt::accept(IR::visitor::IRVisitor& visitor){
+void ir::IRVariableDeclStmt::accept(ir::IRVisitor& visitor){
     visitor.visit(this);
 }

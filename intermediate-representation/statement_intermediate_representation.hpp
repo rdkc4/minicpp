@@ -40,21 +40,21 @@ namespace IR {
          * @brief Creates the instance of the statement intermediate representation
          * @param context - context of the function
         */
-        StatementIntermediateRepresentation(IR::defs::ctx::IRFunctionContext& context);
+        StatementIntermediateRepresentation(ir::IRFunctionContext& context);
 
         /**
          * @brief turns ast statement into irt statement
          * @param astStmt - const pointer to the ast statement
          * @returns pointer to the irt statement
         */
-        std::unique_ptr<node::IRStmt> transformStmt(const syntax::ast::ASTStmt* astStmt);
+        std::unique_ptr<ir::IRStmt> transformStmt(const syntax::ast::ASTStmt* astStmt);
         
         /**
          * @brief turns ast variable declaration into irt variable declaration
          * @param astVariableDecl - const pointer to the ast variable declaration
          * @returns irt pointer to the variable declaratiom
         */
-        std::unique_ptr<node::IRVariableDeclStmt> 
+        std::unique_ptr<ir::IRVariableDeclStmt> 
         transformVariableDeclStmt(const syntax::ast::ASTVariableDeclStmt* astVariableDecl);
 
         /**
@@ -62,7 +62,7 @@ namespace IR {
          * @param astIfStmt - const pointer to the ast if-statement
          * @returns pointer to the irt if-statement
         */
-        std::unique_ptr<node::IRIfStmt> 
+        std::unique_ptr<ir::IRIfStmt> 
         transformIfStmt(const syntax::ast::ASTIfStmt* astIfStmt);
 
         /**
@@ -70,7 +70,7 @@ namespace IR {
          * @param astCompoundStmt - const pointer to the ast compound statement
          * @returns pointer to the irt compound statement
         */
-        std::unique_ptr<node::IRCompoundStmt> 
+        std::unique_ptr<ir::IRCompoundStmt> 
         transformCompoundStmt(const syntax::ast::ASTCompoundStmt* astCompoundStmt);
 
         /**
@@ -78,7 +78,7 @@ namespace IR {
          * @param astAssignStmt - const pointer to the ast assignment statement
          * @returns pointer to the irt statement
         */
-        std::unique_ptr<node::IRAssignStmt> 
+        std::unique_ptr<ir::IRAssignStmt> 
         transformAssignStmt(const syntax::ast::ASTAssignStmt* astAssignStmt);
 
         /**
@@ -86,7 +86,7 @@ namespace IR {
          * @param astReturnStmt - const pointer to the ast return statement
          * @returns pointer to the irt return statement
         */
-        std::unique_ptr<node::IRReturnStmt> 
+        std::unique_ptr<ir::IRReturnStmt> 
         transformReturnStmt(const syntax::ast::ASTReturnStmt* astReturnStmt);
 
         /**
@@ -94,7 +94,7 @@ namespace IR {
          * @param astCallStmt - const pointer to the ast function-call statement
          * @returns pointer to the irt function-call statement
         */
-        std::unique_ptr<node::IRFunctionCallStmt> 
+        std::unique_ptr<ir::IRFunctionCallStmt> 
         transformFunctionCallStmt(const syntax::ast::ASTFunctionCallStmt* astCallStmt);
 
         /**
@@ -102,7 +102,7 @@ namespace IR {
          * @param astWhileStmt - const pointer to the ast while-statement
          * @returns pointer to the irt while-statement 
         */
-        std::unique_ptr<node::IRWhileStmt> 
+        std::unique_ptr<ir::IRWhileStmt> 
         transformWhileStmt(const syntax::ast::ASTWhileStmt* astWhileStmt);
 
         /**
@@ -110,7 +110,7 @@ namespace IR {
          * @param astForStmt - const pointer to the ast for-statement
          * @returns pointer to the irt for-statement
         */
-        std::unique_ptr<node::IRForStmt> 
+        std::unique_ptr<ir::IRForStmt> 
         transformForStmt(const syntax::ast::ASTForStmt* astForStmt);
 
         /**
@@ -118,7 +118,7 @@ namespace IR {
          * @param astDowhileStmt - const pointer to the ast do-while statement
          * @returns pointer to the irt do-while statement
         */
-        std::unique_ptr<node::IRDoWhileStmt> 
+        std::unique_ptr<ir::IRDoWhileStmt> 
         transformDoWhileStmt(const syntax::ast::ASTDoWhileStmt* astDowhileStmt);
 
         /**
@@ -126,7 +126,7 @@ namespace IR {
          * @param astSwitchStmt - const pointer to the ast switch-statement
          * @returns pointer to the irt switch-statement
         */
-        std::unique_ptr<node::IRSwitchStmt> 
+        std::unique_ptr<ir::IRSwitchStmt> 
         transformSwitchStmt(const syntax::ast::ASTSwitchStmt* astSwitchStmt);
 
         /**
@@ -134,7 +134,7 @@ namespace IR {
          * @param astCaseStmt - const pointer to the ast case
          * @returns pointer to the irt case
         */
-        std::unique_ptr<node::IRCaseStmt> 
+        std::unique_ptr<ir::IRCaseStmt> 
         transformCaseStmt(const syntax::ast::ASTCaseStmt* astCaseStmt);
 
         /**
@@ -142,7 +142,7 @@ namespace IR {
          * @param astDefaultStmt - const pointer to the ast default case
          * @returns pointer to the irt default case
         */
-        std::unique_ptr<node::IRDefaultStmt> 
+        std::unique_ptr<ir::IRDefaultStmt> 
         transformDefaultStmt(const syntax::ast::ASTDefaultStmt* astDefaultStmt);
 
         /**
@@ -150,7 +150,7 @@ namespace IR {
          * @param astSwitchBlockStmt - const pointer to the ast switch-block
          * @returns pointer to the irt switch-block
         */
-        std::unique_ptr<node::IRSwitchBlockStmt> 
+        std::unique_ptr<ir::IRSwitchBlockStmt> 
         transformSwitchBlockStmt(const syntax::ast::ASTSwitchBlockStmt* astSwitchBlockStmt);
 
     private:

@@ -10,7 +10,7 @@
 #include "../defs/defs.hpp"
 #include "../visitor/ir_visitor.hpp"
 
-namespace IR::node {
+namespace ir {
     /** 
      * @class IRFunctionCallExpr
      * @brief IRT representation for the function call expression
@@ -76,7 +76,7 @@ namespace IR::node {
          * @brief accepts the ir visitor
          * @param visitor - reference to an ir visitor
         */
-        void accept(IR::visitor::IRVisitor& visitor) override;
+        void accept(IRVisitor& visitor) override;
 
     private:
         /// name of the function being called

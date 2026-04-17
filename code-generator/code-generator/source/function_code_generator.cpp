@@ -8,7 +8,7 @@
 FunctionCodeGenerator::FunctionCodeGenerator() 
     : stmtGenerator{ ctx } {}
 
-void FunctionCodeGenerator::generateFunction(const IR::node::IRFunction* function){
+void FunctionCodeGenerator::generateFunction(const ir::IRFunction* function){
     if(function->isPredefined()){
         return;
     }
@@ -62,7 +62,7 @@ void FunctionCodeGenerator::generateFunction(const IR::node::IRFunction* functio
 
 }
 
-void FunctionCodeGenerator::generateParameters(const IR::node::IRFunction* function){
+void FunctionCodeGenerator::generateParameters(const ir::IRFunction* function){
     size_t i{ 2 };
     for(const auto& parameter : function->getParameters()){
         // mapping parameter to address relative to %rbp (+n(%rbp))

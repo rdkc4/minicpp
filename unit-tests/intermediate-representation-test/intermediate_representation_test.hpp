@@ -22,13 +22,13 @@ class FunctionIntermediateRepresentationTest : public IR::FunctionIntermediateRe
 
 class StatementIntermediateRepresentationTest : public IR::StatementIntermediateRepresentation {
 public:
-    StatementIntermediateRepresentationTest(IR::defs::ctx::IRFunctionContext& ctx)
+    StatementIntermediateRepresentationTest(ir::IRFunctionContext& ctx)
         : IR::StatementIntermediateRepresentation{ ctx } {}
 };
 
 class ExpressionIntermediateRepresentationTest : public IR::ExpressionIntermediateRepresentation {
 public:
-    ExpressionIntermediateRepresentationTest(IR::defs::ctx::IRFunctionContext& ctx)
+    ExpressionIntermediateRepresentationTest(ir::IRFunctionContext& ctx)
         : IR::ExpressionIntermediateRepresentation{ ctx } {}
 };
 

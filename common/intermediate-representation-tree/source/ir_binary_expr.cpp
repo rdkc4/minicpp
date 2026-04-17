@@ -2,14 +2,14 @@
 
 #include "../defs/ir_defs.hpp"
 
-IR::node::IRBinaryExpr::IRBinaryExpr(IR::defs::IRNodeType ntype, Type type) 
+ir::IRBinaryExpr::IRBinaryExpr(ir::IRNodeType ntype, Type type) 
     : IRExpr(ntype, type) {}
 
-Operator IR::node::IRBinaryExpr::getOperator() const noexcept {
+Operator ir::IRBinaryExpr::getOperator() const noexcept {
     return exprOperator;
 }
 
-void IR::node::IRBinaryExpr::setBinaryExpr(
+void ir::IRBinaryExpr::setBinaryExpr(
     std::unique_ptr<IRExpr> leftOperand, 
     std::unique_ptr<IRExpr> rightOperand, 
     Operator op
@@ -19,6 +19,6 @@ void IR::node::IRBinaryExpr::setBinaryExpr(
     exprOperator = op;
 }
 
-void IR::node::IRBinaryExpr::accept(IR::visitor::IRVisitor& visitor){
+void ir::IRBinaryExpr::accept(ir::IRVisitor& visitor){
     visitor.visit(this);
 }

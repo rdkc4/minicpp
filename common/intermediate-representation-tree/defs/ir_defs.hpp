@@ -7,11 +7,7 @@
 
 #include "../../defs/defs.hpp"
 
-/**
- * @namespace IR::defs
- * @brief module declaring the definitions of the intermediate representation
-*/
-namespace IR::defs {
+namespace ir {
     /** 
      * @enum IRNodeType
      * @brief types of the irt nodes

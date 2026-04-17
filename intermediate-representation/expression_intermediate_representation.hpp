@@ -25,21 +25,21 @@ namespace IR {
         /** 
          * @brief Creates the instance of the expression intermediate representation
         */
-        ExpressionIntermediateRepresentation(IR::defs::ctx::IRFunctionContext& context);
+        ExpressionIntermediateRepresentation(ir::IRFunctionContext& context);
 
         /**
          * @brief turns ast expression into irt expression
          * @param astExpr - const pointer to the ast expression
          * @returns pointer to the irt expression
         */
-        std::unique_ptr<node::IRExpr> transformExpr(const syntax::ast::ASTExpr* astExpr);
+        std::unique_ptr<ir::IRExpr> transformExpr(const syntax::ast::ASTExpr* astExpr);
 
         /**
          * @brief turns ast binary expression into irt binary expression
          * @param astBinaryExpr - const pointer to the ast binary expression
          * @returns pointer to the irt expression
         */
-        std::unique_ptr<node::IRExpr> 
+        std::unique_ptr<ir::IRExpr> 
         transformBinaryExpr(const syntax::ast::ASTBinaryExpr* astBinaryExpr);
 
         /**
@@ -47,7 +47,7 @@ namespace IR {
          * @param astIdExpr - const pointer to the ast id
          * @returns pointer to the irt id
         */
-        std::unique_ptr<node::IRIdExpr> 
+        std::unique_ptr<ir::IRIdExpr> 
         transformIdExpr(const syntax::ast::ASTIdExpr* astIdExpr) const;
 
         /**
@@ -55,7 +55,7 @@ namespace IR {
          * @param astLiteralExpr - const pointer to the ast literal
          * @returns pointer to the irt literal
         */
-        std::unique_ptr<node::IRLiteralExpr> 
+        std::unique_ptr<ir::IRLiteralExpr> 
         transformLiteralExpr(const syntax::ast::ASTLiteralExpr* astLiteralExpr) const;
 
         /**
@@ -63,7 +63,7 @@ namespace IR {
          * @param astExpr - const pointer to the ast expression
          * @returns pointer to the temporary variables
         */
-        std::unique_ptr<node::IRTemporaryExpr> 
+        std::unique_ptr<ir::IRTemporaryExpr> 
         initiateTemporaries(const syntax::ast::ASTExpr* astExpr);
 
         /**
@@ -71,7 +71,7 @@ namespace IR {
          * @param astCallExpr - const pointer to the ast function call
          * @returns pointer to the irt function call
         */
-        std::unique_ptr<node::IRFunctionCallExpr> 
+        std::unique_ptr<ir::IRFunctionCallExpr> 
         transformFunctionCallExpr(const syntax::ast::ASTFunctionCallExpr* astCallExpr);
 
         /**
@@ -80,7 +80,7 @@ namespace IR {
          * @param astCallExpr - const pointer to the ast function call
         */
         void transformArguments(
-            IR::node::IRFunctionCallExpr* irCallExpr, 
+            ir::IRFunctionCallExpr* irCallExpr, 
             const syntax::ast::ASTFunctionCallExpr* astCallExpr
         );
 
@@ -104,7 +104,7 @@ namespace IR {
          * @param idx - index of the temporary being assigned
         */
         void assignTemporaries(
-            IR::node::IRTemporaryExpr* temporaryRoot, 
+            ir::IRTemporaryExpr* temporaryRoot, 
             const syntax::ast::ASTExpr* astExpr, 
             size_t& idx
         );
@@ -114,12 +114,12 @@ namespace IR {
          * @param astCallExpr - const pointer to the ast function call
          * @returns pointer to the irt id of the temporary variable
         */
-        std::unique_ptr<node::IRIdExpr> 
+        std::unique_ptr<ir::IRIdExpr> 
         replaceFunctionCallExpr(const syntax::ast::ASTFunctionCallExpr* astCallExpr);
 
     private:
         /// reference to a function context
-        IR::defs::ctx::IRFunctionContext& ctx;
+        ir::IRFunctionContext& ctx;
 
     };
 

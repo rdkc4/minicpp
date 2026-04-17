@@ -12,7 +12,7 @@
 
 /**
  * @namespace IR
- * @brief module of the intermediate representation
+ * @brief module defining the elements related to the intermediate representation
 */
 namespace IR {
     /**
@@ -32,7 +32,7 @@ namespace IR {
          * @param program - const pointer to the root of the ast program
          * @returns pointer to the root of irt program
         */
-        [[nodiscard]] std::unique_ptr<node::IRProgram> 
+        [[nodiscard]] std::unique_ptr<ir::IRProgram> 
         transformProgram(const syntax::ast::ASTProgram* program);
 
         /**
@@ -40,14 +40,14 @@ namespace IR {
          * @param program - const pointer to the root of the irt
          * @returns true if any error is caught, false otherwise
         */
-        bool hasErrors(const IR::node::IRProgram* program) const noexcept;
+        bool hasErrors(const ir::IRProgram* program) const noexcept;
 
         /**
          * @brief getter for the ir errors
          * @param program - pointer to the root of the irt program
          * @returns errors merged into a string
         */
-        std::string getErrors(const IR::node::IRProgram* program) const noexcept;
+        std::string getErrors(const ir::IRProgram* program) const noexcept;
 
     private:
         /// thread pool for parallel function ir transformation

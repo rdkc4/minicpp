@@ -16,10 +16,10 @@
 IR::IntermediateRepresentation::IntermediateRepresentation(ThreadPool& threadPool) 
     : threadPool{ threadPool } {}
 
-std::unique_ptr<IR::node::IRProgram> 
+std::unique_ptr<ir::IRProgram> 
 IR::IntermediateRepresentation::transformProgram(const syntax::ast::ASTProgram* program){
-    std::unique_ptr<IR::node::IRProgram> irProgram{ 
-        std::make_unique<IR::node::IRProgram>() 
+    std::unique_ptr<ir::IRProgram> irProgram{ 
+        std::make_unique<ir::IRProgram>() 
     };
 
     {
@@ -41,7 +41,7 @@ IR::IntermediateRepresentation::transformProgram(const syntax::ast::ASTProgram* 
             ] -> void {
                 // generating ir of a function
                 FunctionIntermediateRepresentation funcIR;
-                std::unique_ptr<IR::node::IRFunction> irFunction{ 
+                std::unique_ptr<ir::IRFunction> irFunction{ 
                     funcIR.transformFunction(function) 
                 };
 
@@ -60,11 +60,11 @@ IR::IntermediateRepresentation::transformProgram(const syntax::ast::ASTProgram* 
     doneLatch.wait();
 
     // eliminating dead code from the program
-    Optimization::dce::DeadCodeEliminator dce{threadPool};
+    optimization::dce::DeadCodeEliminator dce{threadPool};
     irProgram->accept(dce);
 
     // calculating required memory for the stack of each function
-    Optimization::sfa::StackFrameAnalyzer stackFrameAnalyzer{threadPool};
+    optimization::sfa::StackFrameAnalyzer stackFrameAnalyzer{threadPool};
     irProgram->accept(stackFrameAnalyzer); 
 
     for(const auto& dir : program->getDirs()) {
@@ -78,7 +78,7 @@ IR::IntermediateRepresentation::transformProgram(const syntax::ast::ASTProgram* 
     return irProgram;
 }
 
-bool IR::IntermediateRepresentation::hasErrors(const IR::node::IRProgram* program) const noexcept {
+bool IR::IntermediateRepresentation::hasErrors(const ir::IRProgram* program) const noexcept {
     for(const auto& function : program->getFunctions()){
         if(!exceptions.at(function->getFunctionName()).empty()){
             return true;
@@ -87,7 +87,7 @@ bool IR::IntermediateRepresentation::hasErrors(const IR::node::IRProgram* progra
     return false;
 }
 
-std::string IR::IntermediateRepresentation::getErrors(const IR::node::IRProgram* program) const noexcept {
+std::string IR::IntermediateRepresentation::getErrors(const ir::IRProgram* program) const noexcept {
     if(exceptions.empty()){
         return "";
     }
