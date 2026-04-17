@@ -42,7 +42,7 @@ void semantics::Analyzer::visit(syntax::ast::ASTProgram* program){
     doneLatch.wait();
 
     // check if main exists
-    if(!globalScopeManager.lookupSymbol("main", {Kind::FUN})){
+    if(!globalScopeManager.lookupSymbol("main", {semantics::Kind::FUN})){
         semanticErrors[globalError].emplace_back("'main' function not found");
     }
 }
@@ -68,7 +68,7 @@ void semantics::Analyzer::checkFunctionSignature(const syntax::ast::ASTFunction*
 
     // function redefinition check
     if(!globalScopeManager.pushSymbol(
-        semantics::Symbol{funcToken.value, Kind::FUN, returnType}
+        semantics::Symbol{funcToken.value, semantics::Kind::FUN, returnType}
     )){
         reportError(
             funcToken, 
@@ -190,7 +190,7 @@ void semantics::Analyzer::defineParameters(const syntax::ast::ASTFunction* funct
         analyzerContext.scopeManager->pushSymbol(
             semantics::Symbol{
                 parameter->getToken().value, 
-                Kind::PAR, 
+                semantics::Kind::PAR, 
                 parameter->getType()
             }
         );
@@ -222,7 +222,7 @@ void semantics::Analyzer::visit(syntax::ast::ASTParameter* parameter){
 
     // parameter redefinition check
     if(!analyzerContext.scopeManager->pushSymbol(
-        semantics::Symbol{paramToken.value, Kind::PAR, paramType}
+        semantics::Symbol{paramToken.value, semantics::Kind::PAR, paramType}
     )){
         reportError(
             paramToken, 
@@ -259,7 +259,7 @@ void semantics::Analyzer::visit(syntax::ast::ASTVariableDeclStmt* variableDecl){
 
     // variable redefinition check
     if(!analyzerContext.scopeManager->pushSymbol(
-        semantics::Symbol{variableToken.value, Kind::VAR, variableType}
+        semantics::Symbol{variableToken.value, semantics::Kind::VAR, variableType}
     )){
         reportError(
             variableToken, 
@@ -498,7 +498,7 @@ void semantics::Analyzer::visit(syntax::ast::ASTFunctionCallExpr* callExpr){
     const auto& callExprToken{  callExpr->getToken() };
 
     const auto* callExprSymbol{ 
-        globalScopeManager.lookupSymbol(callExprToken.value, {Kind::FUN}) 
+        globalScopeManager.lookupSymbol(callExprToken.value, {semantics::Kind::FUN}) 
     };
 
     if(!callExprSymbol){
@@ -570,7 +570,7 @@ void semantics::Analyzer::visit(syntax::ast::ASTIdExpr* idExpr){
     // check if id exists
     const auto* idExprSymbol{ 
         analyzerContext.scopeManager->lookupSymbol(
-            idExprToken.value, {Kind::VAR, Kind::PAR}
+            idExprToken.value, {semantics::Kind::VAR, semantics::Kind::PAR}
         ) 
     };
 

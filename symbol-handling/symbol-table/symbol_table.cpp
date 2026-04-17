@@ -1,7 +1,7 @@
 #include "symbol_table.hpp"
 
 const semantics::Symbol* semantics::SymbolTable::lookupSymbol(
-    const std::string& name, std::initializer_list<Kind> kinds
+    const std::string& name, std::initializer_list<semantics::Kind> kinds
 ) const {
     auto it{ symbolTable.find(name) };
     if(it != symbolTable.end()){

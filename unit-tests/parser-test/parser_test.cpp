@@ -225,7 +225,7 @@ TEST_F(ExpressionParserFixture, Expression){
 
     ASSERT_NO_THROW(initParser());
     ASSERT_EQ(expr->getNodeType(), syntax::ast::ASTNodeType::BINARY_EXPR);
-    EXPECT_EQ(static_cast<syntax::ast::ASTBinaryExpr*>(expr.get())->getOperator(), Operator::ADD);
+    EXPECT_EQ(static_cast<syntax::ast::ASTBinaryExpr*>(expr.get())->getOperator(), syntax::Operator::ADD);
 }
 
 TEST_F(ExpressionParserFixture, ConditionExpression){
@@ -233,7 +233,7 @@ TEST_F(ExpressionParserFixture, ConditionExpression){
 
     ASSERT_NO_THROW(initParser());
     ASSERT_EQ(expr->getNodeType(), syntax::ast::ASTNodeType::BINARY_EXPR);
-    EXPECT_EQ(static_cast<syntax::ast::ASTBinaryExpr*>(expr.get())->getOperator(), Operator::GREATER);
+    EXPECT_EQ(static_cast<syntax::ast::ASTBinaryExpr*>(expr.get())->getOperator(), syntax::Operator::GREATER);
 }
 
 TEST_F(ExpressionParserFixture, FunctionCallNoArgs){

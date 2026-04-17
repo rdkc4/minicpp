@@ -5,14 +5,14 @@
 ir::IRBinaryExpr::IRBinaryExpr(ir::IRNodeType ntype, Type type) 
     : IRExpr(ntype, type) {}
 
-Operator ir::IRBinaryExpr::getOperator() const noexcept {
+syntax::Operator ir::IRBinaryExpr::getOperator() const noexcept {
     return exprOperator;
 }
 
 void ir::IRBinaryExpr::setBinaryExpr(
     std::unique_ptr<IRExpr> leftOperand, 
     std::unique_ptr<IRExpr> rightOperand, 
-    Operator op
+    syntax::Operator op
 ){
     leftOperandExpr = std::move(leftOperand);
     rightOperandExpr = std::move(rightOperand);

@@ -34,7 +34,7 @@ semantics::Symbol& semantics::ScopeManager::getSymbol(const std::string& name) c
 }
 
 const semantics::Symbol* semantics::ScopeManager::lookupSymbol(
-    const std::string& name, std::initializer_list<Kind> kinds
+    const std::string& name, std::initializer_list<semantics::Kind> kinds
 ) const {
     return symbolTable.lookupSymbol(name, kinds);
 }

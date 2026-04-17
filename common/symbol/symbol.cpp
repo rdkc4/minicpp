@@ -2,14 +2,14 @@
 
 #include <format>
 
-semantics::Symbol::Symbol(std::string_view name, Kind kind, Type type) 
+semantics::Symbol::Symbol(std::string_view name, semantics::Kind kind, Type type) 
     : name{ name }, parameters{ nullptr }, kind{ kind }, type{ type } {}
 
 const std::string& semantics::Symbol::getName() const noexcept {
     return name;
 }
 
-Kind semantics::Symbol::getKind() const noexcept {
+semantics::Kind semantics::Symbol::getKind() const noexcept {
     return kind;
 }
 
@@ -26,7 +26,7 @@ void semantics::Symbol::setName(std::string_view symName){
     name = symName;
 }
 
-void semantics::Symbol::setKind(Kind symKind) noexcept {
+void semantics::Symbol::setKind(semantics::Kind symKind) noexcept {
     kind = symKind;
 }
 
@@ -43,7 +43,7 @@ void semantics::Symbol::setParameters(
 std::string semantics::Symbol::symbolToString() const {
     return std::format("| {:11} | {:3} | {:8} | {:2} |\n", 
         name, 
-        kindToStr(kind), 
+        semantics::kindToStr(kind), 
         typeToStr(type), 
         (parameters != nullptr 
             ? std::to_string(parameters->size()) 

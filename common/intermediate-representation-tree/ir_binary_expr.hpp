@@ -43,7 +43,7 @@ namespace ir {
          * @brief getter for the operator of the binary expression
          * @returns operator of the binary expression
         */
-        Operator getOperator() const noexcept;
+        syntax::Operator getOperator() const noexcept;
 
         /**
          * @brief initializes the binary expression node
@@ -54,7 +54,7 @@ namespace ir {
         void setBinaryExpr(
             std::unique_ptr<IRExpr> leftOperand, 
             std::unique_ptr<IRExpr> rightOperand, 
-            Operator op
+            syntax::Operator op
         );
 
         /**
@@ -71,7 +71,7 @@ namespace ir {
         std::unique_ptr<IRExpr> rightOperandExpr;
         
         /// operator of the binary expression
-        Operator exprOperator;
+        syntax::Operator exprOperator;
 
     };
 

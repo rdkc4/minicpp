@@ -65,7 +65,7 @@ TEST_F(AnalyzerFixture, CheckFunctionSignaturesMainParamsError){
 
 TEST_F(FunctionAnalyzerFixture, CheckFunction){
     input = {"int fun(){ return 1; }"};
-    scopeManager.pushSymbol(semantics::Symbol{"fun", Kind::FUN, Type::INT});
+    scopeManager.pushSymbol(semantics::Symbol{"fun", semantics::Kind::FUN, Type::INT});
     initAnalyzer();
 
     EXPECT_TRUE(analyzer->getErrors("fun").empty());
@@ -73,7 +73,7 @@ TEST_F(FunctionAnalyzerFixture, CheckFunction){
 
 TEST_F(FunctionAnalyzerFixture, CheckFunctionNotAllIfPathsReturnError){
     input = {"int fun(int x){ if(x > 0) return 1; }"};
-    scopeManager.pushSymbol(semantics::Symbol{"fun", Kind::FUN, Type::INT});
+    scopeManager.pushSymbol(semantics::Symbol{"fun", semantics::Kind::FUN, Type::INT});
     initAnalyzer();
 
     EXPECT_FALSE(analyzer->getErrors("fun").empty());
@@ -82,7 +82,7 @@ TEST_F(FunctionAnalyzerFixture, CheckFunctionNotAllIfPathsReturnError){
 
 TEST_F(FunctionAnalyzerFixture, CheckFunctionNotAllSwitchPathsReturnError){
     input = {"int fun(int x){ switch(x){ case 0: return 0; case 1: return 1; } }"};
-    scopeManager.pushSymbol(semantics::Symbol{"fun", Kind::FUN, Type::INT});
+    scopeManager.pushSymbol(semantics::Symbol{"fun", semantics::Kind::FUN, Type::INT});
     initAnalyzer();
 
     EXPECT_FALSE(analyzer->getErrors("fun").empty());
@@ -91,7 +91,7 @@ TEST_F(FunctionAnalyzerFixture, CheckFunctionNotAllSwitchPathsReturnError){
 
 TEST_F(FunctionAnalyzerFixture, CheckFunctionParameterRedefError){
     input = {"int fun(int x){ int x = 1; return 0; }"};
-    scopeManager.pushSymbol(semantics::Symbol{"fun", Kind::FUN, Type::INT});
+    scopeManager.pushSymbol(semantics::Symbol{"fun", semantics::Kind::FUN, Type::INT});
     initAnalyzer();
 
     EXPECT_FALSE(analyzer->getErrors("fun").empty());
@@ -100,7 +100,7 @@ TEST_F(FunctionAnalyzerFixture, CheckFunctionParameterRedefError){
 
 TEST_F(FunctionAnalyzerFixture, CheckFunctionVoidReturnsTypeError){
     input = {"void fun(){ return 1; }"};
-    scopeManager.pushSymbol(semantics::Symbol{"fun", Kind::FUN, Type::VOID});
+    scopeManager.pushSymbol(semantics::Symbol{"fun", semantics::Kind::FUN, Type::VOID});
     initAnalyzer();
 
     EXPECT_FALSE(analyzer->getErrors("fun").empty());
@@ -109,7 +109,7 @@ TEST_F(FunctionAnalyzerFixture, CheckFunctionVoidReturnsTypeError){
 
 TEST_F(FunctionAnalyzerFixture, CheckFunctionVoidTypeMismatchError){
     input = {"int fun(){ return 1u; }"};
-    scopeManager.pushSymbol(semantics::Symbol{"fun", Kind::FUN, Type::INT});
+    scopeManager.pushSymbol(semantics::Symbol{"fun", semantics::Kind::FUN, Type::INT});
     initAnalyzer();
 
     EXPECT_FALSE(analyzer->getErrors("fun").empty());
@@ -121,7 +121,7 @@ TEST_F(StatementAnalyzerFixture, CheckVariable){
     initAnalyzer();
     
     ASSERT_TRUE(analyzer->getContext().semanticErrors.empty());
-    EXPECT_TRUE(scopeManager.lookupSymbol("x", {Kind::VAR}));
+    EXPECT_TRUE(scopeManager.lookupSymbol("x", {semantics::Kind::VAR}));
 }
 
 TEST_F(StatementAnalyzerFixture, CheckVariableExitedScope){
@@ -133,7 +133,7 @@ TEST_F(StatementAnalyzerFixture, CheckVariableExitedScope){
 
 TEST_F(StatementAnalyzerFixture, CheckVariableRedefError){
     input = {"int x = 5;"};
-    scopeManager.pushSymbol(semantics::Symbol{"x", Kind::VAR, Type::INT});
+    scopeManager.pushSymbol(semantics::Symbol{"x", semantics::Kind::VAR, Type::INT});
     initAnalyzer();
 
     ASSERT_FALSE(analyzer->getContext().semanticErrors.empty());
@@ -153,7 +153,7 @@ TEST_F(StatementAnalyzerFixture, CheckVariableAutoType){
     initAnalyzer();
 
     ASSERT_TRUE(analyzer->getContext().semanticErrors.empty());
-    EXPECT_TRUE(analyzer->getContext().scopeManager->lookupSymbol("x", {Kind::VAR}));
+    EXPECT_TRUE(analyzer->getContext().scopeManager->lookupSymbol("x", {semantics::Kind::VAR}));
     EXPECT_EQ(analyzer->getContext().scopeManager->getSymbol("x").getType(), Type::UNSIGNED);
 }
 
@@ -175,7 +175,7 @@ TEST_F(StatementAnalyzerFixture, CheckVariableUndefinedVariableError){
 
 TEST_F(StatementAnalyzerFixture, ForStatement){
     input = {"for(i = 0; i < 2; i = i + 1) i = i + 1;"};
-    scopeManager.pushSymbol(semantics::Symbol{"i", Kind::VAR, Type::INT});
+    scopeManager.pushSymbol(semantics::Symbol{"i", semantics::Kind::VAR, Type::INT});
     initAnalyzer();
 
     EXPECT_TRUE(analyzer->getContext().semanticErrors.empty());
@@ -191,7 +191,7 @@ TEST_F(StatementAnalyzerFixture, ForStatementUndefVarError){
 
 TEST_F(StatementAnalyzerFixture, ForStatementTypeMismatchError){
     input = {"for(i = 0u; i < 10; i = i + 1) i = i + 1;"};
-    scopeManager.pushSymbol(semantics::Symbol{"i", Kind::VAR, Type::INT});
+    scopeManager.pushSymbol(semantics::Symbol{"i", semantics::Kind::VAR, Type::INT});
     initAnalyzer();
 
     ASSERT_FALSE(analyzer->getContext().semanticErrors.empty());
@@ -200,7 +200,7 @@ TEST_F(StatementAnalyzerFixture, ForStatementTypeMismatchError){
 
 TEST_F(StatementAnalyzerFixture, SwitchStatement){
     input = {"switch(x){ case 1: break; default: break; }"};
-    scopeManager.pushSymbol(semantics::Symbol{"x", Kind::VAR, Type::INT});
+    scopeManager.pushSymbol(semantics::Symbol{"x", semantics::Kind::VAR, Type::INT});
     initAnalyzer();
 
     EXPECT_TRUE(analyzer->getContext().semanticErrors.empty());
@@ -208,7 +208,7 @@ TEST_F(StatementAnalyzerFixture, SwitchStatement){
 
 TEST_F(StatementAnalyzerFixture, SwitchStatementTypeMismatchError){
     input = {"switch(x){ case 1u: break; default: break; }"};
-    scopeManager.pushSymbol(semantics::Symbol{"x", Kind::VAR, Type::INT});
+    scopeManager.pushSymbol(semantics::Symbol{"x", semantics::Kind::VAR, Type::INT});
     initAnalyzer();
 
     ASSERT_FALSE(analyzer->getContext().semanticErrors.empty());
@@ -217,7 +217,7 @@ TEST_F(StatementAnalyzerFixture, SwitchStatementTypeMismatchError){
 
 TEST_F(StatementAnalyzerFixture, SwitchStatementCaseDuplicateError){
     input = {"switch(x){ case 1: break; case 1: break; }"};
-    scopeManager.pushSymbol(semantics::Symbol{"x", Kind::VAR, Type::INT});
+    scopeManager.pushSymbol(semantics::Symbol{"x", semantics::Kind::VAR, Type::INT});
     initAnalyzer();
 
     ASSERT_FALSE(analyzer->getContext().semanticErrors.empty());

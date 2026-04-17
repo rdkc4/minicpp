@@ -211,7 +211,10 @@ void ir::IRDumper::visit(ir::IRSwitchBlockStmt* switchBlockStmt){
 }
 
 void ir::IRDumper::visit(ir::IRBinaryExpr* binaryExpr){
-    dumpNode(binaryExpr, std::format(" | {}", operatorToStr(binaryExpr->getOperator())));
+    dumpNode(
+        binaryExpr, 
+        std::format(" | {}", syntax::operatorToStr(binaryExpr->getOperator()))
+    );
 
     IndentGuard binaryExprGuard{indent};
     binaryExpr->getLeftOperandExpr()->accept(*this);

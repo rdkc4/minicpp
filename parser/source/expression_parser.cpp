@@ -129,7 +129,7 @@ std::unique_ptr<syntax::ast::ASTBinaryExpr> ExpressionParser::parseOperator(){
     std::unique_ptr<syntax::ast::ASTBinaryExpr> op{ 
         std::make_unique<syntax::ast::ASTBinaryExpr>(token)
     };
-    op->setOperator(tokenTypeToOperator(token.type));
+    op->setOperator(syntax::tokenTypeToOperator(token.type));
 
     tokenConsumer.consume(syntax::GeneralTokenType::OPERATOR);
 

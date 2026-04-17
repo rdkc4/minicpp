@@ -22,7 +22,7 @@ namespace syntax::ast {
          * @param type - type of the binary expression, defaults to NO_TYPE
          * @param op - operator of the binary expression, defaults to NO_OP
         */
-        ASTBinaryExpr(const syntax::Token& token, Type type = Type::NO_TYPE, Operator op = Operator::NO_OP);
+        ASTBinaryExpr(const Token& token, Type type = Type::NO_TYPE, Operator op = Operator::NO_OP);
         
         /** 
          * @brief getter for left operand expression node

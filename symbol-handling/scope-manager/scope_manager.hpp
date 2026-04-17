@@ -55,7 +55,8 @@ namespace semantics {
          * @param kinds - list of kinds that symbol is allowed to have
          * @returns const pointer to symbol if symbol exists, nullptr otherwise
         */
-        const semantics::Symbol* lookupSymbol(const std::string& name, std::initializer_list<Kind> kinds) const;
+        const semantics::Symbol* 
+        lookupSymbol(const std::string& name, std::initializer_list<Kind> kinds) const;
 
         /**
          * @brief clears all scopes
