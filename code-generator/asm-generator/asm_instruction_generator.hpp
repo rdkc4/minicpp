@@ -8,10 +8,10 @@
 #include <cstddef>
 
 /** 
- * @namespace AsmGenerator::Instruction
- * @brief Module for generating the x86-64 asm instructions
+ * @namespace assembly
+ * @brief Module for generating the x86-64 assembly
 */
-namespace AsmGenerator::Instruction {
+namespace assembly {
     /// size of the register in bytes
     constexpr size_t regSize{8};
 

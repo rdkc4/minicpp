@@ -43,7 +43,7 @@ void CodeGenerator::writeCode(const ir::IRProgram* program){
     }
 
     // start of asm code
-    file << AsmGenerator::Instruction::genStart();
+    file << assembly::genStart();
 
     for(const auto& function : program->getFunctions()){
         for(const auto& instruction : asmCode[function->getFunctionName()]){
