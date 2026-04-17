@@ -15,7 +15,7 @@
 #include "../common/intermediate-representation-tree/ir_function_call_expr.hpp"
 #include "ctx/ir_ctx.hpp"
 
-namespace IR {
+namespace ir {
     /**
      * @class ExpressionIntermediateRepresentation
      * @brief turns ast expression into irt expression

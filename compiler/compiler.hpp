@@ -14,10 +14,10 @@
 #include "../thread-pool/thread_pool.hpp"
 
 /** 
- * @namespace Compiler
+ * @namespace compiler
  * @brief Module that orchestrates the process of compiling source code
 */
-namespace Compiler {
+namespace compiler {
     /** 
      * @enum ExitCode
      * @brief exit codes of the compiler

@@ -16,12 +16,12 @@ void FunctionCodeGenerator::generateFunction(const ir::IRFunction* function){
     ctx.functionName = function->getFunctionName();
 
     // function label
-    AsmGenerator::Instruction::genLabel(ctx.asmCode, ctx.functionName);
-    AsmGenerator::Instruction::genFuncPrologue(ctx.asmCode);
+    assembly::genLabel(ctx.asmCode, ctx.functionName);
+    assembly::genFuncPrologue(ctx.asmCode);
     
     // allocation of local variables
     if(function->getRequiredMemory() != "0"){
-        AsmGenerator::Instruction::genOperation(
+        assembly::genOperation(
             ctx.asmCode, 
             "sub", 
             std::format("${}", function->getRequiredMemory()), 
@@ -36,14 +36,14 @@ void FunctionCodeGenerator::generateFunction(const ir::IRFunction* function){
     }
 
     // function end label
-    AsmGenerator::Instruction::genLabel(
+    assembly::genLabel(
         ctx.asmCode, 
         std::format("_{}_end", ctx.functionName)
     );
     
     // free local variables 
     if(function->getRequiredMemory() != "0"){
-        AsmGenerator::Instruction::genOperation(
+        assembly::genOperation(
             ctx.asmCode, 
             "add", 
             std::format("${}", function->getRequiredMemory()), 
@@ -51,13 +51,13 @@ void FunctionCodeGenerator::generateFunction(const ir::IRFunction* function){
         );
     }
 
-    AsmGenerator::Instruction::genFuncEpilogue(ctx.asmCode);
+    assembly::genFuncEpilogue(ctx.asmCode);
 
     if(function->getFunctionName() != "main"){
-        AsmGenerator::Instruction::genRet(ctx.asmCode);
+        assembly::genRet(ctx.asmCode);
     }
     else{
-        AsmGenerator::Instruction::genExit(ctx.asmCode);
+        assembly::genExit(ctx.asmCode);
     }
 
 }
@@ -68,7 +68,7 @@ void FunctionCodeGenerator::generateParameters(const ir::IRFunction* function){
         // mapping parameter to address relative to %rbp (+n(%rbp))
         ctx.variableMap.insert({
             parameter->getParameterName(), 
-            std::format("{}(%rbp)", i * AsmGenerator::Instruction::regSize)
+            std::format("{}(%rbp)", i * assembly::regSize)
         });
         ++i;
     }

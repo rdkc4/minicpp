@@ -11,11 +11,11 @@ class CompilerFixture : public ::testing::Test {
 protected:
     const std::string input{ "tmp.mcpp" };
     const std::string output{ "tmp" };
-    Compiler::ExitCode returnCode;
+    compiler::ExitCode returnCode;
 
     void initCompiler(std::string_view source){
         __test__writeSourceToFile(source, input);
-        returnCode =  Compiler::compile({
+        returnCode =  compiler::compile({
             .stopAfterAssembly = true, 
             .input = input, 
             .output = output

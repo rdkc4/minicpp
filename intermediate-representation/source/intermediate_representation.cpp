@@ -13,11 +13,11 @@
 #include "../directive_intermediate_representation.hpp"
 #include "../function_intermediate_representation.hpp"
 
-IR::IntermediateRepresentation::IntermediateRepresentation(ThreadPool& threadPool) 
+ir::IntermediateRepresentation::IntermediateRepresentation(ThreadPool& threadPool) 
     : threadPool{ threadPool } {}
 
 std::unique_ptr<ir::IRProgram> 
-IR::IntermediateRepresentation::transformProgram(const syntax::ast::ASTProgram* program){
+ir::IntermediateRepresentation::transformProgram(const syntax::ast::ASTProgram* program){
     std::unique_ptr<ir::IRProgram> irProgram{ 
         std::make_unique<ir::IRProgram>() 
     };
@@ -78,7 +78,7 @@ IR::IntermediateRepresentation::transformProgram(const syntax::ast::ASTProgram* 
     return irProgram;
 }
 
-bool IR::IntermediateRepresentation::hasErrors(const ir::IRProgram* program) const noexcept {
+bool ir::IntermediateRepresentation::hasErrors(const ir::IRProgram* program) const noexcept {
     for(const auto& function : program->getFunctions()){
         if(!exceptions.at(function->getFunctionName()).empty()){
             return true;
@@ -87,7 +87,7 @@ bool IR::IntermediateRepresentation::hasErrors(const ir::IRProgram* program) con
     return false;
 }
 
-std::string IR::IntermediateRepresentation::getErrors(const ir::IRProgram* program) const noexcept {
+std::string ir::IntermediateRepresentation::getErrors(const ir::IRProgram* program) const noexcept {
     if(exceptions.empty()){
         return "";
     }

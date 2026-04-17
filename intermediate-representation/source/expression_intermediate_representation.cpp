@@ -5,12 +5,12 @@
 #include "../../optimization/constant_folding.hpp"
 #include "../../common/intermediate-representation-tree/ir_binary_expr.hpp"
 
-IR::ExpressionIntermediateRepresentation::ExpressionIntermediateRepresentation(
+ir::ExpressionIntermediateRepresentation::ExpressionIntermediateRepresentation(
     ir::IRFunctionContext& context
 ) : ctx{ context } {};
 
 std::unique_ptr<ir::IRExpr> 
-IR::ExpressionIntermediateRepresentation::transformExpr(const syntax::ast::ASTExpr* astExpr){
+ir::ExpressionIntermediateRepresentation::transformExpr(const syntax::ast::ASTExpr* astExpr){
     auto nodeType{ astExpr->getNodeType() };
     switch(nodeType){
         case syntax::ast::ASTNodeType::ID_EXPR:
@@ -28,7 +28,7 @@ IR::ExpressionIntermediateRepresentation::transformExpr(const syntax::ast::ASTEx
 }
 
 std::unique_ptr<ir::IRExpr> 
-IR::ExpressionIntermediateRepresentation::transformBinaryExpr(const syntax::ast::ASTBinaryExpr* astBinaryExpr){
+ir::ExpressionIntermediateRepresentation::transformBinaryExpr(const syntax::ast::ASTBinaryExpr* astBinaryExpr){
     std::unique_ptr<ir::IRExpr> leftOperand{ 
         transformExpr(astBinaryExpr->getLeftOperandExpr()) 
     };
@@ -86,7 +86,7 @@ IR::ExpressionIntermediateRepresentation::transformBinaryExpr(const syntax::ast:
 }
 
 std::unique_ptr<ir::IRIdExpr> 
-IR::ExpressionIntermediateRepresentation::transformIdExpr(
+ir::ExpressionIntermediateRepresentation::transformIdExpr(
     const syntax::ast::ASTIdExpr* astIdExpr
 ) const {
     return std::make_unique<ir::IRIdExpr>(
@@ -96,7 +96,7 @@ IR::ExpressionIntermediateRepresentation::transformIdExpr(
 }
 
 std::unique_ptr<ir::IRLiteralExpr> 
-IR::ExpressionIntermediateRepresentation::transformLiteralExpr(
+ir::ExpressionIntermediateRepresentation::transformLiteralExpr(
     const syntax::ast::ASTLiteralExpr* astLiteralExpr
 ) const {
     return std::make_unique<ir::IRLiteralExpr>(
@@ -106,7 +106,7 @@ IR::ExpressionIntermediateRepresentation::transformLiteralExpr(
 }
 
 std::unique_ptr<ir::IRFunctionCallExpr> 
-IR::ExpressionIntermediateRepresentation::transformFunctionCallExpr(
+ir::ExpressionIntermediateRepresentation::transformFunctionCallExpr(
     const syntax::ast::ASTFunctionCallExpr* astCallExpr
 ){
     std::unique_ptr<ir::IRFunctionCallExpr> irCallExpr{ 
@@ -119,7 +119,7 @@ IR::ExpressionIntermediateRepresentation::transformFunctionCallExpr(
     return irCallExpr;
 }
 
-void IR::ExpressionIntermediateRepresentation::transformArguments(
+void ir::ExpressionIntermediateRepresentation::transformArguments(
     ir::IRFunctionCallExpr* irCallExpr, 
     const syntax::ast::ASTFunctionCallExpr* astCallExpr
 ){
@@ -133,7 +133,7 @@ void IR::ExpressionIntermediateRepresentation::transformArguments(
 }
 
 // counting the number of function calls that should be replaced by temporary variables
-size_t IR::ExpressionIntermediateRepresentation::countTemporaries(const syntax::ast::ASTExpr* astExpr) const {
+size_t ir::ExpressionIntermediateRepresentation::countTemporaries(const syntax::ast::ASTExpr* astExpr) const {
     auto nodeType{ astExpr->getNodeType() };
     switch(nodeType){
         case syntax::ast::ASTNodeType::FUNCTION_CALL_EXPR:
@@ -152,14 +152,14 @@ size_t IR::ExpressionIntermediateRepresentation::countTemporaries(const syntax::
 }
 
 // generating temporary variables
-std::string IR::ExpressionIntermediateRepresentation::generateTemporaries(){
+std::string ir::ExpressionIntermediateRepresentation::generateTemporaries(){
     std::string name{ std::format("_t{}", ++ctx.temporaries) };
     ctx.temporaryNames.push(name);
     return name;
 }
 
 // assigning a returned value to temporary variables
-void IR::ExpressionIntermediateRepresentation::assignTemporaries(
+void ir::ExpressionIntermediateRepresentation::assignTemporaries(
     ir::IRTemporaryExpr* temporaryRoot, 
     const syntax::ast::ASTExpr* astExpr, 
     size_t& idx
@@ -191,7 +191,7 @@ void IR::ExpressionIntermediateRepresentation::assignTemporaries(
 
 // replacing function calls with temporary variables in expression
 std::unique_ptr<ir::IRIdExpr> 
-IR::ExpressionIntermediateRepresentation::replaceFunctionCallExpr(
+ir::ExpressionIntermediateRepresentation::replaceFunctionCallExpr(
     const syntax::ast::ASTFunctionCallExpr* astCallExpr
 ){
     assert(!ctx.temporaryNames.empty());
@@ -201,7 +201,7 @@ IR::ExpressionIntermediateRepresentation::replaceFunctionCallExpr(
 }
 
 std::unique_ptr<ir::IRTemporaryExpr> 
-IR::ExpressionIntermediateRepresentation::initiateTemporaries(
+ir::ExpressionIntermediateRepresentation::initiateTemporaries(
     const syntax::ast::ASTExpr* astExpr
 ){
     size_t tmpCount{ countTemporaries(astExpr) };

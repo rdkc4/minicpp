@@ -19,7 +19,7 @@ protected:
     void initCodeGen(std::string_view source){
         __test__writeSourceToFile(source, input);
     
-        Compiler::compile({.input = input, .output = output});
+        compiler::compile({.input = input, .output = output});
         run_status = __test__runCommand({
             std::format("./{}", output)
         });
