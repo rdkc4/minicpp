@@ -3,10 +3,6 @@
 
 #include <string_view>
 
-/**
- * @namespace preprocessing
- * @brief Module containing the definitions of included libraries
-*/
 namespace preprocessing {
     /// relative path to standard library
     inline constexpr std::string_view relativeLibPath{ "./libmcpp/" };

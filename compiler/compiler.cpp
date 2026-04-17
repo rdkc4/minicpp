@@ -81,7 +81,7 @@ std::string compiler::readSourceCode(const std::string& input){
 }
 
 const compiler::PreprocessResult compiler::preprocess(const std::string& source) {
-    Preprocessor preprocessor;
+    preprocessing::Preprocessor preprocessor;
     preprocessor.preprocess(source);
 
     bool isInvalid{ preprocessor.hasErrors() };

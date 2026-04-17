@@ -7,7 +7,7 @@ SANITIZER = -fsanitize=address,undefined
 
 # Source files
 SRCS = main.cpp \
-	common/preprocessing/source/preprocessing_libs.cpp \
+	common/preprocessing/preprocessing_libs.cpp \
 	preprocessor/preprocessor.cpp \
 	common/token/token.cpp \
 	common/abstract-syntax-tree/source/ast_node.cpp \

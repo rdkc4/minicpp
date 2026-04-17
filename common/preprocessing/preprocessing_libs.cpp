@@ -1,4 +1,4 @@
-#include "../preprocessing_libs.hpp"
+#include "preprocessing_libs.hpp"
 #include <format>
 
 std::string preprocessing::generateLibSourcePath(std::string_view libName) {

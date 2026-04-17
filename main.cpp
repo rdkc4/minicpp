@@ -14,7 +14,7 @@ int main(int argc, char** argv){
 
         if(ret != compiler::ExitCode::NO_ERR){
             std::cerr << "Program failed to compile!\n";
-            return 1;
+            return static_cast<int>(ret);
         }
 
         auto duration{ 
