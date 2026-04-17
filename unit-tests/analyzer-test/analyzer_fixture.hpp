@@ -7,8 +7,8 @@
 class AnalyzerFixture : public ParserFixture {
 protected:
     ThreadPool tp{1};
-    SymbolTable symtab;
-    ScopeManager scopeManager{symtab};
+    sym::SymbolTable symtab;
+    sym::ScopeManager scopeManager{symtab};
     std::unique_ptr<AnalyzerTest> analyzer;
 
     void initAnalyzer() {
@@ -21,8 +21,8 @@ protected:
 class FunctionAnalyzerFixture : public FunctionParserFixture {
 protected:
     ThreadPool tp{1};
-    SymbolTable symtab;
-    ScopeManager scopeManager{symtab};
+    sym::SymbolTable symtab;
+    sym::ScopeManager scopeManager{symtab};
     std::unique_ptr<AnalyzerTest> analyzer;
 
     void initAnalyzer() {
@@ -44,8 +44,8 @@ protected:
 class StatementAnalyzerFixture : public StatementParserFixture {
 protected:
     ThreadPool tp{1};
-    SymbolTable symtab;
-    ScopeManager scopeManager{symtab};
+    sym::SymbolTable symtab;
+    sym::ScopeManager scopeManager{symtab};
     std::unique_ptr<AnalyzerTest> analyzer;
 
     void initAnalyzer(){
@@ -70,8 +70,8 @@ protected:
 class ExpressionAnalyzerFixture : public ExpressionParserFixture {
 protected:
     ThreadPool tp{1};
-    SymbolTable symtab;
-    ScopeManager scopeManager{symtab};
+    sym::SymbolTable symtab;
+    sym::ScopeManager scopeManager{symtab};
     std::unique_ptr<AnalyzerTest> analyzer;
 
     void initAnalyzer(){
@@ -86,6 +86,9 @@ protected:
     }
 
     void TearDown() override {
+        if(analyzer){
+            analyzer->getContext().reset();
+        }
         scopeManager.popScope();
     }
 };

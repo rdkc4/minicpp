@@ -30,11 +30,11 @@ void Lexer::tokenize(){
         }
     }
 
-    addToken("", line, column(), TokenType::_EOF);
+    addToken("", line, column(), syntax::TokenType::_EOF);
 }
 
 bool Lexer::completedTokenization() const noexcept {
-    return tokens.size() > 0 && tokens.back().type == TokenType::_EOF;
+    return tokens.size() > 0 && tokens.back().type == syntax::TokenType::_EOF;
 }
 
 bool Lexer::hasErrors() const noexcept {
@@ -54,9 +54,15 @@ std::string Lexer::getErrors() const noexcept {
     return errors.str();
 }
 
-void Lexer::addToken(std::string_view val, size_t lineNumber, size_t col, TokenType type, GeneralTokenType gtype){
+void Lexer::addToken(
+    std::string_view val, 
+    size_t lineNumber, 
+    size_t col, 
+    syntax::TokenType type, 
+    syntax::GeneralTokenType gtype
+){
     tokens.emplace_back(
-        Token{ val, lineNumber, col, type, gtype }
+        syntax::Token{ val, lineNumber, col, type, gtype }
     );
 }
 
@@ -102,8 +108,8 @@ bool Lexer::handleIdentifier(){
     std::string_view value{ getSequence(start, sequenceLength(start)) };
 
     if(!handleKeyword(value, line, col)){
-        tokens.emplace_back(Token{
-            value, line, col, TokenType::ID, GeneralTokenType::VALUE
+        tokens.emplace_back(syntax::Token{
+            value, line, col, syntax::TokenType::ID, syntax::GeneralTokenType::VALUE
         });
     }
 
@@ -115,11 +121,11 @@ bool Lexer::handleKeyword(std::string_view keyword, size_t lineNumber, size_t co
         auto type{ *kwdType };
         auto gtype{
             tokenTypeToType(type) != Type::NO_TYPE
-                ? GeneralTokenType::TYPE
-                : GeneralTokenType::OTHER
+                ? syntax::GeneralTokenType::TYPE
+                : syntax::GeneralTokenType::OTHER
         };
 
-        tokens.emplace_back(Token{
+        tokens.emplace_back(syntax::Token{
             keyword, lineNumber, col, type, gtype
         });
 
@@ -158,8 +164,8 @@ bool Lexer::handleNumber(){
         getSequence(start, sequenceLength(start)),
         line,
         col,
-        TokenType::LITERAL,
-        GeneralTokenType::VALUE
+        syntax::TokenType::LITERAL,
+        syntax::GeneralTokenType::VALUE
     );
 
     return true;
@@ -287,7 +293,7 @@ bool Lexer::handleArithmeticOperator(){
     return false;
 }
 
-void Lexer::emitOperator(Lexeme operatorLexeme, GeneralTokenType gtype){
+void Lexer::emitOperator(Lexeme operatorLexeme, syntax::GeneralTokenType gtype){
     addToken(getRelativeSequence(
         operatorLexeme.length), 
         line, 
@@ -302,28 +308,28 @@ bool Lexer::handlePunctuation(){
     size_t col{ column() };
     switch(getRelativeChar()){
         case '(': 
-            addToken(getRelativeSequence(1), line, col, TokenType::LPAREN); 
+            addToken(getRelativeSequence(1), line, col, syntax::TokenType::LPAREN); 
             break;
         case ')': 
-            addToken(getRelativeSequence(1), line, col, TokenType::RPAREN); 
+            addToken(getRelativeSequence(1), line, col, syntax::TokenType::RPAREN); 
             break;
         case '{': 
-            addToken(getRelativeSequence(1), line, col, TokenType::LBRACE); 
+            addToken(getRelativeSequence(1), line, col, syntax::TokenType::LBRACE); 
             break;
         case '}': 
-            addToken(getRelativeSequence(1), line, col, TokenType::RBRACE); 
+            addToken(getRelativeSequence(1), line, col, syntax::TokenType::RBRACE); 
             break;
         case ',': 
-            addToken(getRelativeSequence(1), line, col, TokenType::COMMA); 
+            addToken(getRelativeSequence(1), line, col, syntax::TokenType::COMMA); 
             break;
         case ';': 
-            addToken(getRelativeSequence(1), line, col, TokenType::SEMICOLON); 
+            addToken(getRelativeSequence(1), line, col, syntax::TokenType::SEMICOLON); 
             break;
         case ':': 
-            addToken(getRelativeSequence(1), line, col, TokenType::COLON); 
+            addToken(getRelativeSequence(1), line, col, syntax::TokenType::COLON); 
             break;
         case '#': 
-            addToken(getRelativeSequence(1), line, col, TokenType::HASH); 
+            addToken(getRelativeSequence(1), line, col, syntax::TokenType::HASH); 
             break;
         default: 
             return false;
@@ -342,6 +348,6 @@ void Lexer::handleInvalid(){
         line, 
         col
     );
-    addToken(getRelativeSequence(1), line, col, TokenType::INVALID);
+    addToken(getRelativeSequence(1), line, col, syntax::TokenType::INVALID);
     advance();
 }

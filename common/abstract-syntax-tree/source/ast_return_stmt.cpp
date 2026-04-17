@@ -2,17 +2,17 @@
 
 #include "../defs/ast_defs.hpp"
 
-AST::node::ASTReturnStmt::ASTReturnStmt(const Token& token) 
-    : ASTStmt(token, AST::defs::ASTNodeType::RETURN_STMT) {}
+syntax::ast::ASTReturnStmt::ASTReturnStmt(const syntax::Token& token) 
+    : ASTStmt(token, syntax::ast::ASTNodeType::RETURN_STMT) {}
 
-void AST::node::ASTReturnStmt::setReturnExpr(std::unique_ptr<AST::node::ASTExpr> expr){
+void syntax::ast::ASTReturnStmt::setReturnExpr(std::unique_ptr<syntax::ast::ASTExpr> expr){
     returnExpr = std::move(expr);
 }
 
-bool AST::node::ASTReturnStmt::hasReturnExpr() const noexcept {
+bool syntax::ast::ASTReturnStmt::hasReturnExpr() const noexcept {
     return returnExpr != nullptr;
 }
 
-void AST::node::ASTReturnStmt::accept(AST::visitor::ASTVisitor& visitor) {
+void syntax::ast::ASTReturnStmt::accept(syntax::ast::ASTVisitor& visitor) {
     visitor.visit(this);
 }

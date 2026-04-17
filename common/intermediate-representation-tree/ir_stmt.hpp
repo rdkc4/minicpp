@@ -5,7 +5,7 @@
 #include "defs/ir_defs.hpp"
 #include "../visitor/ir_visitor.hpp"
 
-namespace IR::node {
+namespace ir {
     /** 
      * @class IRStmt
      * @brief IRT representation for all statements
@@ -18,13 +18,13 @@ namespace IR::node {
          * @brief Creates the instance of the irt statement
          * @param ntype - type of the irt node
         */
-        IRStmt(IR::defs::IRNodeType ntype);
+        IRStmt(IRNodeType ntype);
         
         /**
          * @brief accepts the ir visitor
          * @param visitor - reference to an ir visitor
         */
-        virtual void accept(IR::visitor::IRVisitor& visitor) = 0;
+        virtual void accept(IRVisitor& visitor) = 0;
 
     };
 

@@ -5,7 +5,7 @@
 #include "defs/ast_defs.hpp"
 #include "../visitor/ast_visitor.hpp"
 
-namespace AST::node {
+namespace syntax::ast {
     /** 
      * @class ASTDir
      * @brief AST node that represents directive, parent node of all directive nodes
@@ -17,13 +17,13 @@ namespace AST::node {
          * @param token - const reference to the token
          * @param ntype - type of the ast node
         */
-        ASTDir(const Token token, AST::defs::ASTNodeType ntype);
+        ASTDir(const syntax::Token& token, syntax::ast::ASTNodeType ntype);
 
         /**
          * @brief accepts the ast visitor
          * @param visitor - reference to an ast visitor
         */
-        virtual void accept(AST::visitor::ASTVisitor& visitor) = 0;
+        virtual void accept(ASTVisitor& visitor) = 0;
 
     };
 

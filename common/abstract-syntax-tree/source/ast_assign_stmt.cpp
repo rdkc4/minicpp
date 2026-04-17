@@ -2,17 +2,17 @@
 
 #include "../defs/ast_defs.hpp"
 
-AST::node::ASTAssignStmt::ASTAssignStmt(const Token& token) 
-    : ASTStmt(token, AST::defs::ASTNodeType::ASSIGN_STMT) {}
+syntax::ast::ASTAssignStmt::ASTAssignStmt(const syntax::Token& token) 
+    : ASTStmt(token, syntax::ast::ASTNodeType::ASSIGN_STMT) {}
 
-void AST::node::ASTAssignStmt::setVariableIdExpr(std::unique_ptr<AST::node::ASTIdExpr> idExpr){
+void syntax::ast::ASTAssignStmt::setVariableIdExpr(std::unique_ptr<syntax::ast::ASTIdExpr> idExpr){
     variableIdExpr = std::move(idExpr);
 }
 
-void AST::node::ASTAssignStmt::setAssignedExpr(std::unique_ptr<AST::node::ASTExpr> expr){
+void syntax::ast::ASTAssignStmt::setAssignedExpr(std::unique_ptr<syntax::ast::ASTExpr> expr){
     assignedExpr = std::move(expr);
 }
 
-void AST::node::ASTAssignStmt::accept(AST::visitor::ASTVisitor& visitor) {
+void syntax::ast::ASTAssignStmt::accept(syntax::ast::ASTVisitor& visitor) {
     visitor.visit(this);
 }

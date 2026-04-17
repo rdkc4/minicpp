@@ -2,12 +2,12 @@
 
 #include "../defs/ast_defs.hpp"
 
-AST::node::ASTCaseStmt::ASTCaseStmt(const Token& token) 
-    : ASTStmt(token, AST::defs::ASTNodeType::CASE_STMT) {}
+syntax::ast::ASTCaseStmt::ASTCaseStmt(const syntax::Token& token) 
+    : ASTStmt(token, syntax::ast::ASTNodeType::CASE_STMT) {}
 
-void AST::node::ASTCaseStmt::setCase(
-    std::unique_ptr<AST::node::ASTLiteralExpr> litExpr, 
-    std::unique_ptr<AST::node::ASTSwitchBlockStmt> swBlockStmt, 
+void syntax::ast::ASTCaseStmt::setCase(
+    std::unique_ptr<syntax::ast::ASTLiteralExpr> litExpr, 
+    std::unique_ptr<syntax::ast::ASTSwitchBlockStmt> swBlockStmt, 
     bool hasBreak
 ){
     literalExpr = std::move(litExpr);
@@ -15,10 +15,10 @@ void AST::node::ASTCaseStmt::setCase(
     breaks = hasBreak;
 }
 
-bool AST::node::ASTCaseStmt::hasBreakStmt() const noexcept {
+bool syntax::ast::ASTCaseStmt::hasBreakStmt() const noexcept {
     return breaks;
 }
 
-void AST::node::ASTCaseStmt::accept(AST::visitor::ASTVisitor& visitor) {
+void syntax::ast::ASTCaseStmt::accept(syntax::ast::ASTVisitor& visitor) {
     visitor.visit(this);
 }

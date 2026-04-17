@@ -4,11 +4,7 @@
 #include "defs/ir_defs.hpp"
 #include "../visitor/ir_visitor.hpp"
 
-/**
- * @namespace IR::node
- * @brief module for the definitions of ir nodes
-*/
-namespace IR::node {
+namespace ir {
     /** 
      * @class IRNode
      * @brief parent class of all IRT nodes
@@ -19,7 +15,7 @@ namespace IR::node {
          * @brief Creates the instance of the irt node
          * @param ntype - type of the irt node
         */
-        IRNode(IR::defs::IRNodeType ntype);
+        IRNode(IRNodeType ntype);
 
         /** 
          * @brief Destructs the instance of the irt node
@@ -30,17 +26,17 @@ namespace IR::node {
          * @brief getter for the node type
          * @returns type of the node
         */
-        IR::defs::IRNodeType getNodeType() const noexcept;
+        IRNodeType getNodeType() const noexcept;
 
         /**
          * @brief accepts the ir visitor
          * @param visitor - reference to an ir visitor
         */
-        virtual void accept(IR::visitor::IRVisitor& visitor) = 0;
+        virtual void accept(IRVisitor& visitor) = 0;
 
     private:
         /// type of the irt node
-        IR::defs::IRNodeType nodeType;
+        IRNodeType nodeType;
 
     };
 

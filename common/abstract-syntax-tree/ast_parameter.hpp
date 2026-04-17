@@ -6,7 +6,7 @@
 #include "../defs/defs.hpp"
 #include "../visitor/ast_visitor.hpp"
 
-namespace AST::node {
+namespace syntax::ast {
     /** 
      * @class ASTParameter
      * @brief AST node representing parameter
@@ -19,7 +19,7 @@ namespace AST::node {
          * @param ntype - type of the ast node
          * @param type - type of the parameter
         */
-        ASTParameter(const Token& token, Type type = Type::NO_TYPE);
+        ASTParameter(const syntax::Token& token, Type type = Type::NO_TYPE);
         
         /** 
          * @brief getter for a type of the parameter
@@ -37,7 +37,7 @@ namespace AST::node {
          * @brief accepts the ast visitor
          * @param visitor - reference to an ast visitor
         */
-        void accept(AST::visitor::ASTVisitor& visitor) override;
+        void accept(ASTVisitor& visitor) override;
 
     private:
         /// type of the parameter

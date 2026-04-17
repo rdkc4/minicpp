@@ -18,15 +18,15 @@
 #include "../thread-pool/thread_pool.hpp"
 
 /**
- * @namespace Optimization::sfa
+ * @namespace optimization::sfa
  * @brief module for calculating the size of the stack
 */
-namespace Optimization::sfa {
+namespace optimization::sfa {
     /**
     * @class StackFrameAnalyzer
     * @brief calculates the size of the stack for each function
     */
-    class StackFrameAnalyzer final : public IR::visitor::IRVisitor {
+    class StackFrameAnalyzer final : public ir::IRVisitor {
     public:
         /**
          * @brief creates the instance of the stack frame analyzer
@@ -38,127 +38,127 @@ namespace Optimization::sfa {
          * @brief starts the stack analysis for all functions
          * @param program - pointer to the program
         */
-        void visit(IR::node::IRProgram* program) override;
+        void visit(ir::IRProgram* program) override;
 
         /**
          * @brief calculates the size of the stack required for the function
          * @param function - pointer to the function
         */
-        void visit(IR::node::IRFunction* function) override;
+        void visit(ir::IRFunction* function) override;
 
         /**
          * @brief intentionally empty, not used for stack size evaluation
          * @param parameter - pointer to the parameter
         */
-        void visit([[maybe_unused]] IR::node::IRParameter* parameter) override { /*empty*/ };
+        void visit([[maybe_unused]] ir::IRParameter* parameter) override { /*empty*/ };
 
         /**
          * @brief calculates the size of the stack required for the variable declaration
          * @param variableDecl - pointer to the variable declaration
         */
-        void visit(IR::node::IRVariableDeclStmt* variableDecl) override;
+        void visit(ir::IRVariableDeclStmt* variableDecl) override;
 
         /**
          * @brief calculates the size of the stack required for the assign statement
          * @param assignStmt - pointer to the assign statement
         */
-        void visit(IR::node::IRAssignStmt* assignStmt) override;
+        void visit(ir::IRAssignStmt* assignStmt) override;
 
         /**
          * @brief calculates the size of the stack required for the compound statement
          * @param compoundStmt - pointer to the compound statement
         */
-        void visit(IR::node::IRCompoundStmt* compoundStmt) override;
+        void visit(ir::IRCompoundStmt* compoundStmt) override;
 
         /**
          * @brief calculates the size of the stack required for the for statement
          * @param forStmt - pointer to the for statement
         */
-        void visit(IR::node::IRForStmt* forStmt) override;
+        void visit(ir::IRForStmt* forStmt) override;
 
         /**
          * @brief calculates the size of the stack required for the function call statement
          * @param callStmt - pointer to the function call statement
         */
-        void visit(IR::node::IRFunctionCallStmt* callStmt) override;
+        void visit(ir::IRFunctionCallStmt* callStmt) override;
 
         /**
          * @brief calculates the size of the stack required for the if statement
          * @param ifStmt - pointer to the if statement
         */
-        void visit(IR::node::IRIfStmt* ifStmt) override;
+        void visit(ir::IRIfStmt* ifStmt) override;
 
         /**
          * @brief calculates the size of the stack required for the return statement
          * @param returnStmt - pointer to the return statement
         */
-        void visit(IR::node::IRReturnStmt* returnStmt) override;
+        void visit(ir::IRReturnStmt* returnStmt) override;
 
         /**
          * @brief calculates the size of the stack required for the while statement
          * @param whileStmt - pointer to the while statement
         */
-        void visit(IR::node::IRWhileStmt* whileStmt) override;
+        void visit(ir::IRWhileStmt* whileStmt) override;
 
         /**
          * @brief calculates the size of the stack required for the do-while statement
          * @param dowhileStmt - pointer to the do-while statement
         */
-        void visit(IR::node::IRDoWhileStmt* dowhileStmt) override;
+        void visit(ir::IRDoWhileStmt* dowhileStmt) override;
 
         /**
          * @brief calculates the size of the stack required for the switch statement
          * @param switchStmt - pointer to the switch statement
         */
-        void visit(IR::node::IRSwitchStmt* switchStmt) override;
+        void visit(ir::IRSwitchStmt* switchStmt) override;
 
         /**
          * @brief calculates the size of the stack required for the case statement
          * @param caseStmt - pointer to the case statement
         */
-        void visit(IR::node::IRCaseStmt* caseStmt) override;
+        void visit(ir::IRCaseStmt* caseStmt) override;
 
         /**
          * @brief calculates the size of the stack required for the default statement
          * @param defaultStmt - pointer to the default statement
         */
-        void visit(IR::node::IRDefaultStmt* defaultStmt) override;
+        void visit(ir::IRDefaultStmt* defaultStmt) override;
 
         /**
          * @brief calculates the size of the stack required for the switch-block statement
          * @param switchBlockStmt - pointer to the switch-block statement
         */
-        void visit(IR::node::IRSwitchBlockStmt* switchBlockStmt) override;
+        void visit(ir::IRSwitchBlockStmt* switchBlockStmt) override;
 
         /**
          * @brief intentionally empty, not used for stack size evaluation
          * @param binaryExpr - pointer to the binary expression
         */
-        void visit([[maybe_unused]] IR::node::IRBinaryExpr* binaryExpr) override { /*empty*/ };
+        void visit([[maybe_unused]] ir::IRBinaryExpr* binaryExpr) override { /*empty*/ };
 
         /**
          * @brief calculates the size of the stack required for the function call expression
          * @param callExpr - pointer to the function call expression
         */
-        void visit(IR::node::IRFunctionCallExpr* callExpr) override;
+        void visit(ir::IRFunctionCallExpr* callExpr) override;
 
         /**
          * @brief intentionally empty, not used for stack size evaluation
          * @param idExpr - pointer to the id expression
         */
-        void visit([[maybe_unused]] IR::node::IRIdExpr* idExpr) override { /*empty*/ };
+        void visit([[maybe_unused]] ir::IRIdExpr* idExpr) override { /*empty*/ };
 
         /**
          * @brief intentionally empty, not used for stack size evaluation
          * @param literalExpr - pointer to the literal expression
         */
-        void visit([[maybe_unused]] IR::node::IRLiteralExpr* literalExpr) override { /*empty*/ };
+        void visit([[maybe_unused]] ir::IRLiteralExpr* literalExpr) override { /*empty*/ };
 
         /**
          * @brief calculates the size of the stack required for the temporary expression
          * @param tempExpr - pointer to the temporary expression
         */
-        void visit(IR::node::IRTemporaryExpr* tempExpr) override;
+        void visit(ir::IRTemporaryExpr* tempExpr) override;
 
     private:
         /// reference to a thread pool for parallel function stack analysis

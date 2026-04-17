@@ -8,7 +8,7 @@
 #include "../token/token.hpp"
 #include "../visitor/ast_visitor.hpp"
 
-namespace AST::node {
+namespace syntax::ast {
     /** 
      * @class ASTWhileStmt
      * @brief AST node representing while statement
@@ -19,7 +19,7 @@ namespace AST::node {
          * @brief Creates the instance of the ast while-statement
          * @param token - const reference to the token
         */
-        ASTWhileStmt(const Token& token);
+        ASTWhileStmt(const syntax::Token& token);
 
         /** 
          * @brief getter for the condition of the while statement
@@ -50,7 +50,7 @@ namespace AST::node {
          * @brief accepts the ast visitor
          * @param visitor - reference to an ast visitor
         */
-        void accept(AST::visitor::ASTVisitor& visitor) override;
+        void accept(ASTVisitor& visitor) override;
 
     private:
         /// pointer to the condition of the while-statement

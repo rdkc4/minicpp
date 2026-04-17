@@ -11,7 +11,7 @@
 #include "../defs/defs.hpp"
 #include "../visitor/ir_visitor.hpp"
 
-namespace IR::node {
+namespace ir {
     /** 
      * @class IRTemporaryExpr
      * @brief IRT representation of the temporary variables
@@ -86,7 +86,7 @@ namespace IR::node {
          * @brief accepts the ir visitor
          * @param visitor - reference to an ir visitor
         */
-        void accept(IR::visitor::IRVisitor& visitor) override;
+        void accept(IRVisitor& visitor) override;
 
     private:
         /// vector of types of the temporaries

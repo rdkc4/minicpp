@@ -7,7 +7,7 @@
 #include "ir_function_call_expr.hpp"
 #include "../visitor/ir_visitor.hpp"
 
-namespace IR::node {
+namespace ir {
     /**
      * @class IRFunctionCallStmt
      * @brief IRT representation for the function call statement
@@ -38,7 +38,7 @@ namespace IR::node {
          * @brief accepts the ir visitor
          * @param visitor - reference to an ir visitor
         */
-        void accept(IR::visitor::IRVisitor& visitor) override;
+        void accept(IRVisitor& visitor) override;
 
     private:
         /// pointer to the function call expression

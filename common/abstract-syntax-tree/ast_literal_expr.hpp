@@ -6,7 +6,7 @@
 #include "../defs/defs.hpp"
 #include "../visitor/ast_visitor.hpp"
 
-namespace AST::node {
+namespace syntax::ast {
     /** 
      * @class ASTLiteralExpr
      * @brief AST node representing literal
@@ -18,13 +18,13 @@ namespace AST::node {
          * @param token - const reference to the token
          * @param type - type of the literal
         */
-        ASTLiteralExpr(const Token token, Type type = Type::NO_TYPE);
+        ASTLiteralExpr(const syntax::Token& token, Type type = Type::NO_TYPE);
 
         /**
          * @brief accepts the ast visitor
          * @param visitor - reference to an ast visitor
         */
-        void accept(AST::visitor::ASTVisitor& visitor) override;
+        void accept(ASTVisitor& visitor) override;
 
     };
 

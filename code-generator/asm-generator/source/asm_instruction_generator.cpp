@@ -2,6 +2,12 @@
 
 #include <format>
 
+std::atomic<size_t> AsmGenerator::Instruction::labelNum{0};
+
+size_t AsmGenerator::Instruction::getNextLabelNum() noexcept {
+    return labelNum.fetch_add(1, std::memory_order_relaxed);
+}
+
 // start of an asm file
 const std::string AsmGenerator::Instruction::genStart(){
     return std::format(

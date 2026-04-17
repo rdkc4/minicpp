@@ -2,9 +2,9 @@
 
 #include "../defs/ir_defs.hpp"
 
-IR::node::IRForStmt::IRForStmt() : IRStmt(IR::defs::IRNodeType::FOR) {}
+ir::IRForStmt::IRForStmt() : IRStmt(ir::IRNodeType::FOR) {}
 
-void IR::node::IRForStmt::setForStmt(
+void ir::IRForStmt::setForStmt(
     std::unique_ptr<IRAssignStmt> initStmt, 
     std::unique_ptr<IRExpr> condExpr, 
     std::unique_ptr<IRAssignStmt> incStmt, 
@@ -18,22 +18,22 @@ void IR::node::IRForStmt::setForStmt(
     temporaryExpr = std::move(tempExpr);
 }
 
-bool IR::node::IRForStmt::hasInitializerStmt() const noexcept {
+bool ir::IRForStmt::hasInitializerStmt() const noexcept {
     return initializerStmt != nullptr;
 }
 
-bool IR::node::IRForStmt::hasConditionExpr() const noexcept {
+bool ir::IRForStmt::hasConditionExpr() const noexcept {
     return conditionExpr != nullptr;
 }
 
-bool IR::node::IRForStmt::hasIncrementerStmt() const noexcept {
+bool ir::IRForStmt::hasIncrementerStmt() const noexcept {
     return incrementerStmt != nullptr;
 }
 
-bool IR::node::IRForStmt::hasTemporaryExpr() const noexcept {
+bool ir::IRForStmt::hasTemporaryExpr() const noexcept {
     return temporaryExpr != nullptr;
 }
 
-void IR::node::IRForStmt::accept(IR::visitor::IRVisitor& visitor){
+void ir::IRForStmt::accept(ir::IRVisitor& visitor){
     visitor.visit(this);
 }

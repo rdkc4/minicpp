@@ -2,29 +2,29 @@
 
 #include "../defs/ast_defs.hpp"
 
-AST::node::ASTBinaryExpr::ASTBinaryExpr(const Token& token, Type type, Operator op) 
-    : ASTExpr(token, AST::defs::ASTNodeType::BINARY_EXPR, type), exprOperator{ op } {}
+syntax::ast::ASTBinaryExpr::ASTBinaryExpr(const syntax::Token& token, Type type, Operator op) 
+    : ASTExpr(token, syntax::ast::ASTNodeType::BINARY_EXPR, type), exprOperator{ op } {}
 
-Operator AST::node::ASTBinaryExpr::getOperator() const noexcept {
+Operator syntax::ast::ASTBinaryExpr::getOperator() const noexcept {
     return exprOperator;
 }
 
-void AST::node::ASTBinaryExpr::setOperator(Operator op) noexcept {
+void syntax::ast::ASTBinaryExpr::setOperator(Operator op) noexcept {
     exprOperator = op;
 }
 
-void AST::node::ASTBinaryExpr::setOperandExprs(
-    std::unique_ptr<AST::node::ASTExpr> leftOperand, 
-    std::unique_ptr<AST::node::ASTExpr> rightOperand
+void syntax::ast::ASTBinaryExpr::setOperandExprs(
+    std::unique_ptr<syntax::ast::ASTExpr> leftOperand, 
+    std::unique_ptr<syntax::ast::ASTExpr> rightOperand
 ){
     leftOperandExpr = std::move(leftOperand);
     rightOperandExpr = std::move(rightOperand);
 }
 
-bool AST::node::ASTBinaryExpr::initialized() const noexcept {
+bool syntax::ast::ASTBinaryExpr::initialized() const noexcept {
     return leftOperandExpr != nullptr && rightOperandExpr != nullptr;
 }
 
-void AST::node::ASTBinaryExpr::accept(AST::visitor::ASTVisitor& visitor) {
+void syntax::ast::ASTBinaryExpr::accept(syntax::ast::ASTVisitor& visitor) {
     visitor.visit(this);
 }

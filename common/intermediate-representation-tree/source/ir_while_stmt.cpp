@@ -2,9 +2,9 @@
 
 #include "../defs/ir_defs.hpp"
 
-IR::node::IRWhileStmt::IRWhileStmt() : IRStmt(IR::defs::IRNodeType::WHILE) {}
+ir::IRWhileStmt::IRWhileStmt() : IRStmt(ir::IRNodeType::WHILE) {}
 
-void IR::node::IRWhileStmt::setWhileStmt(
+void ir::IRWhileStmt::setWhileStmt(
     std::unique_ptr<IRExpr> condExpr, 
     std::unique_ptr<IRStmt> statement, 
     std::unique_ptr<IRTemporaryExpr> tempExpr
@@ -14,10 +14,10 @@ void IR::node::IRWhileStmt::setWhileStmt(
     temporaryExpr = std::move(tempExpr);
 }
 
-bool IR::node::IRWhileStmt::hasTemporaryExpr() const noexcept {
+bool ir::IRWhileStmt::hasTemporaryExpr() const noexcept {
     return temporaryExpr != nullptr;
 }
 
-void IR::node::IRWhileStmt::accept(IR::visitor::IRVisitor& visitor){
+void ir::IRWhileStmt::accept(ir::IRVisitor& visitor){
     visitor.visit(this);
 }

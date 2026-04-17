@@ -4,7 +4,7 @@
 #include <array>
 #include <string_view>
 
-#include "../token/defs/token_defs.hpp"
+#include "../token/token_types.hpp"
 
 /** 
  * @enum Type
@@ -73,7 +73,7 @@ enum class Operator {
 constexpr size_t OPERATOR_COUNT = static_cast<size_t>(Operator::NEQUAL) + 1;
 
 /// maps token type to operator
-constexpr std::array<Operator, TOKEN_TYPE_COUNT> tokenTypeOperatorRepresentations {
+constexpr std::array<Operator, syntax::TOKEN_TYPE_COUNT> tokenTypeOperatorRepresentations {
     [] {
         /**
          * @brief converts token type enum to array index
@@ -81,33 +81,33 @@ constexpr std::array<Operator, TOKEN_TYPE_COUNT> tokenTypeOperatorRepresentation
          * @returns index in the array for provided token type
         */
         constexpr auto idx {
-            [](TokenType type) noexcept -> size_t {
+            [](syntax::TokenType type) noexcept -> size_t {
                 return static_cast<size_t>(type);
             }
         };
 
-        std::array<Operator, TOKEN_TYPE_COUNT> ops{};
+        std::array<Operator, syntax::TOKEN_TYPE_COUNT> ops{};
 
-        ops[idx(TokenType::PLUS)]        = Operator::ADD;
-        ops[idx(TokenType::MINUS)]       = Operator::SUB;
-        ops[idx(TokenType::ASTERISK)]    = Operator::MUL;
-        ops[idx(TokenType::SLASH)]       = Operator::DIV;
+        ops[idx(syntax::TokenType::PLUS)]        = Operator::ADD;
+        ops[idx(syntax::TokenType::MINUS)]       = Operator::SUB;
+        ops[idx(syntax::TokenType::ASTERISK)]    = Operator::MUL;
+        ops[idx(syntax::TokenType::SLASH)]       = Operator::DIV;
 
-        ops[idx(TokenType::AMPERSEND)]   = Operator::ANDB;
-        ops[idx(TokenType::PIPE)]        = Operator::ORB;
-        ops[idx(TokenType::CARET)]       = Operator::XOR;
-        ops[idx(TokenType::LSHIFT)]      = Operator::LSHIFT;
-        ops[idx(TokenType::RSHIFT)]      = Operator::RSHIFT;
+        ops[idx(syntax::TokenType::AMPERSEND)]   = Operator::ANDB;
+        ops[idx(syntax::TokenType::PIPE)]        = Operator::ORB;
+        ops[idx(syntax::TokenType::CARET)]       = Operator::XOR;
+        ops[idx(syntax::TokenType::LSHIFT)]      = Operator::LSHIFT;
+        ops[idx(syntax::TokenType::RSHIFT)]      = Operator::RSHIFT;
 
-        ops[idx(TokenType::LOGICAL_AND)] = Operator::ANDL;
-        ops[idx(TokenType::LOGICAL_OR)]  = Operator::ORL;
+        ops[idx(syntax::TokenType::LOGICAL_AND)] = Operator::ANDL;
+        ops[idx(syntax::TokenType::LOGICAL_OR)]  = Operator::ORL;
         
-        ops[idx(TokenType::LESS)]        = Operator::LESS;
-        ops[idx(TokenType::GREATER)]     = Operator::GREATER;
-        ops[idx(TokenType::LESS_EQ)]     = Operator::LEQUAL;
-        ops[idx(TokenType::GREATER_EQ)]  = Operator::GEQUAL;
-        ops[idx(TokenType::EQUAL)]       = Operator::EQUAL;
-        ops[idx(TokenType::NOT_EQ)]      = Operator::NEQUAL;
+        ops[idx(syntax::TokenType::LESS)]        = Operator::LESS;
+        ops[idx(syntax::TokenType::GREATER)]     = Operator::GREATER;
+        ops[idx(syntax::TokenType::LESS_EQ)]     = Operator::LEQUAL;
+        ops[idx(syntax::TokenType::GREATER_EQ)]  = Operator::GEQUAL;
+        ops[idx(syntax::TokenType::EQUAL)]       = Operator::EQUAL;
+        ops[idx(syntax::TokenType::NOT_EQ)]      = Operator::NEQUAL;
 
         return ops;
     }()
@@ -119,7 +119,7 @@ constexpr std::array<Operator, TOKEN_TYPE_COUNT> tokenTypeOperatorRepresentation
  * @returns operator of the underlying token type,
  * if token type is not an operator, returns Operator::NO_OP
 */
-constexpr Operator tokenTypeToOperator(TokenType type){
+constexpr Operator tokenTypeToOperator(syntax::TokenType type){
     return tokenTypeOperatorRepresentations[static_cast<size_t>(type)];
 }
 
@@ -158,7 +158,7 @@ constexpr std::string_view typeToStr(Type type){
 }
 
 /// maps token type to type
-constexpr std::array<Type, TOKEN_TYPE_COUNT> tokenTypeTypeRepresentations {
+constexpr std::array<Type, syntax::TOKEN_TYPE_COUNT> tokenTypeTypeRepresentations {
     [] {
         /**
          * @brief converts token type enum to array index
@@ -166,17 +166,17 @@ constexpr std::array<Type, TOKEN_TYPE_COUNT> tokenTypeTypeRepresentations {
          * @returns index in the array for provided token type
         */
         constexpr auto idx {
-            [](TokenType type) noexcept -> size_t {
+            [](syntax::TokenType type) noexcept -> size_t {
                 return static_cast<size_t>(type);
             }
         };
 
-        std::array<Type, TOKEN_TYPE_COUNT> types{};
+        std::array<Type, syntax::TOKEN_TYPE_COUNT> types{};
 
-        types[idx(TokenType::INT)]      = Type::INT;
-        types[idx(TokenType::UNSIGNED)] = Type::UNSIGNED;
-        types[idx(TokenType::VOID)]     = Type::VOID;
-        types[idx(TokenType::AUTO)]     = Type::AUTO;
+        types[idx(syntax::TokenType::INT)]      = Type::INT;
+        types[idx(syntax::TokenType::UNSIGNED)] = Type::UNSIGNED;
+        types[idx(syntax::TokenType::VOID)]     = Type::VOID;
+        types[idx(syntax::TokenType::AUTO)]     = Type::AUTO;
 
         return types;
     }()
@@ -188,7 +188,7 @@ constexpr std::array<Type, TOKEN_TYPE_COUNT> tokenTypeTypeRepresentations {
  * @returns type representation of the token type,
  * if token is not type, it returns Type::NO_TYPE
 */
-constexpr Type tokenTypeToType(TokenType type){
+constexpr Type tokenTypeToType(syntax::TokenType type){
     return tokenTypeTypeRepresentations[static_cast<size_t>(type)];
 }
 

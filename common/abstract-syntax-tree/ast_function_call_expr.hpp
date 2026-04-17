@@ -9,7 +9,7 @@
 #include "../defs/defs.hpp"
 #include "../visitor/ast_visitor.hpp"
 
-namespace AST::node {
+namespace syntax::ast {
     /** 
      * @class ASTFunctionCallExpr
      * @brief AST node representing function call
@@ -21,7 +21,7 @@ namespace AST::node {
          * @param token - const reference to the token
          * @param type - type of the function call
         */
-        ASTFunctionCallExpr(const Token& token, Type type = Type::NO_TYPE);
+        ASTFunctionCallExpr(const syntax::Token& token, Type type = Type::NO_TYPE);
 
         /** 
          * @brief getter for expressions passed to a function as arguments
@@ -52,7 +52,7 @@ namespace AST::node {
          * @brief accepts the ast visitor
          * @param visitor - reference to an ast visitor
         */
-        void accept(AST::visitor::ASTVisitor& visitor) override;
+        void accept(ASTVisitor& visitor) override;
 
     private:
         /// vector of pointers to expressions that represent arguments

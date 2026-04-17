@@ -1,5 +1,5 @@
-#ifndef ANALYZER_DEFS_HPP
-#define ANALYZER_DEFS_HPP
+#ifndef ANALYZER_CTX_HPP
+#define ANALYZER_CTX_HPP
 
 #include <string>
 
@@ -14,7 +14,7 @@ struct AnalyzerThreadContext {
     std::string functionName{""};
 
     /// pointer to the function scope manager
-    ScopeManager* scopeManager{nullptr};
+    sym::ScopeManager* scopeManager{nullptr};
     
     /// vector for exception messages
     std::vector<std::string> semanticErrors;
@@ -24,7 +24,7 @@ struct AnalyzerThreadContext {
      * @param funcName - name of the function
      * @param scopeMng - pointer to the scope manager
     */
-    void init(std::string_view funcName, ScopeManager* scopeMng){
+    void init(std::string_view funcName, sym::ScopeManager* scopeMng){
         functionName = funcName;
         scopeManager = scopeMng;
     }

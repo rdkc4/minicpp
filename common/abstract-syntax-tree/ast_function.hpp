@@ -11,7 +11,7 @@
 #include "../defs/defs.hpp"
 #include "../visitor/ast_visitor.hpp"
 
-namespace AST::node {
+namespace syntax::ast {
     /** 
      * @class ASTFunction
      * @brief AST node representing function node
@@ -23,7 +23,7 @@ namespace AST::node {
          * @param token - const reference to the token
          * @param type - return type of the function
         */
-        ASTFunction(const Token& token, Type type = Type::NO_TYPE);
+        ASTFunction(const syntax::Token& token, Type type = Type::NO_TYPE);
 
         /** 
          * @brief getter for the function parameters
@@ -89,7 +89,7 @@ namespace AST::node {
          * @brief accepts the ast visitor
          * @param visitor - reference to an ast visitor
         */
-        void accept(AST::visitor::ASTVisitor& visitor) override;
+        void accept(ASTVisitor& visitor) override;
 
     private:
         /// return type of the function

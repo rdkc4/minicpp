@@ -3,7 +3,7 @@
 
 #include <cstddef>
 
-#include "../../common/token/defs/token_defs.hpp"
+#include "../../common/token/token_types.hpp"
 
 /**
  * @struct Lexeme
@@ -11,7 +11,7 @@
 */
 struct Lexeme {
     /// type of the token.
-    TokenType type;
+    syntax::TokenType type;
 
     /// length of the token, invalid if 0.
     size_t length;

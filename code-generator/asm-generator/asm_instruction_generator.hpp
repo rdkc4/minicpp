@@ -1,6 +1,7 @@
 #ifndef ASM_INSTRUCTION_GENERATOR_HPP
 #define ASM_INSTRUCTION_GENERATOR_HPP
 
+#include <atomic>
 #include <string_view>
 #include <vector>
 #include <string>
@@ -13,6 +14,15 @@
 namespace AsmGenerator::Instruction {
     /// size of the register in bytes
     constexpr size_t regSize{8};
+
+    /// number for the next label
+    extern std::atomic<size_t> labelNum;
+
+    /** 
+     * @brief generates the unique number for the label
+     * @returns number of the label
+    */
+    size_t getNextLabelNum() noexcept;
     
     /** 
      * @brief generates the start of the asm file

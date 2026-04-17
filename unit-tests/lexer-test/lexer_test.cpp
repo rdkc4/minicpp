@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <utility>
-#include <string>
-#include <vector>
+#include <array>
+#include <string_view>
 
 #include "lexer_fixture.hpp"
 
@@ -9,20 +9,20 @@ TEST_F(LexerFixture, TokenizationOfAssignmentStatement){
     input = {"int x = -1 + 2 << 3u;"};
     initLexer();
 
-    std::vector<std::pair<TokenType, std::string>> expectedTokens { 
-        {TokenType::INT, "int"}, 
-        {TokenType::ID, "x"}, 
-        {TokenType::ASSIGN, "="}, 
-        {TokenType::LITERAL, "-1"}, 
-        {TokenType::PLUS, "+"}, 
-        {TokenType::LITERAL, "2"}, 
-        {TokenType::LSHIFT, "<<"}, 
-        {TokenType::LITERAL, "3u"}, 
-        {TokenType::SEMICOLON, ";"}, 
-        {TokenType::_EOF, ""}
-    };
+    constexpr std::array<std::pair<syntax::TokenType, std::string_view>, 10> expectedTokens {{
+        {syntax::TokenType::INT, "int"}, 
+        {syntax::TokenType::ID, "x"}, 
+        {syntax::TokenType::ASSIGN, "="}, 
+        {syntax::TokenType::LITERAL, "-1"}, 
+        {syntax::TokenType::PLUS, "+"}, 
+        {syntax::TokenType::LITERAL, "2"}, 
+        {syntax::TokenType::LSHIFT, "<<"}, 
+        {syntax::TokenType::LITERAL, "3u"}, 
+        {syntax::TokenType::SEMICOLON, ";"}, 
+        {syntax::TokenType::_EOF, ""}
+    }};
 
-    size_t expectedSize{ expectedTokens.size() };
+    constexpr size_t expectedSize{ expectedTokens.size() };
     ASSERT_EQ(lexer->tokensSize(), expectedSize);
 
     for(size_t i = 0; i < expectedSize; ++i){
@@ -36,21 +36,21 @@ TEST_F(LexerFixture, TokenizationOfIfStatement){
     input = {"if(a > b){return a;}"};
     initLexer();
 
-    std::vector<std::pair<TokenType, std::string>> expectedTokens { 
-        {TokenType::IF, "if"}, 
-        {TokenType::LPAREN, "("}, 
-        {TokenType::ID, "a"}, 
-        {TokenType::GREATER, ">"}, 
-        {TokenType::ID, "b"}, 
-        {TokenType::RPAREN, ")"}, 
-        {TokenType::LBRACE, "{"}, 
-        {TokenType::RETURN, "return"}, 
-        {TokenType::ID, "a"}, 
-        {TokenType::SEMICOLON, ";"},
-        {TokenType::RBRACE, "}"}, 
-        {TokenType::_EOF, ""}
-    };
-    const size_t expectedSize{ expectedTokens.size() };
+    constexpr std::array<std::pair<syntax::TokenType, std::string_view>, 12> expectedTokens {{
+        {syntax::TokenType::IF, "if"}, 
+        {syntax::TokenType::LPAREN, "("}, 
+        {syntax::TokenType::ID, "a"}, 
+        {syntax::TokenType::GREATER, ">"}, 
+        {syntax::TokenType::ID, "b"}, 
+        {syntax::TokenType::RPAREN, ")"}, 
+        {syntax::TokenType::LBRACE, "{"}, 
+        {syntax::TokenType::RETURN, "return"}, 
+        {syntax::TokenType::ID, "a"}, 
+        {syntax::TokenType::SEMICOLON, ";"},
+        {syntax::TokenType::RBRACE, "}"}, 
+        {syntax::TokenType::_EOF, ""}
+    }};
+    constexpr size_t expectedSize{ expectedTokens.size() };
     ASSERT_EQ(lexer->tokensSize(), expectedSize);
 
     for(size_t i = 0; i < expectedSize; ++i){
@@ -65,7 +65,7 @@ TEST_F(LexerFixture, EmptyInput){
     initLexer();
 
     ASSERT_EQ(lexer->tokensSize(), 1);
-    ASSERT_EQ(lexer->at(0).type, TokenType::_EOF);
+    ASSERT_EQ(lexer->at(0).type, syntax::TokenType::_EOF);
 }
 
 TEST_F(LexerFixture, OnlySingleLineComment){
@@ -73,7 +73,7 @@ TEST_F(LexerFixture, OnlySingleLineComment){
     initLexer();
 
     ASSERT_EQ(lexer->tokensSize(), 1);
-    ASSERT_EQ(lexer->at(0).type, TokenType::_EOF);
+    ASSERT_EQ(lexer->at(0).type, syntax::TokenType::_EOF);
 }
 
 TEST_F(LexerFixture, OnlyMultiLineComment){
@@ -81,7 +81,7 @@ TEST_F(LexerFixture, OnlyMultiLineComment){
     initLexer();
 
     ASSERT_EQ(lexer->tokensSize(), 1);
-    ASSERT_EQ(lexer->at(0).type, TokenType::_EOF);
+    ASSERT_EQ(lexer->at(0).type, syntax::TokenType::_EOF);
 }
 
 TEST_F(LexerFixture, ThrowsOnInvalidTokens){

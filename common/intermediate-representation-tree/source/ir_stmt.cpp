@@ -1,4 +1,4 @@
 #include "../ir_stmt.hpp"
 
-IR::node::IRStmt::IRStmt(IR::defs::IRNodeType ntype) 
+ir::IRStmt::IRStmt(ir::IRNodeType ntype) 
     : IRNode(ntype) {}

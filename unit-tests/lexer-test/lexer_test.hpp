@@ -8,7 +8,7 @@ class LexerTest : public Lexer {
     public:
         LexerTest(std::vector<std::string>& input) : Lexer{ input } {}
 
-        const Token& at(size_t i) const{
+        const syntax::Token& at(size_t i) const{
             assert(i < tokens.size());
             return tokens[i];
         }
@@ -17,7 +17,7 @@ class LexerTest : public Lexer {
             return tokens.size();
         }
 
-        void setTokens(std::vector<Token>& _tokens){
+        void setTokens(std::vector<syntax::Token>& _tokens){
             tokens = std::move(_tokens);
         }
 };

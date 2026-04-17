@@ -7,40 +7,40 @@ StatementParser::StatementParser(TokenConsumer& consumer)
     : exprParser{ consumer }, 
       tokenConsumer{ consumer } {}
 
-std::unique_ptr<AST::node::ASTStmt> StatementParser::parseStmt(){
+std::unique_ptr<syntax::ast::ASTStmt> StatementParser::parseStmt(){
     const auto& token{ tokenConsumer.getToken() };
-    if(token.gtype == GeneralTokenType::TYPE){
+    if(token.gtype == syntax::GeneralTokenType::TYPE){
         return parseVariableDeclStmt();
     }
 
     switch(token.type){
-        case TokenType::RETURN:
+        case syntax::TokenType::RETURN:
             return parseReturnStmt();
 
-        case TokenType::IF:
+        case syntax::TokenType::IF:
             return parseIfStmt();
 
-        case TokenType::LBRACE:
+        case syntax::TokenType::LBRACE:
             return parseCompoundStmt();
 
-        case TokenType::WHILE:
+        case syntax::TokenType::WHILE:
             return parseWhileStmt();
 
-        case TokenType::FOR:
+        case syntax::TokenType::FOR:
             return parseForStmt();
 
-        case TokenType::DO:
+        case syntax::TokenType::DO:
             return parseDoWhileStmt();
 
-        case TokenType::SWITCH:
+        case syntax::TokenType::SWITCH:
             return parseSwitchStmt();
 
-        case TokenType::ID: {
+        case syntax::TokenType::ID: {
             auto nextType{ tokenConsumer.peek().type };
-            if(nextType == TokenType::LPAREN){
+            if(nextType == syntax::TokenType::LPAREN){
                 return parseFunctionCallStmt();
             }
-            else if(nextType == TokenType::ASSIGN){
+            else if(nextType == syntax::TokenType::ASSIGN){
                 return parseAssignStmt();
             }
         }
@@ -55,169 +55,169 @@ std::unique_ptr<AST::node::ASTStmt> StatementParser::parseStmt(){
     );
 }
 
-std::unique_ptr<AST::node::ASTVariableDeclStmt> StatementParser::parseVariableDeclStmt(){
+std::unique_ptr<syntax::ast::ASTVariableDeclStmt> StatementParser::parseVariableDeclStmt(){
     Type type{ tokenTypeToType(tokenConsumer.getToken().type) };
-    tokenConsumer.consume(GeneralTokenType::TYPE);
+    tokenConsumer.consume(syntax::GeneralTokenType::TYPE);
 
-    std::unique_ptr<AST::node::ASTVariableDeclStmt> variableDecl{ 
-        std::make_unique<AST::node::ASTVariableDeclStmt>(tokenConsumer.getToken(), type)
+    std::unique_ptr<syntax::ast::ASTVariableDeclStmt> variableDecl{ 
+        std::make_unique<syntax::ast::ASTVariableDeclStmt>(tokenConsumer.getToken(), type)
     };
-    tokenConsumer.consume(TokenType::ID);
+    tokenConsumer.consume(syntax::TokenType::ID);
     
-    if(tokenConsumer.getToken().type == TokenType::ASSIGN){
-        tokenConsumer.consume(TokenType::ASSIGN);
+    if(tokenConsumer.getToken().type == syntax::TokenType::ASSIGN){
+        tokenConsumer.consume(syntax::TokenType::ASSIGN);
         variableDecl->setAssignExpr(exprParser.parseExpr());
     }
-    tokenConsumer.consume(TokenType::SEMICOLON);
+    tokenConsumer.consume(syntax::TokenType::SEMICOLON);
 
     return variableDecl;
 }
 
-std::unique_ptr<AST::node::ASTCompoundStmt> StatementParser::parseCompoundStmt(){
-    std::unique_ptr<AST::node::ASTCompoundStmt> compoundStmt{ 
-        std::make_unique<AST::node::ASTCompoundStmt>(Token{
+std::unique_ptr<syntax::ast::ASTCompoundStmt> StatementParser::parseCompoundStmt(){
+    std::unique_ptr<syntax::ast::ASTCompoundStmt> compoundStmt{ 
+        std::make_unique<syntax::ast::ASTCompoundStmt>(syntax::Token{
             "compound_stmt", 
             tokenConsumer.getToken().line, 
             tokenConsumer.getToken().column
         })
     };
 
-    tokenConsumer.consume(TokenType::LBRACE);
-    while(tokenConsumer.getToken().type != TokenType::RBRACE){
+    tokenConsumer.consume(syntax::TokenType::LBRACE);
+    while(tokenConsumer.getToken().type != syntax::TokenType::RBRACE){
         compoundStmt->addStmt(parseStmt());
     }
-    tokenConsumer.consume(TokenType::RBRACE);
+    tokenConsumer.consume(syntax::TokenType::RBRACE);
     
     return compoundStmt;
 }
 
-std::unique_ptr<AST::node::ASTAssignStmt> StatementParser::parseAssignStmt(bool expectsSemicolon){
-    std::unique_ptr<AST::node::ASTIdExpr> variableExpr{ exprParser.parseIdExpr() };
+std::unique_ptr<syntax::ast::ASTAssignStmt> StatementParser::parseAssignStmt(bool expectsSemicolon){
+    std::unique_ptr<syntax::ast::ASTIdExpr> variableExpr{ exprParser.parseIdExpr() };
     
-    std::unique_ptr<AST::node::ASTAssignStmt> assignStmt{ 
-        std::make_unique<AST::node::ASTAssignStmt>(Token{
+    std::unique_ptr<syntax::ast::ASTAssignStmt> assignStmt{ 
+        std::make_unique<syntax::ast::ASTAssignStmt>(syntax::Token{
             "=", 
             tokenConsumer.getToken().line, 
             tokenConsumer.getToken().column
         })
     };
-    tokenConsumer.consume(TokenType::ASSIGN);
+    tokenConsumer.consume(syntax::TokenType::ASSIGN);
     
     assignStmt->setVariableIdExpr(std::move(variableExpr));
     assignStmt->setAssignedExpr(exprParser.parseExpr());
 
     if(expectsSemicolon){
-        tokenConsumer.consume(TokenType::SEMICOLON);
+        tokenConsumer.consume(syntax::TokenType::SEMICOLON);
     }
     return assignStmt;
 }
 
-std::unique_ptr<AST::node::ASTReturnStmt> StatementParser::parseReturnStmt(){
+std::unique_ptr<syntax::ast::ASTReturnStmt> StatementParser::parseReturnStmt(){
     const auto& returnToken{ tokenConsumer.getToken() };
-    std::unique_ptr<AST::node::ASTReturnStmt> returnStmt{ 
-        std::make_unique<AST::node::ASTReturnStmt>(Token{
+    std::unique_ptr<syntax::ast::ASTReturnStmt> returnStmt{ 
+        std::make_unique<syntax::ast::ASTReturnStmt>(syntax::Token{
             "return_stmt", 
             returnToken.line, 
             returnToken.column
         })
     };
-    tokenConsumer.consume(TokenType::RETURN);
+    tokenConsumer.consume(syntax::TokenType::RETURN);
 
-    if(tokenConsumer.getToken().type != TokenType::SEMICOLON){
+    if(tokenConsumer.getToken().type != syntax::TokenType::SEMICOLON){
         returnStmt->setReturnExpr(exprParser.parseExpr());
     }
-    tokenConsumer.consume(TokenType::SEMICOLON);
+    tokenConsumer.consume(syntax::TokenType::SEMICOLON);
 
     return returnStmt;
 }
 
-std::unique_ptr<AST::node::ASTIfStmt> StatementParser::parseIfStmt(){
+std::unique_ptr<syntax::ast::ASTIfStmt> StatementParser::parseIfStmt(){
     const auto& ifToken{ tokenConsumer.getToken() };
-    std::unique_ptr<AST::node::ASTIfStmt> ifStmt{ 
-        std::make_unique<AST::node::ASTIfStmt>(Token{
+    std::unique_ptr<syntax::ast::ASTIfStmt> ifStmt{ 
+        std::make_unique<syntax::ast::ASTIfStmt>(syntax::Token{
             "if_stmt", 
             ifToken.line, 
             ifToken.column
         })
     };
-    tokenConsumer.consume(TokenType::IF);
+    tokenConsumer.consume(syntax::TokenType::IF);
 
-    tokenConsumer.consume(TokenType::LPAREN);
+    tokenConsumer.consume(syntax::TokenType::LPAREN);
     auto condition{ exprParser.parseExpr() };
-    tokenConsumer.consume(TokenType::RPAREN);
+    tokenConsumer.consume(syntax::TokenType::RPAREN);
     
     ifStmt->addIfStmt(std::move(condition), parseStmt());
 
-    while(tokenConsumer.getToken().type == TokenType::ELSE && tokenConsumer.peek().type == TokenType::IF){
-        tokenConsumer.consume(TokenType::ELSE);
-        tokenConsumer.consume(TokenType::IF);
+    while(tokenConsumer.getToken().type == syntax::TokenType::ELSE && tokenConsumer.peek().type == syntax::TokenType::IF){
+        tokenConsumer.consume(syntax::TokenType::ELSE);
+        tokenConsumer.consume(syntax::TokenType::IF);
 
-        tokenConsumer.consume(TokenType::LPAREN);
+        tokenConsumer.consume(syntax::TokenType::LPAREN);
         condition = exprParser.parseExpr();
-        tokenConsumer.consume(TokenType::RPAREN);
+        tokenConsumer.consume(syntax::TokenType::RPAREN);
         
         ifStmt->addIfStmt(std::move(condition), parseStmt());
     }
 
-    if(tokenConsumer.getToken().type == TokenType::ELSE){
-        tokenConsumer.consume(TokenType::ELSE);
+    if(tokenConsumer.getToken().type == syntax::TokenType::ELSE){
+        tokenConsumer.consume(syntax::TokenType::ELSE);
         ifStmt->addElseStmt(parseStmt());
     }
     
     return ifStmt;
 }
 
-std::unique_ptr<AST::node::ASTWhileStmt> StatementParser::parseWhileStmt(){
+std::unique_ptr<syntax::ast::ASTWhileStmt> StatementParser::parseWhileStmt(){
     const auto& whileToken{ tokenConsumer.getToken() };
-    std::unique_ptr<AST::node::ASTWhileStmt> whileStmt{ 
-        std::make_unique<AST::node::ASTWhileStmt>(Token{
+    std::unique_ptr<syntax::ast::ASTWhileStmt> whileStmt{ 
+        std::make_unique<syntax::ast::ASTWhileStmt>(syntax::Token{
             "while_stmt", 
             whileToken.line, 
             whileToken.column
         })
     };
-    tokenConsumer.consume(TokenType::WHILE);
+    tokenConsumer.consume(syntax::TokenType::WHILE);
     
-    tokenConsumer.consume(TokenType::LPAREN);
+    tokenConsumer.consume(syntax::TokenType::LPAREN);
     auto condition{ exprParser.parseExpr() };
-    tokenConsumer.consume(TokenType::RPAREN);
+    tokenConsumer.consume(syntax::TokenType::RPAREN);
     
     whileStmt->setWhileStmt(std::move(condition), parseStmt());
 
     return whileStmt;
 }
 
-std::unique_ptr<AST::node::ASTForStmt> StatementParser::parseForStmt(){
+std::unique_ptr<syntax::ast::ASTForStmt> StatementParser::parseForStmt(){
     const auto& forToken{ tokenConsumer.getToken() };
-    std::unique_ptr<AST::node::ASTForStmt> forStmt{ 
-        std::make_unique<AST::node::ASTForStmt>(Token{
+    std::unique_ptr<syntax::ast::ASTForStmt> forStmt{ 
+        std::make_unique<syntax::ast::ASTForStmt>(syntax::Token{
             "for_stmt", 
             forToken.line, 
             forToken.column
         })
     };
-    tokenConsumer.consume(TokenType::FOR);
+    tokenConsumer.consume(syntax::TokenType::FOR);
 
-    std::unique_ptr<AST::node::ASTAssignStmt> forInitializer{ nullptr }, forIncrementer{ nullptr };
-    std::unique_ptr<AST::node::ASTExpr> condition{ nullptr };
+    std::unique_ptr<syntax::ast::ASTAssignStmt> forInitializer{ nullptr }, forIncrementer{ nullptr };
+    std::unique_ptr<syntax::ast::ASTExpr> condition{ nullptr };
 
-    tokenConsumer.consume(TokenType::LPAREN);
+    tokenConsumer.consume(syntax::TokenType::LPAREN);
     // optional initializer
-    if(tokenConsumer.getToken().type != TokenType::SEMICOLON){
+    if(tokenConsumer.getToken().type != syntax::TokenType::SEMICOLON){
         forInitializer = parseAssignStmt();
     }
 
     // optional condition (default: true)
-    if(tokenConsumer.getToken().type != TokenType::SEMICOLON){
+    if(tokenConsumer.getToken().type != syntax::TokenType::SEMICOLON){
         condition = exprParser.parseExpr();
     }
-    tokenConsumer.consume(TokenType::SEMICOLON);
+    tokenConsumer.consume(syntax::TokenType::SEMICOLON);
 
     // optional incrementer
-    if(tokenConsumer.getToken().type != TokenType::RPAREN){
+    if(tokenConsumer.getToken().type != syntax::TokenType::RPAREN){
         forIncrementer = parseAssignStmt(false); // false - doesn't expect semicolon at the end of the statement
     }
-    tokenConsumer.consume(TokenType::RPAREN);
+    tokenConsumer.consume(syntax::TokenType::RPAREN);
 
     forStmt->setForStmt(
         std::move(forInitializer), 
@@ -229,77 +229,77 @@ std::unique_ptr<AST::node::ASTForStmt> StatementParser::parseForStmt(){
     return forStmt;
 }
 
-std::unique_ptr<AST::node::ASTDoWhileStmt> StatementParser::parseDoWhileStmt(){
+std::unique_ptr<syntax::ast::ASTDoWhileStmt> StatementParser::parseDoWhileStmt(){
     const auto& dowhileToken{ tokenConsumer.getToken() };
-    std::unique_ptr<AST::node::ASTDoWhileStmt> dowhileStmt{
-        std::make_unique<AST::node::ASTDoWhileStmt>(Token{
+    std::unique_ptr<syntax::ast::ASTDoWhileStmt> dowhileStmt{
+        std::make_unique<syntax::ast::ASTDoWhileStmt>(syntax::Token{
             "dowhile_statement", 
             dowhileToken.line, 
             dowhileToken.column
         })
     };
-    tokenConsumer.consume(TokenType::DO);
+    tokenConsumer.consume(syntax::TokenType::DO);
 
-    std::unique_ptr<AST::node::ASTStmt> stmt{ parseStmt() };
+    std::unique_ptr<syntax::ast::ASTStmt> stmt{ parseStmt() };
 
-    tokenConsumer.consume(TokenType::WHILE);
-    tokenConsumer.consume(TokenType::LPAREN);
+    tokenConsumer.consume(syntax::TokenType::WHILE);
+    tokenConsumer.consume(syntax::TokenType::LPAREN);
     dowhileStmt->setDoWhile(exprParser.parseExpr(), std::move(stmt));
-    tokenConsumer.consume(TokenType::RPAREN);
+    tokenConsumer.consume(syntax::TokenType::RPAREN);
 
-    tokenConsumer.consume(TokenType::SEMICOLON);
+    tokenConsumer.consume(syntax::TokenType::SEMICOLON);
     return dowhileStmt;
 }
 
-std::unique_ptr<AST::node::ASTFunctionCallStmt> StatementParser::parseFunctionCallStmt(){
+std::unique_ptr<syntax::ast::ASTFunctionCallStmt> StatementParser::parseFunctionCallStmt(){
     const auto& callToken{ tokenConsumer.getToken() };
-    std::unique_ptr<AST::node::ASTFunctionCallStmt> callStmt{ 
-        std::make_unique<AST::node::ASTFunctionCallStmt>(Token{
+    std::unique_ptr<syntax::ast::ASTFunctionCallStmt> callStmt{ 
+        std::make_unique<syntax::ast::ASTFunctionCallStmt>(syntax::Token{
             "call_stmt", 
             callToken.line, 
             callToken.column
         })
     };
     callStmt->setFunctionCallStmt(exprParser.parseFunctionCallExpr());
-    tokenConsumer.consume(TokenType::SEMICOLON);
+    tokenConsumer.consume(syntax::TokenType::SEMICOLON);
 
     return callStmt;
 }
 
-std::unique_ptr<AST::node::ASTSwitchStmt> StatementParser::parseSwitchStmt(){
+std::unique_ptr<syntax::ast::ASTSwitchStmt> StatementParser::parseSwitchStmt(){
     const auto& switchToken{ tokenConsumer.getToken() };
-    std::unique_ptr<AST::node::ASTSwitchStmt> switchStmt{ 
-        std::make_unique<AST::node::ASTSwitchStmt>(Token{
+    std::unique_ptr<syntax::ast::ASTSwitchStmt> switchStmt{ 
+        std::make_unique<syntax::ast::ASTSwitchStmt>(syntax::Token{
             "switch_stmt", 
             switchToken.line, 
             switchToken.column
         })
     };
-    tokenConsumer.consume(TokenType::SWITCH);
+    tokenConsumer.consume(syntax::TokenType::SWITCH);
 
-    tokenConsumer.consume(TokenType::LPAREN);
+    tokenConsumer.consume(syntax::TokenType::LPAREN);
     switchStmt->setVariableIdExpr(exprParser.parseIdExpr());
-    tokenConsumer.consume(TokenType::RPAREN);
+    tokenConsumer.consume(syntax::TokenType::RPAREN);
 
-    tokenConsumer.consume(TokenType::LBRACE);
+    tokenConsumer.consume(syntax::TokenType::LBRACE);
     
     // switch must have at least 1 case
     do{
         switchStmt->addCaseStmt(parseCaseStmt());
-    }while(tokenConsumer.getToken().type == TokenType::CASE);
+    }while(tokenConsumer.getToken().type == syntax::TokenType::CASE);
     
-    if(tokenConsumer.getToken().type == TokenType::DEFAULT){
+    if(tokenConsumer.getToken().type == syntax::TokenType::DEFAULT){
         switchStmt->setDefaultStmt(parseDefaultStmt());
     }
 
-    tokenConsumer.consume(TokenType::RBRACE);
+    tokenConsumer.consume(syntax::TokenType::RBRACE);
     return switchStmt;
 }
 
-std::unique_ptr<AST::node::ASTSwitchBlockStmt> StatementParser::parseSwitchBlockStmt(){
+std::unique_ptr<syntax::ast::ASTSwitchBlockStmt> StatementParser::parseSwitchBlockStmt(){
     const auto& swBlockToken{ tokenConsumer.getToken() };
-    std::unique_ptr<AST::node::ASTSwitchBlockStmt> switchBlockStmt{ 
-        std::make_unique<AST::node::ASTSwitchBlockStmt>(Token{
+    std::unique_ptr<syntax::ast::ASTSwitchBlockStmt> switchBlockStmt{ 
+        std::make_unique<syntax::ast::ASTSwitchBlockStmt>(syntax::Token{
             "switch_block_stmt", 
             swBlockToken.line, 
             swBlockToken.column
@@ -308,10 +308,10 @@ std::unique_ptr<AST::node::ASTSwitchBlockStmt> StatementParser::parseSwitchBlock
     
     while(true){
         const auto& current{ tokenConsumer.getToken() };
-        if(current.type == TokenType::CASE ||
-            current.type == TokenType::DEFAULT ||
-            current.type == TokenType::RBRACE ||
-            current.type == TokenType::BREAK
+        if(current.type == syntax::TokenType::CASE ||
+            current.type == syntax::TokenType::DEFAULT ||
+            current.type == syntax::TokenType::RBRACE ||
+            current.type == syntax::TokenType::BREAK
         ){
             break;
         }
@@ -322,23 +322,23 @@ std::unique_ptr<AST::node::ASTSwitchBlockStmt> StatementParser::parseSwitchBlock
     return switchBlockStmt;
 }
 
-std::unique_ptr<AST::node::ASTCaseStmt> StatementParser::parseCaseStmt(){
+std::unique_ptr<syntax::ast::ASTCaseStmt> StatementParser::parseCaseStmt(){
     bool hasBreak{ false };
     const auto& caseToken{ tokenConsumer.getToken() };
-    std::unique_ptr<AST::node::ASTCaseStmt> caseStmt{ 
-        std::make_unique<AST::node::ASTCaseStmt>(Token{
+    std::unique_ptr<syntax::ast::ASTCaseStmt> caseStmt{ 
+        std::make_unique<syntax::ast::ASTCaseStmt>(syntax::Token{
             "case", 
             caseToken.line, 
             caseToken.column
         })
     };
     
-    tokenConsumer.consume(TokenType::CASE);
-    std::unique_ptr<AST::node::ASTLiteralExpr> literalExpr{ exprParser.parseLiteralExpr() };
-    tokenConsumer.consume(TokenType::COLON);
+    tokenConsumer.consume(syntax::TokenType::CASE);
+    std::unique_ptr<syntax::ast::ASTLiteralExpr> literalExpr{ exprParser.parseLiteralExpr() };
+    tokenConsumer.consume(syntax::TokenType::COLON);
     
-    std::unique_ptr<AST::node::ASTSwitchBlockStmt> switchBlockStmt{ parseSwitchBlockStmt() };
-    if(tokenConsumer.getToken().type == TokenType::BREAK){
+    std::unique_ptr<syntax::ast::ASTSwitchBlockStmt> switchBlockStmt{ parseSwitchBlockStmt() };
+    if(tokenConsumer.getToken().type == syntax::TokenType::BREAK){
         hasBreak = true;
         parseBreakStmt();
     }
@@ -348,20 +348,20 @@ std::unique_ptr<AST::node::ASTCaseStmt> StatementParser::parseCaseStmt(){
     return caseStmt;
 }
 
-std::unique_ptr<AST::node::ASTDefaultStmt> StatementParser::parseDefaultStmt(){
+std::unique_ptr<syntax::ast::ASTDefaultStmt> StatementParser::parseDefaultStmt(){
     const auto& defaultToken{ tokenConsumer.getToken() };
-    std::unique_ptr<AST::node::ASTDefaultStmt> defaultStmt{ 
-        std::make_unique<AST::node::ASTDefaultStmt>(Token{
+    std::unique_ptr<syntax::ast::ASTDefaultStmt> defaultStmt{ 
+        std::make_unique<syntax::ast::ASTDefaultStmt>(syntax::Token{
             "default", 
             defaultToken.line, 
             defaultToken.column
         })
     };
-    tokenConsumer.consume(TokenType::DEFAULT);
-    tokenConsumer.consume(TokenType::COLON);
+    tokenConsumer.consume(syntax::TokenType::DEFAULT);
+    tokenConsumer.consume(syntax::TokenType::COLON);
     
     defaultStmt->setDefaultStmt(parseSwitchBlockStmt());
-    if(tokenConsumer.getToken().type == TokenType::BREAK){
+    if(tokenConsumer.getToken().type == syntax::TokenType::BREAK){
         parseBreakStmt();
     }
 
@@ -370,6 +370,6 @@ std::unique_ptr<AST::node::ASTDefaultStmt> StatementParser::parseDefaultStmt(){
 
 void StatementParser::parseBreakStmt(){
     // only for switch statement at the moment, located at the end of the case
-    tokenConsumer.consume(TokenType::BREAK);
-    tokenConsumer.consume(TokenType::SEMICOLON);
+    tokenConsumer.consume(syntax::TokenType::BREAK);
+    tokenConsumer.consume(syntax::TokenType::SEMICOLON);
 }

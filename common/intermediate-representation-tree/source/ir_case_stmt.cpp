@@ -2,9 +2,9 @@
 
 #include "../defs/ir_defs.hpp"
 
-IR::node::IRCaseStmt::IRCaseStmt() : IRStmt(IR::defs::IRNodeType::CASE) {}
+ir::IRCaseStmt::IRCaseStmt() : IRStmt(ir::IRNodeType::CASE) {}
 
-void IR::node::IRCaseStmt::setCase(
+void ir::IRCaseStmt::setCase(
     std::unique_ptr<IRLiteralExpr> litExpr, 
     std::unique_ptr<IRSwitchBlockStmt> swBlockStmt, 
     bool hasBreak
@@ -14,10 +14,10 @@ void IR::node::IRCaseStmt::setCase(
     breaks = hasBreak;
 }
 
-bool IR::node::IRCaseStmt::hasBreakStmt() const noexcept {
+bool ir::IRCaseStmt::hasBreakStmt() const noexcept {
     return breaks;
 }
 
-void IR::node::IRCaseStmt::accept(IR::visitor::IRVisitor& visitor){
+void ir::IRCaseStmt::accept(ir::IRVisitor& visitor){
     visitor.visit(this);
 }

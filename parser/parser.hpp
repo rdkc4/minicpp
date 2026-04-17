@@ -28,7 +28,7 @@ public:
      * @details PROGRAM : (FUNCTION)+
      * @returns pointer to the root of the ast of the program
     */
-    [[nodiscard]] std::unique_ptr<AST::node::ASTProgram> parseProgram();
+    [[nodiscard]] std::unique_ptr<syntax::ast::ASTProgram> parseProgram();
 
 private:
     /// parser specialized for functions

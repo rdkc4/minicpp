@@ -37,7 +37,7 @@ public:
      * @brief gets the token that is next in line for parsing
      * @returns const reference of the next token
     */
-    inline const Token& peek() const noexcept {
+    inline const syntax::Token& peek() const noexcept {
         return nextTokenIdx >= tokens.size() ? tokens.back() : tokens[nextTokenIdx];
     }
 
@@ -45,7 +45,7 @@ public:
      * @brief gets the token that should be parsed at the moment
      * @returns const reference of the current token
     */
-    inline const Token& current() const noexcept {
+    inline const syntax::Token& current() const noexcept {
         return nextTokenIdx >= tokens.size() ? tokens.back() : tokens[nextTokenIdx - 1];
     }
 
@@ -94,7 +94,7 @@ private:
 
 protected:
     /// vector of tokens generated from the input
-    std::vector<Token> tokens;
+    std::vector<syntax::Token> tokens;
 
 private:
 
@@ -192,8 +192,8 @@ private:
         std::string_view val, 
         size_t lineNumber, 
         size_t col, 
-        TokenType type, 
-        GeneralTokenType gtype = GeneralTokenType::OTHER
+        syntax::TokenType type, 
+        syntax::GeneralTokenType gtype = syntax::GeneralTokenType::OTHER
     );
 
     /**
@@ -296,7 +296,10 @@ private:
      * @param operatorLexeme - type and length of the operator
      * @param gtype - general token type of the token
     */
-    void emitOperator(Lexeme operatorLexeme, GeneralTokenType gtype = GeneralTokenType::OPERATOR);
+    void emitOperator(
+        Lexeme operatorLexeme, 
+        syntax::GeneralTokenType gtype = syntax::GeneralTokenType::OPERATOR
+    );
 
     /**
      * @brief handles punctuations, updates position
@@ -315,7 +318,7 @@ private:
      * @param value - string representing keyword
      * @returns token type of the keyword if sequence is keyword, nullopt otherwise
     */
-    inline std::optional<TokenType> tryGetKeyword(std::string_view value) const noexcept {
+    inline std::optional<syntax::TokenType> tryGetKeyword(std::string_view value) const noexcept {
         const size_t length{ value.size() };
         if(length < 2 || length > 8){
             return std::nullopt;
@@ -323,39 +326,39 @@ private:
 
         switch(length){
             case 2:
-                if(value == "if") return TokenType::IF;
-                if(value == "do") return TokenType::DO;
+                if(value == "if") return syntax::TokenType::IF;
+                if(value == "do") return syntax::TokenType::DO;
                 break;
 
             case 3:
-                if(value == "for") return TokenType::FOR;
-                if(value == "int") return TokenType::INT;
+                if(value == "for") return syntax::TokenType::FOR;
+                if(value == "int") return syntax::TokenType::INT;
                 break;
 
             case 4:
-                if(value == "else") return TokenType::ELSE;
-                if(value == "case") return TokenType::CASE;
-                if(value == "void") return TokenType::VOID;
-                if(value == "auto") return TokenType::AUTO;
+                if(value == "else") return syntax::TokenType::ELSE;
+                if(value == "case") return syntax::TokenType::CASE;
+                if(value == "void") return syntax::TokenType::VOID;
+                if(value == "auto") return syntax::TokenType::AUTO;
                 break;
 
             case 5:
-                if(value == "while") return TokenType::WHILE;
-                if(value == "break") return TokenType::BREAK;
+                if(value == "while") return syntax::TokenType::WHILE;
+                if(value == "break") return syntax::TokenType::BREAK;
                 break;
 
             case 6:
-                if(value == "return") return TokenType::RETURN;
-                if(value == "switch") return TokenType::SWITCH;
+                if(value == "return") return syntax::TokenType::RETURN;
+                if(value == "switch") return syntax::TokenType::SWITCH;
                 break;
 
             case 7:
-                if(value == "default") return TokenType::DEFAULT;
-                if(value == "include") return TokenType::INCLUDE;
+                if(value == "default") return syntax::TokenType::DEFAULT;
+                if(value == "include") return syntax::TokenType::INCLUDE;
                 break;
 
             case 8:
-                if(value == "unsigned") return TokenType::UNSIGNED;
+                if(value == "unsigned") return syntax::TokenType::UNSIGNED;
                 break;
         }
 
@@ -367,11 +370,11 @@ private:
      * @param type - type of the token
      * @returns true if type can precede signed literal, false otherwise
     */
-    inline bool canPrecedeSignedLiteral(TokenType type) const noexcept {
+    inline bool canPrecedeSignedLiteral(syntax::TokenType type) const noexcept {
         switch(type){
-            case TokenType::LITERAL:
-            case TokenType::ID:
-            case TokenType::RPAREN:
+            case syntax::TokenType::LITERAL:
+            case syntax::TokenType::ID:
+            case syntax::TokenType::RPAREN:
                 return false;
             
             default:
@@ -399,7 +402,7 @@ private:
     */
     inline std::optional<Lexeme> tryGetAssignOperator() const noexcept {
         if(getChar(position) == '=' && (!isValidIndex(1) || getChar(position + 1) != '=')){
-            return Lexeme{.type = TokenType::ASSIGN, .length = 1};
+            return Lexeme{.type = syntax::TokenType::ASSIGN, .length = 1};
         }
         return std::nullopt;
     }
@@ -412,13 +415,13 @@ private:
     inline std::optional<Lexeme> tryGetArithmeticOperator() const noexcept {
         switch(getChar(position)){
             case '+':
-                return Lexeme{.type = TokenType::PLUS, .length = 1};
+                return Lexeme{.type = syntax::TokenType::PLUS, .length = 1};
             case '-':
-                return Lexeme{.type = TokenType::MINUS, .length = 1};
+                return Lexeme{.type = syntax::TokenType::MINUS, .length = 1};
             case '*':
-                return Lexeme{.type = TokenType::ASTERISK, .length = 1};
+                return Lexeme{.type = syntax::TokenType::ASTERISK, .length = 1};
             case '/':
-                return Lexeme{.type = TokenType::SLASH, .length = 1};
+                return Lexeme{.type = syntax::TokenType::SLASH, .length = 1};
 
             default:
                 return std::nullopt;
@@ -437,30 +440,30 @@ private:
         switch(c1){
             case '<':
                 if(c2 == '<'){
-                    return Lexeme{.type = TokenType::LSHIFT, .length = 2};
+                    return Lexeme{.type = syntax::TokenType::LSHIFT, .length = 2};
                 }
                 break;
 
             case '>':
                 if(c2 == '>'){
-                    return Lexeme{.type = TokenType::RSHIFT, .length = 2};
+                    return Lexeme{.type = syntax::TokenType::RSHIFT, .length = 2};
                 }
                 break;
 
             case '&':
                 if(c2 != '&'){
-                    return Lexeme{.type = TokenType::AMPERSEND, .length = 1};
+                    return Lexeme{.type = syntax::TokenType::AMPERSEND, .length = 1};
                 }
                 break;
 
             case '|':
                 if(c2 != '|'){
-                    return Lexeme{.type = TokenType::PIPE, .length = 1};
+                    return Lexeme{.type = syntax::TokenType::PIPE, .length = 1};
                 }
                 break;
 
             case '^':
-                return Lexeme{.type = TokenType::CARET, .length = 1};
+                return Lexeme{.type = syntax::TokenType::CARET, .length = 1};
         }
 
         return std::nullopt;
@@ -478,13 +481,13 @@ private:
         switch(c1){
             case '&':
                 if(c2 == '&'){
-                    return Lexeme{.type = TokenType::LOGICAL_AND, .length = 2};
+                    return Lexeme{.type = syntax::TokenType::LOGICAL_AND, .length = 2};
                 }
                 break;
 
             case '|':
                 if(c2 == '|'){
-                    return Lexeme{.type = TokenType::LOGICAL_OR, .length = 2};
+                    return Lexeme{.type = syntax::TokenType::LOGICAL_OR, .length = 2};
                 }
                 break;
         }
@@ -504,31 +507,31 @@ private:
         switch(c1){
             case '<':
                 if(c2 == '='){
-                    return Lexeme{.type = TokenType::LESS_EQ, .length = 2};
+                    return Lexeme{.type = syntax::TokenType::LESS_EQ, .length = 2};
                 }
                 else if(c2 != '<'){
-                    return Lexeme{.type = TokenType::LESS, .length = 1};
+                    return Lexeme{.type = syntax::TokenType::LESS, .length = 1};
                 }
                 break;
 
             case '>':
                 if(c2 == '='){
-                    return Lexeme{.type = TokenType::GREATER_EQ, .length = 2};
+                    return Lexeme{.type = syntax::TokenType::GREATER_EQ, .length = 2};
                 }
                 else if(c2 != '>'){
-                    return Lexeme{.type = TokenType::GREATER, .length = 1};
+                    return Lexeme{.type = syntax::TokenType::GREATER, .length = 1};
                 }
                 break;
             
             case '=':
                 if(c2 == '='){
-                    return Lexeme{.type = TokenType::EQUAL, .length = 2};
+                    return Lexeme{.type = syntax::TokenType::EQUAL, .length = 2};
                 }
                 break;
 
             case '!':
                 if(c2 == '='){
-                    return Lexeme{.type = TokenType::NOT_EQ, .length = 2};
+                    return Lexeme{.type = syntax::TokenType::NOT_EQ, .length = 2};
                 }
                 break;
         }

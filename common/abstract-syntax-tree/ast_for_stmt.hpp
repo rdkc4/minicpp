@@ -9,7 +9,7 @@
 #include "../token/token.hpp"
 #include "../visitor/ast_visitor.hpp"
 
-namespace AST::node {
+namespace syntax::ast {
     /** 
      * @class ASTForStmt
      * @brief AST node representing for statement
@@ -20,7 +20,7 @@ namespace AST::node {
          * @brief Creates the instance of the ast for-statement
          * @param token - const reference to the token
         */
-        ASTForStmt(const Token& token);
+        ASTForStmt(const syntax::Token& token);
 
         /** 
          * @brief getter for initializer
@@ -97,7 +97,7 @@ namespace AST::node {
          * @brief accepts the ast visitor
          * @param visitor - reference to an ast visitor
         */
-        void accept(AST::visitor::ASTVisitor& visitor) override;
+        void accept(ASTVisitor& visitor) override;
 
     private:
         /// pointer to the assignment statement of the initializer

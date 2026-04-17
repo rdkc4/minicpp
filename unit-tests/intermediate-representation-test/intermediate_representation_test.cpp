@@ -9,7 +9,7 @@ TEST_F(IntermediateRepresentationFixture, FormIR){
 
     constexpr size_t functionCount{2};
 
-    ASSERT_TRUE(irProgram->getNodeType() == IR::defs::IRNodeType::PROGRAM);
+    ASSERT_TRUE(irProgram->getNodeType() == ir::IRNodeType::PROGRAM);
     EXPECT_TRUE(irProgram->getFunctionCount() == functionCount);
 }
 
@@ -63,28 +63,23 @@ TEST_F(IntermediateRepresentationFixture, FunctionDeadCodeEliminationDoWhile){
 
 TEST_F(StatementIntermediateRepresentationFixture, CompoundStatementDeadCodeElimination){
     input = {"{ return 0; if(1 > 2) return 1; }"};
-    scopeManager.pushSymbol(Symbol{"tmp", Kind::FUN, Type::INT});
+    scopeManager.pushSymbol(sym::Symbol{"tmp", Kind::FUN, Type::INT});
     initIR();
 
     constexpr size_t expectedStmtCount{1};
 
-    ASSERT_TRUE(irStmt->getNodeType() == IR::defs::IRNodeType::COMPOUND);
-    EXPECT_EQ(static_cast<IR::node::IRCompoundStmt*>(irStmt.get())->getStmts().size(), expectedStmtCount);
+    ASSERT_TRUE(irStmt->getNodeType() == ir::IRNodeType::COMPOUND);
+    EXPECT_EQ(static_cast<ir::IRCompoundStmt*>(irStmt.get())->getStmts().size(), expectedStmtCount);
 }
 
 TEST_F(StatementIntermediateRepresentationFixture, AssignmentStatementGeneratesTemporaries){
     input = {"x = fun(fun(1, 2), 1);"};
-
-    auto& context = FunctionIntermediateRepresentationTest::getContext();
-    context.init();
     initIR();
 
     constexpr size_t expectedTemporariesCount{2};
 
-    ASSERT_TRUE(irStmt->getNodeType() == IR::defs::IRNodeType::ASSIGN);
-    EXPECT_TRUE(context.temporaries == expectedTemporariesCount);
-
-    context.reset();
+    ASSERT_TRUE(irStmt->getNodeType() == ir::IRNodeType::ASSIGN);
+    EXPECT_TRUE(ctx.temporaries == expectedTemporariesCount);
 }
 
 TEST_F(StatementIntermediateRepresentationFixture, SwitchCaseDeadCodeElimination){
@@ -93,9 +88,9 @@ TEST_F(StatementIntermediateRepresentationFixture, SwitchCaseDeadCodeElimination
 
     constexpr size_t expectedStmtCount{1};
 
-    ASSERT_TRUE(irStmt->getNodeType() == IR::defs::IRNodeType::SWITCH);
+    ASSERT_TRUE(irStmt->getNodeType() == ir::IRNodeType::SWITCH);
 
-    auto caseStmt{ static_cast<IR::node::IRSwitchStmt*>(irStmt.get())->getCaseStmtAtN(0) };
+    auto caseStmt{ static_cast<ir::IRSwitchStmt*>(irStmt.get())->getCaseStmtAtN(0) };
     EXPECT_EQ(caseStmt->getSwitchBlockStmt()->getStmts().size(), expectedStmtCount);
 }
 
@@ -103,14 +98,14 @@ TEST_F(ExpressionIntermediateRepresentationFixture, ExprConstantFolding){
     input = {"5 + 3 - 1 * 2"};
     initIR();
 
-    ASSERT_TRUE(irExpr->getNodeType() == IR::defs::IRNodeType::LITERAL);
-    EXPECT_EQ(static_cast<IR::node::IRLiteralExpr*>(irExpr.get())->getValue(), "6");
+    ASSERT_TRUE(irExpr->getNodeType() == ir::IRNodeType::LITERAL);
+    EXPECT_EQ(static_cast<ir::IRLiteralExpr*>(irExpr.get())->getValue(), "6");
 }
 
 TEST_F(ExpressionIntermediateRepresentationFixture, ConditionConstantFolding){
     input = {"5 > 3 && 2 < 3"};
     initIR();
 
-    ASSERT_TRUE(irExpr->getNodeType() == IR::defs::IRNodeType::LITERAL);
-    EXPECT_EQ(static_cast<IR::node::IRLiteralExpr*>(irExpr.get())->getValue(), "1");
+    ASSERT_TRUE(irExpr->getNodeType() == ir::IRNodeType::LITERAL);
+    EXPECT_EQ(static_cast<ir::IRLiteralExpr*>(irExpr.get())->getValue(), "1");
 }

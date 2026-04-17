@@ -5,30 +5,30 @@
 
 TokenConsumer::TokenConsumer(Lexer& lexer) : lexer{ lexer } {} 
 
-void TokenConsumer::consume(TokenType expectedType) {
+void TokenConsumer::consume(syntax::TokenType expectedType) {
     const auto& token{ getToken() };
     if(token.type != expectedType){
         throw std::runtime_error(
             std::format("Line {}, Column {}: SYNTAX ERROR -> expected '{}', got '{} {}'",
             token.line, 
             token.column, 
-            tokenTypeToStr(expectedType), 
-            tokenTypeToStr(token.type), 
+            syntax::tokenTypeToStr(expectedType), 
+            syntax::tokenTypeToStr(token.type), 
             token.value
         ));
     }
     next();
 }
 
-void TokenConsumer::consume(GeneralTokenType expectedGType) {
+void TokenConsumer::consume(syntax::GeneralTokenType expectedGType) {
     const auto& token{ getToken() };
     if(token.gtype != expectedGType){
         throw std::runtime_error(
             std::format("Line {}, Column {}: SYNTAX ERROR -> expected '{}', got '{} {}'",
             token.line, 
             token.column, 
-            generalTokenTypeToStr(expectedGType), 
-            generalTokenTypeToStr(token.gtype), 
+            syntax::generalTokenTypeToStr(expectedGType), 
+            syntax::generalTokenTypeToStr(token.gtype), 
             token.value
         ));
     }

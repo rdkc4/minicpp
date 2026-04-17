@@ -6,7 +6,7 @@
 #include "../token/token.hpp"
 #include "../visitor/ast_visitor.hpp"
 
-namespace AST::node {
+namespace syntax::ast {
     /** 
      * @class ASTStmt
      * @brief AST node that represents statement, parent node of all statement nodes
@@ -18,13 +18,13 @@ namespace AST::node {
          * @param token - const reference to the token
          * @param ntype - type of the ast node
         */
-        ASTStmt(const Token& token, AST::defs::ASTNodeType ntype);
+        ASTStmt(const syntax::Token& token, ASTNodeType ntype);
 
         /**
          * @brief accepts the ast visitor
          * @param visitor - reference to an ast visitor
         */
-        virtual void accept(AST::visitor::ASTVisitor& visitor) = 0;
+        virtual void accept(ASTVisitor& visitor) = 0;
 
     };
 

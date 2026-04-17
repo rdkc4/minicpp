@@ -1,14 +1,14 @@
 #include "return_checker.hpp"
 
-void ReturnChecker::visit([[maybe_unused]] AST::node::ASTProgram* program){
+void ReturnChecker::visit([[maybe_unused]] syntax::ast::ASTProgram* program){
     // intentionally empty
 }
 
-void ReturnChecker::visit([[maybe_unused]] AST::node::ASTIncludeDir* includeDir){
+void ReturnChecker::visit([[maybe_unused]] syntax::ast::ASTIncludeDir* includeDir){
     // intentionally empty
 }
 
-void ReturnChecker::visit(AST::node::ASTFunction* function){
+void ReturnChecker::visit(syntax::ast::ASTFunction* function){
     alwaysReturns = false;
 
     for(const auto& stmt : function->getBody()){
@@ -20,19 +20,19 @@ void ReturnChecker::visit(AST::node::ASTFunction* function){
     }
 }
 
-void ReturnChecker::visit([[maybe_unused]] AST::node::ASTParameter* parameter){
+void ReturnChecker::visit([[maybe_unused]] syntax::ast::ASTParameter* parameter){
     // intentionally empty
 }
 
-void ReturnChecker::visit([[maybe_unused]] AST::node::ASTVariableDeclStmt* variableDecl){
+void ReturnChecker::visit([[maybe_unused]] syntax::ast::ASTVariableDeclStmt* variableDecl){
     // intentionally empty
 }
 
-void ReturnChecker::visit([[maybe_unused]] AST::node::ASTAssignStmt* assignStmt){
+void ReturnChecker::visit([[maybe_unused]] syntax::ast::ASTAssignStmt* assignStmt){
     // intentionally empty
 }
 
-void ReturnChecker::visit(AST::node::ASTCompoundStmt* compoundStmt){
+void ReturnChecker::visit(syntax::ast::ASTCompoundStmt* compoundStmt){
     alwaysReturns = false;
     for(const auto& stmt : compoundStmt->getStmts()){
         stmt->accept(*this);
@@ -42,15 +42,15 @@ void ReturnChecker::visit(AST::node::ASTCompoundStmt* compoundStmt){
     }
 }
 
-void ReturnChecker::visit([[maybe_unused]] AST::node::ASTForStmt* forStmt){
+void ReturnChecker::visit([[maybe_unused]] syntax::ast::ASTForStmt* forStmt){
     // intentionally empty
 }
 
-void ReturnChecker::visit([[maybe_unused]] AST::node::ASTFunctionCallStmt* callStmt){
+void ReturnChecker::visit([[maybe_unused]] syntax::ast::ASTFunctionCallStmt* callStmt){
     // intentionally empty
 }
 
-void ReturnChecker::visit(AST::node::ASTIfStmt* ifStmt){
+void ReturnChecker::visit(syntax::ast::ASTIfStmt* ifStmt){
     bool ifStmtAlwaysReturns{ true };
 
     for(const auto& stmt : ifStmt->getStmts()){
@@ -61,20 +61,20 @@ void ReturnChecker::visit(AST::node::ASTIfStmt* ifStmt){
     alwaysReturns = ifStmtAlwaysReturns && ifStmt->hasElseStmt();
 }
 
-void ReturnChecker::visit([[maybe_unused]] AST::node::ASTReturnStmt* returnStmt){
+void ReturnChecker::visit([[maybe_unused]] syntax::ast::ASTReturnStmt* returnStmt){
     alwaysReturns = true;
 }
 
-void ReturnChecker::visit([[maybe_unused]] AST::node::ASTWhileStmt* whileStmt){
+void ReturnChecker::visit([[maybe_unused]] syntax::ast::ASTWhileStmt* whileStmt){
     // intentionally empty
 }
 
-void ReturnChecker::visit(AST::node::ASTDoWhileStmt* dowhileStmt){
+void ReturnChecker::visit(syntax::ast::ASTDoWhileStmt* dowhileStmt){
     alwaysReturns = false;
     dowhileStmt->getStmt()->accept(*this);
 }
 
-void ReturnChecker::visit(AST::node::ASTSwitchStmt* switchStmt){
+void ReturnChecker::visit(syntax::ast::ASTSwitchStmt* switchStmt){
     bool switchStmtAlwaysReturns{ true };
 
     for(const auto& caseStmt : switchStmt->getCaseStmts()){
@@ -90,15 +90,15 @@ void ReturnChecker::visit(AST::node::ASTSwitchStmt* switchStmt){
     alwaysReturns = switchStmtAlwaysReturns && alwaysReturns;
 }
 
-void ReturnChecker::visit(AST::node::ASTCaseStmt* caseStmt){
+void ReturnChecker::visit(syntax::ast::ASTCaseStmt* caseStmt){
     caseStmt->getSwitchBlockStmt()->accept(*this);
 }
 
-void ReturnChecker::visit(AST::node::ASTDefaultStmt* defaultStmt){
+void ReturnChecker::visit(syntax::ast::ASTDefaultStmt* defaultStmt){
     defaultStmt->getSwitchBlockStmt()->accept(*this);
 }
 
-void ReturnChecker::visit(AST::node::ASTSwitchBlockStmt* switchBlockStmt){
+void ReturnChecker::visit(syntax::ast::ASTSwitchBlockStmt* switchBlockStmt){
     alwaysReturns = false;
     for(const auto& stmt : switchBlockStmt->getStmts()){
         stmt->accept(*this);
@@ -108,18 +108,18 @@ void ReturnChecker::visit(AST::node::ASTSwitchBlockStmt* switchBlockStmt){
     }
 }
 
-void ReturnChecker::visit([[maybe_unused]] AST::node::ASTBinaryExpr* binaryExpr){
+void ReturnChecker::visit([[maybe_unused]] syntax::ast::ASTBinaryExpr* binaryExpr){
     // intentionally empty
 }
 
-void ReturnChecker::visit([[maybe_unused]] AST::node::ASTFunctionCallExpr* callExpr){
+void ReturnChecker::visit([[maybe_unused]] syntax::ast::ASTFunctionCallExpr* callExpr){
     // intentionally empty
 }
 
-void ReturnChecker::visit([[maybe_unused]] AST::node::ASTIdExpr* idExpr){
+void ReturnChecker::visit([[maybe_unused]] syntax::ast::ASTIdExpr* idExpr){
     // intentionally empty
 }
 
-void ReturnChecker::visit([[maybe_unused]] AST::node::ASTLiteralExpr* literalExpr){
+void ReturnChecker::visit([[maybe_unused]] syntax::ast::ASTLiteralExpr* literalExpr){
     // intentionally empty
 }

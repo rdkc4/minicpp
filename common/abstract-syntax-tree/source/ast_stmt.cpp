@@ -1,4 +1,4 @@
 #include "../ast_stmt.hpp"
 
-AST::node::ASTStmt::ASTStmt(const Token& token, AST::defs::ASTNodeType ntype) 
+syntax::ast::ASTStmt::ASTStmt(const syntax::Token& token, syntax::ast::ASTNodeType ntype) 
     : ASTNode(token, ntype) {}

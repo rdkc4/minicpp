@@ -2,43 +2,45 @@
 
 #include <format>
 
-Symbol::Symbol(std::string_view name, Kind kind, Type type) 
+sym::Symbol::Symbol(std::string_view name, Kind kind, Type type) 
     : name{ name }, parameters{ nullptr }, kind{ kind }, type{ type } {}
 
-const std::string& Symbol::getName() const noexcept {
+const std::string& sym::Symbol::getName() const noexcept {
     return name;
 }
 
-Kind Symbol::getKind() const noexcept {
+Kind sym::Symbol::getKind() const noexcept {
     return kind;
 }
 
-Type Symbol::getType() const noexcept {
+Type sym::Symbol::getType() const noexcept {
     return type;
 }
 
-const std::vector<std::unique_ptr<AST::node::ASTParameter>>* 
-Symbol::getParameters() const noexcept {
+const std::vector<std::unique_ptr<syntax::ast::ASTParameter>>* 
+sym::Symbol::getParameters() const noexcept {
     return parameters;
 }
 
-void Symbol::setName(std::string_view symName){
+void sym::Symbol::setName(std::string_view symName){
     name = symName;
 }
 
-void Symbol::setKind(Kind symKind) noexcept {
+void sym::Symbol::setKind(Kind symKind) noexcept {
     kind = symKind;
 }
 
-void Symbol::setType(Type symType) noexcept {
+void sym::Symbol::setType(Type symType) noexcept {
     type = symType;
 }
 
-void Symbol::setParameters(const std::vector<std::unique_ptr<AST::node::ASTParameter>>* symParams) noexcept {
+void sym::Symbol::setParameters(
+    const std::vector<std::unique_ptr<syntax::ast::ASTParameter>>* symParams
+) noexcept {
     parameters = symParams;
 }
 
-std::string Symbol::symbolToString() const {
+std::string sym::Symbol::symbolToString() const {
     return std::format("| {:11} | {:3} | {:8} | {:2} |\n", 
         name, 
         kindToStr(kind), 
