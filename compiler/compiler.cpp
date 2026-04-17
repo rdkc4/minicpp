@@ -128,9 +128,9 @@ compiler::ExitCode compiler::semanticAnalysis(
     std::unique_ptr<syntax::ast::ASTProgram>& astProgram, 
     ThreadPool& threadPool
 ){
-    sym::SymbolTable symbolTable {};
-    sym::ScopeManager scopeManager{ symbolTable };
-    Analyzer analyzer{scopeManager, threadPool};
+    semantics::SymbolTable symbolTable {};
+    semantics::ScopeManager scopeManager{ symbolTable };
+    semantics::Analyzer analyzer{scopeManager, threadPool};
     astProgram->accept(analyzer);
 
     if(analyzer.hasSemanticErrors(astProgram.get())){

@@ -1,6 +1,6 @@
 #include "symbol_table.hpp"
 
-const sym::Symbol* sym::SymbolTable::lookupSymbol(
+const semantics::Symbol* semantics::SymbolTable::lookupSymbol(
     const std::string& name, std::initializer_list<Kind> kinds
 ) const {
     auto it{ symbolTable.find(name) };
@@ -14,19 +14,19 @@ const sym::Symbol* sym::SymbolTable::lookupSymbol(
     return nullptr;
 }
 
-bool sym::SymbolTable::insertSymbol(const std::string& name, const sym::Symbol& symbol){
+bool semantics::SymbolTable::insertSymbol(const std::string& name, const semantics::Symbol& symbol){
     auto result{ symbolTable.insert({name, symbol}) };
     return result.second; // false if symbol was already in symbol table
 }
 
-sym::Symbol& sym::SymbolTable::getSymbol(const std::string& name){
+semantics::Symbol& semantics::SymbolTable::getSymbol(const std::string& name){
     return symbolTable.at(name);
 }
 
-void sym::SymbolTable::deleteSymbol(const std::string& name){
+void semantics::SymbolTable::deleteSymbol(const std::string& name){
     symbolTable.erase(name);
 }
 
-void sym::SymbolTable::clearSymbols() noexcept {
+void semantics::SymbolTable::clearSymbols() noexcept {
     symbolTable.clear();
 }

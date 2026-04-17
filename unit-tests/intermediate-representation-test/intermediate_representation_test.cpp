@@ -63,7 +63,7 @@ TEST_F(IntermediateRepresentationFixture, FunctionDeadCodeEliminationDoWhile){
 
 TEST_F(StatementIntermediateRepresentationFixture, CompoundStatementDeadCodeElimination){
     input = {"{ return 0; if(1 > 2) return 1; }"};
-    scopeManager.pushSymbol(sym::Symbol{"tmp", Kind::FUN, Type::INT});
+    scopeManager.pushSymbol(semantics::Symbol{"tmp", Kind::FUN, Type::INT});
     initIR();
 
     constexpr size_t expectedStmtCount{1};
