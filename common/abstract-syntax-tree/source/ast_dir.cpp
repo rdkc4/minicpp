@@ -1,4 +1,4 @@
 #include "../ast_dir.hpp"
 
-AST::node::ASTDir::ASTDir(const Token token, AST::defs::ASTNodeType ntype) 
+syntax::ast::ASTDir::ASTDir(const syntax::Token& token, syntax::ast::ASTNodeType ntype) 
     : ASTNode(token, ntype) {}

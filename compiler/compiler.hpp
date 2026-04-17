@@ -118,7 +118,7 @@ namespace Compiler {
      * @param astProgram - reference to the pointer of the AST program
      * @returns SYNTAX_ERR if it captures any syntax errors, NO_ERR otherwise
     */
-    ExitCode syntaxAnalysis(Lexer& lexer, std::unique_ptr<AST::node::ASTProgram>& astProgram);
+    ExitCode syntaxAnalysis(Lexer& lexer, std::unique_ptr<syntax::ast::ASTProgram>& astProgram);
 
     /** 
      * @brief performs semantic analysis of the code
@@ -126,7 +126,7 @@ namespace Compiler {
      * @param threadPool - reference to a thread pool
      * @returns SEMANTIC_ERR if it captures any semantic errors, NO_ERR otherwise
     */
-    ExitCode semanticAnalysis(std::unique_ptr<AST::node::ASTProgram>& astProgram, ThreadPool& threadPool);
+    ExitCode semanticAnalysis(std::unique_ptr<syntax::ast::ASTProgram>& astProgram, ThreadPool& threadPool);
 
     /** 
      * @brief performs transformation of the code from AST to IRT
@@ -136,7 +136,7 @@ namespace Compiler {
      * @returns IR_ERR if it captures any errors, NO_ERR otherwise
     */
     ExitCode transformASTToIRT(
-        std::unique_ptr<AST::node::ASTProgram>& astProgram, 
+        std::unique_ptr<syntax::ast::ASTProgram>& astProgram, 
         std::unique_ptr<IR::node::IRProgram>& irProgram, 
         ThreadPool& threadPool
     );
@@ -177,7 +177,7 @@ namespace Compiler {
      * @param program - const pointer to the ast program
      * @param out - output stream, defaults to std::cout
     */
-    void dumpAST(AST::node::ASTProgram* program, std::ostream& out = std::cout);
+    void dumpAST(syntax::ast::ASTProgram* program, std::ostream& out = std::cout);
 
     /**
      * @brief dumps the structure of the ir

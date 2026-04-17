@@ -9,7 +9,7 @@
 #include "../token/token.hpp"
 #include "../visitor/ast_visitor.hpp"
 
-namespace AST::node {
+namespace syntax::ast {
     /** 
      * @class ASTProgram
      * @brief AST node representing the program 
@@ -20,7 +20,7 @@ namespace AST::node {
          * @brief Creates the instance of the ast program
          * @param token - const reference to the token
         */
-        ASTProgram(const Token& token);
+        ASTProgram(const syntax::Token& token);
 
         /** 
          * @brief getter for functions of the program
@@ -70,7 +70,7 @@ namespace AST::node {
          * @brief accepts the ast visitor
          * @param visitor - reference to an ast visitor
         */
-        void accept(AST::visitor::ASTVisitor& visitor) override;
+        void accept(ASTVisitor& visitor) override;
 
     private:
         /// vector of pointers to functions of the program

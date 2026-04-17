@@ -8,7 +8,7 @@
 
 class ParserFixture : public LexerFixture {
 protected:
-    std::unique_ptr<AST::node::ASTProgram> program;
+    std::unique_ptr<syntax::ast::ASTProgram> program;
 
     void initParser(){
         initLexer();
@@ -20,7 +20,7 @@ protected:
 
 class FunctionParserFixture : public LexerFixture {
 protected:
-    std::unique_ptr<AST::node::ASTFunction> function;
+    std::unique_ptr<syntax::ast::ASTFunction> function;
 
     void initParser(){
         initLexer();
@@ -32,7 +32,7 @@ protected:
 
 class StatementParserFixture : public LexerFixture {
 protected:
-    std::unique_ptr<AST::node::ASTStmt> stmt;
+    std::unique_ptr<syntax::ast::ASTStmt> stmt;
     
     void initParser() {
         initLexer();
@@ -44,7 +44,7 @@ protected:
 
 class ExpressionParserFixture : public LexerFixture {
 protected:
-    std::unique_ptr<AST::node::ASTExpr> expr;
+    std::unique_ptr<syntax::ast::ASTExpr> expr;
     
     void initParser() {
         initLexer();

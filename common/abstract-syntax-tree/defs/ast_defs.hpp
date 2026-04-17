@@ -4,11 +4,7 @@
 #include <array>
 #include <string_view>
 
-/**
- * @namespace AST::defs
- * @brief module declaring the definitions of abstract syntax tree
-*/
-namespace AST::defs {
+namespace syntax::ast {
     /** 
      * @enum ASTNodeType
      * @brief types of the ast nodes

@@ -23,13 +23,13 @@ public:
      * @brief parses directives
      * @returns pointer to the directive
     */
-    std::unique_ptr<AST::node::ASTDir> parseDir();
+    std::unique_ptr<syntax::ast::ASTDir> parseDir();
 
     /** 
      * @brief parses the include directive
      * @returns pointer to the include directive
     */
-    std::unique_ptr<AST::node::ASTIncludeDir> parseIncludeDir();
+    std::unique_ptr<syntax::ast::ASTIncludeDir> parseIncludeDir();
 
 private:
     /// reference to a token handler wrapped around the lexer

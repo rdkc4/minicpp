@@ -6,7 +6,7 @@
 #include "ast_dir.hpp"
 #include "../visitor/ast_visitor.hpp"
 
-namespace AST::node {
+namespace syntax::ast {
     /** 
      * @class ASTIncludeDir
      * @brief AST node that represents include directive node
@@ -17,7 +17,7 @@ namespace AST::node {
          * @brief Creates the instance of the ast include directive
          * @param token - const reference to the token
         */
-        ASTIncludeDir(const Token token);
+        ASTIncludeDir(const syntax::Token& token);
 
         /** 
          * @brief getter for the name of the included library
@@ -35,7 +35,7 @@ namespace AST::node {
          * @brief accepts the ast visitor
          * @param visitor - reference to an ast visitor
         */
-        void accept(AST::visitor::ASTVisitor& visitor) override;
+        void accept(ASTVisitor& visitor) override;
 
     private:
         /// name of the included library

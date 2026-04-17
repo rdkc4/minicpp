@@ -4,23 +4,23 @@ FunctionParser::FunctionParser(TokenConsumer& consumer)
     : stmtParser{ consumer }, 
       tokenConsumer{ consumer } {}
 
-std::unique_ptr<AST::node::ASTFunction> FunctionParser::parseFunction(){
+std::unique_ptr<syntax::ast::ASTFunction> FunctionParser::parseFunction(){
     Type type{ tokenTypeToType(tokenConsumer.getToken().type) };
-    tokenConsumer.consume(GeneralTokenType::TYPE);
+    tokenConsumer.consume(syntax::GeneralTokenType::TYPE);
 
-    const Token& token{ tokenConsumer.getToken() };
-    tokenConsumer.consume(TokenType::ID);
+    const syntax::Token& token{ tokenConsumer.getToken() };
+    tokenConsumer.consume(syntax::TokenType::ID);
     
-    std::unique_ptr<AST::node::ASTFunction> function{ 
-        std::make_unique<AST::node::ASTFunction>(token, type) 
+    std::unique_ptr<syntax::ast::ASTFunction> function{ 
+        std::make_unique<syntax::ast::ASTFunction>(token, type) 
     };
 
-    tokenConsumer.consume(TokenType::LPAREN);
+    tokenConsumer.consume(syntax::TokenType::LPAREN);
     parseParameters(function.get());
-    tokenConsumer.consume(TokenType::RPAREN);
+    tokenConsumer.consume(syntax::TokenType::RPAREN);
 
-    if(tokenConsumer.getToken().type == TokenType::SEMICOLON){
-        tokenConsumer.consume(TokenType::SEMICOLON);
+    if(tokenConsumer.getToken().type == syntax::TokenType::SEMICOLON){
+        tokenConsumer.consume(syntax::TokenType::SEMICOLON);
         function->setPredefined(true);
         return function;
     }
@@ -30,35 +30,35 @@ std::unique_ptr<AST::node::ASTFunction> FunctionParser::parseFunction(){
     return function;
 }
 
-void FunctionParser::parseParameters(AST::node::ASTFunction* function){
-    if(tokenConsumer.getToken().gtype != GeneralTokenType::TYPE){
+void FunctionParser::parseParameters(syntax::ast::ASTFunction* function){
+    if(tokenConsumer.getToken().gtype != syntax::GeneralTokenType::TYPE){
         return;
     }
 
     auto parseParameter{ 
         [this, function]() -> void {
             Type type{ tokenTypeToType(tokenConsumer.getToken().type) };
-            tokenConsumer.consume(GeneralTokenType::TYPE);
+            tokenConsumer.consume(syntax::GeneralTokenType::TYPE);
 
             const auto& token{ tokenConsumer.getToken() };
-            tokenConsumer.consume(TokenType::ID);
+            tokenConsumer.consume(syntax::TokenType::ID);
 
-            function->addParameter(std::make_unique<AST::node::ASTParameter>(token, type));
+            function->addParameter(std::make_unique<syntax::ast::ASTParameter>(token, type));
         }
     };
 
     parseParameter();
     
-    while(tokenConsumer.getToken().type == TokenType::COMMA){
-        tokenConsumer.consume(TokenType::COMMA);
+    while(tokenConsumer.getToken().type == syntax::TokenType::COMMA){
+        tokenConsumer.consume(syntax::TokenType::COMMA);
         parseParameter();
     }
 }
 
-void FunctionParser::parseBody(AST::node::ASTFunction* function){
-    tokenConsumer.consume(TokenType::LBRACE);
-    while(tokenConsumer.getToken().type != TokenType::RBRACE){
+void FunctionParser::parseBody(syntax::ast::ASTFunction* function){
+    tokenConsumer.consume(syntax::TokenType::LBRACE);
+    while(tokenConsumer.getToken().type != syntax::TokenType::RBRACE){
         function->addStatement(stmtParser.parseStmt());
     }
-    tokenConsumer.consume(TokenType::RBRACE);
+    tokenConsumer.consume(syntax::TokenType::RBRACE);
 }

@@ -1,14 +1,14 @@
 #include "../ast_node.hpp"
 
-AST::node::ASTNode::ASTNode(const Token token, AST::defs::ASTNodeType ntype) 
+syntax::ast::ASTNode::ASTNode(const syntax::Token& token, syntax::ast::ASTNodeType ntype) 
     : token(token), nodeType(ntype) {}
 
-AST::node::ASTNode::~ASTNode() = default;
+syntax::ast::ASTNode::~ASTNode() = default;
 
-const Token& AST::node::ASTNode::getToken() const noexcept {
+const syntax::Token& syntax::ast::ASTNode::getToken() const noexcept {
     return token;
 }
 
-AST::defs::ASTNodeType AST::node::ASTNode::getNodeType() const noexcept {
+syntax::ast::ASTNodeType syntax::ast::ASTNode::getNodeType() const noexcept {
     return nodeType;
 }

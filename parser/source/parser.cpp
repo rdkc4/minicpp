@@ -9,18 +9,18 @@ Parser::Parser(TokenConsumer& consumer)
       dirParser{ consumer }, 
       tokenConsumer{ consumer } {}
 
-std::unique_ptr<AST::node::ASTProgram> Parser::parseProgram(){
-    std::unique_ptr<AST::node::ASTProgram> program{ 
-        std::make_unique<AST::node::ASTProgram>(Token{"program", 0, 0})
+std::unique_ptr<syntax::ast::ASTProgram> Parser::parseProgram(){
+    std::unique_ptr<syntax::ast::ASTProgram> program{ 
+        std::make_unique<syntax::ast::ASTProgram>(syntax::Token{"program", 0, 0})
     };
     
     while(true) {
         const auto& token{ tokenConsumer.getToken() };
 
-        if(token.gtype == GeneralTokenType::TYPE){
+        if(token.gtype == syntax::GeneralTokenType::TYPE){
             program->addFunction(funcParser.parseFunction());
         }
-        else if(token.type == TokenType::HASH){
+        else if(token.type == syntax::TokenType::HASH){
             program->addDir(dirParser.parseDir());
         }
         else {
@@ -29,7 +29,7 @@ std::unique_ptr<AST::node::ASTProgram> Parser::parseProgram(){
     }
 
     // check if input ends correctly
-    tokenConsumer.consume(TokenType::_EOF);
+    tokenConsumer.consume(syntax::TokenType::_EOF);
 
     return program;
 }

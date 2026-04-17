@@ -26,7 +26,7 @@ namespace IR {
          * @returns pointer to the irt function
         */
         std::unique_ptr<node::IRFunction> 
-        transformFunction(const AST::node::ASTFunction* astFunction);
+        transformFunction(const syntax::ast::ASTFunction* astFunction);
 
         /**
          * @brief turns ast parameters into irt parameters
@@ -35,7 +35,7 @@ namespace IR {
         */
         void transformParameters(
             IR::node::IRFunction* irFunction, 
-            const AST::node::ASTFunction* astFunction
+            const syntax::ast::ASTFunction* astFunction
         );
 
         /**
@@ -45,7 +45,7 @@ namespace IR {
         */
         void transformBody(
             IR::node::IRFunction* irFunction, 
-            const AST::node::ASTFunction* astFunction
+            const syntax::ast::ASTFunction* astFunction
         );
 
         /**

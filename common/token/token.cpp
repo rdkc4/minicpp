@@ -1,27 +1,27 @@
 #include "token.hpp"
 
-Token::Token() 
+syntax::Token::Token() 
     : value{ "" }, 
       line{ 0 }, 
       column{ 0 }, 
-      type{ TokenType::NODE }, 
-      gtype{ GeneralTokenType::OTHER } {}
+      type{ syntax::TokenType::NODE }, 
+      gtype{ syntax::GeneralTokenType::OTHER } {}
 
-Token::Token(std::string_view value, size_t line, size_t column) 
+syntax::Token::Token(std::string_view value, size_t line, size_t column) 
     : value{ value }, 
       line{ line }, 
       column{ column }, 
-      type{ TokenType::NODE }, 
-      gtype{ GeneralTokenType::OTHER } {}
+      type{ syntax::TokenType::NODE }, 
+      gtype{ syntax::GeneralTokenType::OTHER } {}
 
-Token::Token(std::string_view value, size_t line, size_t column, TokenType type) 
+syntax::Token::Token(std::string_view value, size_t line, size_t column, syntax::TokenType type) 
     : value{ value }, 
       line{ line }, 
       column{ column }, 
       type{ type }, 
-      gtype{ GeneralTokenType::OTHER } {}
+      gtype{ syntax::GeneralTokenType::OTHER } {}
 
-Token::Token(std::string_view value, size_t line, size_t column, TokenType type, GeneralTokenType gtype) 
+syntax::Token::Token(std::string_view value, size_t line, size_t column, syntax::TokenType type, syntax::GeneralTokenType gtype) 
     : value{ value }, 
       line{ line }, 
       column{ column }, 

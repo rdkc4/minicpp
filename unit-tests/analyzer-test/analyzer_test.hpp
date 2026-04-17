@@ -9,10 +9,10 @@
 
 class AnalyzerTest : public Analyzer {
     public:
-        AnalyzerTest(Sym::ScopeManager& scopeManager, ThreadPool& threadPool) 
+        AnalyzerTest(sym::ScopeManager& scopeManager, ThreadPool& threadPool) 
             : Analyzer{ scopeManager, threadPool }{}
 
-        Sym::ScopeManager& getScopeManager() noexcept {
+        sym::ScopeManager& getScopeManager() noexcept {
             return globalScopeManager;
         }
 

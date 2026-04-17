@@ -24,21 +24,21 @@ public:
      * @details FUNCTION : TYPE ID LPAREN (PARAMETER (COMMA PARAMETER)*)? RPAREN BODY
      * @returns pointer to a function node
     */
-    std::unique_ptr<AST::node::ASTFunction> parseFunction();
+    std::unique_ptr<syntax::ast::ASTFunction> parseFunction();
 
     /** 
      * @brief parses parameters of the function
      * @param function - pointer to a function that owns parameters
      * @details PARAMETER : (TYPE ID (COMMA TYPE ID)*)?
     */
-    void parseParameters(AST::node::ASTFunction* function);
+    void parseParameters(syntax::ast::ASTFunction* function);
 
     /** 
      * @brief parses body of the function
      * @param function - pointer to a function that owns the body
      * @details BODY : LBRACE (STATEMENT)? RBRACE
     */
-    void parseBody(AST::node::ASTFunction* function);
+    void parseBody(syntax::ast::ASTFunction* function);
 
 private:
     /// parser specialized for statements

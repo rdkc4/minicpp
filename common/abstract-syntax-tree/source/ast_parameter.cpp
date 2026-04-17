@@ -2,17 +2,17 @@
 
 #include "../defs/ast_defs.hpp"
 
-AST::node::ASTParameter::ASTParameter(const Token& token, Type type) 
-    : ASTNode(token, AST::defs::ASTNodeType::PARAMETER), type{ type } {}
+syntax::ast::ASTParameter::ASTParameter(const syntax::Token& token, Type type) 
+    : ASTNode(token, syntax::ast::ASTNodeType::PARAMETER), type{ type } {}
 
-Type AST::node::ASTParameter::getType() const noexcept {
+Type syntax::ast::ASTParameter::getType() const noexcept {
     return type;
 }
 
-void AST::node::ASTParameter::setType(Type parameterType) noexcept {
+void syntax::ast::ASTParameter::setType(Type parameterType) noexcept {
     type = parameterType;
 }
 
-void AST::node::ASTParameter::accept(AST::visitor::ASTVisitor& visitor) {
+void syntax::ast::ASTParameter::accept(syntax::ast::ASTVisitor& visitor) {
     visitor.visit(this);
 }

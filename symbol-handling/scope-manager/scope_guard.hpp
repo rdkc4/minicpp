@@ -3,11 +3,7 @@
 
 #include "scope_manager.hpp"
 
-/**
- * @namespace Sym::guard
- * @brief module defining the safe mechanisms for symbol handling
-*/
-namespace Sym::guard {
+namespace sym {
     /**
      * @class ScopeGuard
      * @brief ensures proper scope handling

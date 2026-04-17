@@ -9,7 +9,7 @@
 #include "../defs/defs.hpp"
 #include "../visitor/ast_visitor.hpp"
 
-namespace AST::node {
+namespace syntax::ast {
     /** 
      * @class ASTVariableDeclStmt
      * @brief AST node representing variable
@@ -21,7 +21,7 @@ namespace AST::node {
          * @param token - const reference to the token
          * @param type - type of the variable
         */
-        ASTVariableDeclStmt(const Token& token, Type type = Type::NO_TYPE);
+        ASTVariableDeclStmt(const syntax::Token& token, Type type = Type::NO_TYPE);
 
         /** 
          * @brief getter for the type of the variable
@@ -61,7 +61,7 @@ namespace AST::node {
          * @brief accepts the ast visitor
          * @param visitor - reference to an ast visitor
         */
-        void accept(AST::visitor::ASTVisitor& visitor) override;
+        void accept(ASTVisitor& visitor) override;
 
     private:
         /// type of the variable

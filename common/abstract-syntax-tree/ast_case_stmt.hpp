@@ -9,7 +9,7 @@
 #include "../token/token.hpp"
 #include "../visitor/ast_visitor.hpp"
 
-namespace AST::node {
+namespace syntax::ast {
     /**
      * @class ASTCaseStmt
      * @brief AST node representing case statement
@@ -20,7 +20,7 @@ namespace AST::node {
          * @brief Creates the instance of the ast case
          * @param token - const reference to the token
         */
-        ASTCaseStmt(const Token& token);
+        ASTCaseStmt(const syntax::Token& token);
 
         /** 
          * @brief getter for a literal node
@@ -62,7 +62,7 @@ namespace AST::node {
          * @brief accepts the ast visitor
          * @param visitor - reference to an ast visitor
         */
-        void accept(AST::visitor::ASTVisitor& visitor) override;
+        void accept(ASTVisitor& visitor) override;
 
     private:
         /// pointer to the literal of the case

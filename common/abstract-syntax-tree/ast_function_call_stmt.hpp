@@ -8,7 +8,7 @@
 #include "../token/token.hpp"
 #include "../visitor/ast_visitor.hpp"
 
-namespace AST::node {
+namespace syntax::ast {
     /** 
      * @class ASTFunctionCallStmt
      * @brief AST node representing function call statement
@@ -19,7 +19,7 @@ namespace AST::node {
          * @brief Creates the instance of the ast function call statement
          * @param token - const reference to the token
         */
-        ASTFunctionCallStmt(const Token& token);
+        ASTFunctionCallStmt(const syntax::Token& token);
 
         /**
          * @brief getter for the function call expression
@@ -40,7 +40,7 @@ namespace AST::node {
          * @brief accepts the ast visitor
          * @param visitor - reference to an ast visitor
         */
-        void accept(AST::visitor::ASTVisitor& visitor) override;
+        void accept(ASTVisitor& visitor) override;
 
     private:
         /// pointer to the function call expression

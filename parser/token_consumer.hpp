@@ -27,7 +27,7 @@ public:
      * @brief peeking at the next token
      * @returns const reference to the next token
     */
-    inline const Token& peek() const noexcept {
+    inline const syntax::Token& peek() const noexcept {
         return lexer.peek();
     }
 
@@ -36,20 +36,20 @@ public:
      * @throws if token types don't match
      * @param expectedType - token type that is expected to appear next
     */
-    void consume(TokenType expectedType);
+    void consume(syntax::TokenType expectedType);
 
     /** 
      * @brief compares current token's general type to expected
      * @throws if token general types don't match
      * @param expectedGType - general token type that is expected to appear next
     */
-    void consume(GeneralTokenType expectedGType);
+    void consume(syntax::GeneralTokenType expectedGType);
 
     /** 
      * @brief getter for the token currently processed
      * @return const reference to a currently processed token
     */
-    inline const Token& getToken() const noexcept {
+    inline const syntax::Token& getToken() const noexcept {
         return lexer.current();
     }
 

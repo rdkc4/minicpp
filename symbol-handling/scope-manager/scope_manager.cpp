@@ -1,13 +1,13 @@
 #include "scope_manager.hpp"
 
-Sym::ScopeManager::ScopeManager(Sym::SymbolTable& symTab) 
+sym::ScopeManager::ScopeManager(sym::SymbolTable& symTab) 
     : symbolTable{ symTab } {}
 
-void Sym::ScopeManager::pushScope(){
+void sym::ScopeManager::pushScope(){
     scope.push({});
 }
 
-void Sym::ScopeManager::popScope(){
+void sym::ScopeManager::popScope(){
     auto& out{ scope.top() };
     // deleting symbols that went out of scope from symbol table
     while(!out.empty()){
@@ -17,7 +17,7 @@ void Sym::ScopeManager::popScope(){
     scope.pop();
 }
 
-bool Sym::ScopeManager::pushSymbol(const Sym::defs::Symbol& symbol){
+bool sym::ScopeManager::pushSymbol(const sym::Symbol& symbol){
     if(symbolTable.insertSymbol(symbol.getName(), symbol)){
         scope.top().push(symbol.getName());
         return true;
@@ -25,21 +25,21 @@ bool Sym::ScopeManager::pushSymbol(const Sym::defs::Symbol& symbol){
     return false;
 }
 
-const Sym::SymbolTable& Sym::ScopeManager::getSymbolTable() const noexcept {
+const sym::SymbolTable& sym::ScopeManager::getSymbolTable() const noexcept {
     return symbolTable;
 }
 
-Sym::defs::Symbol& Sym::ScopeManager::getSymbol(const std::string& name) const {
+sym::Symbol& sym::ScopeManager::getSymbol(const std::string& name) const {
     return symbolTable.getSymbol(name);
 }
 
-const Sym::defs::Symbol* Sym::ScopeManager::lookupSymbol(
+const sym::Symbol* sym::ScopeManager::lookupSymbol(
     const std::string& name, std::initializer_list<Kind> kinds
 ) const {
     return symbolTable.lookupSymbol(name, kinds);
 }
 
-void Sym::ScopeManager::clear() noexcept {
+void sym::ScopeManager::clear() noexcept {
     while(!scope.empty()){
         scope.pop();
     }

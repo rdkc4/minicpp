@@ -109,7 +109,7 @@ Compiler::ExitCode Compiler::lexicalAnalysis(Lexer& lexer){
 }
 
 Compiler::ExitCode 
-Compiler::syntaxAnalysis(Lexer& lexer, std::unique_ptr<AST::node::ASTProgram>& astProgram){
+Compiler::syntaxAnalysis(Lexer& lexer, std::unique_ptr<syntax::ast::ASTProgram>& astProgram){
     try{
         assert(lexer.completedTokenization());
         TokenConsumer tokenConsumer{ lexer };
@@ -125,11 +125,11 @@ Compiler::syntaxAnalysis(Lexer& lexer, std::unique_ptr<AST::node::ASTProgram>& a
 }
 
 Compiler::ExitCode Compiler::semanticAnalysis(
-    std::unique_ptr<AST::node::ASTProgram>& astProgram, 
+    std::unique_ptr<syntax::ast::ASTProgram>& astProgram, 
     ThreadPool& threadPool
 ){
-    Sym::SymbolTable symbolTable {};
-    Sym::ScopeManager scopeManager{ symbolTable };
+    sym::SymbolTable symbolTable {};
+    sym::ScopeManager scopeManager{ symbolTable };
     Analyzer analyzer{scopeManager, threadPool};
     astProgram->accept(analyzer);
 
@@ -142,7 +142,7 @@ Compiler::ExitCode Compiler::semanticAnalysis(
 }
 
 Compiler::ExitCode Compiler::transformASTToIRT(
-    std::unique_ptr<AST::node::ASTProgram>& astProgram, 
+    std::unique_ptr<syntax::ast::ASTProgram>& astProgram, 
     std::unique_ptr<IR::node::IRProgram>& irProgram, 
     ThreadPool& threadPool
 ){
@@ -235,7 +235,7 @@ Compiler::ExitCode Compiler::compile(Compiler::CompileOptions options) {
         return result;
     }
     
-    std::unique_ptr<AST::node::ASTProgram> astProgram;
+    std::unique_ptr<syntax::ast::ASTProgram> astProgram;
     result = syntaxAnalysis(lexer, astProgram);
     if(result != Compiler::ExitCode::NO_ERR){
         return result;
@@ -274,8 +274,8 @@ Compiler::ExitCode Compiler::compile(Compiler::CompileOptions options) {
     return result;
 }
 
-void Compiler::dumpAST(AST::node::ASTProgram* program, std::ostream& out){
-    AST::dump::ASTDumper dump{out};
+void Compiler::dumpAST(syntax::ast::ASTProgram* program, std::ostream& out){
+    syntax::ast::ASTDumper dump{out};
     program->accept(dump);
 }
 

@@ -21,7 +21,7 @@ public:
     AnalyzerContextGuard(
         AnalyzerThreadContext& ctx,
         std::string_view functionName,
-        Sym::ScopeManager* scopeManager
+        sym::ScopeManager* scopeManager
     ) : ctx(ctx) {
         ctx.init(functionName, scopeManager);
     }

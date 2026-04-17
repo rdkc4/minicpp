@@ -7,7 +7,7 @@
 #include "../defs/defs.hpp"
 #include "../visitor/ast_visitor.hpp"
 
-namespace AST::node {
+namespace syntax::ast {
     /** 
      * @class ASTExpr
      * @brief AST node representing expression
@@ -21,7 +21,7 @@ namespace AST::node {
          * @param ntype - type of the ast node
          * @param type - type of the expression
         */
-        ASTExpr(const Token& token, AST::defs::ASTNodeType ntype, Type type = Type::NO_TYPE);
+        ASTExpr(const syntax::Token& token, ASTNodeType ntype, Type type = Type::NO_TYPE);
 
         /** 
          * @brief getter for a type of the expression
@@ -39,7 +39,7 @@ namespace AST::node {
          * @brief accepts the ast visitor
          * @param visitor - reference to an ast visitor
         */
-        virtual void accept(AST::visitor::ASTVisitor& visitor) = 0;
+        virtual void accept(ASTVisitor& visitor) = 0;
 
     private:
         /// type of the expression

@@ -4,7 +4,7 @@ IR::FunctionIntermediateRepresentation::FunctionIntermediateRepresentation()
     : stmtIR{ ctx } {}
 
 std::unique_ptr<IR::node::IRFunction> 
-IR::FunctionIntermediateRepresentation::transformFunction(const AST::node::ASTFunction* astFunction){
+IR::FunctionIntermediateRepresentation::transformFunction(const syntax::ast::ASTFunction* astFunction){
     std::unique_ptr<IR::node::IRFunction> irFunction{ 
         std::make_unique<IR::node::IRFunction>(
             astFunction->getToken().value, 
@@ -25,7 +25,7 @@ IR::FunctionIntermediateRepresentation::transformFunction(const AST::node::ASTFu
 
 void IR::FunctionIntermediateRepresentation::transformParameters(
     IR::node::IRFunction* irFunction, 
-    const AST::node::ASTFunction* astFunction
+    const syntax::ast::ASTFunction* astFunction
 ){
     for(const auto& astParameter : astFunction->getParameters()){
         irFunction->addParameter(
@@ -39,13 +39,13 @@ void IR::FunctionIntermediateRepresentation::transformParameters(
 
 void IR::FunctionIntermediateRepresentation::transformBody(
     IR::node::IRFunction* irFunction, 
-    const AST::node::ASTFunction* astFunction
+    const syntax::ast::ASTFunction* astFunction
 ){
     for(const auto& astStmt : astFunction->getBody()){
         irFunction->addStatement(stmtIR.transformStmt(astStmt.get()));
 
         // ignores all statements after return statement
-        if(astStmt->getNodeType() == AST::defs::ASTNodeType::RETURN_STMT){
+        if(astStmt->getNodeType() == syntax::ast::ASTNodeType::RETURN_STMT){
             break;
         }
     }

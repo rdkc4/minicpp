@@ -130,7 +130,7 @@ namespace Optimization::ConstantFolding {
     MergeResult<std::unique_ptr<IR::node::IRExpr>> mergeLiterals(
         const IR::node::IRLiteralExpr* leftOperand, 
         const IR::node::IRLiteralExpr* rightOperand, 
-        const AST::node::ASTBinaryExpr* binExp
+        const syntax::ast::ASTBinaryExpr* binExp
     ){
         T lval{ getOperandValue<T>(leftOperand) };
         T rval{ getOperandValue<T>(rightOperand) };

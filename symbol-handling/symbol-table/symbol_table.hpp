@@ -7,10 +7,10 @@
 #include "../../common/symbol/symbol.hpp"
 
 /**
- * @namespace Sym
- * @brief module defining the symbol handling
+ * @namespace sym
+ * @brief module defining the elements related to symbols and symbol handling
 */
-namespace Sym {
+namespace sym {
     /** 
      * @class SymbolTable
      * @brief maintaining the table of symbols
@@ -28,7 +28,7 @@ namespace Sym {
          * @param kinds - list of kinds that symbol is allowed to have
          * @returns const pointer to symbol if symbol exists, nullptr otherwise
         */
-        const Sym::defs::Symbol* lookupSymbol(const std::string& name, std::initializer_list<Kind> kinds) const;
+        const sym::Symbol* lookupSymbol(const std::string& name, std::initializer_list<Kind> kinds) const;
 
         /** 
          * @brief inserts symbol into the symbol table if the symbol with the given name doesn't exist
@@ -36,14 +36,14 @@ namespace Sym {
          * @param symbol - constant reference to a symbol that should be inserted
          * @returns true if insertion is successful, false if symbol already exists
         */
-        bool insertSymbol(const std::string& name, const Sym::defs::Symbol& symbol);
+        bool insertSymbol(const std::string& name, const sym::Symbol& symbol);
 
         /** 
          * @brief gets the symbol from the symbol table
          * @param name - name of the requested symbol
          * @returns reference to a symbol with the given name
         */
-        Sym::defs::Symbol& getSymbol(const std::string& name);
+        sym::Symbol& getSymbol(const std::string& name);
 
         /** 
          * @brief removes symbol from symbol table
@@ -58,7 +58,7 @@ namespace Sym {
 
     private:
         /// mapping symbol name to symbol
-        std::unordered_map<std::string, Sym::defs::Symbol> symbolTable;
+        std::unordered_map<std::string, sym::Symbol> symbolTable;
 
     };
 

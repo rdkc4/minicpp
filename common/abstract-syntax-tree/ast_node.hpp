@@ -6,10 +6,10 @@
 #include "../visitor/ast_visitor.hpp"
 
 /**
- * @namespace AST::node
- * @brief module defining the abstract syntax tree nodes
+ * @namespace syntax::ast
+ * @brief module defining the abstract syntax tree
 */
-namespace AST::node {
+namespace syntax::ast {
     /** 
      * @class ASTNode
      * @brief parent of AST nodes of all types
@@ -21,7 +21,7 @@ namespace AST::node {
          * @param token - const reference to the token
          * @param ntype - type of the ast node
         */
-        ASTNode(const Token token, AST::defs::ASTNodeType ntype);
+        ASTNode(const syntax::Token& token, ASTNodeType ntype);
 
         /** 
         * @brief Destructs the instance of the ast node
@@ -32,26 +32,26 @@ namespace AST::node {
         * @brief getter for a token of the node
         * @returns const reference to a token describing the node
         */
-        const Token& getToken() const noexcept;
+        const syntax::Token& getToken() const noexcept;
 
         /** 
         * @brief getter for the node type
         * @returns type of the node
         */
-        AST::defs::ASTNodeType getNodeType() const noexcept;
+        ASTNodeType getNodeType() const noexcept;
 
         /**
         * @brief accepts the ast visitor
         * @param visitor - reference to an ast visitor
         */
-        virtual void accept(AST::visitor::ASTVisitor& visitor) = 0;
+        virtual void accept(ASTVisitor& visitor) = 0;
 
     private:
         /// token describing the ast node
-        Token token;
+        syntax::Token token;
         
         /// type of the ast node
-        AST::defs::ASTNodeType nodeType;
+        ASTNodeType nodeType;
 
     };
 

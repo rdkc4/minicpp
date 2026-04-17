@@ -8,11 +8,7 @@
 #include "../abstract-syntax-tree/ast_parameter.hpp"
 #include "../defs/defs.hpp"
 
-/**
- * @namespace Sym::defs
- * @brief module declaring the definitions of the symbols
-*/
-namespace Sym::defs {
+namespace sym {
     /** 
      * @class Symbol
      * @brief description of a symbol
@@ -49,7 +45,7 @@ namespace Sym::defs {
          * @brief getter for the parameters (if symbol is a function)
          * @returns pointer to a vector of pointers to parameters
         */
-        const std::vector<std::unique_ptr<AST::node::ASTParameter>>* 
+        const std::vector<std::unique_ptr<syntax::ast::ASTParameter>>* 
         getParameters() const noexcept;
 
         /** 
@@ -74,7 +70,7 @@ namespace Sym::defs {
          * @brief initializes symbol parameters (if the symbol is a function)
          * @param symParams - pointer to a vector of pointers to the parameters of the symbol
         */
-        void setParameters(const std::vector<std::unique_ptr<AST::node::ASTParameter>>* symParams) noexcept;
+        void setParameters(const std::vector<std::unique_ptr<syntax::ast::ASTParameter>>* symParams) noexcept;
 
         /** 
          * @brief formats the fields of the symbol
@@ -88,7 +84,7 @@ namespace Sym::defs {
         std::string name;
 
         /// pointer to parameter node (only for functions)
-        const std::vector<std::unique_ptr<AST::node::ASTParameter>>* parameters;
+        const std::vector<std::unique_ptr<syntax::ast::ASTParameter>>* parameters;
 
         /// kind of the symbol
         Kind kind;

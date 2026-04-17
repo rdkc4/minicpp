@@ -33,7 +33,7 @@ namespace IR {
          * @returns pointer to the root of irt program
         */
         [[nodiscard]] std::unique_ptr<node::IRProgram> 
-        transformProgram(const AST::node::ASTProgram* program);
+        transformProgram(const syntax::ast::ASTProgram* program);
 
         /**
          * @brief checks if any errors are caught

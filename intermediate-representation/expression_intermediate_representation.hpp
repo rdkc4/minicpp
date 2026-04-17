@@ -32,7 +32,7 @@ namespace IR {
          * @param astExpr - const pointer to the ast expression
          * @returns pointer to the irt expression
         */
-        std::unique_ptr<node::IRExpr> transformExpr(const AST::node::ASTExpr* astExpr);
+        std::unique_ptr<node::IRExpr> transformExpr(const syntax::ast::ASTExpr* astExpr);
 
         /**
          * @brief turns ast binary expression into irt binary expression
@@ -40,7 +40,7 @@ namespace IR {
          * @returns pointer to the irt expression
         */
         std::unique_ptr<node::IRExpr> 
-        transformBinaryExpr(const AST::node::ASTBinaryExpr* astBinaryExpr);
+        transformBinaryExpr(const syntax::ast::ASTBinaryExpr* astBinaryExpr);
 
         /**
          * @brief turns ast id into irt id
@@ -48,7 +48,7 @@ namespace IR {
          * @returns pointer to the irt id
         */
         std::unique_ptr<node::IRIdExpr> 
-        transformIdExpr(const AST::node::ASTIdExpr* astIdExpr) const;
+        transformIdExpr(const syntax::ast::ASTIdExpr* astIdExpr) const;
 
         /**
          * @brief turns ast literal into irt literal
@@ -56,7 +56,7 @@ namespace IR {
          * @returns pointer to the irt literal
         */
         std::unique_ptr<node::IRLiteralExpr> 
-        transformLiteralExpr(const AST::node::ASTLiteralExpr* astLiteralExpr) const;
+        transformLiteralExpr(const syntax::ast::ASTLiteralExpr* astLiteralExpr) const;
 
         /**
          * @brief generates temporary variables for runction calls of the expression
@@ -64,7 +64,7 @@ namespace IR {
          * @returns pointer to the temporary variables
         */
         std::unique_ptr<node::IRTemporaryExpr> 
-        initiateTemporaries(const AST::node::ASTExpr* astExpr);
+        initiateTemporaries(const syntax::ast::ASTExpr* astExpr);
 
         /**
          * @brief turns ast function call into irt function call
@@ -72,7 +72,7 @@ namespace IR {
          * @returns pointer to the irt function call
         */
         std::unique_ptr<node::IRFunctionCallExpr> 
-        transformFunctionCallExpr(const AST::node::ASTFunctionCallExpr* astCallExpr);
+        transformFunctionCallExpr(const syntax::ast::ASTFunctionCallExpr* astCallExpr);
 
         /**
          * @brief turns arguments of the ast function call into arguments of the irt function call
@@ -81,7 +81,7 @@ namespace IR {
         */
         void transformArguments(
             IR::node::IRFunctionCallExpr* irCallExpr, 
-            const AST::node::ASTFunctionCallExpr* astCallExpr
+            const syntax::ast::ASTFunctionCallExpr* astCallExpr
         );
 
         /**
@@ -89,7 +89,7 @@ namespace IR {
          * @param astExpr - const pointer to the ast expression
          * @returns number of required temporaries
         */
-        size_t countTemporaries(const AST::node::ASTExpr* astExpr) const;
+        size_t countTemporaries(const syntax::ast::ASTExpr* astExpr) const;
 
         /**
          * @brief generates the name for the temporary variable
@@ -105,7 +105,7 @@ namespace IR {
         */
         void assignTemporaries(
             IR::node::IRTemporaryExpr* temporaryRoot, 
-            const AST::node::ASTExpr* astExpr, 
+            const syntax::ast::ASTExpr* astExpr, 
             size_t& idx
         );
 
@@ -115,7 +115,7 @@ namespace IR {
          * @returns pointer to the irt id of the temporary variable
         */
         std::unique_ptr<node::IRIdExpr> 
-        replaceFunctionCallExpr(const AST::node::ASTFunctionCallExpr* astCallExpr);
+        replaceFunctionCallExpr(const syntax::ast::ASTFunctionCallExpr* astCallExpr);
 
     private:
         /// reference to a function context
