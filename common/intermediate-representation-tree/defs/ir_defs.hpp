@@ -5,7 +5,8 @@
 #include <string_view>
 #include <cassert>
 
-#include "../../defs/defs.hpp"
+#include "../../defs/types.hpp"
+#include "../../defs/operators.hpp"
 
 namespace ir {
     /** 

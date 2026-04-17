@@ -5,8 +5,9 @@
 
 #include "ast_expr.hpp"
 #include "../token/token.hpp"
-#include "../defs/defs.hpp"
 #include "../visitor/ast_visitor.hpp"
+#include "../defs/types.hpp"
+#include "../defs/operators.hpp"
 
 namespace syntax::ast {
     /** 

@@ -6,7 +6,7 @@
 #include <utility>
 #include <memory>
 
-#include "../common/defs/defs.hpp"
+#include "../common/defs/types.hpp"
 #include "../common/abstract-syntax-tree/ast_binary_expr.hpp"
 #include "../common/intermediate-representation-tree/ir_expr.hpp"
 #include "../common/intermediate-representation-tree/ir_literal_expr.hpp"

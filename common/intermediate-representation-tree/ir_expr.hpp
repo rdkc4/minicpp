@@ -3,7 +3,7 @@
 
 #include "ir_node.hpp"
 #include "defs/ir_defs.hpp"
-#include "../defs/defs.hpp"
+#include "../defs/types.hpp"
 #include "../visitor/ir_visitor.hpp"
 
 namespace ir {

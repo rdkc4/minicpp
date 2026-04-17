@@ -6,7 +6,8 @@
 #include <memory>
 
 #include "../abstract-syntax-tree/ast_parameter.hpp"
-#include "../defs/defs.hpp"
+#include "../defs/types.hpp"
+#include "../defs/kinds.hpp"
 
 namespace sym {
     /** 

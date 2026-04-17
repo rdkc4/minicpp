@@ -4,7 +4,7 @@
 #include "ast_node.hpp"
 #include "defs/ast_defs.hpp"
 #include "../token/token.hpp"
-#include "../defs/defs.hpp"
+#include "../defs/types.hpp"
 #include "../visitor/ast_visitor.hpp"
 
 namespace syntax::ast {

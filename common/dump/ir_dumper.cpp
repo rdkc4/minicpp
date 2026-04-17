@@ -2,7 +2,7 @@
 
 #include <format>
 
-#include "../defs/defs.hpp"
+#include "../defs/types.hpp"
 #include "indent_guard.hpp"
 
 ir::IRDumper::IRDumper(std::ostream& out) : out{ out }, indent{ 0 } {}

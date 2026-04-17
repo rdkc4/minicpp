@@ -7,7 +7,7 @@
 
 #include "ir_expr.hpp"
 #include "ir_temporary_expr.hpp"
-#include "../defs/defs.hpp"
+#include "../defs/types.hpp"
 #include "../visitor/ir_visitor.hpp"
 
 namespace ir {

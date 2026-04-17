@@ -5,7 +5,7 @@
 #include <cctype>
 #include <cassert>
 
-#include "../common/defs/defs.hpp"
+#include "../common/defs/types.hpp"
 
 Lexer::Lexer(const std::vector<std::string>& input) 
     : input{ input }, nextTokenIdx{ 1 } {}
