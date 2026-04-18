@@ -5,7 +5,7 @@
 #include <array>
 #include <string_view>
 
-namespace semantics {
+namespace semantic {
     /** 
      * @enum Kind
      * @brief kinds of symbols

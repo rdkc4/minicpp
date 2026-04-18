@@ -35,10 +35,10 @@
 #include "../thread-pool/thread_pool.hpp"
 
 /**
- * @namespace semantics
- * @brief module defining the elements related to semantics of the language
+ * @namespace semantic
+ * @brief module defining the elements related to semantic of the language
 */
-namespace semantics {
+namespace semantic {
     /**
      * @class Analyzer
      * @brief performs semantic analysis of the ast

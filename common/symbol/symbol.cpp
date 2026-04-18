@@ -2,48 +2,48 @@
 
 #include <format>
 
-semantics::Symbol::Symbol(std::string_view name, semantics::Kind kind, Type type) 
+semantic::Symbol::Symbol(std::string_view name, semantic::Kind kind, Type type) 
     : name{ name }, parameters{ nullptr }, kind{ kind }, type{ type } {}
 
-const std::string& semantics::Symbol::getName() const noexcept {
+const std::string& semantic::Symbol::getName() const noexcept {
     return name;
 }
 
-semantics::Kind semantics::Symbol::getKind() const noexcept {
+semantic::Kind semantic::Symbol::getKind() const noexcept {
     return kind;
 }
 
-Type semantics::Symbol::getType() const noexcept {
+Type semantic::Symbol::getType() const noexcept {
     return type;
 }
 
 const std::vector<std::unique_ptr<syntax::ast::ASTParameter>>* 
-semantics::Symbol::getParameters() const noexcept {
+semantic::Symbol::getParameters() const noexcept {
     return parameters;
 }
 
-void semantics::Symbol::setName(std::string_view symName){
+void semantic::Symbol::setName(std::string_view symName){
     name = symName;
 }
 
-void semantics::Symbol::setKind(semantics::Kind symKind) noexcept {
+void semantic::Symbol::setKind(semantic::Kind symKind) noexcept {
     kind = symKind;
 }
 
-void semantics::Symbol::setType(Type symType) noexcept {
+void semantic::Symbol::setType(Type symType) noexcept {
     type = symType;
 }
 
-void semantics::Symbol::setParameters(
+void semantic::Symbol::setParameters(
     const std::vector<std::unique_ptr<syntax::ast::ASTParameter>>* symParams
 ) noexcept {
     parameters = symParams;
 }
 
-std::string semantics::Symbol::symbolToString() const {
+std::string semantic::Symbol::symbolToString() const {
     return std::format("| {:11} | {:3} | {:8} | {:2} |\n", 
         name, 
-        semantics::kindToStr(kind), 
+        semantic::kindToStr(kind), 
         typeToStr(type), 
         (parameters != nullptr 
             ? std::to_string(parameters->size()) 

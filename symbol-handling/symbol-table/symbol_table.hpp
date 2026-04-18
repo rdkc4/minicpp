@@ -6,7 +6,7 @@
 
 #include "../../common/symbol/symbol.hpp"
 
-namespace semantics {
+namespace semantic {
     /** 
      * @class SymbolTable
      * @brief maintaining the table of symbols
@@ -24,7 +24,7 @@ namespace semantics {
          * @param kinds - list of kinds that symbol is allowed to have
          * @returns const pointer to symbol if symbol exists, nullptr otherwise
         */
-        const semantics::Symbol* lookupSymbol(const std::string& name, std::initializer_list<Kind> kinds) const;
+        const semantic::Symbol* lookupSymbol(const std::string& name, std::initializer_list<Kind> kinds) const;
 
         /** 
          * @brief inserts symbol into the symbol table if the symbol with the given name doesn't exist
@@ -32,14 +32,14 @@ namespace semantics {
          * @param symbol - constant reference to a symbol that should be inserted
          * @returns true if insertion is successful, false if symbol already exists
         */
-        bool insertSymbol(const std::string& name, const semantics::Symbol& symbol);
+        bool insertSymbol(const std::string& name, const semantic::Symbol& symbol);
 
         /** 
          * @brief gets the symbol from the symbol table
          * @param name - name of the requested symbol
          * @returns reference to a symbol with the given name
         */
-        semantics::Symbol& getSymbol(const std::string& name);
+        semantic::Symbol& getSymbol(const std::string& name);
 
         /** 
          * @brief removes symbol from symbol table
@@ -54,7 +54,7 @@ namespace semantics {
 
     private:
         /// mapping symbol name to symbol
-        std::unordered_map<std::string, semantics::Symbol> symbolTable;
+        std::unordered_map<std::string, semantic::Symbol> symbolTable;
 
     };
 

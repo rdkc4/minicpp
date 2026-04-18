@@ -5,7 +5,7 @@
 
 #include "analyzer_ctx.hpp"
 
-namespace semantics {
+namespace semantic {
     /**
      * @class AnalyzerContextGuard
      * @brief ensures proper context handling

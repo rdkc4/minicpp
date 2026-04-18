@@ -110,7 +110,7 @@ namespace compiler {
      * @param lexer - reference to a lexer
      * @returns LEXICAL_ERR if it captures any lexical errors, NO_ERR otherwise
     */
-    ExitCode lexicalAnalysis(Lexer& lexer);
+    ExitCode lexicalAnalysis(lex::Lexer& lexer);
 
     /** 
      * @brief performs syntax analysis of the code
@@ -118,7 +118,7 @@ namespace compiler {
      * @param astProgram - reference to the pointer of the AST program
      * @returns SYNTAX_ERR if it captures any syntax errors, NO_ERR otherwise
     */
-    ExitCode syntaxAnalysis(Lexer& lexer, std::unique_ptr<syntax::ast::ASTProgram>& astProgram);
+    ExitCode syntaxAnalysis(lex::Lexer& lexer, std::unique_ptr<syntax::ast::ASTProgram>& astProgram);
 
     /** 
      * @brief performs semantic analysis of the code

@@ -5,10 +5,6 @@
 
 #include "token_types.hpp"
 
-/**
- * @namespace syntax
- * @brief module defining the elements related to syntax of the language
-*/
 namespace syntax {
     /** 
      * @struct Token

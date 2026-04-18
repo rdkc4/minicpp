@@ -5,10 +5,10 @@
 
 #include "../../symbol-handling/scope-manager/scope_manager.hpp"
 
-namespace semantics {
+namespace semantic {
     /** 
      * @struct AnalyzerThreadContext
-     * @brief context of the thread checking semantics of the function
+     * @brief context of the thread checking semantic of the function
     */
     struct AnalyzerThreadContext {
         /// name of the function analyzed by the thread

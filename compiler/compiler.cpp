@@ -97,7 +97,7 @@ const compiler::PreprocessResult compiler::preprocess(const std::string& source)
     };
 }
 
-compiler::ExitCode compiler::lexicalAnalysis(Lexer& lexer){
+compiler::ExitCode compiler::lexicalAnalysis(lex::Lexer& lexer){
     lexer.tokenize();
     
     if(lexer.hasErrors()){
@@ -109,11 +109,11 @@ compiler::ExitCode compiler::lexicalAnalysis(Lexer& lexer){
 }
 
 compiler::ExitCode 
-compiler::syntaxAnalysis(Lexer& lexer, std::unique_ptr<syntax::ast::ASTProgram>& astProgram){
+compiler::syntaxAnalysis(lex::Lexer& lexer, std::unique_ptr<syntax::ast::ASTProgram>& astProgram){
     try{
         assert(lexer.completedTokenization());
-        TokenConsumer tokenConsumer{ lexer };
-        Parser parser{ tokenConsumer };
+        syntax::TokenConsumer tokenConsumer{ lexer };
+        syntax::Parser parser{ tokenConsumer };
         astProgram = parser.parseProgram();
     }
     catch(std::exception& e){
@@ -128,9 +128,9 @@ compiler::ExitCode compiler::semanticAnalysis(
     std::unique_ptr<syntax::ast::ASTProgram>& astProgram, 
     ThreadPool& threadPool
 ){
-    semantics::SymbolTable symbolTable {};
-    semantics::ScopeManager scopeManager{ symbolTable };
-    semantics::Analyzer analyzer{scopeManager, threadPool};
+    semantic::SymbolTable symbolTable {};
+    semantic::ScopeManager scopeManager{ symbolTable };
+    semantic::Analyzer analyzer{scopeManager, threadPool};
     astProgram->accept(analyzer);
 
     if(analyzer.hasSemanticErrors(astProgram.get())){
@@ -229,7 +229,7 @@ compiler::ExitCode compiler::compile(compiler::CompileOptions options) {
 
     compiler::ExitCode result;
 
-    Lexer lexer{ preprocessResult.source };
+    lex::Lexer lexer{ preprocessResult.source };
     result = lexicalAnalysis(lexer);
     if(result != compiler::ExitCode::NO_ERR){
         return result;

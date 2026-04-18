@@ -3,10 +3,11 @@
 #include <stdexcept>
 #include <format>
 
-DirectiveParser::DirectiveParser(TokenConsumer& tokenConsumer) 
+syntax::DirectiveParser::DirectiveParser(TokenConsumer& tokenConsumer) 
     : tokenConsumer{ tokenConsumer } {}
 
-std::unique_ptr<syntax::ast::ASTDir> DirectiveParser::parseDir() {
+std::unique_ptr<syntax::ast::ASTDir> 
+syntax::DirectiveParser::parseDir() {
     tokenConsumer.consume(syntax::TokenType::HASH);
     const auto& token{ tokenConsumer.getToken() };
 
@@ -22,7 +23,8 @@ std::unique_ptr<syntax::ast::ASTDir> DirectiveParser::parseDir() {
     );
 }
 
-std::unique_ptr<syntax::ast::ASTIncludeDir> DirectiveParser::parseIncludeDir() {
+std::unique_ptr<syntax::ast::ASTIncludeDir> 
+syntax::DirectiveParser::parseIncludeDir() {
     std::unique_ptr<syntax::ast::ASTIncludeDir> includeDir{ 
         std::make_unique<syntax::ast::ASTIncludeDir>(syntax::Token{ tokenConsumer.getToken() }) 
     };

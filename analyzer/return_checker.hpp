@@ -24,7 +24,7 @@
 #include "../common/abstract-syntax-tree/ast_id_expr.hpp"
 #include "../common/abstract-syntax-tree/ast_literal_expr.hpp"
 
-namespace semantics {
+namespace semantic {
     /**
      * @class ReturnChecker
      * @brief checks if the node returns always or not

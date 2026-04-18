@@ -1,13 +1,13 @@
 #include "scope_manager.hpp"
 
-semantics::ScopeManager::ScopeManager(semantics::SymbolTable& symTab) 
+semantic::ScopeManager::ScopeManager(semantic::SymbolTable& symTab) 
     : symbolTable{ symTab } {}
 
-void semantics::ScopeManager::pushScope(){
+void semantic::ScopeManager::pushScope(){
     scope.push({});
 }
 
-void semantics::ScopeManager::popScope(){
+void semantic::ScopeManager::popScope(){
     auto& out{ scope.top() };
     // deleting symbols that went out of scope from symbol table
     while(!out.empty()){
@@ -17,7 +17,7 @@ void semantics::ScopeManager::popScope(){
     scope.pop();
 }
 
-bool semantics::ScopeManager::pushSymbol(const semantics::Symbol& symbol){
+bool semantic::ScopeManager::pushSymbol(const semantic::Symbol& symbol){
     if(symbolTable.insertSymbol(symbol.getName(), symbol)){
         scope.top().push(symbol.getName());
         return true;
@@ -25,21 +25,21 @@ bool semantics::ScopeManager::pushSymbol(const semantics::Symbol& symbol){
     return false;
 }
 
-const semantics::SymbolTable& semantics::ScopeManager::getSymbolTable() const noexcept {
+const semantic::SymbolTable& semantic::ScopeManager::getSymbolTable() const noexcept {
     return symbolTable;
 }
 
-semantics::Symbol& semantics::ScopeManager::getSymbol(const std::string& name) const {
+semantic::Symbol& semantic::ScopeManager::getSymbol(const std::string& name) const {
     return symbolTable.getSymbol(name);
 }
 
-const semantics::Symbol* semantics::ScopeManager::lookupSymbol(
-    const std::string& name, std::initializer_list<semantics::Kind> kinds
+const semantic::Symbol* semantic::ScopeManager::lookupSymbol(
+    const std::string& name, std::initializer_list<semantic::Kind> kinds
 ) const {
     return symbolTable.lookupSymbol(name, kinds);
 }
 
-void semantics::ScopeManager::clear() noexcept {
+void semantic::ScopeManager::clear() noexcept {
     while(!scope.empty()){
         scope.pop();
     }

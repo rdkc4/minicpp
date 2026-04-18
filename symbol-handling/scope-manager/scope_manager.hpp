@@ -6,7 +6,7 @@
 
 #include "../symbol-table/symbol_table.hpp"
 
-namespace semantics {
+namespace semantic {
     /** 
      * @class ScopeManager
      * @brief maintains symbols that are in scope
@@ -34,7 +34,7 @@ namespace semantics {
          * @param symbol - symbol that is being inserted into symbol table
          * @returns true if symbol is inserted, false if symbol already exists
         */
-        bool pushSymbol(const semantics::Symbol& symbol);
+        bool pushSymbol(const semantic::Symbol& symbol);
 
         /** 
          * @brief gets the symbol table
@@ -47,7 +47,7 @@ namespace semantics {
          * @param name - name of the requested symbol
          * @returns reference to a symbol with a given name
         */
-        semantics::Symbol& getSymbol(const std::string& name) const;
+        semantic::Symbol& getSymbol(const std::string& name) const;
 
         /** 
          * @brief checks if symbol exists in a table
@@ -55,7 +55,7 @@ namespace semantics {
          * @param kinds - list of kinds that symbol is allowed to have
          * @returns const pointer to symbol if symbol exists, nullptr otherwise
         */
-        const semantics::Symbol* 
+        const semantic::Symbol* 
         lookupSymbol(const std::string& name, std::initializer_list<Kind> kinds) const;
 
         /**

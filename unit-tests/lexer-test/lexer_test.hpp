@@ -4,9 +4,9 @@
 #include "../../lexer/lexer.hpp"
 #include <cassert>
 
-class LexerTest : public Lexer {
+class LexerTest : public lex::Lexer {
     public:
-        LexerTest(std::vector<std::string>& input) : Lexer{ input } {}
+        LexerTest(std::vector<std::string>& input) : lex::Lexer{ input } {}
 
         const syntax::Token& at(size_t i) const{
             assert(i < tokens.size());

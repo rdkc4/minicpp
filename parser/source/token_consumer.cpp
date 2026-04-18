@@ -3,9 +3,9 @@
 #include <format>
 #include <stdexcept>
 
-TokenConsumer::TokenConsumer(Lexer& lexer) : lexer{ lexer } {} 
+syntax::TokenConsumer::TokenConsumer(lex::Lexer& lexer) : lexer{ lexer } {} 
 
-void TokenConsumer::consume(syntax::TokenType expectedType) {
+void syntax::TokenConsumer::consume(syntax::TokenType expectedType) {
     const auto& token{ getToken() };
     if(token.type != expectedType){
         throw std::runtime_error(
@@ -20,7 +20,7 @@ void TokenConsumer::consume(syntax::TokenType expectedType) {
     next();
 }
 
-void TokenConsumer::consume(syntax::GeneralTokenType expectedGType) {
+void syntax::TokenConsumer::consume(syntax::GeneralTokenType expectedGType) {
     const auto& token{ getToken() };
     if(token.gtype != expectedGType){
         throw std::runtime_error(

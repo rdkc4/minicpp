@@ -7,10 +7,10 @@
 
 #include "../common/defs/types.hpp"
 
-Lexer::Lexer(const std::vector<std::string>& input) 
+lex::Lexer::Lexer(const std::vector<std::string>& input) 
     : input{ input }, nextTokenIdx{ 1 } {}
 
-void Lexer::tokenize(){
+void lex::Lexer::tokenize(){
     const size_t fileCount{ input.size() };
 
     for (fileIndex = 0; fileIndex < fileCount; ++fileIndex) {
@@ -33,15 +33,15 @@ void Lexer::tokenize(){
     addToken("", line, column(), syntax::TokenType::_EOF);
 }
 
-bool Lexer::completedTokenization() const noexcept {
+bool lex::Lexer::completedTokenization() const noexcept {
     return tokens.size() > 0 && tokens.back().type == syntax::TokenType::_EOF;
 }
 
-bool Lexer::hasErrors() const noexcept {
+bool lex::Lexer::hasErrors() const noexcept {
     return !lexicalErrors.empty();
 }
 
-std::string Lexer::getErrors() const noexcept {
+std::string lex::Lexer::getErrors() const noexcept {
     if(lexicalErrors.empty()){
         return "";
     }
@@ -54,7 +54,7 @@ std::string Lexer::getErrors() const noexcept {
     return errors.str();
 }
 
-void Lexer::addToken(
+void lex::Lexer::addToken(
     std::string_view val, 
     size_t lineNumber, 
     size_t col, 
@@ -66,7 +66,7 @@ void Lexer::addToken(
     );
 }
 
-void Lexer::handleError(std::string_view msg, size_t lineNumber, size_t col){
+void lex::Lexer::handleError(std::string_view msg, size_t lineNumber, size_t col){
     lexicalErrors.push_back(
         std::format(
             "Line {}, Column {}: {}\n", 
@@ -75,7 +75,7 @@ void Lexer::handleError(std::string_view msg, size_t lineNumber, size_t col){
     );
 }
 
-bool Lexer::handleNewline() noexcept {
+bool lex::Lexer::handleNewline() noexcept {
     if(isNewLine(getRelativeChar())){
         advanceLine();
         return true;
@@ -83,7 +83,7 @@ bool Lexer::handleNewline() noexcept {
     return false;
 }
 
-bool Lexer::handleWhitespace() noexcept {
+bool lex::Lexer::handleWhitespace() noexcept {
     char c{ getRelativeChar() };
     assert(c != '\n');
 
@@ -94,7 +94,7 @@ bool Lexer::handleWhitespace() noexcept {
     return false;
 }
 
-bool Lexer::handleIdentifier(){
+bool lex::Lexer::handleIdentifier(){
     if (!isAlpha(getRelativeChar())){
         return false;
     }
@@ -116,7 +116,7 @@ bool Lexer::handleIdentifier(){
     return true;
 }
 
-bool Lexer::handleKeyword(std::string_view keyword, size_t lineNumber, size_t col){
+bool lex::Lexer::handleKeyword(std::string_view keyword, size_t lineNumber, size_t col){
     if(auto kwdType{ tryGetKeyword(keyword) }){
         auto type{ *kwdType };
         auto gtype{
@@ -135,7 +135,7 @@ bool Lexer::handleKeyword(std::string_view keyword, size_t lineNumber, size_t co
     return false;
 }
 
-bool Lexer::handleNumber(){
+bool lex::Lexer::handleNumber(){
     bool sign{ isSignedNumber() };
     if(!isDigit(getRelativeChar()) && !sign){
         return false;
@@ -171,7 +171,7 @@ bool Lexer::handleNumber(){
     return true;
 }
 
-bool Lexer::handleComment(){
+bool lex::Lexer::handleComment(){
     if(handleSingleLineComment()){
         return true;
     }
@@ -183,7 +183,7 @@ bool Lexer::handleComment(){
     return false;
 }
 
-bool Lexer::handleSingleLineComment() noexcept {
+bool lex::Lexer::handleSingleLineComment() noexcept {
     if(!isSingleLineComment()){
         return false;
     }
@@ -196,7 +196,7 @@ bool Lexer::handleSingleLineComment() noexcept {
     return true;
 }
 
-bool Lexer::handleMultiLineComment(){
+bool lex::Lexer::handleMultiLineComment(){
     if(!isMultiLineCommentStart()){
         return false;
     }
@@ -228,7 +228,7 @@ bool Lexer::handleMultiLineComment(){
     return true;
 }
 
-bool Lexer::handleOperator(){
+bool lex::Lexer::handleOperator(){
     if(handleRelationalOperator()){
         return true;
     }
@@ -252,7 +252,7 @@ bool Lexer::handleOperator(){
     return false;
 }
 
-bool Lexer::handleRelationalOperator(){
+bool lex::Lexer::handleRelationalOperator(){
     if(auto opLexeme{ tryGetRelationalOperator() }){
         emitOperator(*opLexeme);
         return true;
@@ -260,7 +260,7 @@ bool Lexer::handleRelationalOperator(){
     return false;
 }
 
-bool Lexer::handleLogicalOperator(){
+bool lex::Lexer::handleLogicalOperator(){
     if(auto opLexeme{ tryGetLogicalOperator() }){
         emitOperator(*opLexeme);
         return true;
@@ -268,7 +268,7 @@ bool Lexer::handleLogicalOperator(){
     return false;
 }
 
-bool Lexer::handleAssignOperator(){
+bool lex::Lexer::handleAssignOperator(){
     if(auto opLexeme{ tryGetAssignOperator() }){
         emitOperator(*opLexeme);
         return true;
@@ -276,7 +276,7 @@ bool Lexer::handleAssignOperator(){
     return false;
 }
 
-bool Lexer::handleBitwiseOperator(){
+bool lex::Lexer::handleBitwiseOperator(){
     if(auto opLexeme{ tryGetBitwiseOperator() }){
         emitOperator(*opLexeme);
         return true;
@@ -284,7 +284,7 @@ bool Lexer::handleBitwiseOperator(){
     return false;
 }
 
-bool Lexer::handleArithmeticOperator(){
+bool lex::Lexer::handleArithmeticOperator(){
     if(auto opLexeme{ tryGetArithmeticOperator() }){
         emitOperator(*opLexeme);
         return true;
@@ -293,7 +293,7 @@ bool Lexer::handleArithmeticOperator(){
     return false;
 }
 
-void Lexer::emitOperator(Lexeme operatorLexeme, syntax::GeneralTokenType gtype){
+void lex::Lexer::emitOperator(lex::Lexeme operatorLexeme, syntax::GeneralTokenType gtype){
     addToken(getRelativeSequence(
         operatorLexeme.length), 
         line, 
@@ -304,33 +304,41 @@ void Lexer::emitOperator(Lexeme operatorLexeme, syntax::GeneralTokenType gtype){
     advance(operatorLexeme.length);
 }
 
-bool Lexer::handlePunctuation(){
+bool lex::Lexer::handlePunctuation(){
     size_t col{ column() };
     switch(getRelativeChar()){
         case '(': 
             addToken(getRelativeSequence(1), line, col, syntax::TokenType::LPAREN); 
             break;
+
         case ')': 
             addToken(getRelativeSequence(1), line, col, syntax::TokenType::RPAREN); 
             break;
+
         case '{': 
             addToken(getRelativeSequence(1), line, col, syntax::TokenType::LBRACE); 
             break;
+
         case '}': 
             addToken(getRelativeSequence(1), line, col, syntax::TokenType::RBRACE); 
             break;
+
         case ',': 
             addToken(getRelativeSequence(1), line, col, syntax::TokenType::COMMA); 
             break;
+
         case ';': 
             addToken(getRelativeSequence(1), line, col, syntax::TokenType::SEMICOLON); 
             break;
+
         case ':': 
             addToken(getRelativeSequence(1), line, col, syntax::TokenType::COLON); 
             break;
+
         case '#': 
             addToken(getRelativeSequence(1), line, col, syntax::TokenType::HASH); 
             break;
+
         default: 
             return false;
     }
@@ -339,7 +347,7 @@ bool Lexer::handlePunctuation(){
     return true;
 }
 
-void Lexer::handleInvalid(){
+void lex::Lexer::handleInvalid(){
     size_t col{ column() };
     handleError(
         std::format("LEXICAL ERROR -> unknown symbol '{}'", 

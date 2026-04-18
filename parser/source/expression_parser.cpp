@@ -6,10 +6,11 @@
 
 #include "../defs/parser_defs.hpp"
 
-ExpressionParser::ExpressionParser(TokenConsumer& consumer) 
+syntax::ExpressionParser::ExpressionParser(TokenConsumer& consumer) 
     : tokenConsumer{ consumer } {}
 
-std::unique_ptr<syntax::ast::ASTExpr> ExpressionParser::parseExpr(){
+std::unique_ptr<syntax::ast::ASTExpr> 
+syntax::ExpressionParser::parseExpr(){
     std::stack<std::unique_ptr<syntax::ast::ASTExpr>> values;
     std::stack<std::unique_ptr<syntax::ast::ASTBinaryExpr>> operators;
 
@@ -38,8 +39,8 @@ std::unique_ptr<syntax::ast::ASTExpr> ExpressionParser::parseExpr(){
         const auto& currentOpToken{ currentOp->getToken() };
 
         while(!operators.empty() && 
-            getPrecedence(operators.top()->getToken().type) >= 
-            getPrecedence(currentOpToken.type)
+            syntax::getPrecedence(operators.top()->getToken().type) >= 
+            syntax::getPrecedence(currentOpToken.type)
         ){ reduce(); }
 
         operators.push(std::move(currentOp));
@@ -53,7 +54,8 @@ std::unique_ptr<syntax::ast::ASTExpr> ExpressionParser::parseExpr(){
     return std::move(values.top());
 }
 
-std::unique_ptr<syntax::ast::ASTExpr> ExpressionParser::parsePrimaryExpr(){
+std::unique_ptr<syntax::ast::ASTExpr> 
+syntax::ExpressionParser::parsePrimaryExpr(){
     const auto& token{ tokenConsumer.getToken() };
     switch(token.type){
         case syntax::TokenType::LITERAL:
@@ -83,7 +85,8 @@ std::unique_ptr<syntax::ast::ASTExpr> ExpressionParser::parsePrimaryExpr(){
     );
 }
 
-std::unique_ptr<syntax::ast::ASTFunctionCallExpr> ExpressionParser::parseFunctionCallExpr(){
+std::unique_ptr<syntax::ast::ASTFunctionCallExpr> 
+syntax::ExpressionParser::parseFunctionCallExpr(){
     std::unique_ptr<syntax::ast::ASTFunctionCallExpr> callExpr{ 
         std::make_unique<syntax::ast::ASTFunctionCallExpr>(tokenConsumer.getToken()) 
     };
@@ -96,7 +99,7 @@ std::unique_ptr<syntax::ast::ASTFunctionCallExpr> ExpressionParser::parseFunctio
     return callExpr;
 }
 
-void ExpressionParser::parseArguments(syntax::ast::ASTFunctionCallExpr* callExpr){
+void syntax::ExpressionParser::parseArguments(syntax::ast::ASTFunctionCallExpr* callExpr){
     if(tokenConsumer.getToken().type == syntax::TokenType::RPAREN){
         return;
     }
@@ -108,14 +111,16 @@ void ExpressionParser::parseArguments(syntax::ast::ASTFunctionCallExpr* callExpr
     }
 }
 
-std::unique_ptr<syntax::ast::ASTIdExpr> ExpressionParser::parseIdExpr(){
+std::unique_ptr<syntax::ast::ASTIdExpr> 
+syntax::ExpressionParser::parseIdExpr(){
     const auto& token{ tokenConsumer.getToken() };
     tokenConsumer.consume(syntax::TokenType::ID);
 
     return std::make_unique<syntax::ast::ASTIdExpr>(token);
 }
 
-std::unique_ptr<syntax::ast::ASTLiteralExpr> ExpressionParser::parseLiteralExpr(){
+std::unique_ptr<syntax::ast::ASTLiteralExpr> 
+syntax::ExpressionParser::parseLiteralExpr(){
     const auto& token{ tokenConsumer.getToken() };
     tokenConsumer.consume(syntax::TokenType::LITERAL);
     if(token.value.back() == 'u'){
@@ -124,7 +129,8 @@ std::unique_ptr<syntax::ast::ASTLiteralExpr> ExpressionParser::parseLiteralExpr(
     return std::make_unique<syntax::ast::ASTLiteralExpr>(token, Type::INT);
 }
 
-std::unique_ptr<syntax::ast::ASTBinaryExpr> ExpressionParser::parseOperator(){
+std::unique_ptr<syntax::ast::ASTBinaryExpr> 
+syntax::ExpressionParser::parseOperator(){
     const auto& token{ tokenConsumer.getToken() };
     std::unique_ptr<syntax::ast::ASTBinaryExpr> op{ 
         std::make_unique<syntax::ast::ASTBinaryExpr>(token)

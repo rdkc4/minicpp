@@ -9,7 +9,7 @@
 #include "../defs/types.hpp"
 #include "../defs/kinds.hpp"
 
-namespace semantics {
+namespace semantic {
     /** 
      * @class Symbol
      * @brief description of a symbol

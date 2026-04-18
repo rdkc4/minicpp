@@ -1,6 +1,6 @@
 #include "return_checker.hpp"
 
-void semantics::ReturnChecker::visit(syntax::ast::ASTFunction* function){
+void semantic::ReturnChecker::visit(syntax::ast::ASTFunction* function){
     alwaysReturns = false;
 
     for(const auto& stmt : function->getBody()){
@@ -12,7 +12,7 @@ void semantics::ReturnChecker::visit(syntax::ast::ASTFunction* function){
     }
 }
 
-void semantics::ReturnChecker::visit(syntax::ast::ASTCompoundStmt* compoundStmt){
+void semantic::ReturnChecker::visit(syntax::ast::ASTCompoundStmt* compoundStmt){
     alwaysReturns = false;
     for(const auto& stmt : compoundStmt->getStmts()){
         stmt->accept(*this);
@@ -22,7 +22,7 @@ void semantics::ReturnChecker::visit(syntax::ast::ASTCompoundStmt* compoundStmt)
     }
 }
 
-void semantics::ReturnChecker::visit(syntax::ast::ASTIfStmt* ifStmt){
+void semantic::ReturnChecker::visit(syntax::ast::ASTIfStmt* ifStmt){
     bool ifStmtAlwaysReturns{ true };
 
     for(const auto& stmt : ifStmt->getStmts()){
@@ -33,16 +33,16 @@ void semantics::ReturnChecker::visit(syntax::ast::ASTIfStmt* ifStmt){
     alwaysReturns = ifStmtAlwaysReturns && ifStmt->hasElseStmt();
 }
 
-void semantics::ReturnChecker::visit([[maybe_unused]] syntax::ast::ASTReturnStmt* returnStmt){
+void semantic::ReturnChecker::visit([[maybe_unused]] syntax::ast::ASTReturnStmt* returnStmt){
     alwaysReturns = true;
 }
 
-void semantics::ReturnChecker::visit(syntax::ast::ASTDoWhileStmt* dowhileStmt){
+void semantic::ReturnChecker::visit(syntax::ast::ASTDoWhileStmt* dowhileStmt){
     alwaysReturns = false;
     dowhileStmt->getStmt()->accept(*this);
 }
 
-void semantics::ReturnChecker::visit(syntax::ast::ASTSwitchStmt* switchStmt){
+void semantic::ReturnChecker::visit(syntax::ast::ASTSwitchStmt* switchStmt){
     bool switchStmtAlwaysReturns{ true };
 
     for(const auto& caseStmt : switchStmt->getCaseStmts()){
@@ -58,15 +58,15 @@ void semantics::ReturnChecker::visit(syntax::ast::ASTSwitchStmt* switchStmt){
     alwaysReturns = switchStmtAlwaysReturns && alwaysReturns;
 }
 
-void semantics::ReturnChecker::visit(syntax::ast::ASTCaseStmt* caseStmt){
+void semantic::ReturnChecker::visit(syntax::ast::ASTCaseStmt* caseStmt){
     caseStmt->getSwitchBlockStmt()->accept(*this);
 }
 
-void semantics::ReturnChecker::visit(syntax::ast::ASTDefaultStmt* defaultStmt){
+void semantic::ReturnChecker::visit(syntax::ast::ASTDefaultStmt* defaultStmt){
     defaultStmt->getSwitchBlockStmt()->accept(*this);
 }
 
-void semantics::ReturnChecker::visit(syntax::ast::ASTSwitchBlockStmt* switchBlockStmt){
+void semantic::ReturnChecker::visit(syntax::ast::ASTSwitchBlockStmt* switchBlockStmt){
     alwaysReturns = false;
     for(const auto& stmt : switchBlockStmt->getStmts()){
         stmt->accept(*this);
