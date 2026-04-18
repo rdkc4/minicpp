@@ -9,7 +9,7 @@
 
 class AnalyzerTest : public semantic::Analyzer {
     public:
-        AnalyzerTest(semantic::ScopeManager& scopeManager, ThreadPool& threadPool) 
+        AnalyzerTest(semantic::ScopeManager& scopeManager, util::concurrency::ThreadPool& threadPool) 
             : semantic::Analyzer{ scopeManager, threadPool }{}
 
         semantic::ScopeManager& getScopeManager() noexcept {

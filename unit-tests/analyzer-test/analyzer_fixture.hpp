@@ -6,7 +6,7 @@
 
 class AnalyzerFixture : public ParserFixture {
 protected:
-    ThreadPool tp{1};
+    util::concurrency::ThreadPool tp{1};
     semantic::SymbolTable symtab;
     semantic::ScopeManager scopeManager{symtab};
     std::unique_ptr<AnalyzerTest> analyzer;
@@ -20,7 +20,7 @@ protected:
 
 class FunctionAnalyzerFixture : public FunctionParserFixture {
 protected:
-    ThreadPool tp{1};
+    util::concurrency::ThreadPool tp{1};
     semantic::SymbolTable symtab;
     semantic::ScopeManager scopeManager{symtab};
     std::unique_ptr<AnalyzerTest> analyzer;
@@ -43,7 +43,7 @@ protected:
 
 class StatementAnalyzerFixture : public StatementParserFixture {
 protected:
-    ThreadPool tp{1};
+    util::concurrency::ThreadPool tp{1};
     semantic::SymbolTable symtab;
     semantic::ScopeManager scopeManager{symtab};
     std::unique_ptr<AnalyzerTest> analyzer;
@@ -69,7 +69,7 @@ protected:
 
 class ExpressionAnalyzerFixture : public ExpressionParserFixture {
 protected:
-    ThreadPool tp{1};
+    util::concurrency::ThreadPool tp{1};
     semantic::SymbolTable symtab;
     semantic::ScopeManager scopeManager{symtab};
     std::unique_ptr<AnalyzerTest> analyzer;

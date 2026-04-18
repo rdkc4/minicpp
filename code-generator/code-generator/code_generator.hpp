@@ -20,7 +20,7 @@ public:
      * @param filePath - path for the output asm file
      * @param threadPool - reference to a thread pool
     */
-    CodeGenerator(std::string_view filePath, ThreadPool& threadPool);
+    CodeGenerator(std::string_view filePath, util::concurrency::ThreadPool& threadPool);
 
     /** 
      * @brief starts the code generation of the program
@@ -42,7 +42,7 @@ private:
     std::mutex mtx;
 
     /// thread pool for parallel function code generation
-    ThreadPool& threadPool;
+    util::concurrency::ThreadPool& threadPool;
 
     /// output file path (.s)
     const std::string outputPath;

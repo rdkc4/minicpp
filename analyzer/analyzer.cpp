@@ -9,7 +9,7 @@
 #include "ctx/analyzer_ctx_guard.hpp"
 #include "return_checker.hpp"
 
-semantic::Analyzer::Analyzer(semantic::ScopeManager& scopeManager, ThreadPool& threadPool)
+semantic::Analyzer::Analyzer(semantic::ScopeManager& scopeManager, util::concurrency::ThreadPool& threadPool)
     : threadPool{ threadPool }, globalScopeManager{scopeManager} {}
 
 thread_local semantic::AnalyzerThreadContext semantic::Analyzer::analyzerContext;

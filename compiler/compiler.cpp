@@ -126,7 +126,7 @@ compiler::syntaxAnalysis(lex::Lexer& lexer, std::unique_ptr<syntax::ast::ASTProg
 
 compiler::ExitCode compiler::semanticAnalysis(
     std::unique_ptr<syntax::ast::ASTProgram>& astProgram, 
-    ThreadPool& threadPool
+    util::concurrency::ThreadPool& threadPool
 ){
     semantic::SymbolTable symbolTable {};
     semantic::ScopeManager scopeManager{ symbolTable };
@@ -144,7 +144,7 @@ compiler::ExitCode compiler::semanticAnalysis(
 compiler::ExitCode compiler::transformASTToIRT(
     std::unique_ptr<syntax::ast::ASTProgram>& astProgram, 
     std::unique_ptr<ir::IRProgram>& irProgram, 
-    ThreadPool& threadPool
+    util::concurrency::ThreadPool& threadPool
 ){
         ir::IntermediateRepresentation intermediateRepresentation{threadPool};
         irProgram = intermediateRepresentation.transformProgram(astProgram.get());
@@ -160,7 +160,7 @@ compiler::ExitCode compiler::transformASTToIRT(
 compiler::ExitCode compiler::generateProgram(
     const ir::IRProgram* irProgram, 
     std::string_view output, 
-    ThreadPool& threadPool
+    util::concurrency::ThreadPool& threadPool
 ){
     std::string outputFilePath{ std::format("{}.s", output) };
     CodeGenerator codeGenerator{ outputFilePath, threadPool };
@@ -245,7 +245,7 @@ compiler::ExitCode compiler::compile(compiler::CompileOptions options) {
         dumpAST(astProgram.get());
     }
 
-    ThreadPool threadPool{ std::thread::hardware_concurrency() };
+    util::concurrency::ThreadPool threadPool{ std::thread::hardware_concurrency() };
 
     result = semanticAnalysis(astProgram, threadPool);
     if(result != compiler::ExitCode::NO_ERR){

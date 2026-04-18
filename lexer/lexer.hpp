@@ -9,6 +9,10 @@
 #include "../common/token/token.hpp"
 #include "defs/lexeme.hpp"
 
+/**
+ * @namespace lex
+ * @brief module defining the elements related to lexical analysis
+*/
 namespace lex {
     /**
      * @class Lexer

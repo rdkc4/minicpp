@@ -126,7 +126,7 @@ namespace compiler {
      * @param threadPool - reference to a thread pool
      * @returns SEMANTIC_ERR if it captures any semantic errors, NO_ERR otherwise
     */
-    ExitCode semanticAnalysis(std::unique_ptr<syntax::ast::ASTProgram>& astProgram, ThreadPool& threadPool);
+    ExitCode semanticAnalysis(std::unique_ptr<syntax::ast::ASTProgram>& astProgram, util::concurrency::ThreadPool& threadPool);
 
     /** 
      * @brief performs transformation of the code from AST to IRT
@@ -138,7 +138,7 @@ namespace compiler {
     ExitCode transformASTToIRT(
         std::unique_ptr<syntax::ast::ASTProgram>& astProgram, 
         std::unique_ptr<ir::IRProgram>& irProgram, 
-        ThreadPool& threadPool
+        util::concurrency::ThreadPool& threadPool
     );
 
     /** 
@@ -151,7 +151,7 @@ namespace compiler {
     ExitCode generateProgram(
         const ir::IRProgram* irProgram, 
         std::string_view output, 
-        ThreadPool& threadPool
+        util::concurrency::ThreadPool& threadPool
     );
 
     /**

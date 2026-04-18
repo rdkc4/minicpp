@@ -50,7 +50,7 @@ namespace semantic {
          * @param scopeManager - reference to the scope manager
          * @param threadPool - reference to a thread pool
         */
-        Analyzer(ScopeManager& scopeManager, ThreadPool& threadPool);
+        Analyzer(ScopeManager& scopeManager, util::concurrency::ThreadPool& threadPool);
 
         /**
          * @brief performs semantic analysis of the program
@@ -209,7 +209,7 @@ namespace semantic {
         std::mutex errorMtx;
 
         /// thread pool for parallel function code analysis
-        ThreadPool& threadPool;
+        util::concurrency::ThreadPool& threadPool;
 
         /**
          * @brief helper for literal expr validation

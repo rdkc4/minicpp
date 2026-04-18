@@ -8,7 +8,7 @@
 #include "../../asm-generator/asm_instruction_generator.hpp"
 #include "../function_code_generator.hpp"
 
-CodeGenerator::CodeGenerator(std::string_view filePath, ThreadPool& threadPool) 
+CodeGenerator::CodeGenerator(std::string_view filePath, util::concurrency::ThreadPool& threadPool) 
     : threadPool{ threadPool}, 
       outputPath{ filePath } {}
 

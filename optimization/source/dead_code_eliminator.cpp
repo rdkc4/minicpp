@@ -2,7 +2,7 @@
 
 #include <latch>
 
-optimization::dce::DeadCodeEliminator::DeadCodeEliminator(ThreadPool& threadPool) 
+optimization::dce::DeadCodeEliminator::DeadCodeEliminator(util::concurrency::ThreadPool& threadPool) 
     : threadPool{threadPool} {}
 
 thread_local bool optimization::dce::DeadCodeEliminator::alwaysReturns{ false };

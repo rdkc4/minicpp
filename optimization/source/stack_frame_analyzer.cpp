@@ -3,7 +3,7 @@
 #include <latch>
 #include <string>
 
-optimization::sfa::StackFrameAnalyzer::StackFrameAnalyzer(ThreadPool& threadPool) 
+optimization::sfa::StackFrameAnalyzer::StackFrameAnalyzer(util::concurrency::ThreadPool& threadPool) 
     : threadPool{threadPool} {}
 
 thread_local size_t optimization::sfa::StackFrameAnalyzer::variableCounter{};

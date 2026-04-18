@@ -13,7 +13,7 @@
 #include "../directive_intermediate_representation.hpp"
 #include "../function_intermediate_representation.hpp"
 
-ir::IntermediateRepresentation::IntermediateRepresentation(ThreadPool& threadPool) 
+ir::IntermediateRepresentation::IntermediateRepresentation(util::concurrency::ThreadPool& threadPool) 
     : threadPool{ threadPool } {}
 
 std::unique_ptr<ir::IRProgram> 

@@ -32,7 +32,7 @@ namespace optimization::sfa {
          * @brief creates the instance of the stack frame analyzer
          * @param threadPool - reference to a thread pool for parallel function stack analysis
         */
-        StackFrameAnalyzer(ThreadPool& threadPool);
+        StackFrameAnalyzer(util::concurrency::ThreadPool& threadPool);
 
         /**
          * @brief starts the stack analysis for all functions
@@ -162,7 +162,7 @@ namespace optimization::sfa {
 
     private:
         /// reference to a thread pool for parallel function stack analysis
-        ThreadPool& threadPool;
+        util::concurrency::ThreadPool& threadPool;
 
         /// number of required variables
         static thread_local size_t variableCounter;
