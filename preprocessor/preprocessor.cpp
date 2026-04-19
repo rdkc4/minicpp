@@ -7,7 +7,7 @@
 
 #include "../common/preprocessing/preprocessing_libs.hpp"
 
-void Preprocessor::preprocess(const std::string& source) {
+void preprocessing::Preprocessor::preprocess(const std::string& source) {
     size_t index{0};
     size_t len{ source.length() };
 
@@ -23,15 +23,16 @@ void Preprocessor::preprocess(const std::string& source) {
     preprocessed.push_back(std::move(source));
 }
 
-const std::vector<std::string>& Preprocessor::getPreprocessed() const noexcept {
+const std::vector<std::string>& 
+preprocessing::Preprocessor::getPreprocessed() const noexcept {
     return preprocessed;
 }
 
-bool Preprocessor::hasErrors() const noexcept {
+bool preprocessing::Preprocessor::hasErrors() const noexcept {
     return !preprocessErrors.empty();
 }
 
-std::string Preprocessor::getPreprocessErrors() const noexcept {
+std::string preprocessing::Preprocessor::getPreprocessErrors() const noexcept {
     if(preprocessErrors.empty()){
         return "";
     }
@@ -44,7 +45,7 @@ std::string Preprocessor::getPreprocessErrors() const noexcept {
     return errors.str();
 }
 
-void Preprocessor::handleDirective(const std::string& source, size_t& idx){
+void preprocessing::Preprocessor::handleDirective(const std::string& source, size_t& idx){
     size_t start{++idx};
     while(std::isalpha(source[idx])){
         ++idx;
@@ -60,7 +61,7 @@ void Preprocessor::handleDirective(const std::string& source, size_t& idx){
     }
 }
 
-void Preprocessor::handleInclude(const std::string& source, size_t& idx){
+void preprocessing::Preprocessor::handleInclude(const std::string& source, size_t& idx){
     if(source[idx] != ':'){
         return;
     }

@@ -81,7 +81,7 @@ std::string compiler::readSourceCode(const std::string& input){
 }
 
 const compiler::PreprocessResult compiler::preprocess(const std::string& source) {
-    Preprocessor preprocessor;
+    preprocessing::Preprocessor preprocessor;
     preprocessor.preprocess(source);
 
     bool isInvalid{ preprocessor.hasErrors() };
@@ -97,7 +97,7 @@ const compiler::PreprocessResult compiler::preprocess(const std::string& source)
     };
 }
 
-compiler::ExitCode compiler::lexicalAnalysis(Lexer& lexer){
+compiler::ExitCode compiler::lexicalAnalysis(lex::Lexer& lexer){
     lexer.tokenize();
     
     if(lexer.hasErrors()){
@@ -109,11 +109,11 @@ compiler::ExitCode compiler::lexicalAnalysis(Lexer& lexer){
 }
 
 compiler::ExitCode 
-compiler::syntaxAnalysis(Lexer& lexer, std::unique_ptr<syntax::ast::ASTProgram>& astProgram){
+compiler::syntaxAnalysis(lex::Lexer& lexer, std::unique_ptr<syntax::ast::ASTProgram>& astProgram){
     try{
         assert(lexer.completedTokenization());
-        TokenConsumer tokenConsumer{ lexer };
-        Parser parser{ tokenConsumer };
+        syntax::TokenConsumer tokenConsumer{ lexer };
+        syntax::Parser parser{ tokenConsumer };
         astProgram = parser.parseProgram();
     }
     catch(std::exception& e){
@@ -126,11 +126,11 @@ compiler::syntaxAnalysis(Lexer& lexer, std::unique_ptr<syntax::ast::ASTProgram>&
 
 compiler::ExitCode compiler::semanticAnalysis(
     std::unique_ptr<syntax::ast::ASTProgram>& astProgram, 
-    ThreadPool& threadPool
+    util::concurrency::ThreadPool& threadPool
 ){
-    sym::SymbolTable symbolTable {};
-    sym::ScopeManager scopeManager{ symbolTable };
-    Analyzer analyzer{scopeManager, threadPool};
+    semantic::SymbolTable symbolTable {};
+    semantic::ScopeManager scopeManager{ symbolTable };
+    semantic::Analyzer analyzer{scopeManager, threadPool};
     astProgram->accept(analyzer);
 
     if(analyzer.hasSemanticErrors(astProgram.get())){
@@ -144,7 +144,7 @@ compiler::ExitCode compiler::semanticAnalysis(
 compiler::ExitCode compiler::transformASTToIRT(
     std::unique_ptr<syntax::ast::ASTProgram>& astProgram, 
     std::unique_ptr<ir::IRProgram>& irProgram, 
-    ThreadPool& threadPool
+    util::concurrency::ThreadPool& threadPool
 ){
         ir::IntermediateRepresentation intermediateRepresentation{threadPool};
         irProgram = intermediateRepresentation.transformProgram(astProgram.get());
@@ -160,10 +160,10 @@ compiler::ExitCode compiler::transformASTToIRT(
 compiler::ExitCode compiler::generateProgram(
     const ir::IRProgram* irProgram, 
     std::string_view output, 
-    ThreadPool& threadPool
+    util::concurrency::ThreadPool& threadPool
 ){
     std::string outputFilePath{ std::format("{}.s", output) };
-    CodeGenerator codeGenerator{ outputFilePath, threadPool };
+    code_gen::CodeGenerator codeGenerator{ outputFilePath, threadPool };
     try{
         codeGenerator.generateProgram(irProgram);
         if(!codeGenerator.successful()){
@@ -229,7 +229,7 @@ compiler::ExitCode compiler::compile(compiler::CompileOptions options) {
 
     compiler::ExitCode result;
 
-    Lexer lexer{ preprocessResult.source };
+    lex::Lexer lexer{ preprocessResult.source };
     result = lexicalAnalysis(lexer);
     if(result != compiler::ExitCode::NO_ERR){
         return result;
@@ -245,7 +245,7 @@ compiler::ExitCode compiler::compile(compiler::CompileOptions options) {
         dumpAST(astProgram.get());
     }
 
-    ThreadPool threadPool{ std::thread::hardware_concurrency() };
+    util::concurrency::ThreadPool threadPool{ std::thread::hardware_concurrency() };
 
     result = semanticAnalysis(astProgram, threadPool);
     if(result != compiler::ExitCode::NO_ERR){

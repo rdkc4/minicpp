@@ -7,7 +7,7 @@
 
 #include "ir_expr.hpp"
 #include "ir_temporary_expr.hpp"
-#include "../defs/defs.hpp"
+#include "../defs/types.hpp"
 #include "../visitor/ir_visitor.hpp"
 
 namespace ir {
@@ -22,7 +22,7 @@ namespace ir {
          * @param callName - name of the function being called
          * @param type - return type of the function being called
         */
-        IRFunctionCallExpr(const std::string& callName, Type type);
+        IRFunctionCallExpr(const std::string& callName, types::Type type);
 
         /** 
          * @brief getter for the arguments of the function call expression

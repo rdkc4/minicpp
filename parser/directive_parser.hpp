@@ -7,34 +7,37 @@
 #include "../common/abstract-syntax-tree/ast_dir.hpp"
 #include "../common/abstract-syntax-tree/ast_include_dir.hpp"
 
-/**
- * @class DirectiveParser
- * @brief used for parsing directives
-*/
-class DirectiveParser {
-public:
-    /** 
-     * @brief Creates the instance of the parser specialized for directives
-     * @param tokenConsumer - reference to a token handler wrapped around the lexer
+namespace syntax {
+    /**
+     * @class DirectiveParser
+     * @brief used for parsing directives
     */
-    DirectiveParser(TokenConsumer& tokenConsumer);
+    class DirectiveParser {
+    public:
+        /** 
+         * @brief Creates the instance of the parser specialized for directives
+         * @param tokenConsumer - reference to a token handler wrapped around the lexer
+        */
+        DirectiveParser(TokenConsumer& tokenConsumer);
 
-    /** 
-     * @brief parses directives
-     * @returns pointer to the directive
-    */
-    std::unique_ptr<syntax::ast::ASTDir> parseDir();
+        /** 
+         * @brief parses directives
+         * @returns pointer to the directive
+        */
+        std::unique_ptr<ast::ASTDir> parseDir();
 
-    /** 
-     * @brief parses the include directive
-     * @returns pointer to the include directive
-    */
-    std::unique_ptr<syntax::ast::ASTIncludeDir> parseIncludeDir();
+        /** 
+         * @brief parses the include directive
+         * @returns pointer to the include directive
+        */
+        std::unique_ptr<ast::ASTIncludeDir> parseIncludeDir();
 
-private:
-    /// reference to a token handler wrapped around the lexer
-    TokenConsumer& tokenConsumer;
+    private:
+        /// reference to a token handler wrapped around the lexer
+        TokenConsumer& tokenConsumer;
 
-};
+    };
+
+}
 
 #endif

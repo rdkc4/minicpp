@@ -33,7 +33,7 @@ ir::IRTemporaryExpr::getTemporaryDetailsAtN(size_t n) noexcept {
 void ir::IRTemporaryExpr::addTemporaryExpr(
     const std::string& tempName, 
     std::unique_ptr<IRExpr> tempVal, 
-    Type type
+    types::Type type
 ){
     temporaryNames.push_back(tempName);
     temporaryExprs.push_back(std::move(tempVal));
@@ -42,14 +42,14 @@ void ir::IRTemporaryExpr::addTemporaryExpr(
 
 void ir::IRTemporaryExpr::setTemporaryExprAtN(
     std::unique_ptr<IRExpr> tempVal, 
-    Type t, 
+    types::Type type, 
     size_t n
 ){
     temporaryExprs[n] = std::move(tempVal);
-    types[n] = t;
+    types[n] = type;
 }
 
-const std::vector<Type>& ir::IRTemporaryExpr::getTypes() const noexcept {
+const std::vector<types::Type>& ir::IRTemporaryExpr::getTypes() const noexcept {
     return types;
 }
 

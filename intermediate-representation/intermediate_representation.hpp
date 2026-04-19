@@ -25,7 +25,7 @@ namespace ir {
          * @brief Creates the instance of the intermediate representation
          * @param threadPool - reference to a thread pool
         */
-        IntermediateRepresentation(ThreadPool& threadPool);
+        IntermediateRepresentation(util::concurrency::ThreadPool& threadPool);
 
         /**
          * @brief transforms ast program into irt program
@@ -51,7 +51,7 @@ namespace ir {
 
     private:
         /// thread pool for parallel function ir transformation
-        ThreadPool& threadPool;
+        util::concurrency::ThreadPool& threadPool;
 
     protected:
         /// maps function name to its exceptions

@@ -2,7 +2,7 @@
 
 #include "../defs/ast_defs.hpp"
 
-syntax::ast::ASTFunctionCallExpr::ASTFunctionCallExpr(const syntax::Token& token, Type type) 
+syntax::ast::ASTFunctionCallExpr::ASTFunctionCallExpr(const syntax::Token& token, types::Type type) 
     : ASTExpr(token, syntax::ast::ASTNodeType::FUNCTION_CALL_EXPR, type) {}
 
 const std::vector<std::unique_ptr<syntax::ast::ASTExpr>>& 

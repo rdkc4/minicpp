@@ -10,48 +10,43 @@
 #include "token_consumer.hpp"
 
 /**
- * @class Parser
- * @brief syntax analysis of the tokenized input
- *
- * generates abstract syntax tree
+ * @namespace syntax
+ * @brief module defining the elements related to syntax of the language
 */
-class Parser {
-public:
-    /** 
-     * @brief Creates new instance of the parser
-     * @param consumer - reference to token handler wrapped around the lexer 
+namespace syntax {
+    /**
+     * @class Parser
+     * @brief syntax analysis of the tokenized input
+     *
+     * generates abstract syntax tree
     */
-    Parser(TokenConsumer& consumer);
+    class Parser {
+    public:
+        /** 
+         * @brief Creates new instance of the parser
+         * @param consumer - reference to token handler wrapped around the lexer 
+        */
+        Parser(TokenConsumer& consumer);
+            
+        /** 
+         * @brief entry point for the parsing of the program
+         * @details PROGRAM : (FUNCTION)+
+         * @returns pointer to the root of the ast of the program
+        */
+        [[nodiscard]] std::unique_ptr<ast::ASTProgram> parseProgram();
+
+    private:
+        /// parser specialized for functions
+        FunctionParser funcParser;
+
+        /// parser specialized for directives
+        DirectiveParser dirParser;
         
-    /** 
-     * @brief entry point for the parsing of the program
-     * @details PROGRAM : (FUNCTION)+
-     * @returns pointer to the root of the ast of the program
-    */
-    [[nodiscard]] std::unique_ptr<syntax::ast::ASTProgram> parseProgram();
+        /// reference to a token handler wrapped around the lexer
+        TokenConsumer& tokenConsumer;
 
-private:
-    /// parser specialized for functions
-    FunctionParser funcParser;
+    };
 
-    /// parser specialized for directives
-    DirectiveParser dirParser;
-    
-    /// reference to a token handler wrapped around the lexer
-    TokenConsumer& tokenConsumer;
-
-};
+}
 
 #endif
-
-/* TODO:
- * GLOBAL VARIABLES
- * MORE TYPES
- * ENUMERATORS
- * LISTS
- * ANONYMOUS FUNCTIONS
- * INCLUDE / HANDLING MULTIPLE FILES
- * PRE/POST INCREMENT/DECREMENT
- * BITWISE OPERATORS (!, ~)
- * TERNARY OPERATOR ? :
-*/

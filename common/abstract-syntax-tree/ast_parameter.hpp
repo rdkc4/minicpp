@@ -3,7 +3,7 @@
 
 #include "ast_node.hpp"
 #include "../token/token.hpp"
-#include "../defs/defs.hpp"
+#include "../defs/types.hpp"
 #include "../visitor/ast_visitor.hpp"
 
 namespace syntax::ast {
@@ -19,19 +19,19 @@ namespace syntax::ast {
          * @param ntype - type of the ast node
          * @param type - type of the parameter
         */
-        ASTParameter(const syntax::Token& token, Type type = Type::NO_TYPE);
+        ASTParameter(const syntax::Token& token, types::Type type = types::Type::NO_TYPE);
         
         /** 
          * @brief getter for a type of the parameter
          * @returns type of a parameter
         */
-        Type getType() const noexcept;
+        types::Type getType() const noexcept;
 
         /** 
          * @brief initializes type of the parameter
          * @param parameterType - type of a parameter
         */
-        void setType(Type parameterType) noexcept;
+        void setType(types::Type parameterType) noexcept;
 
         /**
          * @brief accepts the ast visitor
@@ -41,7 +41,7 @@ namespace syntax::ast {
 
     private:
         /// type of the parameter
-        Type type;
+        types::Type type;
 
     };
 

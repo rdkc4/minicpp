@@ -2,7 +2,7 @@
 
 #include "../defs/ir_defs.hpp"
 
-ir::IRLiteralExpr::IRLiteralExpr(const std::string& val, Type type) 
+ir::IRLiteralExpr::IRLiteralExpr(const std::string& val, types::Type type) 
     : IRExpr(ir::IRNodeType::LITERAL, type), value{ val } {}
 
 const std::string& ir::IRLiteralExpr::getValue() const noexcept {

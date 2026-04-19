@@ -6,7 +6,7 @@
 
 #include "ast_expr.hpp"
 #include "../token/token.hpp"
-#include "../defs/defs.hpp"
+#include "../defs/types.hpp"
 #include "../visitor/ast_visitor.hpp"
 
 namespace syntax::ast {
@@ -21,7 +21,10 @@ namespace syntax::ast {
          * @param token - const reference to the token
          * @param type - type of the function call
         */
-        ASTFunctionCallExpr(const syntax::Token& token, Type type = Type::NO_TYPE);
+        ASTFunctionCallExpr(
+            const syntax::Token& token, 
+            types::Type type = types::Type::NO_TYPE
+        );
 
         /** 
          * @brief getter for expressions passed to a function as arguments

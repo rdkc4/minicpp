@@ -7,7 +7,7 @@
 #include "ir_stmt.hpp"
 #include "ir_expr.hpp"
 #include "ir_temporary_expr.hpp"
-#include "../defs/defs.hpp"
+#include "../defs/types.hpp"
 #include "../visitor/ir_visitor.hpp"
 
 namespace ir {
@@ -22,7 +22,7 @@ namespace ir {
          * @param varName - name of the variable
          * @param type - type of the variable
         */
-        IRVariableDeclStmt(std::string_view varName, Type type);
+        IRVariableDeclStmt(std::string_view varName, types::Type type);
 
         /** 
          * @brief getter for the value assigned to the variable
@@ -71,13 +71,13 @@ namespace ir {
          * @brief getter for the type of the variable
          * @returns type of the variable
         */
-        Type getType() const noexcept;
+        types::Type getType() const noexcept;
 
         /** 
          * @brief initializes the type of the variable
          * @param t - type of the variable
         */
-        void setType(Type t) noexcept;
+        void setType(types::Type t) noexcept;
 
         /** 
          * @brief checks if variable is assigned value
@@ -114,7 +114,7 @@ namespace ir {
         std::string value;
 
         /// type of the variable
-        Type type;
+        types::Type type;
 
         /// pointer to the expression assigned to the variable
         std::unique_ptr<IRExpr> assignExpr;

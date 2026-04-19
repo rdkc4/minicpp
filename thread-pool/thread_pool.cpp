@@ -1,39 +1,39 @@
 #include "thread_pool.hpp"
-#include <mutex>
-#include <condition_variable>
 
-ThreadPool::ThreadPool(size_t numberOfThreads) : stop{ false } {
-    for(size_t i{0}; i < numberOfThreads; ++i){
-        threads.emplace_back([this]() -> void {
+util::concurrency::ThreadPool::ThreadPool(size_t n){
+    workers.reserve(n);
+
+    for(size_t i{0}; i < n; ++i){
+        workers.emplace_back([this]() -> void {
             while(true){
-                std::function<void()> f;
+                std::move_only_function<void()> fn;
                 {
                     std::unique_lock<std::mutex> lock(mtx);
                     cv.wait(lock, [this] -> bool {
-                        return stop || !tasks.empty();
+                        return stopping || !tasks.empty();
                     });
 
-                    if(stop && tasks.empty()){
+                    if(stopping && tasks.empty()){
                         return;
                     }
 
-                    f = std::move(tasks.front());
+                    fn = std::move(tasks.front());
                     tasks.pop();
                 }
-                f();
+                fn();
             }
         });
     }
 }
 
-ThreadPool::~ThreadPool() {
+util::concurrency::ThreadPool::~ThreadPool() {
     {
         std::lock_guard<std::mutex> lock(mtx);
-        stop = true;
+        stopping = true;
     }
     cv.notify_all();
 
-    for(auto& t : threads){
-        t.join();
+    for(auto& w : workers){
+        w.join();
     }
 }

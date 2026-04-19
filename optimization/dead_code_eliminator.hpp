@@ -32,7 +32,7 @@ namespace optimization::dce {
          * @brief creates the instance of the dead code eliminator
          * @param threadPool - reference to a thread pool for parallel dead code elimination
         */
-        DeadCodeEliminator(ThreadPool& threadPool);
+        DeadCodeEliminator(util::concurrency::ThreadPool& threadPool);
 
         /**
          * @brief starts the dead code elimination for all functions
@@ -162,7 +162,7 @@ namespace optimization::dce {
 
     private:
         /// reference to a thread pool for parallel dead code elimination
-        ThreadPool& threadPool;
+        util::concurrency::ThreadPool& threadPool;
 
         /// flag if current node always returns
         static thread_local bool alwaysReturns;

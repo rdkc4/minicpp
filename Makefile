@@ -7,7 +7,7 @@ SANITIZER = -fsanitize=address,undefined
 
 # Source files
 SRCS = main.cpp \
-	common/preprocessing/source/preprocessing_libs.cpp \
+	common/preprocessing/preprocessing_libs.cpp \
 	preprocessor/preprocessor.cpp \
 	common/token/token.cpp \
 	common/abstract-syntax-tree/source/ast_node.cpp \
@@ -81,7 +81,7 @@ SRCS = main.cpp \
 	intermediate-representation/source/function_intermediate_representation.cpp \
 	intermediate-representation/source/directive_intermediate_representation.cpp \
 	intermediate-representation/source/intermediate_representation.cpp \
-	code-generator/asm-generator/source/asm_instruction_generator.cpp \
+	code-generator/asm-generator/asm_instruction_generator.cpp \
 	code-generator/code-generator/source/expression_code_generator.cpp \
 	code-generator/code-generator/source/statement_code_generator.cpp \
 	code-generator/code-generator/source/function_code_generator.cpp \

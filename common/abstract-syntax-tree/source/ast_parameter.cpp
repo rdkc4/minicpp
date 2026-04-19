@@ -2,14 +2,14 @@
 
 #include "../defs/ast_defs.hpp"
 
-syntax::ast::ASTParameter::ASTParameter(const syntax::Token& token, Type type) 
+syntax::ast::ASTParameter::ASTParameter(const syntax::Token& token, types::Type type) 
     : ASTNode(token, syntax::ast::ASTNodeType::PARAMETER), type{ type } {}
 
-Type syntax::ast::ASTParameter::getType() const noexcept {
+types::Type syntax::ast::ASTParameter::getType() const noexcept {
     return type;
 }
 
-void syntax::ast::ASTParameter::setType(Type parameterType) noexcept {
+void syntax::ast::ASTParameter::setType(types::Type parameterType) noexcept {
     type = parameterType;
 }
 

@@ -12,7 +12,7 @@ protected:
 
     void initParser(){
         initLexer();
-        TokenConsumer tokenConsumer{ *lexer };
+        syntax::TokenConsumer tokenConsumer{ *lexer };
         ParserTest parser{ tokenConsumer };
         program = parser.parseProgram();
     }
@@ -24,7 +24,7 @@ protected:
 
     void initParser(){
         initLexer();
-        TokenConsumer tokenConsumer{ *lexer };
+        syntax::TokenConsumer tokenConsumer{ *lexer };
         FunctionParserTest parser{ tokenConsumer };
         function = parser.parseFunction();
     }
@@ -36,7 +36,7 @@ protected:
     
     void initParser() {
         initLexer();
-        TokenConsumer tokenConsumer{ *lexer };
+        syntax::TokenConsumer tokenConsumer{ *lexer };
         StatementParserTest stmtParser{ tokenConsumer };
         stmt = stmtParser.parseStmt();
     }
@@ -48,7 +48,7 @@ protected:
     
     void initParser() {
         initLexer();
-        TokenConsumer tokenConsumer{ *lexer };
+        syntax::TokenConsumer tokenConsumer{ *lexer };
         ExpressionParserTest exprParser{ tokenConsumer };
         expr = exprParser.parseExpr();
     }

@@ -5,7 +5,8 @@
 #include <string_view>
 #include <cassert>
 
-#include "../../defs/defs.hpp"
+#include "../../defs/types.hpp"
+#include "../../defs/operators.hpp"
 
 namespace ir {
     /** 
@@ -85,8 +86,8 @@ namespace ir {
          * @param type - type of the operands
          * @returns node type of the operation
         */
-        constexpr IRNodeType get(Type type) const {
-            return (type == Type::INT) ? intOp : unsignedOp;
+        constexpr IRNodeType get(types::Type type) const {
+            return (type == types::Type::INT) ? intOp : unsignedOp;
         }
 
     };
@@ -179,7 +180,7 @@ namespace ir {
     }
 
     /// maps operator to ir instruction node
-    constexpr std::array<Operation, OPERATOR_COUNT> operationTable {
+    constexpr std::array<Operation, syntax::OPERATOR_COUNT> operationTable {
         [] {
             /**
              * @brief converts operator enum to array index
@@ -187,35 +188,35 @@ namespace ir {
              * @returns index in the array for provided operator
             */
             constexpr auto idx {
-                [](Operator op) noexcept -> size_t {
+                [](syntax::Operator op) noexcept -> size_t {
                     return static_cast<size_t>(op);
                 }
             };
 
-            std::array<Operation, OPERATOR_COUNT> ops{};
+            std::array<Operation, syntax::OPERATOR_COUNT> ops{};
 
-            ops[idx(Operator::NO_OP)]   = { .intOp = IRNodeType::NONE, .unsignedOp = IRNodeType::NONE };
+            ops[idx(syntax::Operator::NO_OP)]   = { .intOp = IRNodeType::NONE, .unsignedOp = IRNodeType::NONE };
 
-            ops[idx(Operator::ADD)]     = { .intOp = IRNodeType::ADD,  .unsignedOp = IRNodeType::ADD };
-            ops[idx(Operator::SUB)]     = { .intOp = IRNodeType::SUB,  .unsignedOp = IRNodeType::SUB };
-            ops[idx(Operator::MUL)]     = { .intOp = IRNodeType::MUL,  .unsignedOp = IRNodeType::MUL };
-            ops[idx(Operator::DIV)]     = { .intOp = IRNodeType::DIV,  .unsignedOp = IRNodeType::DIV };
+            ops[idx(syntax::Operator::ADD)]     = { .intOp = IRNodeType::ADD,  .unsignedOp = IRNodeType::ADD };
+            ops[idx(syntax::Operator::SUB)]     = { .intOp = IRNodeType::SUB,  .unsignedOp = IRNodeType::SUB };
+            ops[idx(syntax::Operator::MUL)]     = { .intOp = IRNodeType::MUL,  .unsignedOp = IRNodeType::MUL };
+            ops[idx(syntax::Operator::DIV)]     = { .intOp = IRNodeType::DIV,  .unsignedOp = IRNodeType::DIV };
 
-            ops[idx(Operator::ANDB)]    = { .intOp = IRNodeType::AND,  .unsignedOp = IRNodeType::AND };
-            ops[idx(Operator::ORB)]     = { .intOp = IRNodeType::OR,   .unsignedOp = IRNodeType::OR };
-            ops[idx(Operator::XOR)]     = { .intOp = IRNodeType::XOR,  .unsignedOp = IRNodeType::XOR };
-            ops[idx(Operator::LSHIFT)]  = { .intOp = IRNodeType::SAL,  .unsignedOp = IRNodeType::SHL };
-            ops[idx(Operator::RSHIFT)]  = { .intOp = IRNodeType::SAR,  .unsignedOp = IRNodeType::SHR };
+            ops[idx(syntax::Operator::ANDB)]    = { .intOp = IRNodeType::AND,  .unsignedOp = IRNodeType::AND };
+            ops[idx(syntax::Operator::ORB)]     = { .intOp = IRNodeType::OR,   .unsignedOp = IRNodeType::OR };
+            ops[idx(syntax::Operator::XOR)]     = { .intOp = IRNodeType::XOR,  .unsignedOp = IRNodeType::XOR };
+            ops[idx(syntax::Operator::LSHIFT)]  = { .intOp = IRNodeType::SAL,  .unsignedOp = IRNodeType::SHL };
+            ops[idx(syntax::Operator::RSHIFT)]  = { .intOp = IRNodeType::SAR,  .unsignedOp = IRNodeType::SHR };
 
-            ops[idx(Operator::ANDL)]    = { .intOp = IRNodeType::ANDL, .unsignedOp = IRNodeType::ANDL };
-            ops[idx(Operator::ORL)]     = { .intOp = IRNodeType::ORL,  .unsignedOp = IRNodeType::ORL };
+            ops[idx(syntax::Operator::ANDL)]    = { .intOp = IRNodeType::ANDL, .unsignedOp = IRNodeType::ANDL };
+            ops[idx(syntax::Operator::ORL)]     = { .intOp = IRNodeType::ORL,  .unsignedOp = IRNodeType::ORL };
 
-            ops[idx(Operator::LESS)]    = { .intOp = IRNodeType::JL,   .unsignedOp = IRNodeType::JB };
-            ops[idx(Operator::GREATER)] = { .intOp = IRNodeType::JG,   .unsignedOp = IRNodeType::JA };
-            ops[idx(Operator::LEQUAL)]  = { .intOp = IRNodeType::JLE,  .unsignedOp = IRNodeType::JBE };
-            ops[idx(Operator::GEQUAL)]  = { .intOp = IRNodeType::JGE,  .unsignedOp = IRNodeType::JAE };
-            ops[idx(Operator::EQUAL)]   = { .intOp = IRNodeType::JE,   .unsignedOp = IRNodeType::JE };
-            ops[idx(Operator::NEQUAL)]  = { .intOp = IRNodeType::JNE,  .unsignedOp = IRNodeType::JNE };
+            ops[idx(syntax::Operator::LESS)]    = { .intOp = IRNodeType::JL,   .unsignedOp = IRNodeType::JB };
+            ops[idx(syntax::Operator::GREATER)] = { .intOp = IRNodeType::JG,   .unsignedOp = IRNodeType::JA };
+            ops[idx(syntax::Operator::LEQUAL)]  = { .intOp = IRNodeType::JLE,  .unsignedOp = IRNodeType::JBE };
+            ops[idx(syntax::Operator::GEQUAL)]  = { .intOp = IRNodeType::JGE,  .unsignedOp = IRNodeType::JAE };
+            ops[idx(syntax::Operator::EQUAL)]   = { .intOp = IRNodeType::JE,   .unsignedOp = IRNodeType::JE };
+            ops[idx(syntax::Operator::NEQUAL)]  = { .intOp = IRNodeType::JNE,  .unsignedOp = IRNodeType::JNE };
 
             return ops;
         }()
@@ -227,12 +228,12 @@ namespace ir {
      * @param type - type of operands
      * @returns node type of the operation
     */
-    constexpr IRNodeType resolveOperator(Operator op, Type type) {
+    constexpr IRNodeType resolveOperator(syntax::Operator op, types::Type type) {
         return operationTable[static_cast<size_t>(op)].get(type);
     }
 
     static_assert(irNodeTypeStringRepresentations.size() == IR_NODE_TYPE_COUNT);
-    static_assert(operationTable.size() == OPERATOR_COUNT);
+    static_assert(operationTable.size() == syntax::OPERATOR_COUNT);
 }
 
 #endif

@@ -2,14 +2,14 @@
 
 #include "../defs/ast_defs.hpp"
 
-syntax::ast::ASTVariableDeclStmt::ASTVariableDeclStmt(const syntax::Token& token, Type type) 
+syntax::ast::ASTVariableDeclStmt::ASTVariableDeclStmt(const syntax::Token& token, types::Type type) 
     : ASTStmt(token, syntax::ast::ASTNodeType::VARIABLE_DECL_STMT), type{ type } {}
 
-Type syntax::ast::ASTVariableDeclStmt::getType() const noexcept {
+types::Type syntax::ast::ASTVariableDeclStmt::getType() const noexcept {
     return type;
 }
 
-void syntax::ast::ASTVariableDeclStmt::setType(Type variableType) noexcept {
+void syntax::ast::ASTVariableDeclStmt::setType(types::Type variableType) noexcept {
     type = variableType;
 }
 

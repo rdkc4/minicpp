@@ -8,57 +8,73 @@
 #include <functional>
 #include <mutex>
 #include <condition_variable>
+#include <concepts>
 
-/** 
- * @class ThreadPool
- * @brief manages a fixed number of worker threads that execute queued tasks
+/**
+ * @namespace util::concurrency
+ * @brief module for utilities related to concurrency
 */
-class ThreadPool{
-public:
+namespace util::concurrency {
     /** 
-     * @brief starts specified number of worker threads
-     * @param n - number of worker threads that handle tasks
+     * @class ThreadPool
+     * @brief manages a fixed number of worker threads that execute queued tasks
     */
-    explicit ThreadPool(size_t n);
+    class ThreadPool{
+    public:
+        /** 
+         * @brief starts specified number of worker threads
+         * @param n - number of worker threads that handle tasks
+        */
+        explicit ThreadPool(size_t n);
 
-    /** 
-     * @brief stopping all worker threads
-    */
-    ~ThreadPool();
+        /** 
+        * @brief stopping all worker threads
+        */
+        ~ThreadPool();
 
-    /** 
-     * @brief adding new task to the queue
-     * @param f - task that is being added to queue
-     * @throws std::runtime_error - when called after all worker threads stopped working
-    */
-    template<typename T>
-    void enqueue(T&& f) {
-        {
-            std::lock_guard<std::mutex> lock(mtx);
-            if(stop){
-                throw std::runtime_error("Enqueue on stopped thread\n");
+        /// deleted copy constructor
+        ThreadPool(const ThreadPool&) = delete;
+
+        /// deleted assignment operator
+        ThreadPool& operator=(const ThreadPool&) = delete;
+
+        /** 
+         * @brief adding new task to the queue
+         * @tparam Fn - invocable type
+         * @param fn - task that is being added to queue
+         * @throws std::runtime_error - when called after all worker threads stopped working
+        */
+        template<std::invocable Fn>
+        void enqueue(Fn&& fn){
+            {
+                std::lock_guard<std::mutex> lock(mtx);
+                if(stopping){
+                    throw std::runtime_error("Enqueue on stopped thread pool\n");
+                }
+                tasks.emplace(std::forward<Fn>(fn));
             }
-            tasks.emplace(std::forward<T>(f));
+
+            cv.notify_one();
         }
 
-        cv.notify_one();
-    }
+    private:
+        /// mutex for concurrent access to tasks
+        std::mutex mtx;
 
-private:
-    /// vector of threads owned by thread pool
-    std::vector<std::thread> threads;
+        /// condition variable for waiting/notifying
+        std::condition_variable cv;
+        
+        /// flag that handles stoppage of worker threads
+        bool stopping{false};
 
-    /// queue of tasks
-    std::queue<std::function<void()>> tasks;
+        /// queue of tasks
+        std::queue<std::move_only_function<void()>> tasks;
 
-    /// mutex for concurrent access to tasks
-    std::mutex mtx;
+        /// worker threads
+        std::vector<std::thread> workers;
 
-    /// condition variable for waiting/notifying
-    std::condition_variable cv;
-    
-    /// flag that handles stoppage of worker threads
-    bool stop;
-};
+    };
+
+}
 
 #endif

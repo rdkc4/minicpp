@@ -6,7 +6,7 @@
 #include <utility>
 #include <memory>
 
-#include "../common/defs/defs.hpp"
+#include "../common/defs/types.hpp"
 #include "../common/abstract-syntax-tree/ast_binary_expr.hpp"
 #include "../common/intermediate-representation-tree/ir_expr.hpp"
 #include "../common/intermediate-representation-tree/ir_literal_expr.hpp"
@@ -37,19 +37,22 @@ namespace optimization::constant_folding {
      * @returns result of the merge operation
     */
     template<typename T>
-    MergeResult<T> mergeValues(T l, T r, Operator op, size_t line, size_t column){
+    MergeResult<T> mergeValues(T l, T r, syntax::Operator op, size_t line, size_t column){
         MergeResult<T> constFold;
         switch(op){
-            case Operator::ADD:
+            case syntax::Operator::ADD:
                 constFold.result = l + r;
                 return constFold;
-            case Operator::SUB:
+
+            case syntax::Operator::SUB:
                 constFold.result = l - r;
                 return constFold;
-            case Operator::MUL:
+
+            case syntax::Operator::MUL:
                 constFold.result = l * r;
                 return constFold;
-            case Operator::DIV:
+
+            case syntax::Operator::DIV:
                 if(r == 0){
                     constFold.result = 0;
                     constFold.error = std::format(
@@ -60,45 +63,59 @@ namespace optimization::constant_folding {
                 }
                 constFold.result = l / r;
                 return constFold;
-            case Operator::ANDB:
+
+            case syntax::Operator::ANDB:
                 constFold.result = l & r;
                 return constFold;
-            case Operator::ORB:
+
+            case syntax::Operator::ORB:
                 constFold.result = l | r;
                 return constFold;
-            case Operator::XOR:
+
+            case syntax::Operator::XOR:
                 constFold.result = l ^ r;
                 return constFold;
-            case Operator::LSHIFT:
+
+            case syntax::Operator::LSHIFT:
                 constFold.result = l << r;
                 return constFold;
-            case Operator::RSHIFT:
+
+            case syntax::Operator::RSHIFT:
                 constFold.result = l >> r;
                 return constFold;
-            case Operator::ANDL:
+
+            case syntax::Operator::ANDL:
                 constFold.result = l && r;
                 return constFold;
-            case Operator::ORL:
+
+            case syntax::Operator::ORL:
                 constFold.result = l || r;
                 return constFold;
-            case Operator::GREATER:
+
+            case syntax::Operator::GREATER:
                 constFold.result = static_cast<T>(l > r);
                 return constFold;
-            case Operator::LESS:
+
+            case syntax::Operator::LESS:
                 constFold.result = static_cast<T>(l < r);
                 return constFold;
-            case Operator::GEQUAL:
+
+            case syntax::Operator::GEQUAL:
                 constFold.result = static_cast<T>(l >= r);
                 return constFold;
-            case Operator::LEQUAL:
+
+            case syntax::Operator::LEQUAL:
                 constFold.result = static_cast<T>(l <= r);
                 return constFold;
-            case Operator::EQUAL:
+
+            case syntax::Operator::EQUAL:
                 constFold.result = static_cast<T>(l == r);
                 return constFold;
-            case Operator::NEQUAL:
+
+            case syntax::Operator::NEQUAL:
                 constFold.result = static_cast<T>(l != r);
                 return constFold;
+                
             default:
                 std::unreachable();
         }
@@ -144,8 +161,8 @@ namespace optimization::constant_folding {
             binExpToken.column
         ) };
 
-        Type type{ binExp->getType() };
-        std::string suffix{ type == Type::UNSIGNED ? "u" : "" };
+        auto type{ binExp->getType() };
+        std::string suffix{ type == types::Type::UNSIGNED ? "u" : "" };
 
         MergeResult<std::unique_ptr<ir::IRExpr>> foldedExpr {
             .result = std::make_unique<ir::IRLiteralExpr>(std::to_string(res.result) + suffix, type),

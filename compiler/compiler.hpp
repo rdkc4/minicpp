@@ -110,7 +110,7 @@ namespace compiler {
      * @param lexer - reference to a lexer
      * @returns LEXICAL_ERR if it captures any lexical errors, NO_ERR otherwise
     */
-    ExitCode lexicalAnalysis(Lexer& lexer);
+    ExitCode lexicalAnalysis(lex::Lexer& lexer);
 
     /** 
      * @brief performs syntax analysis of the code
@@ -118,7 +118,7 @@ namespace compiler {
      * @param astProgram - reference to the pointer of the AST program
      * @returns SYNTAX_ERR if it captures any syntax errors, NO_ERR otherwise
     */
-    ExitCode syntaxAnalysis(Lexer& lexer, std::unique_ptr<syntax::ast::ASTProgram>& astProgram);
+    ExitCode syntaxAnalysis(lex::Lexer& lexer, std::unique_ptr<syntax::ast::ASTProgram>& astProgram);
 
     /** 
      * @brief performs semantic analysis of the code
@@ -126,7 +126,7 @@ namespace compiler {
      * @param threadPool - reference to a thread pool
      * @returns SEMANTIC_ERR if it captures any semantic errors, NO_ERR otherwise
     */
-    ExitCode semanticAnalysis(std::unique_ptr<syntax::ast::ASTProgram>& astProgram, ThreadPool& threadPool);
+    ExitCode semanticAnalysis(std::unique_ptr<syntax::ast::ASTProgram>& astProgram, util::concurrency::ThreadPool& threadPool);
 
     /** 
      * @brief performs transformation of the code from AST to IRT
@@ -138,7 +138,7 @@ namespace compiler {
     ExitCode transformASTToIRT(
         std::unique_ptr<syntax::ast::ASTProgram>& astProgram, 
         std::unique_ptr<ir::IRProgram>& irProgram, 
-        ThreadPool& threadPool
+        util::concurrency::ThreadPool& threadPool
     );
 
     /** 
@@ -151,7 +151,7 @@ namespace compiler {
     ExitCode generateProgram(
         const ir::IRProgram* irProgram, 
         std::string_view output, 
-        ThreadPool& threadPool
+        util::concurrency::ThreadPool& threadPool
     );
 
     /**

@@ -4,7 +4,7 @@
 #include "ast_node.hpp"
 #include "defs/ast_defs.hpp"
 #include "../token/token.hpp"
-#include "../defs/defs.hpp"
+#include "../defs/types.hpp"
 #include "../visitor/ast_visitor.hpp"
 
 namespace syntax::ast {
@@ -21,19 +21,23 @@ namespace syntax::ast {
          * @param ntype - type of the ast node
          * @param type - type of the expression
         */
-        ASTExpr(const syntax::Token& token, ASTNodeType ntype, Type type = Type::NO_TYPE);
+        ASTExpr(
+            const syntax::Token& token, 
+            ASTNodeType ntype, 
+            types::Type type = types::Type::NO_TYPE
+        );
 
         /** 
          * @brief getter for a type of the expression
          * @returns type of the expression
         */
-        Type getType() const noexcept;
+        types::Type getType() const noexcept;
 
         /** 
          * @brief initializes type of the expression node
          * @param exprType - type of the expression
         */
-        void setType(Type exprType) noexcept;
+        void setType(types::Type exprType) noexcept;
 
         /**
          * @brief accepts the ast visitor
@@ -43,7 +47,7 @@ namespace syntax::ast {
 
     private:
         /// type of the expression
-        Type type;
+        types::Type type;
     };
 
 }

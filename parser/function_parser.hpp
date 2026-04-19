@@ -7,46 +7,49 @@
 #include "statement_parser.hpp"
 #include "token_consumer.hpp"
 
-/** 
- * @class FunctionParser
- * @brief used for parsing functions
-*/
-class FunctionParser {
-public:
+namespace syntax {
     /** 
-     * @brief Creates new instance of the parser specialized for functions
-     * @param consumer - reference to token handler wrapped around the lexer 
+     * @class FunctionParser
+     * @brief used for parsing functions
     */
-    FunctionParser(TokenConsumer& consumer);
+    class FunctionParser {
+    public:
+        /** 
+         * @brief Creates new instance of the parser specialized for functions
+         * @param consumer - reference to token handler wrapped around the lexer 
+        */
+        FunctionParser(TokenConsumer& consumer);
 
-    /** 
-     * @brief parses function
-     * @details FUNCTION : TYPE ID LPAREN (PARAMETER (COMMA PARAMETER)*)? RPAREN BODY
-     * @returns pointer to a function node
-    */
-    std::unique_ptr<syntax::ast::ASTFunction> parseFunction();
+        /** 
+         * @brief parses function
+         * @details FUNCTION : TYPE ID LPAREN (PARAMETER (COMMA PARAMETER)*)? RPAREN BODY
+         * @returns pointer to a function node
+        */
+        std::unique_ptr<ast::ASTFunction> parseFunction();
 
-    /** 
-     * @brief parses parameters of the function
-     * @param function - pointer to a function that owns parameters
-     * @details PARAMETER : (TYPE ID (COMMA TYPE ID)*)?
-    */
-    void parseParameters(syntax::ast::ASTFunction* function);
+        /** 
+         * @brief parses parameters of the function
+         * @param function - pointer to a function that owns parameters
+         * @details PARAMETER : (TYPE ID (COMMA TYPE ID)*)?
+        */
+        void parseParameters(ast::ASTFunction* function);
 
-    /** 
-     * @brief parses body of the function
-     * @param function - pointer to a function that owns the body
-     * @details BODY : LBRACE (STATEMENT)? RBRACE
-    */
-    void parseBody(syntax::ast::ASTFunction* function);
+        /** 
+         * @brief parses body of the function
+         * @param function - pointer to a function that owns the body
+         * @details BODY : LBRACE (STATEMENT)? RBRACE
+        */
+        void parseBody(ast::ASTFunction* function);
 
-private:
-    /// parser specialized for statements
-    StatementParser stmtParser;
+    private:
+        /// parser specialized for statements
+        StatementParser stmtParser;
 
-    /// reference to a token handler wrapped around the lexer
-    TokenConsumer& tokenConsumer;
+        /// reference to a token handler wrapped around the lexer
+        TokenConsumer& tokenConsumer;
 
-};
+    };
+
+}
 
 #endif

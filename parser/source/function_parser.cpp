@@ -1,11 +1,13 @@
 #include "../function_parser.hpp"
 
-FunctionParser::FunctionParser(TokenConsumer& consumer) 
+#include "../../common/defs/type_mapping.hpp"
+
+syntax::FunctionParser::FunctionParser(TokenConsumer& consumer) 
     : stmtParser{ consumer }, 
       tokenConsumer{ consumer } {}
 
-std::unique_ptr<syntax::ast::ASTFunction> FunctionParser::parseFunction(){
-    Type type{ tokenTypeToType(tokenConsumer.getToken().type) };
+std::unique_ptr<syntax::ast::ASTFunction> syntax::FunctionParser::parseFunction(){
+    auto type{ syntax::tokenTypeToType(tokenConsumer.getToken().type) };
     tokenConsumer.consume(syntax::GeneralTokenType::TYPE);
 
     const syntax::Token& token{ tokenConsumer.getToken() };
@@ -30,14 +32,14 @@ std::unique_ptr<syntax::ast::ASTFunction> FunctionParser::parseFunction(){
     return function;
 }
 
-void FunctionParser::parseParameters(syntax::ast::ASTFunction* function){
+void syntax::FunctionParser::parseParameters(syntax::ast::ASTFunction* function){
     if(tokenConsumer.getToken().gtype != syntax::GeneralTokenType::TYPE){
         return;
     }
 
     auto parseParameter{ 
         [this, function]() -> void {
-            Type type{ tokenTypeToType(tokenConsumer.getToken().type) };
+            auto type{ syntax::tokenTypeToType(tokenConsumer.getToken().type) };
             tokenConsumer.consume(syntax::GeneralTokenType::TYPE);
 
             const auto& token{ tokenConsumer.getToken() };
@@ -55,7 +57,7 @@ void FunctionParser::parseParameters(syntax::ast::ASTFunction* function){
     }
 }
 
-void FunctionParser::parseBody(syntax::ast::ASTFunction* function){
+void syntax::FunctionParser::parseBody(syntax::ast::ASTFunction* function){
     tokenConsumer.consume(syntax::TokenType::LBRACE);
     while(tokenConsumer.getToken().type != syntax::TokenType::RBRACE){
         function->addStatement(stmtParser.parseStmt());

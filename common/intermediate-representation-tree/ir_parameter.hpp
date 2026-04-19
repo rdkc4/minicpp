@@ -5,7 +5,7 @@
 #include <string_view>
 
 #include "ir_node.hpp"
-#include "../defs/defs.hpp"
+#include "../defs/types.hpp"
 #include "../visitor/ir_visitor.hpp"
 
 namespace ir {
@@ -20,7 +20,7 @@ namespace ir {
          * @param parName - name of the parameter
          * @param type - type of the parameter
         */
-        IRParameter(std::string_view parName, Type type);
+        IRParameter(std::string_view parName, types::Type type);
 
         /** 
          * @brief getter for the name of the parameter
@@ -38,13 +38,13 @@ namespace ir {
          * @brief getter for the type of the parameter
          * @returns type of the parameter
         */
-        Type getType() const noexcept;
+        types::Type getType() const noexcept;
 
         /** 
          * @brief initializes the type of the parameter
          * @param parameterType - type of the parameter
         */
-        void setType(Type parameterType) noexcept;
+        void setType(types::Type parameterType) noexcept;
 
         /**
          * @brief accepts the ir visitor
@@ -57,7 +57,7 @@ namespace ir {
         std::string parameterName;
 
         /// type of the parameter
-        Type type;
+        types::Type type;
 
     };
 

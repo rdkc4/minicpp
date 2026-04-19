@@ -3,24 +3,28 @@
 
 #include "../../parser/parser.hpp"
 
-class ParserTest : public Parser {
+class ParserTest : public syntax::Parser {
     public:
-        ParserTest(TokenConsumer& consumer) : Parser{ consumer } {}
+        ParserTest(syntax::TokenConsumer& consumer) 
+            : syntax::Parser{ consumer } {}
 };
 
-class FunctionParserTest : public FunctionParser {
+class FunctionParserTest : public syntax::FunctionParser {
     public:
-        FunctionParserTest(TokenConsumer& consumer) : FunctionParser{ consumer } {}
+        FunctionParserTest(syntax::TokenConsumer& consumer) 
+            : syntax::FunctionParser{ consumer } {}
 };
 
-class StatementParserTest : public StatementParser {
+class StatementParserTest : public syntax::StatementParser {
 public:
-    StatementParserTest(TokenConsumer& consumer) : StatementParser{ consumer } {}
+    StatementParserTest(syntax::TokenConsumer& consumer) 
+        : syntax::StatementParser{ consumer } {}
 };
 
-class ExpressionParserTest : public ExpressionParser {
+class ExpressionParserTest : public syntax::ExpressionParser {
     public:
-        ExpressionParserTest(TokenConsumer& consumer) : ExpressionParser{ consumer } {}
+        ExpressionParserTest(syntax::TokenConsumer& consumer) 
+            : syntax::ExpressionParser{ consumer } {}
 };
 
 #endif

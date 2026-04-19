@@ -3,18 +3,20 @@
 
 #include <string>
 
-/**
- * @struct BinaryOperands
- * @brief struct defining operands that are participating
- * in binary operation
-*/
-struct BinaryOperands {
-    /// left register in binary operation
-    std::string leftOperand;
+namespace code_gen {
+    /**
+     * @struct BinaryOperands
+     * @brief struct defining the operands of the binary operation
+    */
+    struct BinaryOperands {
+        /// left register in binary operation
+        std::string leftOperand;
 
-    /// right operand in binary operation
-    std::string rightOperand;
+        /// right operand in binary operation
+        std::string rightOperand;
 
-};
+    };
+
+}
 
 #endif

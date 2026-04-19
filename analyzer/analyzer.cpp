@@ -9,16 +9,16 @@
 #include "ctx/analyzer_ctx_guard.hpp"
 #include "return_checker.hpp"
 
-Analyzer::Analyzer(sym::ScopeManager& scopeManager, ThreadPool& threadPool)
+semantic::Analyzer::Analyzer(semantic::ScopeManager& scopeManager, util::concurrency::ThreadPool& threadPool)
     : threadPool{ threadPool }, globalScopeManager{scopeManager} {}
 
-thread_local AnalyzerThreadContext Analyzer::analyzerContext;
+thread_local semantic::AnalyzerThreadContext semantic::Analyzer::analyzerContext;
 
-void Analyzer::visit(syntax::ast::ASTProgram* program){
+void semantic::Analyzer::visit(syntax::ast::ASTProgram* program){
     semanticErrors[globalError] = {};
 
     // global scope
-    sym::ScopeGuard scopeGuard{ globalScopeManager };
+    semantic::ScopeGuard scopeGuard{ globalScopeManager };
 
     for(const auto& dir : program->getDirs()){
         dir->accept(*this);
@@ -42,12 +42,12 @@ void Analyzer::visit(syntax::ast::ASTProgram* program){
     doneLatch.wait();
 
     // check if main exists
-    if(!globalScopeManager.lookupSymbol("main", {Kind::FUN})){
+    if(!globalScopeManager.lookupSymbol("main", {semantic::Kind::FUN})){
         semanticErrors[globalError].emplace_back("'main' function not found");
     }
 }
 
-void Analyzer::visit(syntax::ast::ASTIncludeDir* includeDir){
+void semantic::Analyzer::visit(syntax::ast::ASTIncludeDir* includeDir){
     if(!std::filesystem::exists(preprocessing::generateLibSourcePath(includeDir->getLibName()))){
         const auto& token{ includeDir->getToken() };
         reportError(
@@ -61,14 +61,14 @@ void Analyzer::visit(syntax::ast::ASTIncludeDir* includeDir){
     }
 }
 
-void Analyzer::checkFunctionSignature(const syntax::ast::ASTFunction* function){
-    Type returnType{ function->getType() };
+void semantic::Analyzer::checkFunctionSignature(const syntax::ast::ASTFunction* function){
+    auto returnType{ function->getType() };
     const auto& funcToken{ function->getToken() };
     semanticErrors[funcToken.value] = {};
 
     // function redefinition check
     if(!globalScopeManager.pushSymbol(
-        sym::Symbol{funcToken.value, Kind::FUN, returnType}
+        semantic::Symbol{funcToken.value, semantic::Kind::FUN, returnType}
     )){
         reportError(
             funcToken, 
@@ -82,7 +82,7 @@ void Analyzer::checkFunctionSignature(const syntax::ast::ASTFunction* function){
     }
 
     // function type check
-    if(returnType == Type::NO_TYPE){
+    if(returnType == types::Type::NO_TYPE){
         reportError(
             funcToken, 
             std::format(
@@ -92,7 +92,7 @@ void Analyzer::checkFunctionSignature(const syntax::ast::ASTFunction* function){
             funcToken.value
         );
     }
-    else if(returnType == Type::AUTO){
+    else if(returnType == types::Type::AUTO){
         reportError(
             funcToken, 
             std::format(
@@ -103,16 +103,16 @@ void Analyzer::checkFunctionSignature(const syntax::ast::ASTFunction* function){
         );
     }
 
-    sym::SymbolTable symTab;
-    sym::ScopeManager signatureScopeManager{symTab};
-    AnalyzerContextGuard contextGuard{ 
+    semantic::SymbolTable symTab;
+    semantic::ScopeManager signatureScopeManager{symTab};
+    semantic::AnalyzerContextGuard contextGuard{ 
         analyzerContext, 
         funcToken.value, 
         &signatureScopeManager 
     };
 
     {
-        sym::ScopeGuard scopeGuard{ *analyzerContext.scopeManager };
+        semantic::ScopeGuard scopeGuard{ *analyzerContext.scopeManager };
         const auto& parameters{ function->getParameters() };
 
         // pointer to parameters for easier function call type checking
@@ -138,15 +138,15 @@ void Analyzer::checkFunctionSignature(const syntax::ast::ASTFunction* function){
     }
 }
 
-void Analyzer::visit(syntax::ast::ASTFunction* function){
+void semantic::Analyzer::visit(syntax::ast::ASTFunction* function){
     const auto& funcToken{ function->getToken() };
     const auto funcReturnType{ function->getType() };
 
-    sym::SymbolTable symTab;
-    sym::ScopeManager functionScopeManager{symTab};
+    semantic::SymbolTable symTab;
+    semantic::ScopeManager functionScopeManager{symTab};
 
     // initializing thread context
-    AnalyzerContextGuard contextGuard{ 
+    semantic::AnalyzerContextGuard contextGuard{ 
         analyzerContext, 
         funcToken.value, 
         &functionScopeManager 
@@ -154,7 +154,7 @@ void Analyzer::visit(syntax::ast::ASTFunction* function){
 
     {
         // function scope
-        sym::ScopeGuard scopeGuard{ *analyzerContext.scopeManager };
+        semantic::ScopeGuard scopeGuard{ *analyzerContext.scopeManager };
         defineParameters(function);
         if(!function->isPredefined()){
             for(const auto& stmt : function->getBody()){
@@ -162,8 +162,8 @@ void Analyzer::visit(syntax::ast::ASTFunction* function){
             }
 
             // function return type check
-            if(funcReturnType != Type::VOID){
-                ReturnChecker returnChecker;
+            if(funcReturnType != types::Type::VOID){
+                semantic::ReturnChecker returnChecker;
                 function->accept(returnChecker);
 
                 if(!function->alwaysReturnsValue()){
@@ -185,23 +185,23 @@ void Analyzer::visit(syntax::ast::ASTFunction* function){
     }
 }
 
-void Analyzer::defineParameters(const syntax::ast::ASTFunction* function){
+void semantic::Analyzer::defineParameters(const syntax::ast::ASTFunction* function){
     for(const auto& parameter : function->getParameters()){
         analyzerContext.scopeManager->pushSymbol(
-            sym::Symbol{
+            semantic::Symbol{
                 parameter->getToken().value, 
-                Kind::PAR, 
+                semantic::Kind::PAR, 
                 parameter->getType()
             }
         );
     }
 }
 
-void Analyzer::visit(syntax::ast::ASTParameter* parameter){
-    Type paramType{ parameter->getType() };
+void semantic::Analyzer::visit(syntax::ast::ASTParameter* parameter){
+    auto paramType{ parameter->getType() };
     const auto& paramToken{ parameter->getToken() };
 
-    if(paramType == Type::VOID || paramType == Type::NO_TYPE){
+    if(paramType == types::Type::VOID || paramType == types::Type::NO_TYPE){
         reportError(
             paramToken, 
             std::format(
@@ -210,7 +210,7 @@ void Analyzer::visit(syntax::ast::ASTParameter* parameter){
             )
         );
     }
-    else if(paramType == Type::AUTO){
+    else if(paramType == types::Type::AUTO){
         reportError(
             paramToken, 
             std::format(
@@ -222,7 +222,7 @@ void Analyzer::visit(syntax::ast::ASTParameter* parameter){
 
     // parameter redefinition check
     if(!analyzerContext.scopeManager->pushSymbol(
-        sym::Symbol{paramToken.value, Kind::PAR, paramType}
+        semantic::Symbol{paramToken.value, semantic::Kind::PAR, paramType}
     )){
         reportError(
             paramToken, 
@@ -234,11 +234,11 @@ void Analyzer::visit(syntax::ast::ASTParameter* parameter){
     }
 }
 
-void Analyzer::visit(syntax::ast::ASTVariableDeclStmt* variableDecl){
+void semantic::Analyzer::visit(syntax::ast::ASTVariableDeclStmt* variableDecl){
     // variable type check
-    Type variableType{ variableDecl->getType() };
+    auto variableType{ variableDecl->getType() };
     const auto& variableToken{ variableDecl->getToken() };
-    if(variableType == Type::VOID || variableType == Type::NO_TYPE){
+    if(variableType == types::Type::VOID || variableType == types::Type::NO_TYPE){
         reportError(
             variableToken, 
             std::format(
@@ -247,7 +247,7 @@ void Analyzer::visit(syntax::ast::ASTVariableDeclStmt* variableDecl){
             )
         );
     }
-    else if(variableType == Type::AUTO && !variableDecl->hasAssignExpr()){
+    else if(variableType == types::Type::AUTO && !variableDecl->hasAssignExpr()){
         reportError(
             variableToken, 
             std::format(
@@ -259,7 +259,7 @@ void Analyzer::visit(syntax::ast::ASTVariableDeclStmt* variableDecl){
 
     // variable redefinition check
     if(!analyzerContext.scopeManager->pushSymbol(
-        sym::Symbol{variableToken.value, Kind::VAR, variableType}
+        semantic::Symbol{variableToken.value, semantic::Kind::VAR, variableType}
     )){
         reportError(
             variableToken, 
@@ -275,11 +275,11 @@ void Analyzer::visit(syntax::ast::ASTVariableDeclStmt* variableDecl){
         auto* assignExpr{ variableDecl->getAssignExpr() };
         assignExpr->accept(*this);
 
-        Type rtype{ assignExpr->getType() };
+        auto rtype{ assignExpr->getType() };
 
         // variable initialization type check
         // rtype == no_type => error was caught in expression, no need to write it again
-        if(rtype != variableType && variableType != Type::AUTO && rtype != Type::NO_TYPE){
+        if(rtype != variableType && variableType != types::Type::AUTO && rtype != types::Type::NO_TYPE){
             reportError(
                 variableToken, 
                 std::format(
@@ -289,26 +289,26 @@ void Analyzer::visit(syntax::ast::ASTVariableDeclStmt* variableDecl){
             );
         }
 
-        if(variableType == Type::AUTO){
+        if(variableType == types::Type::AUTO){
             analyzerContext.scopeManager->getSymbol(variableToken.value).setType(rtype);
         }
     }
 }
 
-void Analyzer::visit(syntax::ast::ASTAssignStmt* assignStmt){
+void semantic::Analyzer::visit(syntax::ast::ASTAssignStmt* assignStmt){
     syntax::ast::ASTIdExpr* variableExpr{ assignStmt->getVariableIdExpr() };
     syntax::ast::ASTExpr* valueExpr{ assignStmt->getAssignedExpr() };
 
     variableExpr->accept(*this);
     valueExpr->accept(*this);
 
-    if(variableExpr->getType() == Type::NO_TYPE || valueExpr->getType() == Type::NO_TYPE) return;
+    if(variableExpr->getType() == types::Type::NO_TYPE || valueExpr->getType() == types::Type::NO_TYPE) return;
 
-    Type rtype{ valueExpr->getType() };
-    Type ltype{ variableExpr->getType() };
+    auto rtype{ valueExpr->getType() };
+    auto ltype{ variableExpr->getType() };
 
     // assignment type check
-    if(rtype != ltype && ltype != Type::AUTO){
+    if(rtype != ltype && ltype != types::Type::AUTO){
         const auto& assignStmtToken{ assignStmt->getToken() };
         reportError(
             assignStmtToken, 
@@ -319,21 +319,21 @@ void Analyzer::visit(syntax::ast::ASTAssignStmt* assignStmt){
         );
     }
 
-    if(ltype == Type::AUTO){
+    if(ltype == types::Type::AUTO){
         analyzerContext.scopeManager->getSymbol(
             variableExpr->getToken().value
         ).setType(rtype);
     }
 }
 
-void Analyzer::visit(syntax::ast::ASTCompoundStmt* compoundStmt){
-    sym::ScopeGuard scopeGuard{ *analyzerContext.scopeManager };
+void semantic::Analyzer::visit(syntax::ast::ASTCompoundStmt* compoundStmt){
+    semantic::ScopeGuard scopeGuard{ *analyzerContext.scopeManager };
     for(const auto& stmt : compoundStmt->getStmts()){
         stmt->accept(*this);
     }
 }
 
-void Analyzer::visit(syntax::ast::ASTForStmt* forStmt){
+void semantic::Analyzer::visit(syntax::ast::ASTForStmt* forStmt){
     if(forStmt->hasInitializerStmt()){
         forStmt->getInitializerStmt()->accept(*this);
     }
@@ -346,11 +346,11 @@ void Analyzer::visit(syntax::ast::ASTForStmt* forStmt){
     forStmt->getStmt()->accept(*this);
 }
 
-void Analyzer::visit(syntax::ast::ASTFunctionCallStmt* callStmt){
+void semantic::Analyzer::visit(syntax::ast::ASTFunctionCallStmt* callStmt){
     callStmt->getFunctionCallExpr()->accept(*this);
 }
 
-void Analyzer::visit(syntax::ast::ASTIfStmt* ifStmt){
+void semantic::Analyzer::visit(syntax::ast::ASTIfStmt* ifStmt){
     const auto& conditions{ ifStmt->getConditionExprs() };
     const auto& stmts{ ifStmt->getStmts() };
 
@@ -365,8 +365,8 @@ void Analyzer::visit(syntax::ast::ASTIfStmt* ifStmt){
     }
 }
 
-void Analyzer::visit(syntax::ast::ASTReturnStmt* returnStmt){
-    Type returnType{Type::VOID};
+void semantic::Analyzer::visit(syntax::ast::ASTReturnStmt* returnStmt){
+    auto returnType{types::Type::VOID};
 
     if(returnStmt->hasReturnExpr()){
         auto* returnExpr{ returnStmt->getReturnExpr() };
@@ -375,10 +375,10 @@ void Analyzer::visit(syntax::ast::ASTReturnStmt* returnStmt){
     }
 
     // if expr inside of a return statement contains undef var, it will report it, no point checking for type mismatch
-    if(returnType == Type::NO_TYPE) return;
+    if(returnType == types::Type::NO_TYPE) return;
 
     // return type check
-    Type expectedReturnType{ 
+    auto expectedReturnType{ 
         globalScopeManager.getSymbol(analyzerContext.functionName).getType() 
     };
 
@@ -396,22 +396,22 @@ void Analyzer::visit(syntax::ast::ASTReturnStmt* returnStmt){
     }
 }
 
-void Analyzer::visit(syntax::ast::ASTWhileStmt* whileStmt){
+void semantic::Analyzer::visit(syntax::ast::ASTWhileStmt* whileStmt){
     whileStmt->getConditionExpr()->accept(*this);
     whileStmt->getStmt()->accept(*this);
 }
 
-void Analyzer::visit(syntax::ast::ASTDoWhileStmt* dowhileStmt){
+void semantic::Analyzer::visit(syntax::ast::ASTDoWhileStmt* dowhileStmt){
     dowhileStmt->getStmt()->accept(*this);
     dowhileStmt->getConditionExpr()->accept(*this);
 }
 
-void Analyzer::visit(syntax::ast::ASTSwitchStmt* switchStmt){
+void semantic::Analyzer::visit(syntax::ast::ASTSwitchStmt* switchStmt){
     auto* variableIdExpr{ switchStmt->getVariableIdExpr() };
     variableIdExpr->accept(*this);
 
     auto variableIdExprType{ variableIdExpr->getType() };
-    if(variableIdExprType == Type::NO_TYPE) return;
+    if(variableIdExprType == types::Type::NO_TYPE) return;
     
     std::unordered_set<std::string> caseSet;
     for(const auto& caseStmt : switchStmt->getCaseStmts()){
@@ -453,25 +453,25 @@ void Analyzer::visit(syntax::ast::ASTSwitchStmt* switchStmt){
 
 }
 
-void Analyzer::visit(syntax::ast::ASTCaseStmt* caseStmt){
+void semantic::Analyzer::visit(syntax::ast::ASTCaseStmt* caseStmt){
     auto* literalExpr{ caseStmt->getLiteralExpr() };
     literalExpr->accept(*this);
-    if(literalExpr->getType() == Type::NO_TYPE) return;
+    if(literalExpr->getType() == types::Type::NO_TYPE) return;
 
     caseStmt->getSwitchBlockStmt()->accept(*this);
 }
 
-void Analyzer::visit(syntax::ast::ASTDefaultStmt* defaultStmt){
+void semantic::Analyzer::visit(syntax::ast::ASTDefaultStmt* defaultStmt){
     defaultStmt->getSwitchBlockStmt()->accept(*this);
 }
 
-void Analyzer::visit(syntax::ast::ASTSwitchBlockStmt* switchBlockStmt){
+void semantic::Analyzer::visit(syntax::ast::ASTSwitchBlockStmt* switchBlockStmt){
     for(const auto& stmt : switchBlockStmt->getStmts()){
         stmt->accept(*this);
     }
 }
 
-void Analyzer::visit(syntax::ast::ASTBinaryExpr* binaryExpr){
+void semantic::Analyzer::visit(syntax::ast::ASTBinaryExpr* binaryExpr){
     auto* leftOperand{ binaryExpr->getLeftOperandExpr() };
     auto* rightOperand{ binaryExpr->getRightOperandExpr() };
 
@@ -481,7 +481,7 @@ void Analyzer::visit(syntax::ast::ASTBinaryExpr* binaryExpr){
     auto ltype{ leftOperand->getType() };
     auto rtype{ rightOperand->getType() };
 
-    if(ltype != rtype && ltype != Type::NO_TYPE && rtype != Type::NO_TYPE){
+    if(ltype != rtype && ltype != types::Type::NO_TYPE && rtype != types::Type::NO_TYPE){
         const auto& binaryExprToken{ binaryExpr->getToken() };
         reportError(
             binaryExprToken, 
@@ -494,11 +494,11 @@ void Analyzer::visit(syntax::ast::ASTBinaryExpr* binaryExpr){
     binaryExpr->setType(ltype);
 }
 
-void Analyzer::visit(syntax::ast::ASTFunctionCallExpr* callExpr){
+void semantic::Analyzer::visit(syntax::ast::ASTFunctionCallExpr* callExpr){
     const auto& callExprToken{  callExpr->getToken() };
 
     const auto* callExprSymbol{ 
-        globalScopeManager.lookupSymbol(callExprToken.value, {Kind::FUN}) 
+        globalScopeManager.lookupSymbol(callExprToken.value, {semantic::Kind::FUN}) 
     };
 
     if(!callExprSymbol){
@@ -545,11 +545,11 @@ void Analyzer::visit(syntax::ast::ASTFunctionCallExpr* callExpr){
         arg->accept(*this);
 
         // type check of corresponding parameters in function and function call
-        Type ltype{ arg->getType() };
-        Type rtype{ (*callExprParams)[i]->getType() };
+        auto ltype{ arg->getType() };
+        auto rtype{ (*callExprParams)[i]->getType() };
 
         // no point checking for types if argument is invalid
-        if(ltype == Type::NO_TYPE) continue;
+        if(ltype == types::Type::NO_TYPE) continue;
 
         if(ltype != rtype){
             const auto& argToken{ arg->getToken() };
@@ -564,13 +564,13 @@ void Analyzer::visit(syntax::ast::ASTFunctionCallExpr* callExpr){
     }
 }
 
-void Analyzer::visit(syntax::ast::ASTIdExpr* idExpr){
+void semantic::Analyzer::visit(syntax::ast::ASTIdExpr* idExpr){
     const auto& idExprToken{ idExpr->getToken() };
     
     // check if id exists
     const auto* idExprSymbol{ 
         analyzerContext.scopeManager->lookupSymbol(
-            idExprToken.value, {Kind::VAR, Kind::PAR}
+            idExprToken.value, {semantic::Kind::VAR, semantic::Kind::PAR}
         ) 
     };
 
@@ -582,13 +582,13 @@ void Analyzer::visit(syntax::ast::ASTIdExpr* idExpr){
                 idExprToken.value
             )
         );
-        idExpr->setType(Type::NO_TYPE);
+        idExpr->setType(types::Type::NO_TYPE);
         return;
     }
     idExpr->setType(idExprSymbol->getType());
 }
 
-void Analyzer::visit(syntax::ast::ASTLiteralExpr* literalExpr){
+void semantic::Analyzer::visit(syntax::ast::ASTLiteralExpr* literalExpr){
     const auto& literalExprToken{ literalExpr->getToken() };
 
     // invalid literal check
@@ -603,17 +603,17 @@ void Analyzer::visit(syntax::ast::ASTLiteralExpr* literalExpr){
     }
 }
 
-bool Analyzer::isInvalidLiteral(Type type, const std::string& value) const {
+bool semantic::Analyzer::isInvalidLiteral(types::Type type, const std::string& value) const {
     if (value.empty()) [[unlikely]] return true;
 
     const char last{ value.back() };
     const char first{ value.front() };
 
-    if (type == Type::UNSIGNED) {
+    if (type == types::Type::UNSIGNED) {
         return last != 'u' || first == '-';
     }
 
-    if (type == Type::INT) {
+    if (type == types::Type::INT) {
         return last == 'u';
     }
 
@@ -621,7 +621,9 @@ bool Analyzer::isInvalidLiteral(Type type, const std::string& value) const {
 }
 
 
-bool Analyzer::hasSemanticErrors(const syntax::ast::ASTProgram* program) const noexcept {
+bool semantic::Analyzer::hasSemanticErrors(
+    const syntax::ast::ASTProgram* program
+) const noexcept {
     for(const auto& function : program->getFunctions()){
         const std::string& funcName{ function->getToken().value };
         if(!semanticErrors.at(funcName).empty()){
@@ -636,7 +638,9 @@ bool Analyzer::hasSemanticErrors(const syntax::ast::ASTProgram* program) const n
     return false;
 }
 
-std::string Analyzer::getSemanticErrors(const syntax::ast::ASTProgram* program) const noexcept {
+std::string semantic::Analyzer::getSemanticErrors(
+    const syntax::ast::ASTProgram* program
+) const noexcept {
     if(semanticErrors.empty()){
         return "";
     }

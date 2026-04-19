@@ -4,12 +4,12 @@
 
 #include "../token_consumer.hpp"
 
-Parser::Parser(TokenConsumer& consumer) 
+syntax::Parser::Parser(TokenConsumer& consumer) 
     : funcParser{ consumer }, 
       dirParser{ consumer }, 
       tokenConsumer{ consumer } {}
 
-std::unique_ptr<syntax::ast::ASTProgram> Parser::parseProgram(){
+std::unique_ptr<syntax::ast::ASTProgram> syntax::Parser::parseProgram(){
     std::unique_ptr<syntax::ast::ASTProgram> program{ 
         std::make_unique<syntax::ast::ASTProgram>(syntax::Token{"program", 0, 0})
     };

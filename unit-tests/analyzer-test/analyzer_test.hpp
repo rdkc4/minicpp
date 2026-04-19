@@ -7,12 +7,12 @@
 
 #include "../../analyzer/analyzer.hpp"
 
-class AnalyzerTest : public Analyzer {
+class AnalyzerTest : public semantic::Analyzer {
     public:
-        AnalyzerTest(sym::ScopeManager& scopeManager, ThreadPool& threadPool) 
-            : Analyzer{ scopeManager, threadPool }{}
+        AnalyzerTest(semantic::ScopeManager& scopeManager, util::concurrency::ThreadPool& threadPool) 
+            : semantic::Analyzer{ scopeManager, threadPool }{}
 
-        sym::ScopeManager& getScopeManager() noexcept {
+        semantic::ScopeManager& getScopeManager() noexcept {
             return globalScopeManager;
         }
 
@@ -25,7 +25,7 @@ class AnalyzerTest : public Analyzer {
             return semanticErrors.at(func);
         }
 
-        AnalyzerThreadContext& getContext() noexcept {
+        semantic::AnalyzerThreadContext& getContext() noexcept {
             return analyzerContext;
         }
 };

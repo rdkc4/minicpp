@@ -5,38 +5,41 @@
 
 #include "../../symbol-handling/scope-manager/scope_manager.hpp"
 
-/** 
- * @struct AnalyzerThreadContext
- * @brief context of the thread checking semantics of the function
-*/
-struct AnalyzerThreadContext {
-    /// name of the function analyzed by the thread
-    std::string functionName{""};
-
-    /// pointer to the function scope manager
-    sym::ScopeManager* scopeManager{nullptr};
-    
-    /// vector for exception messages
-    std::vector<std::string> semanticErrors;
-
+namespace semantic {
     /** 
-     * @brief initializes the context of the thread
-     * @param funcName - name of the function
-     * @param scopeMng - pointer to the scope manager
+     * @struct AnalyzerThreadContext
+     * @brief context of the thread checking semantic of the function
     */
-    void init(std::string_view funcName, sym::ScopeManager* scopeMng){
-        functionName = funcName;
-        scopeManager = scopeMng;
-    }
+    struct AnalyzerThreadContext {
+        /// name of the function analyzed by the thread
+        std::string functionName{""};
 
-    /** 
-     * @brief resets the context of the thread
-    */
-    void reset(){
-        functionName = "";
-        scopeManager = nullptr;
-        semanticErrors.clear();
-    }
-};
+        /// pointer to the function scope manager
+        ScopeManager* scopeManager{nullptr};
+        
+        /// vector for exception messages
+        std::vector<std::string> semanticErrors;
+
+        /** 
+         * @brief initializes the context of the thread
+         * @param funcName - name of the function
+         * @param scopeMng - pointer to the scope manager
+        */
+        void init(std::string_view funcName, ScopeManager* scopeMng){
+            functionName = funcName;
+            scopeManager = scopeMng;
+        }
+
+        /** 
+         * @brief resets the context of the thread
+        */
+        void reset(){
+            functionName = "";
+            scopeManager = nullptr;
+            semanticErrors.clear();
+        }
+    };
+
+}
 
 #endif

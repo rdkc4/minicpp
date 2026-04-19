@@ -3,7 +3,7 @@
 
 #include "scope_manager.hpp"
 
-namespace sym {
+namespace semantic {
     /**
      * @class ScopeGuard
      * @brief ensures proper scope handling
