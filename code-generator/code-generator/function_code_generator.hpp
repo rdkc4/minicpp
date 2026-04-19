@@ -5,43 +5,46 @@
 #include "statement_code_generator.hpp"
 #include "ctx/code_generator_ctx.hpp"
 
-/** 
- * @class FunctionCodeGenerator
- * @brief code generator specialized for the functions
-*/
-class FunctionCodeGenerator {
-public:
+namespace code_gen {
     /** 
-     * @brief Creates the instance of the function code generator
-     * @param asmCode - reference to a map function_name:code_of_the_function
+     * @class FunctionCodeGenerator
+     * @brief code generator specialized for the functions
     */
-    FunctionCodeGenerator();
+    class FunctionCodeGenerator {
+    public:
+        /** 
+         * @brief Creates the instance of the function code generator
+         * @param asmCode - reference to a map function_name:code_of_the_function
+        */
+        FunctionCodeGenerator();
 
-    /** 
-     * @brief generates the asm code of the function
-     * @param function - const pointer to the irt function
-    */
-    void generateFunction(const ir::IRFunction* function);
+        /** 
+         * @brief generates the asm code of the function
+         * @param function - const pointer to the irt function
+        */
+        void generateFunction(const ir::IRFunction* function);
 
-    /** 
-     * @brief generates the parameters of the function
-     * @param function - const pointer to the irt function
-    */
-    void generateParameters(const ir::IRFunction* function);
+        /** 
+         * @brief generates the parameters of the function
+         * @param function - const pointer to the irt function
+        */
+        void generateParameters(const ir::IRFunction* function);
 
-    /**
-     * @brief getter for the context of the function
-     * @returns const reference to a context of the function
-    */
-    const CodeGeneratorFunctionContext& getContext() const noexcept;
+        /**
+         * @brief getter for the context of the function
+         * @returns const reference to a context of the function
+        */
+        const CodeGeneratorFunctionContext& getContext() const noexcept;
 
-private:
-    /// context of the function
-    CodeGeneratorFunctionContext ctx{};
+    private:
+        /// context of the function
+        CodeGeneratorFunctionContext ctx{};
 
-    /// code generator specialized for statements
-    StatementCodeGenerator stmtGenerator;
+        /// code generator specialized for statements
+        StatementCodeGenerator stmtGenerator;
 
-};
+    };
+
+}
 
 #endif

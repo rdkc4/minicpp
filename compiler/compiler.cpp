@@ -163,7 +163,7 @@ compiler::ExitCode compiler::generateProgram(
     util::concurrency::ThreadPool& threadPool
 ){
     std::string outputFilePath{ std::format("{}.s", output) };
-    CodeGenerator codeGenerator{ outputFilePath, threadPool };
+    code_gen::CodeGenerator codeGenerator{ outputFilePath, threadPool };
     try{
         codeGenerator.generateProgram(irProgram);
         if(!codeGenerator.successful()){

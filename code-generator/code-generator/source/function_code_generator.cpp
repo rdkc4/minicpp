@@ -5,10 +5,10 @@
 
 #include "../../asm-generator/asm_instruction_generator.hpp"
 
-FunctionCodeGenerator::FunctionCodeGenerator() 
+code_gen::FunctionCodeGenerator::FunctionCodeGenerator() 
     : stmtGenerator{ ctx } {}
 
-void FunctionCodeGenerator::generateFunction(const ir::IRFunction* function){
+void code_gen::FunctionCodeGenerator::generateFunction(const ir::IRFunction* function){
     if(function->isPredefined()){
         return;
     }
@@ -16,12 +16,12 @@ void FunctionCodeGenerator::generateFunction(const ir::IRFunction* function){
     ctx.functionName = function->getFunctionName();
 
     // function label
-    assembly::genLabel(ctx.asmCode, ctx.functionName);
-    assembly::genFuncPrologue(ctx.asmCode);
+    code_gen::assembly::genLabel(ctx.asmCode, ctx.functionName);
+    code_gen::assembly::genFuncPrologue(ctx.asmCode);
     
     // allocation of local variables
     if(function->getRequiredMemory() != "0"){
-        assembly::genOperation(
+        code_gen::assembly::genOperation(
             ctx.asmCode, 
             "sub", 
             std::format("${}", function->getRequiredMemory()), 
@@ -36,14 +36,14 @@ void FunctionCodeGenerator::generateFunction(const ir::IRFunction* function){
     }
 
     // function end label
-    assembly::genLabel(
+    code_gen::assembly::genLabel(
         ctx.asmCode, 
         std::format("_{}_end", ctx.functionName)
     );
     
     // free local variables 
     if(function->getRequiredMemory() != "0"){
-        assembly::genOperation(
+        code_gen::assembly::genOperation(
             ctx.asmCode, 
             "add", 
             std::format("${}", function->getRequiredMemory()), 
@@ -51,29 +51,30 @@ void FunctionCodeGenerator::generateFunction(const ir::IRFunction* function){
         );
     }
 
-    assembly::genFuncEpilogue(ctx.asmCode);
+    code_gen::assembly::genFuncEpilogue(ctx.asmCode);
 
     if(function->getFunctionName() != "main"){
-        assembly::genRet(ctx.asmCode);
+        code_gen::assembly::genRet(ctx.asmCode);
     }
     else{
-        assembly::genExit(ctx.asmCode);
+        code_gen::assembly::genExit(ctx.asmCode);
     }
 
 }
 
-void FunctionCodeGenerator::generateParameters(const ir::IRFunction* function){
+void code_gen::FunctionCodeGenerator::generateParameters(const ir::IRFunction* function){
     size_t i{ 2 };
     for(const auto& parameter : function->getParameters()){
         // mapping parameter to address relative to %rbp (+n(%rbp))
         ctx.variableMap.insert({
             parameter->getParameterName(), 
-            std::format("{}(%rbp)", i * assembly::regSize)
+            std::format("{}(%rbp)", i * code_gen::assembly::regSize)
         });
         ++i;
     }
 }
 
-const CodeGeneratorFunctionContext& FunctionCodeGenerator::getContext() const noexcept {
+const code_gen::CodeGeneratorFunctionContext& 
+code_gen::FunctionCodeGenerator::getContext() const noexcept {
     return ctx;
 }

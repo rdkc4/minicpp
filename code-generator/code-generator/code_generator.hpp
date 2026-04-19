@@ -9,50 +9,57 @@
 #include "../../common/intermediate-representation-tree/ir_program.hpp"
 #include "../../thread-pool/thread_pool.hpp"
 
-/** 
- * @class CodeGenerator
- * @brief generates the code for the x86-64 asm
+/**
+ * @namespace code_gen
+ * @brief module defining the elements related to code generation
 */
-class CodeGenerator {
-public:
+namespace code_gen {
     /** 
-     * @brief Creates an instance of the code generator
-     * @param filePath - path for the output asm file
-     * @param threadPool - reference to a thread pool
+     * @class CodeGenerator
+     * @brief generates the code for the x86-64 asm
     */
-    CodeGenerator(std::string_view filePath, util::concurrency::ThreadPool& threadPool);
+    class CodeGenerator {
+    public:
+        /** 
+         * @brief Creates an instance of the code generator
+         * @param filePath - path for the output asm file
+         * @param threadPool - reference to a thread pool
+        */
+        CodeGenerator(std::string_view filePath, util::concurrency::ThreadPool& threadPool);
 
-    /** 
-     * @brief starts the code generation of the program
-     * @param program - const pointer to the irt program
-    */
-    void generateProgram(const ir::IRProgram* program);
+        /** 
+         * @brief starts the code generation of the program
+         * @param program - const pointer to the irt program
+        */
+        void generateProgram(const ir::IRProgram* program);
 
-    /** 
-     * @brief checks if the code generation was successful
-     * @returns true if asm is generated, false otherwise
-    */
-    bool successful() const noexcept;
+        /** 
+         * @brief checks if the code generation was successful
+         * @returns true if asm is generated, false otherwise
+        */
+        bool successful() const noexcept;
 
-private:
-    /// maps the name of the function to its assembly code
-    std::unordered_map<std::string, std::vector<std::string>> asmCode;
+    private:
+        /// maps the name of the function to its assembly code
+        std::unordered_map<std::string, std::vector<std::string>> asmCode;
 
-    /// mutex protecting the asmCode
-    std::mutex mtx;
+        /// mutex protecting the asmCode
+        std::mutex mtx;
 
-    /// thread pool for parallel function code generation
-    util::concurrency::ThreadPool& threadPool;
+        /// thread pool for parallel function code generation
+        util::concurrency::ThreadPool& threadPool;
 
-    /// output file path (.s)
-    const std::string outputPath;
+        /// output file path (.s)
+        const std::string outputPath;
 
-    /** 
-     * @brief writes generated code into asm file
-     * @param program - const pointer to the root of the program
-    */
-    void writeCode(const ir::IRProgram* program);
+        /** 
+         * @brief writes generated code into asm file
+         * @param program - const pointer to the root of the program
+        */
+        void writeCode(const ir::IRProgram* program);
 
-};
+    };
+
+}
 
 #endif

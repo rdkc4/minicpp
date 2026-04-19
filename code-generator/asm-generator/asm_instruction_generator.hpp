@@ -8,10 +8,10 @@
 #include <cstddef>
 
 /** 
- * @namespace assembly
+ * @namespace code_gen::assembly
  * @brief Module for generating the x86-64 assembly
 */
-namespace assembly {
+namespace code_gen::assembly {
     /// size of the register in bytes
     constexpr size_t regSize{8};
 
@@ -38,7 +38,12 @@ namespace assembly {
      * @param ext - extension for the mov instruction, defaults to empty string
      * @details movext src, dest
     */
-    void genMov(std::vector<std::string>& asmCode, std::string_view src, std::string_view dest, std::string_view ext = "");
+    void genMov(
+        std::vector<std::string>& asmCode, 
+        std::string_view src, 
+        std::string_view dest, 
+        std::string_view ext = ""
+    );
 
     /**
      * @brief generates the set instruction
@@ -75,7 +80,12 @@ namespace assembly {
      * @param ext - extension for the mov instruction, defaults to empty string
      * @details testext lOp, rOp
     */
-    void genTest(std::vector<std::string> &asmCode, std::string_view lOp, std::string_view rOp, std::string_view ext = "");
+    void genTest(
+        std::vector<std::string> &asmCode, 
+        std::string_view lOp, 
+        std::string_view rOp, 
+        std::string_view ext = ""
+    );
 
     /** 
      * @brief generates the cmp instruction
@@ -94,7 +104,12 @@ namespace assembly {
      * @param dest - destination operand
      * @details operation lOp, rOp
     */
-    void genOperation(std::vector<std::string>& asmCode, std::string_view operation, std::string_view src, std::string_view dest);
+    void genOperation(
+        std::vector<std::string>& asmCode, 
+        std::string_view operation, 
+        std::string_view src, 
+        std::string_view dest
+    );
 
     /** 
      * @brief generates the operation instruction
@@ -103,7 +118,11 @@ namespace assembly {
      * @param dest - destination operand
      * @details operation dest
     */
-    void genOperation(std::vector<std::string>& asmCode, std::string_view operation, std::string_view dest);
+    void genOperation(
+        std::vector<std::string>& asmCode, 
+        std::string_view operation, 
+        std::string_view dest
+    );
     
     /** 
      * @brief generates the label
