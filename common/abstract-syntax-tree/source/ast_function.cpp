@@ -2,7 +2,7 @@
 
 #include "../defs/ast_defs.hpp"
 
-syntax::ast::ASTFunction::ASTFunction(const syntax::Token& token, Type type) 
+syntax::ast::ASTFunction::ASTFunction(const syntax::Token& token, types::Type type) 
     : ASTNode(token, syntax::ast::ASTNodeType::FUNCTION), 
       type{ type }, 
       predefined{ false }, 
@@ -30,7 +30,7 @@ void syntax::ast::ASTFunction::setPredefined(bool isPredefined) noexcept {
     predefined = isPredefined;
 }
 
-Type syntax::ast::ASTFunction::getType() const noexcept {
+types::Type syntax::ast::ASTFunction::getType() const noexcept {
     return type;
 }
 

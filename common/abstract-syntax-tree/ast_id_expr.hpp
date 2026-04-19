@@ -18,7 +18,7 @@ namespace syntax::ast {
          * @param token - const reference to the token
          * @param type - type of the id
         */
-        ASTIdExpr(const syntax::Token& token, Type type = Type::NO_TYPE);
+        ASTIdExpr(const syntax::Token& token, types::Type type = types::Type::NO_TYPE);
 
         /**
          * @brief accepts the ast visitor

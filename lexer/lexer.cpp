@@ -5,8 +5,6 @@
 #include <cctype>
 #include <cassert>
 
-#include "../common/defs/types.hpp"
-
 lex::Lexer::Lexer(const std::vector<std::string>& input) 
     : input{ input }, nextTokenIdx{ 1 } {}
 
@@ -117,18 +115,9 @@ bool lex::Lexer::handleIdentifier(){
 }
 
 bool lex::Lexer::handleKeyword(std::string_view keyword, size_t lineNumber, size_t col){
-    if(auto kwdType{ tryGetKeyword(keyword) }){
-        auto type{ *kwdType };
-        auto gtype{
-            tokenTypeToType(type) != Type::NO_TYPE
-                ? syntax::GeneralTokenType::TYPE
-                : syntax::GeneralTokenType::OTHER
-        };
-
-        tokens.emplace_back(syntax::Token{
-            keyword, lineNumber, col, type, gtype
-        });
-
+    if(auto optKwd{ tryGetKeyword(keyword) }){
+        auto [type, gtype]{ *optKwd };
+        addToken(keyword, lineNumber, col, type, gtype);
         return true;
     }
 

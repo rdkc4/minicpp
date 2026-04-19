@@ -22,7 +22,11 @@ namespace semantic {
          * @param kind - kind of the symbol, default NO_KIND
          * @param type - type of the symbol, default NO_TYPE
         */
-        Symbol(std::string_view name, Kind kind = Kind::NO_KIND, Type type = Type::NO_TYPE);
+        Symbol(
+            std::string_view name, 
+            Kind kind = Kind::NO_KIND, 
+            types::Type type = types::Type::NO_TYPE
+        );
 
         /** 
          * @brief getter for the name of the symbol
@@ -40,7 +44,7 @@ namespace semantic {
          * @brief getter for the type of the symbol
          * @returns type of the symbol
         */
-        Type getType() const noexcept;
+        types::Type getType() const noexcept;
 
         /** 
          * @brief getter for the parameters (if symbol is a function)
@@ -65,7 +69,7 @@ namespace semantic {
          * @brief initializes symbol type
          * @param symType - type of the symbol
         */
-        void setType(Type symType) noexcept;
+        void setType(types::Type symType) noexcept;
 
         /** 
          * @brief initializes symbol parameters (if the symbol is a function)
@@ -91,7 +95,7 @@ namespace semantic {
         Kind kind;
         
         /// type of the symbol
-        Type type;
+        types::Type type;
 
     };
 

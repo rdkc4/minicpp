@@ -2,7 +2,7 @@
 
 #include <format>
 
-semantic::Symbol::Symbol(std::string_view name, semantic::Kind kind, Type type) 
+semantic::Symbol::Symbol(std::string_view name, semantic::Kind kind, types::Type type) 
     : name{ name }, parameters{ nullptr }, kind{ kind }, type{ type } {}
 
 const std::string& semantic::Symbol::getName() const noexcept {
@@ -13,7 +13,7 @@ semantic::Kind semantic::Symbol::getKind() const noexcept {
     return kind;
 }
 
-Type semantic::Symbol::getType() const noexcept {
+types::Type semantic::Symbol::getType() const noexcept {
     return type;
 }
 
@@ -30,7 +30,7 @@ void semantic::Symbol::setKind(semantic::Kind symKind) noexcept {
     kind = symKind;
 }
 
-void semantic::Symbol::setType(Type symType) noexcept {
+void semantic::Symbol::setType(types::Type symType) noexcept {
     type = symType;
 }
 

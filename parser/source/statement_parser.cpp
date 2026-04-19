@@ -1,7 +1,9 @@
 #include "../statement_parser.hpp"
-#include "../token_consumer.hpp"
 
 #include <format>
+
+#include "../token_consumer.hpp"
+#include "../../common/defs/type_mapping.hpp"
 
 syntax::StatementParser::StatementParser(TokenConsumer& consumer) 
     : exprParser{ consumer }, 
@@ -57,7 +59,7 @@ std::unique_ptr<syntax::ast::ASTStmt> syntax::StatementParser::parseStmt(){
 
 std::unique_ptr<syntax::ast::ASTVariableDeclStmt> 
 syntax::StatementParser::parseVariableDeclStmt(){
-    Type type{ tokenTypeToType(tokenConsumer.getToken().type) };
+    auto type{ syntax::tokenTypeToType(tokenConsumer.getToken().type) };
     tokenConsumer.consume(syntax::GeneralTokenType::TYPE);
 
     std::unique_ptr<syntax::ast::ASTVariableDeclStmt> variableDecl{ 

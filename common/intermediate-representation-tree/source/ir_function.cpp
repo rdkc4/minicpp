@@ -2,7 +2,7 @@
 
 #include "../defs/ir_defs.hpp"
 
-ir::IRFunction::IRFunction(const std::string& funcName, Type type) 
+ir::IRFunction::IRFunction(const std::string& funcName, types::Type type) 
     : IRNode(ir::IRNodeType::FUNCTION), 
       functionName{ funcName }, 
       requiredMemory{ "0" }, 
@@ -35,11 +35,11 @@ void ir::IRFunction::setFunctionName(const std::string& funcName){
     functionName = funcName;
 }
 
-Type ir::IRFunction::getType() const noexcept {
+types::Type ir::IRFunction::getType() const noexcept {
     return type;
 }
 
-void ir::IRFunction::setType(Type returnType) noexcept {
+void ir::IRFunction::setType(types::Type returnType) noexcept {
     type = returnType;
 }
 

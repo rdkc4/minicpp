@@ -19,7 +19,7 @@ namespace ir {
          * @param val - value of the literal
          * @param type - type of the literal
         */
-        IRLiteralExpr(const std::string& val, Type type);
+        IRLiteralExpr(const std::string& val, types::Type type);
 
         /** 
          * @brief getter for the value of the literal

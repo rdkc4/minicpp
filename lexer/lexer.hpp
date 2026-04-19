@@ -2,6 +2,7 @@
 #define LEXER_HPP
 
 #include <string>
+#include <utility>
 #include <vector>
 #include <string_view>
 #include <optional>
@@ -321,9 +322,10 @@ namespace lex {
         /** 
          * @brief checks if the current sequence of characters is a keyword
          * @param value - string representing keyword
-         * @returns token type of the keyword if sequence is keyword, nullopt otherwise
+         * @returns pair (token type, general token type) of the keyword if sequence is keyword, nullopt otherwise
         */
-        inline std::optional<syntax::TokenType> tryGetKeyword(std::string_view value) const noexcept {
+        inline std::optional<std::pair<syntax::TokenType, syntax::GeneralTokenType>> 
+        tryGetKeyword(std::string_view value) const noexcept {
             const size_t length{ value.size() };
             if(length < 2 || length > 8){
                 return std::nullopt;
@@ -331,39 +333,107 @@ namespace lex {
 
             switch(length){
                 case 2:
-                    if(value == "if") return syntax::TokenType::IF;
-                    if(value == "do") return syntax::TokenType::DO;
+                    if(value == "if") 
+                        return std::make_pair(
+                            syntax::TokenType::IF, 
+                            syntax::GeneralTokenType::OTHER
+                        );
+
+                    if(value == "do")
+                        return std::make_pair(
+                            syntax::TokenType::DO, 
+                            syntax::GeneralTokenType::OTHER
+                        );
                     break;
 
                 case 3:
-                    if(value == "for") return syntax::TokenType::FOR;
-                    if(value == "int") return syntax::TokenType::INT;
+                    if(value == "for")
+                        return std::make_pair(
+                            syntax::TokenType::FOR, 
+                            syntax::GeneralTokenType::OTHER
+                        );
+
+                    if(value == "int")
+                        return std::make_pair(
+                            syntax::TokenType::INT, 
+                            syntax::GeneralTokenType::TYPE
+                        );
                     break;
 
                 case 4:
-                    if(value == "else") return syntax::TokenType::ELSE;
-                    if(value == "case") return syntax::TokenType::CASE;
-                    if(value == "void") return syntax::TokenType::VOID;
-                    if(value == "auto") return syntax::TokenType::AUTO;
+                    if(value == "else")
+                        return std::make_pair(
+                            syntax::TokenType::ELSE, 
+                            syntax::GeneralTokenType::OTHER
+                        );
+
+                    if(value == "case")
+                        return std::make_pair(
+                            syntax::TokenType::CASE, 
+                            syntax::GeneralTokenType::OTHER
+                        );
+
+                    if(value == "void")
+                        return std::make_pair(
+                            syntax::TokenType::VOID, 
+                            syntax::GeneralTokenType::TYPE
+                        );
+
+                    if(value == "auto")
+                        return std::make_pair(
+                            syntax::TokenType::AUTO, 
+                            syntax::GeneralTokenType::TYPE
+                        );
                     break;
 
                 case 5:
-                    if(value == "while") return syntax::TokenType::WHILE;
-                    if(value == "break") return syntax::TokenType::BREAK;
+                    if(value == "while")
+                        return std::make_pair(
+                            syntax::TokenType::WHILE, 
+                            syntax::GeneralTokenType::OTHER
+                        );
+
+                    if(value == "break")
+                        return std::make_pair(
+                            syntax::TokenType::BREAK, 
+                            syntax::GeneralTokenType::OTHER
+                        );
                     break;
 
                 case 6:
-                    if(value == "return") return syntax::TokenType::RETURN;
-                    if(value == "switch") return syntax::TokenType::SWITCH;
+                    if(value == "return")
+                        return std::make_pair(
+                            syntax::TokenType::RETURN, 
+                            syntax::GeneralTokenType::OTHER
+                        );
+
+                    if(value == "switch")
+                        return std::make_pair(
+                            syntax::TokenType::SWITCH, 
+                            syntax::GeneralTokenType::OTHER
+                        );
                     break;
 
                 case 7:
-                    if(value == "default") return syntax::TokenType::DEFAULT;
-                    if(value == "include") return syntax::TokenType::INCLUDE;
+                    if(value == "default")
+                        return std::make_pair(
+                            syntax::TokenType::DEFAULT, 
+                            syntax::GeneralTokenType::OTHER
+                        );
+
+                    if(value == "include")
+                        return std::make_pair(
+                            syntax::TokenType::INCLUDE, 
+                            syntax::GeneralTokenType::OTHER
+                        );
                     break;
 
                 case 8:
-                    if(value == "unsigned") return syntax::TokenType::UNSIGNED;
+                    if(value == "unsigned")
+                        return std::make_pair(
+                            syntax::TokenType::UNSIGNED, 
+                            syntax::GeneralTokenType::TYPE
+                        );
                     break;
             }
 

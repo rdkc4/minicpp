@@ -86,8 +86,8 @@ namespace ir {
          * @param type - type of the operands
          * @returns node type of the operation
         */
-        constexpr IRNodeType get(Type type) const {
-            return (type == Type::INT) ? intOp : unsignedOp;
+        constexpr IRNodeType get(types::Type type) const {
+            return (type == types::Type::INT) ? intOp : unsignedOp;
         }
 
     };
@@ -228,7 +228,7 @@ namespace ir {
      * @param type - type of operands
      * @returns node type of the operation
     */
-    constexpr IRNodeType resolveOperator(syntax::Operator op, Type type) {
+    constexpr IRNodeType resolveOperator(syntax::Operator op, types::Type type) {
         return operationTable[static_cast<size_t>(op)].get(type);
     }
 

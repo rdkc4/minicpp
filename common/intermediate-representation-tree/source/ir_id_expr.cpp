@@ -2,7 +2,7 @@
 
 #include "../defs/ir_defs.hpp"
 
-ir::IRIdExpr::IRIdExpr(std::string_view idName, Type type) 
+ir::IRIdExpr::IRIdExpr(std::string_view idName, types::Type type) 
     : IRExpr(ir::IRNodeType::ID, type), 
       idName{ idName }, 
       value{ "0" } {}

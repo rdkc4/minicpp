@@ -20,19 +20,19 @@ namespace ir {
          * @param ntype - type of the irt node
          * @param type - type of the expression
         */
-        IRExpr(IRNodeType ntype, Type type);
+        IRExpr(IRNodeType ntype, types::Type type);
 
         /**
         * @brief getter for the type of the expression
         * @returns type of the expression
         */
-        Type getType() const noexcept;
+        types::Type getType() const noexcept;
 
         /**
         * @brief initializes type of the expression node
         * @param exprType - type of the expression
         */
-        void setType(Type exprType) noexcept;
+        void setType(types::Type exprType) noexcept;
 
         /**
         * @brief accepts the ir visitor
@@ -42,7 +42,7 @@ namespace ir {
 
     private:
         /// type of the expression
-        Type type;
+        types::Type type;
     };
 
 }

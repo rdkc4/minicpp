@@ -2,7 +2,7 @@
 
 #include "../defs/ir_defs.hpp"
 
-ir::IRBinaryExpr::IRBinaryExpr(ir::IRNodeType ntype, Type type) 
+ir::IRBinaryExpr::IRBinaryExpr(ir::IRNodeType ntype, types::Type type) 
     : IRExpr(ntype, type) {}
 
 syntax::Operator ir::IRBinaryExpr::getOperator() const noexcept {

@@ -161,8 +161,8 @@ namespace optimization::constant_folding {
             binExpToken.column
         ) };
 
-        Type type{ binExp->getType() };
-        std::string suffix{ type == Type::UNSIGNED ? "u" : "" };
+        auto type{ binExp->getType() };
+        std::string suffix{ type == types::Type::UNSIGNED ? "u" : "" };
 
         MergeResult<std::unique_ptr<ir::IRExpr>> foldedExpr {
             .result = std::make_unique<ir::IRLiteralExpr>(std::to_string(res.result) + suffix, type),

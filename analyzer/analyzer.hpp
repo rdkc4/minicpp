@@ -216,7 +216,7 @@ namespace semantic {
          * @param type - type of the literal
          * @param value - value of the literal
         */
-        bool isInvalidLiteral(Type type, const std::string& value) const;
+        bool isInvalidLiteral(types::Type type, const std::string& value) const;
 
         /**
          * @brief reports new semantic error

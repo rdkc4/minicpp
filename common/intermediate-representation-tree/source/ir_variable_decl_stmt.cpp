@@ -2,7 +2,7 @@
 
 #include "../defs/ir_defs.hpp"
 
-ir::IRVariableDeclStmt::IRVariableDeclStmt(std::string_view varName, Type type) 
+ir::IRVariableDeclStmt::IRVariableDeclStmt(std::string_view varName, types::Type type) 
     : IRStmt(ir::IRNodeType::VARIABLE), 
       varName{ varName }, 
       value{ "0" }, 
@@ -32,11 +32,11 @@ void ir::IRVariableDeclStmt::setValue(const std::string& val){
     value = val;
 }
 
-Type ir::IRVariableDeclStmt::getType() const noexcept {
+types::Type ir::IRVariableDeclStmt::getType() const noexcept {
     return type;
 }
 
-void ir::IRVariableDeclStmt::setType(Type t) noexcept {
+void ir::IRVariableDeclStmt::setType(types::Type t) noexcept {
     type = t;
 }
 

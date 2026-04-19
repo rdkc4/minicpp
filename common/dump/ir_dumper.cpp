@@ -12,7 +12,7 @@ void ir::IRDumper::visit(ir::IRProgram* program){
 
     dumpLibs(program);
 
-    IndentGuard programGuard{indent};
+    util::format::IndentGuard programGuard{indent};
     for(const auto& function : program->getFunctions()){
         function->accept(*this);
     }
@@ -26,11 +26,11 @@ void ir::IRDumper::visit(ir::IRFunction* function){
         function->getRequiredMemory()
     ));
 
-    IndentGuard functionGuard{indent};
+    util::format::IndentGuard functionGuard{indent};
 
     dumpNode("PARAMETERS");
     {
-        IndentGuard paramGuard{indent};
+        util::format::IndentGuard paramGuard{indent};
         for(const auto& param : function->getParameters()){
             param->accept(*this);
         }
@@ -38,7 +38,7 @@ void ir::IRDumper::visit(ir::IRFunction* function){
 
     if(!function->isPredefined()){
         dumpNode("BODY");
-        IndentGuard bodyGuard{indent};
+        util::format::IndentGuard bodyGuard{indent};
         for(const auto& stmt : function->getBody()){
             stmt->accept(*this);
         }
@@ -61,7 +61,7 @@ void ir::IRDumper::visit(ir::IRVariableDeclStmt* variableDecl){
         variableDecl->getValue()
     ));
 
-    IndentGuard variableGuard{indent};
+    util::format::IndentGuard variableGuard{indent};
     if(variableDecl->hasTemporaryExpr()){
         variableDecl->getTemporaryExpr()->accept(*this);
     }
@@ -73,7 +73,7 @@ void ir::IRDumper::visit(ir::IRVariableDeclStmt* variableDecl){
 void ir::IRDumper::visit(ir::IRAssignStmt* assignStmt){
     dumpNode(assignStmt);
 
-    IndentGuard assignGuard{indent};
+    util::format::IndentGuard assignGuard{indent};
     assignStmt->getVariableIdExpr()->accept(*this);
     if(assignStmt->hasTemporaryExpr()){
         assignStmt->getTemporaryExpr()->accept(*this);
@@ -84,7 +84,7 @@ void ir::IRDumper::visit(ir::IRAssignStmt* assignStmt){
 void ir::IRDumper::visit(ir::IRCompoundStmt* compoundStmt){
     dumpNode(compoundStmt);
 
-    IndentGuard compoundGuard{indent};
+    util::format::IndentGuard compoundGuard{indent};
     for(const auto& stmt : compoundStmt->getStmts()){
         stmt->accept(*this);
     }
@@ -93,7 +93,7 @@ void ir::IRDumper::visit(ir::IRCompoundStmt* compoundStmt){
 void ir::IRDumper::visit(ir::IRForStmt* forStmt){
     dumpNode(forStmt);
 
-    IndentGuard forGuard{indent};
+    util::format::IndentGuard forGuard{indent};
     if(forStmt->hasTemporaryExpr()){
         forStmt->getTemporaryExpr()->accept(*this);
     }
@@ -112,7 +112,7 @@ void ir::IRDumper::visit(ir::IRForStmt* forStmt){
 void ir::IRDumper::visit(ir::IRFunctionCallStmt* callStmt){
     dumpNode(callStmt);
 
-    IndentGuard callGuard{indent};
+    util::format::IndentGuard callGuard{indent};
     callStmt->getFunctionCallExpr()->accept(*this);
 }
 
@@ -123,7 +123,7 @@ void ir::IRDumper::visit(ir::IRIfStmt* ifStmt){
     const auto& statements{ ifStmt->getStmts() };
     const auto& temporaries{ ifStmt->getTemporaryExprs() };
 
-    IndentGuard ifGuard{indent};
+    util::format::IndentGuard ifGuard{indent};
     for(size_t i{0}; i < conditions.size(); ++i){
         if(temporaries[i]){
             temporaries[i]->accept(*this);
@@ -139,7 +139,7 @@ void ir::IRDumper::visit(ir::IRIfStmt* ifStmt){
 void ir::IRDumper::visit(ir::IRReturnStmt* returnStmt){
     dumpNode(returnStmt);
 
-    IndentGuard returnGuard{indent};
+    util::format::IndentGuard returnGuard{indent};
     if(returnStmt->hasTemporaryExpr()){
         returnStmt->getTemporaryExpr()->accept(*this);
     }
@@ -151,7 +151,7 @@ void ir::IRDumper::visit(ir::IRReturnStmt* returnStmt){
 void ir::IRDumper::visit(ir::IRWhileStmt* whileStmt){
     dumpNode(whileStmt);
 
-    IndentGuard whileGuard{indent};
+    util::format::IndentGuard whileGuard{indent};
     if(whileStmt->hasTemporaryExpr()){
         whileStmt->getTemporaryExpr()->accept(*this);
     }
@@ -162,7 +162,7 @@ void ir::IRDumper::visit(ir::IRWhileStmt* whileStmt){
 void ir::IRDumper::visit(ir::IRDoWhileStmt* dowhileStmt){
     dumpNode(dowhileStmt);
 
-    IndentGuard dowhileGuard{indent};
+    util::format::IndentGuard dowhileGuard{indent};
     if(dowhileStmt->hasTemporaryExpr()){
         dowhileStmt->getTemporaryExpr()->accept(*this);
     }
@@ -173,7 +173,7 @@ void ir::IRDumper::visit(ir::IRDoWhileStmt* dowhileStmt){
 void ir::IRDumper::visit(ir::IRSwitchStmt* switchStmt){
     dumpNode(switchStmt);
 
-    IndentGuard switchGuard{indent};
+    util::format::IndentGuard switchGuard{indent};
     switchStmt->getVariableIdExpr()->accept(*this);
     for(const auto& caseStmt : switchStmt->getCaseStmts()){
         caseStmt->accept(*this);
@@ -186,7 +186,7 @@ void ir::IRDumper::visit(ir::IRSwitchStmt* switchStmt){
 void ir::IRDumper::visit(ir::IRCaseStmt* caseStmt){
     dumpNode(caseStmt);
 
-    IndentGuard caseGuard{indent};
+    util::format::IndentGuard caseGuard{indent};
     caseStmt->getLiteralExpr()->accept(*this);
     caseStmt->getSwitchBlockStmt()->accept(*this);
     if(caseStmt->hasBreakStmt()){
@@ -197,14 +197,14 @@ void ir::IRDumper::visit(ir::IRCaseStmt* caseStmt){
 void ir::IRDumper::visit(ir::IRDefaultStmt* defaultStmt){
     dumpNode(defaultStmt);
 
-    IndentGuard defaultGuard{indent};
+    util::format::IndentGuard defaultGuard{indent};
     defaultStmt->getSwitchBlockStmt()->accept(*this);
 }
 
 void ir::IRDumper::visit(ir::IRSwitchBlockStmt* switchBlockStmt){
     dumpNode(switchBlockStmt);
 
-    IndentGuard switchBlockGuard{indent};
+    util::format::IndentGuard switchBlockGuard{indent};
     for(const auto& stmt : switchBlockStmt->getStmts()){
         stmt->accept(*this);
     }
@@ -216,7 +216,7 @@ void ir::IRDumper::visit(ir::IRBinaryExpr* binaryExpr){
         std::format(" | {}", syntax::operatorToStr(binaryExpr->getOperator()))
     );
 
-    IndentGuard binaryExprGuard{indent};
+    util::format::IndentGuard binaryExprGuard{indent};
     binaryExpr->getLeftOperandExpr()->accept(*this);
     binaryExpr->getRightOperandExpr()->accept(*this);
 }
@@ -227,7 +227,7 @@ void ir::IRDumper::visit(ir::IRFunctionCallExpr* callExpr){
     const auto& arguments{ callExpr->getArguments() };
     const auto& temporaries{ callExpr->getTemporaryExprs() };
 
-    IndentGuard callGuard{indent};
+    util::format::IndentGuard callGuard{indent};
     for(size_t i{0}; i < arguments.size(); ++i){
         if(temporaries[i]){
             temporaries[i]->accept(*this);
@@ -258,10 +258,10 @@ void ir::IRDumper::visit(ir::IRTemporaryExpr* tempExpr){
     const auto& names{ tempExpr->getTemporaryNames() };
     const auto& exprs{ tempExpr->getTemporaryExprs() };
 
-    IndentGuard tempGuard{indent};
+    util::format::IndentGuard tempGuard{indent};
     for(size_t i{0}; i < exprs.size(); ++i){
         dumpNode(names[i]);
-        IndentGuard exprGuard{indent};
+        util::format::IndentGuard exprGuard{indent};
         exprs[i]->accept(*this);
     }
 }
@@ -284,10 +284,10 @@ void ir::IRDumper::dumpNode(std::string_view nodeLabel){
 }
 
 void ir::IRDumper::dumpLibs(const ir::IRProgram* program){
-    IndentGuard libsGuard{indent};
+    util::format::IndentGuard libsGuard{indent};
     dumpNode("LIBS");
 
-    IndentGuard libGuard{indent};
+    util::format::IndentGuard libGuard{indent};
     for(const auto& lib : program->getLinkedLibs()){
         dumpNode(lib);
     }

@@ -23,7 +23,10 @@ namespace syntax::ast {
          * @param token - const reference to the token
          * @param type - return type of the function
         */
-        ASTFunction(const syntax::Token& token, Type type = Type::NO_TYPE);
+        ASTFunction(
+            const syntax::Token& token, 
+            types::Type type = types::Type::NO_TYPE
+        );
 
         /** 
          * @brief getter for the function parameters
@@ -59,7 +62,7 @@ namespace syntax::ast {
          * @brief getter for return type
          * @returns return type of the function
         */
-        Type getType() const noexcept;
+        types::Type getType() const noexcept;
 
         /** 
          * @brief checks if function is predifined
@@ -93,7 +96,7 @@ namespace syntax::ast {
 
     private:
         /// return type of the function
-        Type type;
+        types::Type type;
 
         /// flag if function is predefined
         bool predefined;

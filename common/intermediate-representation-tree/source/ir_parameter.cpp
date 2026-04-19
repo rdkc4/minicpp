@@ -2,7 +2,7 @@
 
 #include "../defs/ir_defs.hpp"
 
-ir::IRParameter::IRParameter(std::string_view parName, Type type) 
+ir::IRParameter::IRParameter(std::string_view parName, types::Type type) 
     : IRNode(ir::IRNodeType::PARAMETER), 
       parameterName{ parName }, 
       type{ type } {}
@@ -15,11 +15,11 @@ void ir::IRParameter::setParameterName(const std::string& parName){
     parameterName = parName;
 }
 
-Type ir::IRParameter::getType() const noexcept {
+types::Type ir::IRParameter::getType() const noexcept {
     return type;
 }
 
-void ir::IRParameter::setType(Type parameterType) noexcept {
+void ir::IRParameter::setType(types::Type parameterType) noexcept {
     type = parameterType;
 }
 

@@ -19,7 +19,7 @@ namespace ir {
          * @param ntype - type of the irt node
          * @param type - type of the binary expression
         */
-        IRBinaryExpr(IRNodeType ntype, Type type);
+        IRBinaryExpr(IRNodeType ntype, types::Type type);
 
         /**
          * @brief getter for the left operand of the binary expression

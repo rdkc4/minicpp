@@ -124,9 +124,9 @@ syntax::ExpressionParser::parseLiteralExpr(){
     const auto& token{ tokenConsumer.getToken() };
     tokenConsumer.consume(syntax::TokenType::LITERAL);
     if(token.value.back() == 'u'){
-        return std::make_unique<syntax::ast::ASTLiteralExpr>(token, Type::UNSIGNED);
+        return std::make_unique<syntax::ast::ASTLiteralExpr>(token, types::Type::UNSIGNED);
     }
-    return std::make_unique<syntax::ast::ASTLiteralExpr>(token, Type::INT);
+    return std::make_unique<syntax::ast::ASTLiteralExpr>(token, types::Type::INT);
 }
 
 std::unique_ptr<syntax::ast::ASTBinaryExpr> 

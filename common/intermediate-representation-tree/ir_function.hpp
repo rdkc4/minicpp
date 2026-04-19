@@ -23,7 +23,7 @@ namespace ir {
          * @param funcName - name of the function
          * @param type - return type of the function
         */
-        IRFunction(const std::string& funcName, Type type);
+        IRFunction(const std::string& funcName, types::Type type);
 
         /** 
          * @brief getter for the parameters of the function
@@ -65,13 +65,13 @@ namespace ir {
          * @brief getter for the return type of the function
          * @returns return type of the function
         */
-        Type getType() const noexcept;
+        types::Type getType() const noexcept;
 
         /** 
          * @brief initializes the return type of the function
          * @param returnType - return type of the function
         */
-        void setType(Type returnType) noexcept;
+        void setType(types::Type returnType) noexcept;
 
         /** 
          * @brief getter for the amount of bytes function takes on the stack
@@ -117,7 +117,7 @@ namespace ir {
         std::string requiredMemory;
 
         /// return type of the function
-        Type type;
+        types::Type type;
 
         /// flag if function is predefined
         bool predefined;

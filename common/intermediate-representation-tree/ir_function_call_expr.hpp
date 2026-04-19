@@ -22,7 +22,7 @@ namespace ir {
          * @param callName - name of the function being called
          * @param type - return type of the function being called
         */
-        IRFunctionCallExpr(const std::string& callName, Type type);
+        IRFunctionCallExpr(const std::string& callName, types::Type type);
 
         /** 
          * @brief getter for the arguments of the function call expression

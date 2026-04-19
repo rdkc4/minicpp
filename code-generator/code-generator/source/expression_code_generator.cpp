@@ -126,7 +126,7 @@ void code_gen::ExpressionCodeGenerator::generateMultiplicativeExpr(
         operands.rightOperand, "%rax", "q"
     );
 
-    if(binaryExpr->getType() == Type::INT){
+    if(binaryExpr->getType() == types::Type::INT){
         code_gen::assembly::genOperation(
             ctx.asmCode, 
             std::format("i{}", ir::irNodeToStr(nodeType)), 
@@ -382,7 +382,7 @@ std::string code_gen::ExpressionCodeGenerator::formatLiteral(
     const ir::IRLiteralExpr* literalExpr
 ) const {
     std::string val{ literalExpr->getValue() };
-    if(literalExpr->getType() == Type::UNSIGNED){
+    if(literalExpr->getType() == types::Type::UNSIGNED){
         val.pop_back();
     }
     return std::format("${}", val);

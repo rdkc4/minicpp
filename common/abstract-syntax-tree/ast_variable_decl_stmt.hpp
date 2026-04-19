@@ -21,19 +21,19 @@ namespace syntax::ast {
          * @param token - const reference to the token
          * @param type - type of the variable
         */
-        ASTVariableDeclStmt(const syntax::Token& token, Type type = Type::NO_TYPE);
+        ASTVariableDeclStmt(const syntax::Token& token, types::Type type = types::Type::NO_TYPE);
 
         /** 
          * @brief getter for the type of the variable
          * @returns type of the variable
         */
-        Type getType() const noexcept;
+        types::Type getType() const noexcept;
 
         /** 
          * @brief initializes the type of the variable
          * @param variableType - type of the variable
         */
-        void setType(Type variableType) noexcept;
+        void setType(types::Type variableType) noexcept;
 
         /** 
          * @brief getter for the expression assigned to the variable
@@ -65,7 +65,7 @@ namespace syntax::ast {
 
     private:
         /// type of the variable
-        Type type;
+        types::Type type;
         
         /// pointer to the expression assigned to the variable
         std::unique_ptr<ASTExpr> assignExpr;

@@ -43,7 +43,7 @@ ir::ExpressionIntermediateRepresentation::transformBinaryExpr(const syntax::ast:
         optimization::constant_folding::MergeResult<std::unique_ptr<ir::IRExpr>> res;
 
         switch(type) {
-            case Type::INT:
+            case types::Type::INT:
                 res = optimization::constant_folding::mergeLiterals<int>(
                     static_cast<const ir::IRLiteralExpr*>(leftOperand.get()), 
                     static_cast<const ir::IRLiteralExpr*>(rightOperand.get()), 
@@ -51,7 +51,7 @@ ir::ExpressionIntermediateRepresentation::transformBinaryExpr(const syntax::ast:
                 );
                 break;
 
-            case Type::UNSIGNED:
+            case types::Type::UNSIGNED:
                 res = optimization::constant_folding::mergeLiterals<unsigned>(
                     static_cast<const ir::IRLiteralExpr*>(leftOperand.get()), 
                     static_cast<const ir::IRLiteralExpr*>(rightOperand.get()), 

@@ -1,11 +1,13 @@
 #include "../function_parser.hpp"
 
+#include "../../common/defs/type_mapping.hpp"
+
 syntax::FunctionParser::FunctionParser(TokenConsumer& consumer) 
     : stmtParser{ consumer }, 
       tokenConsumer{ consumer } {}
 
 std::unique_ptr<syntax::ast::ASTFunction> syntax::FunctionParser::parseFunction(){
-    Type type{ tokenTypeToType(tokenConsumer.getToken().type) };
+    auto type{ syntax::tokenTypeToType(tokenConsumer.getToken().type) };
     tokenConsumer.consume(syntax::GeneralTokenType::TYPE);
 
     const syntax::Token& token{ tokenConsumer.getToken() };
@@ -37,7 +39,7 @@ void syntax::FunctionParser::parseParameters(syntax::ast::ASTFunction* function)
 
     auto parseParameter{ 
         [this, function]() -> void {
-            Type type{ tokenTypeToType(tokenConsumer.getToken().type) };
+            auto type{ syntax::tokenTypeToType(tokenConsumer.getToken().type) };
             tokenConsumer.consume(syntax::GeneralTokenType::TYPE);
 
             const auto& token{ tokenConsumer.getToken() };

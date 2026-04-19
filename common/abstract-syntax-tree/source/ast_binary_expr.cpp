@@ -2,7 +2,7 @@
 
 #include "../defs/ast_defs.hpp"
 
-syntax::ast::ASTBinaryExpr::ASTBinaryExpr(const syntax::Token& token, Type type, syntax::Operator op) 
+syntax::ast::ASTBinaryExpr::ASTBinaryExpr(const syntax::Token& token, types::Type type, syntax::Operator op) 
     : ASTExpr(token, syntax::ast::ASTNodeType::BINARY_EXPR, type), exprOperator{ op } {}
 
 syntax::Operator syntax::ast::ASTBinaryExpr::getOperator() const noexcept {

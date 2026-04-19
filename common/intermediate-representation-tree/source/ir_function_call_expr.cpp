@@ -2,7 +2,7 @@
 
 #include "../defs/ir_defs.hpp"
 
-ir::IRFunctionCallExpr::IRFunctionCallExpr(const std::string& callName, Type type) 
+ir::IRFunctionCallExpr::IRFunctionCallExpr(const std::string& callName, types::Type type) 
     : IRExpr(ir::IRNodeType::CALL, type), functionCallName{ callName } {}
 
 const std::vector<std::unique_ptr<ir::IRExpr>>& 

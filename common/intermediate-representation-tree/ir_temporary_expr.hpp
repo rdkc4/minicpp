@@ -65,22 +65,22 @@ namespace ir {
         void addTemporaryExpr(
             const std::string& tempName, 
             std::unique_ptr<IRExpr> tempVal = nullptr, 
-            Type type = Type::NO_TYPE
+            types::Type type = types::Type::NO_TYPE
         );
 
         /** 
          * @brief initializes the temporary variable at specified position
          * @param tempVal - pointer to the expression
-         * @param t - type of the temporary variable
+         * @param type - type of the temporary variable
          * @param n - position of the temporary
         */
-        void setTemporaryExprAtN(std::unique_ptr<IRExpr> tempVal, Type t, size_t n);
+        void setTemporaryExprAtN(std::unique_ptr<IRExpr> tempVal, types::Type type, size_t n);
 
         /** 
          * @brief getter for the types of the temporaries
          * @returns reference to a const vector of types of the temporaries
         */
-        const std::vector<Type>& getTypes() const noexcept;
+        const std::vector<types::Type>& getTypes() const noexcept;
 
         /**
          * @brief accepts the ir visitor
@@ -90,7 +90,7 @@ namespace ir {
 
     private:
         /// vector of types of the temporaries
-        std::vector<Type> types;
+        std::vector<types::Type> types;
         
         /// vector of names of the temporaries
         std::vector<std::string> temporaryNames;

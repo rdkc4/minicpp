@@ -108,6 +108,7 @@ namespace syntax {
             };
 
             std::array<Operator, syntax::TOKEN_TYPE_COUNT> ops{};
+            ops.fill(Operator::NO_OP);
 
             ops[idx(syntax::TokenType::PLUS)]        = Operator::ADD;
             ops[idx(syntax::TokenType::MINUS)]       = Operator::SUB;

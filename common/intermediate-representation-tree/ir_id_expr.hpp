@@ -20,7 +20,7 @@ namespace ir {
          * @param idName - name of the id
          * @param type - type of the id
         */
-        IRIdExpr(std::string_view idName, Type type);
+        IRIdExpr(std::string_view idName, types::Type type);
 
         /** 
          * @brief getter for the name of the id
