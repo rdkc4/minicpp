@@ -10,7 +10,7 @@
 namespace syntax {
     /**
      * @class DirectiveParser
-     * @brief used for parsing directives
+     * @brief parser sepcialized for directives
     */
     class DirectiveParser {
     public:

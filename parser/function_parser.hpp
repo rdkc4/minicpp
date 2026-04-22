@@ -10,7 +10,7 @@
 namespace syntax {
     /** 
      * @class FunctionParser
-     * @brief used for parsing functions
+     * @brief parser specialized for functions
     */
     class FunctionParser {
     public:

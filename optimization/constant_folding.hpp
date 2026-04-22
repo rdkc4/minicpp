@@ -22,8 +22,12 @@ namespace optimization::constant_folding {
     */
     template<typename T>
     struct MergeResult {
+        /// result of the merge
         T result;
+
+        /// merge error message, empty if no error occurs
         std::string error{""};
+
     };
 
     /** 

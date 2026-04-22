@@ -14,7 +14,7 @@
 namespace syntax {
     /** 
      * @class ExpressionParser
-     * @brief used for parsing expressions
+     * @brief parser specialized for expressions
     */
     class ExpressionParser {
     public:

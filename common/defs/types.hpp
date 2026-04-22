@@ -7,7 +7,7 @@
 
 /**
  * @namespace types
- * @brief namespace defining the types supported by the language
+ * @brief module defining the supported types
 */
 namespace types {
     /** 

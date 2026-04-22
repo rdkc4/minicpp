@@ -21,7 +21,7 @@
 namespace syntax {
     /** 
      * @class StatementParser
-     * @brief used for parsing statements
+     * @brief parser specialized for statements
     */
     class StatementParser {
     public:
