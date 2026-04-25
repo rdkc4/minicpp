@@ -38,6 +38,12 @@ namespace util::concurrency {
         /// deleted assignment operator
         ThreadPool& operator=(const ThreadPool&) = delete;
 
+        /// deleted move constructor
+        ThreadPool(ThreadPool&&) noexcept = delete;
+
+        /// deleted move assignment operator
+        ThreadPool& operator=(ThreadPool&&) noexcept = delete;
+
         /** 
          * @brief adding new task to the queue
          * @tparam Fn - invocable type

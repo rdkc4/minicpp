@@ -2,6 +2,7 @@
 #define IR_VISITOR_HPP
 
 namespace ir {
+
     class IRProgram;
     class IRFunction;
     class IRParameter;
@@ -23,9 +24,7 @@ namespace ir {
     class IRIdExpr;
     class IRLiteralExpr;
     class IRTemporaryExpr;
-}
 
-namespace ir {
     /**
      * @class IRVisitor
      * @brief defines the interface for classes that need irt traversal
@@ -41,6 +40,18 @@ namespace ir {
          * @brief default destructor
         */
         virtual ~IRVisitor() = default;
+
+        /// deleted copy constructor
+        IRVisitor(const IRVisitor&) = delete;
+
+        /// deleted copy assignment operator
+        IRVisitor& operator=(const IRVisitor&) = delete;
+
+        /// deleted move constructor
+        IRVisitor(IRVisitor&&) noexcept = delete;
+
+        /// deleted move assignment operator
+        IRVisitor& operator=(IRVisitor&&) noexcept = delete;
 
         /**
          * @brief abstract method for visiting program

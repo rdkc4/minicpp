@@ -32,6 +32,18 @@ namespace util {
                 --indent;
             }
 
+            /// deleted copy constructor
+            IndentGuard(const IndentGuard&) = delete;
+
+            /// deleted copy assignment operator 
+            IndentGuard& operator=(const IndentGuard&) = delete;
+            
+            /// move constructor
+            IndentGuard(IndentGuard&&) noexcept = delete;
+
+            /// deleted move assignment operator
+            IndentGuard& operator=(IndentGuard&&) noexcept = delete;
+
         private:
             /// reference to indent
             int& indent;

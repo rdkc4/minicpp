@@ -33,11 +33,11 @@ namespace semantic {
         /// deleted assignment operator
         ScopeGuard& operator=(const ScopeGuard&) = delete;
 
-        /// move constructor
-        ScopeGuard(ScopeGuard&&) = default;
+        /// deleted move constructor
+        ScopeGuard(ScopeGuard&&) noexcept = delete;
 
         /// deleted move assignment operator
-        ScopeGuard& operator=(ScopeGuard&&) = delete;
+        ScopeGuard& operator=(ScopeGuard&&) noexcept = delete;
 
     private:
         /// reference to a scope manager

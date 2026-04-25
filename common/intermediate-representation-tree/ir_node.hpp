@@ -22,6 +22,18 @@ namespace ir {
         */
         virtual ~IRNode() = default;
 
+        /// deleted copy constructor
+        IRNode(const IRNode&) = delete;
+
+        /// deleted copy assignment operator
+        IRNode& operator=(const IRNode&) = delete;
+
+        /// move constructor
+        IRNode(IRNode&&) noexcept = default;
+
+        /// move assignment operator
+        IRNode& operator=(IRNode&&) noexcept = default;
+
         /** 
          * @brief getter for the node type
          * @returns type of the node

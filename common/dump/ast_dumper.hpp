@@ -41,11 +41,6 @@ namespace syntax::ast {
         * @param out - reference to an output stream
         */
         ASTDumper(std::ostream& out);
-        
-        /**
-        * @brief deletes the instance of the ast dumper
-        */
-        ~ASTDumper() = default;
 
         /**
         * @brief dumps the ast program

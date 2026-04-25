@@ -43,11 +43,6 @@ namespace ir {
         IRDumper(std::ostream& out);
 
         /**
-         * @brief deletes the instance of the ir dumper
-        */
-        ~IRDumper() = default;
-
-        /**
          * @brief dumps the ir program
          * @param program - pointer to the ir program
         */

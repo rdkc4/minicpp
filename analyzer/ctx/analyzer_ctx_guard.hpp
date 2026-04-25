@@ -27,18 +27,6 @@ namespace semantic {
             ctx.init(functionName, scopeManager);
         }
 
-        /// deleted copy constructor
-        AnalyzerContextGuard(const AnalyzerContextGuard&) = delete;
-
-        /// deleted assignment operator
-        AnalyzerContextGuard& operator=(const AnalyzerContextGuard&) = delete;
-
-        // move constructor
-        AnalyzerContextGuard(AnalyzerContextGuard&&) = default;
-
-        /// deleted move assignment operator
-        AnalyzerContextGuard& operator=(AnalyzerContextGuard&&) = delete;
-
         /**
          * @brief deletes the instance of analyzer context guard
          * @details resets the context
@@ -46,6 +34,18 @@ namespace semantic {
         ~AnalyzerContextGuard() {
             ctx.reset();
         }
+
+        /// deleted copy constructor
+        AnalyzerContextGuard(const AnalyzerContextGuard&) = delete;
+
+        /// deleted assignment operator
+        AnalyzerContextGuard& operator=(const AnalyzerContextGuard&) = delete;
+
+        // deleted move constructor
+        AnalyzerContextGuard(AnalyzerContextGuard&&) noexcept = delete;
+
+        /// deleted move assignment operator
+        AnalyzerContextGuard& operator=(AnalyzerContextGuard&&) noexcept = delete;
 
     private:
         /// reference to the analyzer thread context

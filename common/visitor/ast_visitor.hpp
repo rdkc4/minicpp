@@ -2,6 +2,7 @@
 #define AST_VISITOR_HPP
 
 namespace syntax::ast {
+
     class ASTProgram;
     class ASTIncludeDir;
     class ASTFunction;
@@ -23,9 +24,7 @@ namespace syntax::ast {
     class ASTFunctionCallExpr;
     class ASTIdExpr;
     class ASTLiteralExpr;
-}
 
-namespace syntax::ast {
     /**
      * @class ASTVisitor
      * @brief defines the interface for classes that need ast traversal
@@ -41,6 +40,18 @@ namespace syntax::ast {
          * @brief default destructor
         */
         virtual ~ASTVisitor() = default;
+
+        /// deleted copy constructor
+        ASTVisitor(const ASTVisitor&) = delete;
+
+        /// deleted copy assignment operator
+        ASTVisitor& operator=(const ASTVisitor&) = delete;
+
+        /// deleted move constructor
+        ASTVisitor(ASTVisitor&&) noexcept = delete;
+
+        /// deleted move assignment operator
+        ASTVisitor& operator=(ASTVisitor&&) noexcept = delete;
 
         /**
          * @brief abstract method for visiting program

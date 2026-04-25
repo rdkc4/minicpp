@@ -26,7 +26,19 @@ namespace syntax::ast {
         /** 
         * @brief Destructs the instance of the ast node
         */
-        virtual ~ASTNode();
+        virtual ~ASTNode() = default;
+
+        /// deleted copy constructor
+        ASTNode(const ASTNode&) = delete;
+
+        /// deleted copy assignment operator
+        ASTNode& operator=(const ASTNode&) = delete;
+
+        /// move constructor
+        ASTNode(ASTNode&&) noexcept = default;
+
+        /// move assignment operator
+        ASTNode& operator=(ASTNode&&) noexcept = default;
 
         /** 
         * @brief getter for a token of the node
